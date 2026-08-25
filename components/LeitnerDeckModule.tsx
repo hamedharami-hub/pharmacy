@@ -63,6 +63,7 @@ import {
   Compass,
   Sun,
   Moon,
+  Settings,
 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import {
@@ -73,6 +74,13 @@ import {
 } from '@/lib/fsrs';
 import { INITIAL_SAMPLE_LEITNER_CARDS } from '@/lib/sample-leitner-cards';
 import { haptic } from '@/lib/haptics';
+import {
+  LeitnerStudySettingsModal,
+  LeitnerStudySettings,
+  getStoredLeitnerSettings,
+  saveStoredLeitnerSettings,
+  DEFAULT_LEITNER_SETTINGS,
+} from '@/components/LeitnerStudySettingsModal';
 
 interface LeitnerDeckModuleProps {
   language: Language;
@@ -115,6 +123,13 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
   const [studyFilterBox, setStudyFilterBox] = useState<number | 'ALL'>('ALL');
   const [studyFilterSingleCardId, setStudyFilterSingleCardId] = useState<string | null>(null);
   const [isCramMode, setIsCramMode] = useState<boolean>(false);
+
+  // Leitner Study Settings State
+  const [studySettings, setStudySettings] = useState<LeitnerStudySettings>(getStoredLeitnerSettings);
+  const [isStudySettingsOpen, setIsStudySettingsOpen] = useState<boolean>(false);
+
+  // Countdown timer for study
+  const [timeLeft, setTimeLeft] = useState<number>(0);
 
   // Anki Study Session State
   const [studyQueueIndex, setStudyQueueIndex] = useState<number>(0);
@@ -163,6 +178,96 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
     pearl: '',
     type: 'clinical_pearl',
   });
+
+  // Reset timer on card change
+  useEffect(() => {
+    if (studySettings.countdownTimer > 0 && !isAnswerRevealed && !sessionCompleted) {
+      setTimeLeft(studySettings.countdownTimer);
+      const timer = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [studyQueueIndex, isAnswerRevealed, sessionCompleted, studySettings.countdownTimer]);
+
+  // Filter and order cards for active study session
+  const activeStudyQueue = useMemo(() => {
+    const nowIso = new Date().toISOString();
+    const isCramActive = isCramMode || studySettings.algorithm === 'cram';
+
+    let filtered = cards.filter((c) => {
+      // Single card direct study
+      if (studyFilterSingleCardId && c.id !== studyFilterSingleCardId) return false;
+
+      // Scope filters based on Knowledge Tree and Leitner Box
+      if (studyFilterBox !== 'ALL' && c.box !== studyFilterBox) return false;
+      if (studyFilterDomain !== 'ALL') {
+        const domainText = c.knowledgeTree?.domain
+          ? isFa ? c.knowledgeTree.domain.fa || c.knowledgeTree.domain.en : c.knowledgeTree.domain.en || c.knowledgeTree.domain.fa
+          : c.category;
+        if (domainText !== studyFilterDomain) return false;
+      }
+      if (studyFilterSystem !== 'ALL') {
+        const systemText = c.knowledgeTree?.system
+          ? isFa ? c.knowledgeTree.system.fa || c.knowledgeTree.system.en : c.knowledgeTree.system.en || c.knowledgeTree.system.fa
+          : c.topic;
+        if (systemText !== studyFilterSystem) return false;
+      }
+      if (studyFilterSubsystem !== 'ALL') {
+        const subText = c.knowledgeTree?.subsystem
+          ? isFa ? c.knowledgeTree.subsystem.fa || c.knowledgeTree.subsystem.en : c.knowledgeTree.subsystem.en || c.knowledgeTree.subsystem.fa
+          : c.knowledgeTree?.subClass
+          ? isFa ? c.knowledgeTree.subClass.fa || c.knowledgeTree.subClass.en : c.knowledgeTree.subClass.en || c.knowledgeTree.subClass.fa
+          : '';
+        if (subText && subText !== studyFilterSubsystem) return false;
+      }
+
+      // If cram mode or single card mode, include all matching cards regardless of date
+      if (isCramActive || studyFilterSingleCardId) return true;
+
+      // Otherwise only include due cards
+      if (!c.nextReviewDate) return true;
+      return c.nextReviewDate <= nowIso;
+    });
+
+    // Apply Queue Ordering
+    if (studySettings.cardOrder === 'random') {
+      filtered = [...filtered].sort(() => Math.random() - 0.5);
+    } else if (studySettings.cardOrder === 'hardest_first') {
+      filtered = [...filtered].sort((a, b) => (a.box - b.box) || ((a.fsrsStability || 1) - (b.fsrsStability || 1)));
+    } else if (studySettings.cardOrder === 'due_first') {
+      filtered = [...filtered].sort((a, b) => {
+        const dateA = a.nextReviewDate ? new Date(a.nextReviewDate).getTime() : 0;
+        const dateB = b.nextReviewDate ? new Date(b.nextReviewDate).getTime() : 0;
+        return dateA - dateB;
+      });
+    }
+
+    // Apply Daily Review Limit
+    if (typeof studySettings.dailyLimit === 'number' && studySettings.dailyLimit > 0) {
+      filtered = filtered.slice(0, studySettings.dailyLimit);
+    }
+
+    return filtered;
+  }, [
+    cards,
+    studyFilterSingleCardId,
+    studyFilterBox,
+    studyFilterDomain,
+    studyFilterSystem,
+    studyFilterSubsystem,
+    isCramMode,
+    studySettings,
+    isFa,
+  ]);
+
+  const currentStudyCard = activeStudyQueue[studyQueueIndex] || null;
 
   // Text helpers
   const getQuestionText = (c: LeitnerCard) => {
@@ -248,47 +353,6 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
       </span>
     );
   };
-
-  // Filter cards for active study session
-  const activeStudyQueue = useMemo(() => {
-    const nowIso = new Date().toISOString();
-    return cards.filter((c) => {
-      // Single card direct study
-      if (studyFilterSingleCardId && c.id !== studyFilterSingleCardId) return false;
-
-      // Scope filters based on Knowledge Tree and Leitner Box
-      if (studyFilterBox !== 'ALL' && c.box !== studyFilterBox) return false;
-      if (studyFilterDomain !== 'ALL') {
-        const domainText = c.knowledgeTree?.domain
-          ? isFa ? c.knowledgeTree.domain.fa || c.knowledgeTree.domain.en : c.knowledgeTree.domain.en || c.knowledgeTree.domain.fa
-          : c.category;
-        if (domainText !== studyFilterDomain) return false;
-      }
-      if (studyFilterSystem !== 'ALL') {
-        const systemText = c.knowledgeTree?.system
-          ? isFa ? c.knowledgeTree.system.fa || c.knowledgeTree.system.en : c.knowledgeTree.system.en || c.knowledgeTree.system.fa
-          : c.topic;
-        if (systemText !== studyFilterSystem) return false;
-      }
-      if (studyFilterSubsystem !== 'ALL') {
-        const subText = c.knowledgeTree?.subsystem
-          ? isFa ? c.knowledgeTree.subsystem.fa || c.knowledgeTree.subsystem.en : c.knowledgeTree.subsystem.en || c.knowledgeTree.subsystem.fa
-          : c.knowledgeTree?.subClass
-          ? isFa ? c.knowledgeTree.subClass.fa || c.knowledgeTree.subClass.en : c.knowledgeTree.subClass.en || c.knowledgeTree.subClass.fa
-          : '';
-        if (subText && subText !== studyFilterSubsystem) return false;
-      }
-
-      // If cram mode or single card mode, include all matching cards regardless of date
-      if (isCramMode || studyFilterSingleCardId) return true;
-
-      // Otherwise only include due cards
-      if (!c.nextReviewDate) return true;
-      return c.nextReviewDate <= nowIso;
-    });
-  }, [cards, studyFilterSingleCardId, studyFilterBox, studyFilterDomain, studyFilterSystem, studyFilterSubsystem, isCramMode, isFa]);
-
-  const currentStudyCard = activeStudyQueue[studyQueueIndex] || null;
 
   // Available unique Knowledge Domains from cards for filtering
   const uniqueDomains = useMemo(() => {
@@ -880,7 +944,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
           </div>
         </div>
 
-        {/* View Switcher: Single Unified Tab Row */}
+        {/* View Switcher: Single Unified Tab Row with Settings Gear Button */}
         <div className="flex items-center gap-1.5 app-bg p-1 rounded-xl border app-border overflow-x-auto no-scrollbar shrink-0">
           <button
             type="button"
@@ -905,17 +969,28 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
             }`}
           >
             <FolderTree className="w-3.5 h-3.5" />
-            <span>{isFa ? 'دسته‌ها و پوشه‌های دانش (Decks)' : 'Decks & Folders'}</span>
+            <span>{isFa ? 'دسته‌ها و پوشه‌ها (Decks)' : 'Decks & Folders'}</span>
           </button>
 
           <button
             type="button"
             onClick={() => triggerAiGenerator()}
-            className="px-3 py-1.5 rounded-lg bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+            className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap"
             title={isFa ? 'تولید کارت جدید از متن با هوش مصنوعی' : 'Generate flashcards from text with AI'}
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
             <span>{isFa ? 'ساخت کارت با AI' : 'AI Studio'}</span>
+          </button>
+
+          {/* ⚙️ Unified Leitner Study Settings Gear Button */}
+          <button
+            type="button"
+            onClick={() => setIsStudySettingsOpen(true)}
+            className="px-2.5 py-1.5 rounded-lg app-bg hover:bg-black/5 dark:hover:bg-slate-800 app-text border app-border text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+            title={isFa ? 'تنظیمات پیشرفته مطالعه، الگوریتم مرور و زمان‌بندی لایتنر' : 'Leitner Study & Review Settings'}
+          >
+            <Settings className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+            <span className="hidden sm:inline">{isFa ? 'تنظیمات' : 'Settings'}</span>
           </button>
         </div>
       </div>
@@ -938,9 +1013,30 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                   {isFa ? `کارت ${studyQueueIndex + 1} از ${activeStudyQueue.length}` : `Card ${studyQueueIndex + 1} of ${activeStudyQueue.length}`}
                 </span>
               )}
+              {/* Active Algorithm Badge */}
+              <span className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-300 border border-purple-500/20 font-mono text-[10px] font-bold">
+                {studySettings.algorithm === 'fsrs' ? 'FSRS v5' : studySettings.algorithm === 'classic_leitner' ? 'Classic 5-Box' : 'Cram'}
+              </span>
             </div>
 
             <div className="flex items-center gap-2">
+              {/* Countdown Timer Badge when enabled */}
+              {studySettings.countdownTimer > 0 && !sessionCompleted && !isAnswerRevealed && (
+                <div
+                  className={`px-2.5 py-1 rounded-lg border text-[11px] font-mono font-bold flex items-center gap-1.5 shadow-xs transition-colors ${
+                    timeLeft <= 5
+                      ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
+                      : timeLeft <= 15
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                      : 'bg-slate-800 text-slate-300 border-slate-700'
+                  }`}
+                  title={isFa ? 'تایمر معکوس تفکر و پاسخ' : 'Thinking countdown timer'}
+                >
+                  <Clock className={`w-3.5 h-3.5 ${timeLeft <= 5 ? 'text-rose-400' : 'text-amber-400'}`} />
+                  <span>{timeLeft}s</span>
+                </div>
+              )}
+
               {/* Zen Mode Button */}
               {activeStudyQueue.length > 0 && !sessionCompleted && (
                 <button
@@ -956,30 +1052,12 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
 
               <button
                 type="button"
-                onClick={() =>
-                  startStudyForScope({
-                    title: isCramMode ? 'مرور کارت‌های امروز (Due)' : 'تمرین فشرده (همه کارت‌ها)',
-                    cram: !isCramMode,
-                  })
-                }
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition flex items-center gap-1 cursor-pointer ${
-                  isCramMode
-                    ? 'bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-500/40'
-                    : 'app-bg app-border app-muted hover:app-text hover:bg-black/5 dark:hover:bg-slate-800'
-                }`}
-                title={isFa ? 'تغییر بین کارت‌های نیازمند مرور و کل کارت‌ها' : 'Toggle Cram / Due Mode'}
-              >
-                <Zap className="w-3 h-3" />
-                <span>{isCramMode ? (isFa ? 'حالت فشرده (فعال)' : 'Cram Mode (Active)') : isFa ? 'تمرین فشرده' : 'Cram All'}</span>
-              </button>
-
-              <button
-                type="button"
                 onClick={() => setCurrentView('decks_manager')}
                 className="px-2.5 py-1 rounded-lg app-bg hover:bg-black/5 dark:hover:bg-slate-800 app-text border app-border text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
+                title={isFa ? 'مشاهده و مدیریت دسته‌ها و فیلترها' : 'Decks & Folders Manager'}
               >
                 <FolderTree className="w-3 h-3 text-indigo-500 dark:text-indigo-400" />
-                <span>{isFa ? 'تغییر دسته / فیلتر' : 'Filter / Decks'}</span>
+                <span>{isFa ? 'دسته‌ها' : 'Decks'}</span>
               </button>
             </div>
           </div>
@@ -2475,6 +2553,20 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
         </div>,
         document.body
       )}
+
+      {/* ⚙️ LEITNER STUDY SETTINGS MODAL */}
+      <LeitnerStudySettingsModal
+        isOpen={isStudySettingsOpen}
+        onClose={() => setIsStudySettingsOpen(false)}
+        language={language}
+        settings={studySettings}
+        onUpdateSettings={(newSettings) => setStudySettings(newSettings)}
+        onExportJson={handleExportJson}
+        onImportJson={handleImportJson}
+        onClearCards={handleDeleteAllCards}
+        onLoadSamples={handleAddSampleCards}
+        totalCardsCount={cards.length}
+      />
     </div>
   );
 };
