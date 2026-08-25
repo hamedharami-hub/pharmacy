@@ -1126,7 +1126,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
   };
 
   // Dropdown states for compact header controls
-  const [openDropdown, setOpenDropdown] = useState<'view' | 'text' | 'lines' | 'flags' | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<'view' | 'text' | 'lines' | 'flags' | 'module' | 'box' | null>(null);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -1145,59 +1145,191 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
       ref={containerRef}
       className={`space-y-3 transition-all duration-300 ${
         isZenMode
-          ? 'fixed inset-0 z-50 bg-slate-950 p-3 sm:p-4 overflow-y-auto flex flex-col'
+          ? 'fixed inset-0 z-50 app-bg p-3 sm:p-4 overflow-y-auto flex flex-col'
           : ''
       }`}
     >
       {/* Top Compact Main Toolbar & Filters */}
-      <div className="p-2.5 sm:p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl backdrop-blur-md flex flex-wrap items-center justify-between gap-2.5">
+      <div className="p-2.5 sm:p-3.5 rounded-2xl app-card border app-border shadow-sm flex flex-wrap items-center justify-between gap-2.5">
         {/* Left Section: Search & Compact Dropdowns */}
         <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
           {/* Search Bar */}
-          <div className="relative min-w-[180px] sm:min-w-[240px] flex-1 max-w-sm">
+          <div className="relative min-w-[160px] sm:min-w-[200px] flex-1 max-w-xs">
             <Search className="w-3.5 h-3.5 text-slate-400 absolute start-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={isFa ? 'جستجو در مفاهیم، داروها و سوالات...' : 'Search concepts, pearls...'}
-              className="w-full ps-9 pe-7 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+              className="w-full ps-9 pe-7 py-1.5 rounded-xl app-bg border app-border text-xs app-text placeholder-slate-400 focus:outline-none focus:border-purple-500 transition"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute end-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                className="absolute end-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:app-text"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
 
-          {/* 1. Dropdown: View Mode (ساختار) */}
+          {/* 1. Dropdown: Module Filter (سرفصل / ماژول درخت دانش) */}
+          <div className="relative" data-mindmap-dropdown="module">
+            <button
+              type="button"
+              onClick={() => setOpenDropdown((prev) => (prev === 'module' ? null : 'module'))}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer ${
+                filterModule !== 'ALL'
+                  ? 'bg-purple-600 text-white border-purple-500 shadow-xs'
+                  : 'app-bg app-text app-border hover:border-slate-400/50'
+              }`}
+              title={isFa ? 'فیلتر بر اساس ماژول و شاخه درخت دانش' : 'Filter by Module'}
+            >
+              <FolderTree className="w-3.5 h-3.5 text-indigo-400" />
+              <span>
+                {filterModule === 'ALL'
+                  ? isFa ? 'همه ماژول‌ها' : 'All Modules'
+                  : isFa
+                  ? `ماژول ${filterModule}`
+                  : `Module ${filterModule}`}
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform ${openDropdown === 'module' ? 'rotate-180' : ''}`} />
+            </button>
+
+            {openDropdown === 'module' && (
+              <div className="absolute start-0 top-full mt-1.5 z-50 w-56 p-1.5 rounded-xl app-card border app-border shadow-xl space-y-1 animate-in fade-in zoom-in-95">
+                <div className="px-2.5 py-1 text-[10px] font-bold app-muted border-b app-border">
+                  {isFa ? 'انتخاب سرفصل و شاخه ماژول' : 'Select Module Tree Branch'}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFilterModule('ALL');
+                    setOpenDropdown(null);
+                  }}
+                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
+                    filterModule === 'ALL'
+                      ? 'bg-purple-600 text-white'
+                      : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <span>🌐 {isFa ? 'همه ماژول‌ها و شاخه‌ها' : 'All Knowledge Modules'}</span>
+                  {filterModule === 'ALL' && <Check className="w-3.5 h-3.5" />}
+                </button>
+                {[
+                  { id: 1, fa: 'ماژول ۱: تریاژ OTC و مشاوره', en: 'Module 1: OTC Triage' },
+                  { id: 2, fa: 'ماژول ۲: قفسه مجازی و داروها', en: 'Module 2: Product Shelf' },
+                  { id: 3, fa: 'ماژول ۳: نسخه‌پیچی Fred Dispense', en: 'Module 3: Fred Dispense' },
+                  { id: 4, fa: 'ماژول ۴: فارماکولوژی بالینی OPRA', en: 'Module 4: Clinical Pharmacology' },
+                  { id: 5, fa: 'ماژول ۵: مرور لایتنر و کارت‌ها', en: 'Module 5: Leitner Deck' },
+                ].map((mod) => (
+                  <button
+                    key={mod.id}
+                    type="button"
+                    onClick={() => {
+                      setFilterModule(mod.id);
+                      setOpenDropdown(null);
+                    }}
+                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
+                      filterModule === mod.id
+                        ? 'bg-purple-600 text-white'
+                        : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <span className="truncate">{isFa ? mod.fa : mod.en}</span>
+                    {filterModule === mod.id && <Check className="w-3.5 h-3.5 shrink-0" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 2. Dropdown: Box Filter (فیلتر جعبه لایتنر) */}
+          <div className="relative" data-mindmap-dropdown="box">
+            <button
+              type="button"
+              onClick={() => setOpenDropdown((prev) => (prev === 'box' ? null : 'box'))}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer ${
+                filterBox !== 'ALL'
+                  ? 'bg-purple-600 text-white border-purple-500 shadow-xs'
+                  : 'app-bg app-text app-border hover:border-slate-400/50'
+              }`}
+              title={isFa ? 'فیلتر بر اساس جعبه لایتنر' : 'Filter by Leitner Box'}
+            >
+              <Layers className="w-3.5 h-3.5 text-purple-400" />
+              <span>
+                {filterBox === 'ALL'
+                  ? isFa ? 'همه جعبه‌ها' : 'All Boxes'
+                  : isFa
+                  ? `جعبه ${filterBox}`
+                  : `Box ${filterBox}`}
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform ${openDropdown === 'box' ? 'rotate-180' : ''}`} />
+            </button>
+
+            {openDropdown === 'box' && (
+              <div className="absolute start-0 top-full mt-1.5 z-50 w-44 p-1.5 rounded-xl app-card border app-border shadow-xl space-y-1 animate-in fade-in zoom-in-95">
+                <div className="px-2.5 py-1 text-[10px] font-bold app-muted border-b app-border">
+                  {isFa ? 'جعبه لایتنر' : 'Leitner Box'}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFilterBox('ALL');
+                    setOpenDropdown(null);
+                  }}
+                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
+                    filterBox === 'ALL'
+                      ? 'bg-purple-600 text-white'
+                      : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <span>📦 {isFa ? 'همه جعبه‌ها (۱ تا ۵)' : 'All Boxes (1-5)'}</span>
+                  {filterBox === 'ALL' && <Check className="w-3.5 h-3.5" />}
+                </button>
+                {[1, 2, 3, 4, 5].map((b) => (
+                  <button
+                    key={b}
+                    type="button"
+                    onClick={() => {
+                      setFilterBox(b);
+                      setOpenDropdown(null);
+                    }}
+                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
+                      filterBox === b
+                        ? 'bg-purple-600 text-white'
+                        : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <span>{isFa ? `جعبه ${b}` : `Box ${b}`}</span>
+                    {filterBox === b && <Check className="w-3.5 h-3.5" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 3. Dropdown: View Mode (ساختار نمایش) */}
           <div className="relative" data-mindmap-dropdown="view">
             <button
               type="button"
               onClick={() => setOpenDropdown((prev) => (prev === 'view' ? null : 'view'))}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer ${
-                openDropdown === 'view'
-                  ? 'bg-purple-600/30 text-purple-200 border-purple-500'
-                  : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700'
-              }`}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer app-bg app-text app-border hover:border-slate-400/50`}
               title={isFa ? 'انتخاب حالت نمایش ساختار' : 'View Structure Mode'}
             >
               {viewMode === 'interactive_canvas' ? (
-                <Network className="w-3.5 h-3.5 text-cyan-400" />
+                <Network className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
               ) : (
-                <ListTree className="w-3.5 h-3.5 text-purple-400" />
+                <ListTree className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />
               )}
               <span>{viewMode === 'interactive_canvas' ? (isFa ? 'بوم گراف' : 'Graph') : (isFa ? 'درختی' : 'Tree')}</span>
-              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${openDropdown === 'view' ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform ${openDropdown === 'view' ? 'rotate-180' : ''}`} />
             </button>
 
             {openDropdown === 'view' && (
-              <div className="absolute start-0 top-full mt-1.5 z-50 w-48 p-1.5 rounded-xl bg-slate-900 border border-slate-700 shadow-2xl space-y-1 animate-in fade-in zoom-in-95">
-                <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 border-b border-slate-800">
+              <div className="absolute start-0 top-full mt-1.5 z-50 w-48 p-1.5 rounded-xl app-card border app-border shadow-xl space-y-1 animate-in fade-in zoom-in-95">
+                <div className="px-2.5 py-1 text-[10px] font-bold app-muted border-b app-border">
                   {isFa ? 'نوع نمایش ساختار' : 'Structure View'}
                 </div>
                 <button
@@ -1206,14 +1338,14 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                     setViewMode('interactive_canvas');
                     setOpenDropdown(null);
                   }}
-                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition ${
+                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
                     viewMode === 'interactive_canvas'
                       ? 'bg-purple-600 text-white'
-                      : 'text-slate-300 hover:bg-slate-800'
+                      : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
                   }`}
                 >
                   <span className="flex items-center gap-2">
-                    <Network className="w-3.5 h-3.5 text-cyan-300" />
+                    <Network className="w-3.5 h-3.5 text-cyan-400" />
                     <span>{isFa ? 'بوم گراف تعاملی' : 'Interactive Graph'}</span>
                   </span>
                   {viewMode === 'interactive_canvas' && <Check className="w-3.5 h-3.5" />}
@@ -1224,14 +1356,14 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                     setViewMode('outliner_tree');
                     setOpenDropdown(null);
                   }}
-                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition ${
+                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
                     viewMode === 'outliner_tree'
                       ? 'bg-purple-600 text-white'
-                      : 'text-slate-300 hover:bg-slate-800'
+                      : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
                   }`}
                 >
                   <span className="flex items-center gap-2">
-                    <ListTree className="w-3.5 h-3.5 text-purple-300" />
+                    <ListTree className="w-3.5 h-3.5 text-purple-400" />
                     <span>{isFa ? 'ساختار درختی (Outliner)' : 'Outliner Tree'}</span>
                   </span>
                   {viewMode === 'outliner_tree' && <Check className="w-3.5 h-3.5" />}
@@ -1240,26 +1372,22 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
             )}
           </div>
 
-          {/* 2. Dropdown: Text Display Mode (انواع متن) */}
+          {/* 4. Dropdown: Text Display Mode (انواع متن) */}
           <div className="relative" data-mindmap-dropdown="text">
             <button
               type="button"
               onClick={() => setOpenDropdown((prev) => (prev === 'text' ? null : 'text'))}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer ${
-                openDropdown === 'text'
-                  ? 'bg-purple-600/30 text-purple-200 border-purple-500'
-                  : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700'
-              }`}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer app-bg app-text app-border hover:border-slate-400/50`}
               title={isFa ? 'تنظیم نحوه نمایش متن سوالات' : 'Text Display Format'}
             >
               <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
               <span>{textDisplayMode === 'full_detailed' ? (isFa ? 'متن کامل' : 'Full Text') : (isFa ? 'متن فشرده' : 'Compact')}</span>
-              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${openDropdown === 'text' ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform ${openDropdown === 'text' ? 'rotate-180' : ''}`} />
             </button>
 
             {openDropdown === 'text' && (
-              <div className="absolute start-0 top-full mt-1.5 z-50 w-52 p-1.5 rounded-xl bg-slate-900 border border-slate-700 shadow-2xl space-y-1 animate-in fade-in zoom-in-95">
-                <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 border-b border-slate-800">
+              <div className="absolute start-0 top-full mt-1.5 z-50 w-52 p-1.5 rounded-xl app-card border app-border shadow-xl space-y-1 animate-in fade-in zoom-in-95">
+                <div className="px-2.5 py-1 text-[10px] font-bold app-muted border-b app-border">
                   {isFa ? 'حالت نمایش متن' : 'Text Display Mode'}
                 </div>
                 <button
@@ -1268,10 +1396,10 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                     setTextDisplayMode('full_detailed');
                     setOpenDropdown(null);
                   }}
-                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition ${
+                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
                     textDisplayMode === 'full_detailed'
                       ? 'bg-purple-600 text-white'
-                      : 'text-slate-300 hover:bg-slate-800'
+                      : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
                   }`}
                 >
                   <span className="flex items-center gap-2">
@@ -1285,10 +1413,10 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                     setTextDisplayMode('compact');
                     setOpenDropdown(null);
                   }}
-                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition ${
+                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
                     textDisplayMode === 'compact'
                       ? 'bg-purple-600 text-white'
-                      : 'text-slate-300 hover:bg-slate-800'
+                      : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
                   }`}
                 >
                   <span className="flex items-center gap-2">
@@ -1300,27 +1428,23 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
             )}
           </div>
 
-          {/* 3. Dropdown: Line Style (خطوط) - Canvas only */}
+          {/* 5. Dropdown: Line Style (خطوط) - Canvas only */}
           {viewMode === 'interactive_canvas' && (
             <div className="relative" data-mindmap-dropdown="lines">
               <button
                 type="button"
                 onClick={() => setOpenDropdown((prev) => (prev === 'lines' ? null : 'lines'))}
-                className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer ${
-                  openDropdown === 'lines'
-                    ? 'bg-purple-600/30 text-purple-200 border-purple-500'
-                    : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700'
-                }`}
+                className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer app-bg app-text app-border hover:border-slate-400/50`}
                 title={isFa ? 'انتخاب استایل خطوط اتصال' : 'Connection Line Style'}
               >
                 <Sliders className="w-3.5 h-3.5 text-sky-400" />
                 <span>{lineStyle === 'smooth_bezier' ? (isFa ? 'خطوط: منحنی' : 'Lines: Bezier') : (isFa ? 'خطوط: پله‌ای' : 'Lines: Step')}</span>
-                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${openDropdown === 'lines' ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform ${openDropdown === 'lines' ? 'rotate-180' : ''}`} />
               </button>
 
               {openDropdown === 'lines' && (
-                <div className="absolute start-0 top-full mt-1.5 z-50 w-44 p-1.5 rounded-xl bg-slate-900 border border-slate-700 shadow-2xl space-y-1 animate-in fade-in zoom-in-95">
-                  <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 border-b border-slate-800">
+                <div className="absolute start-0 top-full mt-1.5 z-50 w-44 p-1.5 rounded-xl app-card border app-border shadow-xl space-y-1 animate-in fade-in zoom-in-95">
+                  <div className="px-2.5 py-1 text-[10px] font-bold app-muted border-b app-border">
                     {isFa ? 'استایل خطوط اتصال' : 'Line Connector Style'}
                   </div>
                   <button
@@ -1329,10 +1453,10 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                       setLineStyle('smooth_bezier');
                       setOpenDropdown(null);
                     }}
-                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition ${
+                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
                       lineStyle === 'smooth_bezier'
                         ? 'bg-purple-600 text-white'
-                        : 'text-slate-300 hover:bg-slate-800'
+                        : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
                     }`}
                   >
                     <span>{isFa ? 'منحنی نرم (Bezier)' : 'Smooth Bezier'}</span>
@@ -1344,10 +1468,10 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                       setLineStyle('orthogonal_step');
                       setOpenDropdown(null);
                     }}
-                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition ${
+                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
                       lineStyle === 'orthogonal_step'
                         ? 'bg-purple-600 text-white'
-                        : 'text-slate-300 hover:bg-slate-800'
+                        : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
                     }`}
                   >
                     <span>{isFa ? 'پله‌ای (Orthogonal)' : 'Step Orthogonal'}</span>
@@ -1358,19 +1482,19 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
             </div>
           )}
 
-          {/* 4. Dropdown: Flag Filters (فیلتر پرچم) */}
+          {/* 6. Dropdown: Flag Filters (فیلتر پرچم) */}
           <div className="relative" data-mindmap-dropdown="flags">
             <button
               type="button"
               onClick={() => setOpenDropdown((prev) => (prev === 'flags' ? null : 'flags'))}
               className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer ${
                 selectedFlagFilters.length > 0
-                  ? 'bg-purple-600/30 text-purple-200 border-purple-500 ring-1 ring-purple-500/30'
-                  : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700'
+                  ? 'bg-purple-600 text-white border-purple-500 shadow-xs'
+                  : 'app-bg app-text app-border hover:border-slate-400/50'
               }`}
               title={isFa ? 'فیلتر بر اساس پرچم‌های نشانه‌گذاری' : 'Filter by Flags'}
             >
-              <Flag className={`w-3.5 h-3.5 ${selectedFlagFilters.length > 0 ? 'text-amber-400 fill-amber-400' : 'text-slate-400'}`} />
+              <Flag className={`w-3.5 h-3.5 ${selectedFlagFilters.length > 0 ? 'text-amber-300 fill-amber-300' : 'text-slate-400'}`} />
               <span>
                 {selectedFlagFilters.length === 0
                   ? isFa ? 'همه پرچم‌ها' : 'All Flags'
@@ -1378,18 +1502,18 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                   ? `${selectedFlagFilters.length} پرچم`
                   : `${selectedFlagFilters.length} Flags`}
               </span>
-              <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${openDropdown === 'flags' ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform ${openDropdown === 'flags' ? 'rotate-180' : ''}`} />
             </button>
 
             {openDropdown === 'flags' && (
-              <div className="absolute start-0 top-full mt-1.5 z-50 w-60 p-2 rounded-xl bg-slate-900 border border-slate-700 shadow-2xl space-y-1.5 animate-in fade-in zoom-in-95">
-                <div className="flex items-center justify-between px-2 py-1 text-[10px] font-bold text-slate-400 border-b border-slate-800">
+              <div className="absolute start-0 top-full mt-1.5 z-50 w-60 p-2 rounded-xl app-card border app-border shadow-xl space-y-1.5 animate-in fade-in zoom-in-95">
+                <div className="flex items-center justify-between px-2 py-1 text-[10px] font-bold app-muted border-b app-border">
                   <span>{isFa ? 'فیلتر رنگ پرچم‌ها' : 'Filter by Flag Color'}</span>
                   {selectedFlagFilters.length > 0 && (
                     <button
                       type="button"
                       onClick={() => setSelectedFlagFilters([])}
-                      className="text-purple-400 hover:text-purple-300 text-[10px] font-bold cursor-pointer"
+                      className="text-purple-600 dark:text-purple-300 text-[10px] font-bold cursor-pointer"
                     >
                       {isFa ? 'پاکسازی' : 'Reset'}
                     </button>
@@ -1399,10 +1523,10 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedFlagFilters([])}
-                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition ${
+                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
                     selectedFlagFilters.length === 0
                       ? 'bg-purple-600 text-white'
-                      : 'text-slate-300 hover:bg-slate-800'
+                      : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
                   }`}
                 >
                   <span>{isFa ? 'نمایش همه مفاهیم' : 'Show All Concepts'}</span>
@@ -1423,7 +1547,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                       className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition border cursor-pointer ${
                         isSelected
                           ? `${opt.badge} ring-1 ring-white/20`
-                          : 'bg-slate-950/60 text-slate-300 border-slate-800/80 hover:bg-slate-800'
+                          : 'app-bg app-text app-border hover:bg-black/5 dark:hover:bg-slate-800'
                       }`}
                     >
                       <span className="flex items-center gap-2">
