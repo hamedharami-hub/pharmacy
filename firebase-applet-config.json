@@ -1,12 +1,12 @@
 {
-  "projectId": "gen-lang-client-0845891098",
-  "appId": "1:627668608593:web:3f428bfec5245ac9887a70",
-  "apiKey": "AIzaSyBWVJ7J4xjgnxZ5mrCozVWUKWTTemGBggk",
-  "authDomain": "gen-lang-client-0845891098.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-remixremix-2efe8ef8-d3fc-4014-8fd8-6f8d8d9398c4",
-  "storageBucket": "gen-lang-client-0845891098.firebasestorage.app",
-  "messagingSenderId": "627668608593",
-  "measurementId": "",
-  "oAuthClientId": "627668608593-0h2dn0j2cklpi65r9nksjuouop7eggge.apps.googleusercontent.com",
+  "projectId": "pharmacy-44a60",
+  "appId": "1:54665433482:web:ed1133d18d40e5c6e4f873",
+  "apiKey": "AIzaSyAG5Dfdqxg50rDhZIqN2wSa7kCM2ewYf70",
+  "authDomain": "pharmacy-44a60.firebaseapp.com",
+  "firestoreDatabaseId": "",
+  "storageBucket": "pharmacy-44a60.firebasestorage.app",
+  "messagingSenderId": "54665433482",
+  "measurementId": "G-BJBBMXYH9P",
+  "oAuthClientId": "",
   "recaptchaSiteKey": ""
 }
