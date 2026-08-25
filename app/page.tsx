@@ -15,7 +15,7 @@ import {
   UserProgress,
   UserAiConfig,
 } from '@/types/pharmacy';
-import { getClientAiConfig, saveClientAiConfig } from '@/lib/aiConfigStorage';
+import { getClientAiConfig, saveClientAiConfig, syncAiConfigFromCloud } from '@/lib/aiConfigStorage';
 import { ALL_PHARMACY_CARDS } from '@/lib/pharmacy-data';
 import {
   auth,
@@ -209,6 +209,14 @@ export default function Home() {
 
     // Study state subscription
     const userDocRef = doc(db, 'users', user.uid, 'data', 'studyState');
+
+    // Sync AI API Keys and configuration from Cloud
+    syncAiConfigFromCloud(user.uid).then((cloudAiCfg) => {
+      if (cloudAiCfg) {
+        setAiConfig(cloudAiCfg);
+      }
+    });
+
     const unsubscribeStudy = onSnapshot(
       userDocRef,
       (docSnap) => {
@@ -871,7 +879,7 @@ export default function Home() {
           aiConfig={aiConfig}
           onSaveAiConfig={(newCfg) => {
             setAiConfig(newCfg);
-            saveClientAiConfig(newCfg);
+            saveClientAiConfig(newCfg, user?.uid);
           }}
         />
       )}

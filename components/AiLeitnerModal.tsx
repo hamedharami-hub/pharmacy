@@ -106,15 +106,26 @@ const AiLeitnerModalContent: React.FC<AiLeitnerModalInnerProps> = ({
 
       try {
         const aiCfg = getClientAiConfig();
-        const activeModel = aiCfg.flashcardModel || 'gemini-3.7-flash';
-        const activeProvider =
+        const activeModel = aiCfg.flashcardModel || 'gemini-2.5-flash';
+        let activeProvider = aiCfg.preferredProvider || 'gemini';
+        
+        if (
           activeModel.startsWith('llama') ||
           activeModel.startsWith('deepseek') ||
           activeModel.startsWith('qwen') ||
           activeModel.startsWith('mixtral')
-            ? 'groq'
-            : (aiCfg.preferredProvider || 'gemini');
-        const customKey = activeProvider === 'groq' ? aiCfg.groqApiKey : aiCfg.geminiApiKey;
+        ) {
+          activeProvider = 'groq';
+        } else if (activeModel.startsWith('grok')) {
+          activeProvider = 'xai';
+        }
+
+        const customKey =
+          activeProvider === 'groq'
+            ? aiCfg.groqApiKey
+            : activeProvider === 'xai'
+            ? aiCfg.xaiApiKey
+            : aiCfg.geminiApiKey;
 
         const res = await fetch('/api/gemini/generate-flashcards', {
           method: 'POST',

@@ -27,74 +27,71 @@ export async function POST(req: Request) {
     } = body;
 
     const modeInstructionsMap: Record<string, string> = {
-      mcq: `MODE: MULTIPLE-CHOICE CLINICAL QUESTIONS.
-Generate 4-option clinical MCQ scenarios with:
+      mcq: `MODE: MULTIPLE-CHOICE CLINICAL QUESTIONS (Australian Pharmacy Practice).
+Generate 4-option clinical scenario MCQs with:
 - "mcqOptions": array of 4 options [{ "id": "A", "text": { "fa": "...", "en": "..." }, "isCorrect": true/false, "explanation": { "fa": "...", "en": "..." } }]. EXACTLY ONE option must have isCorrect: true.
-- "distractorRationale": { "fa": "نکات تفکیک تشخیصی و علت تمایز سایر گزینه‌ها به صورت نکته بالینی", "en": "Clinical rationale explaining why other choices are inappropriate" }.
+- "distractorRationale": { "fa": "استدلال بالینی تفکیک گزینه‌ها و علت نامناسب بودن سایر انتخاب‌ها", "en": "Clinical rationale explaining why other options are inappropriate based on AMH/eTG" }.
 - "type": "mcq"`,
-      triage_redflag: `MODE: OTC TRIAGE & RED FLAGS (Primary Healthcare Decision).
-Generate clinical triage cases asking whether to supply OTC medicine or refer:
+      triage_redflag: `MODE: AUSTRALIAN OTC TRIAGE & RED FLAGS (Primary Healthcare Protocols).
+Generate clinical primary care triage cases assessing whether to supply OTC medicine or refer:
 - "triageOutcome": "supply_otc" | "urgent_referral" | "gp_referral"
-- "pearl": { "fa": "علائم هشداردهنده و رد فلگ‌های حیاتی (Red Flags)", "en": "Critical red flags requiring emergency or specialist referral" }
+- "pearl": { "fa": "علائم هشداردهنده حیاتی (Red Flags) و پروتکل مشاوره داروساز", "en": "Critical red flags requiring emergency or GP referral according to APF/PSA" }
 - "type": "triage_redflag"`,
-      calculation: `MODE: CLINICAL DOSING & PHARMACOKINETIC CALCULATIONS (eGFR, CrCl Cockcroft-Gault, Paediatric mg/kg, Opioid/Steroid Conversions).
-- "calculationFormula": { "fa": "فرمول و محاسبات بالینی به صورت نکته گام به گام", "en": "Step-by-step clinical calculation formula and workings" }
+      calculation: `MODE: CLINICAL DOSING & PHARMACOKINETIC CALCULATIONS.
+Focus on real-world calculations: eGFR/CrCl Cockcroft-Gault, Paediatric mg/kg, Opioid/Steroid Equivalence, Alligation/Infusion rates:
+- "calculationFormula": { "fa": "فرمول و محاسبات گام به گام بالینی همراه با واحدها", "en": "Step-by-step clinical calculation formula with unit conversions" }
 - "type": "calculation"`,
-      cal_warning: `MODE: CAUTIONARY ADVISORY LABELS (CALs & Safe Dispensing Guidelines).
-Focus on essential cautionary labels and safe dispensing rules:
+      cal_warning: `MODE: AUSTRALIAN CAUTIONARY ADVISORY LABELS (CALs & Safe Dispensing).
+Focus on official Australian Cautionary Labels (e.g. Label 1, Label 2, Label 12, Label 13) and counseling points:
 - "calLabels": ["Label 1", "Label 12"]
+- "pearl": { "fa": "نکات مشاوره تحویل دارو و برچسب‌های هشدار الزامی استرالیا", "en": "Essential Australian CAL labels and patient counseling directives" }
 - "type": "cal_warning"`,
       interaction: `MODE: CRITICAL DRUG INTERACTIONS & CONTRAINDICATIONS (AMH / eTG).
-Focus on severe interactions, contraindications, and therapeutic points:
-- "pearl": { "fa": "مکانیسم تداخل و نکته کلیدی مداخله داروساز", "en": "Interaction mechanism and clinical pharmacist intervention pearl" }
+Focus on severe pharmacokinetic/pharmacodynamic interactions, CYP enzymes, and life-threatening contraindications:
+- "pearl": { "fa": "مکانیسم تداخل، پیامد بالینی و مداخله اصلاحی داروساز", "en": "Interaction mechanism, clinical outcome, and pharmacist intervention pearl" }
 - "type": "interaction"`,
-      auto: `MODE: COMPREHENSIVE BALANCED MIX.
-Generate a high-yield mix of key clinical points, structured MCQs, triage red-flags, and cautionary guidance.`,
+      auto: `MODE: COMPREHENSIVE HIGH-YIELD CLINICAL MIX.
+Generate a rich, balanced mix of therapeutic pearls, clinical scenarios, cautionary guidance, and high-yield decision points.`,
     };
 
     const specificModeInstruction = modeInstructionsMap[generationMode] || modeInstructionsMap.auto;
 
-    const systemInstruction = `You are a Senior Clinical Pharmacist and Medical Educator specializing in high-yield pharmacotherapy, therapeutics, and patient safety guidelines (AMH, eTG, APF).
+    const systemInstruction = `You are a Principal Clinical Pharmacist and Medical Educator in Australia specializing in Australian Pharmacy Standards (AMH, Therapeutic Guidelines eTG, APF 26, PBS, and SUSMP Scheduling).
 
-CRITICAL INSTRUCTIONS:
-1. Express all concepts, questions, and explanations as practical, high-yield clinical points / pearls (نکات طلایی و کاربردی داروسازی بالینی).
-2. DO NOT use repetitive exam labels like "OPRA", "KAPS", "تله آزمون OPRA", or test jargon. Instead, present information as practical diagnostic clues, medication safety points, drug interaction pearls, and clinical counseling rules.
-3. You MUST respond with ONLY a valid, parseable JSON object.
-4. Escape all double quotes inside text values with \\" and do not include trailing commas.
-5. STRICT BILINGUAL REQUIREMENT: Every single flashcard MUST provide both rich, accurate Persian ('fa') text AND professional clinical English ('en') text for question, answer, pearl, rationale, and all options. Both languages must be filled in with high clinical quality.
+CORE CLINICAL DIRECTIVES:
+1. Ground all questions, answers, and clinical pearls strictly in modern Australian Clinical Pharmacy Practice (AMH, eTG, APF, PSA standards).
+2. Use professional, natural, high-yield language. Avoid trivial dictionary questions; construct realistic diagnostic, therapeutic, dosing, interaction, and counseling challenges.
+3. STRICT BILINGUAL REQUIREMENT: Every single flashcard MUST provide both fluent, natural Persian ('fa') and precise, medical English ('en') for questions, answers, pearls, and all options. Never leave either language blank.
+4. DO NOT use generic test filler or placeholders. Provide concrete clinical mechanisms, drug names (TGA approved), and clear rationales.
+5. STRICT JSON OUTPUT: Return ONLY a valid JSON object starting with { and ending with }.
 
 ${specificModeInstruction}
 
-KNOWLEDGE TREE REQUIREMENT (درخت دانش عمیق ۵ لایه‌ای + سوال به عنوان لایه ۶):
-Include a 5-level hierarchical knowledge tree in every card:
-- domain: { fa: "حوزه کلان", en: "Root Domain" }
-- system: { fa: "سیستم یا مبحث کلان", en: "Organ System / Chapter" }
-- subsystem: { fa: "رده درمانی یا وضعیت بیماری", en: "Therapeutic Class / Condition" }
-- subClass: { fa: "نام واقعی و دقیق رده دارویی یا مولکول مشخص (مثلاً مهارکننده‌های SGLT2، استاتین‌ها)", en: "Specific Drug Class / Molecule (e.g. SGLT2 Inhibitors, Statins)" }
-- microTopic: { fa: "مفهوم دقیق بالینی، عارضه یا تله تشخیصی مشخص", en: "Specific Clinical Point / Mechanism / Pitfall" }
+KNOWLEDGE TREE SPECIFICATION (5-Level Real Taxonomy):
+- domain: { fa: "حوزه کلان داروسازی", en: "Knowledge Domain" }
+- system: { fa: "سیستم فیزیولوژی یا مبحث کلان", en: "Organ System / Major Subject" }
+- subsystem: { fa: "رده درمانی یا بیماری مشخص", en: "Therapeutic Class / Disease State" }
+- subClass: { fa: "نام واقعی و تخصصی رده دارویی یا مولکول (مثلاً مهارکننده‌های SGLT2، بتا بلاکرها)", en: "Specific Drug Class / Molecule (e.g. SGLT2 Inhibitors, Beta-blockers)" }
+- microTopic: { fa: "نکته تخصصی، تداخل یا مکانیسم بالینی دقیق", en: "Micro-Topic / Mechanism / Pitfall" }
 - path: {
-    fa: ["حوزه کلان", "سیستم کلان", "رده درمانی", "زیررده دارویی مشخص", "مفهوم دقیق"],
-    en: ["Domain", "System", "Class", "Specific Sub-Class", "Micro-Topic"]
+    fa: ["حوزه کلان", "سیستم", "رده درمانی", "رده دارویی واقعی", "نکته دقیق"],
+    en: ["Domain", "System", "Class", "Specific SubClass", "Micro-Topic"]
   }
 
-CRITICAL RULES FOR NAMING:
-- For subClass: ALWAYS use real, specific medical/pharmacological names (e.g., 'مهارکننده‌های SGLT2', 'مسدودکننده‌های کانال کلسیم', 'استاتین‌ها', 'پروتکل تریاژ سرفه'). NEVER generate generic numeric placeholders like 'زیر رده دارویی ۱' or 'Pharmacology 2'.
-- If there is no specific subClass, use the real condition name rather than generic numbers.
-
-EXACT REQUIRED JSON SCHEMA:
+JSON STRUCTURE:
 {
   "cards": [
     {
       "question": {
-        "fa": "پرسش یا سناریوی بالینی به فارسی دقیق و رسا",
-        "en": "Clinical question or scenario in English"
+        "fa": "متن سناریو یا پرسش بالینی به فارسی دقیق و رسا",
+        "en": "Clinical scenario or question in English"
       },
       "answer": {
-        "fa": "پاسخ کامل، استدلال بالینی و راهنمای درمانی به صورت نکته فارسی",
-        "en": "Detailed clinical answer and rationale in English"
+        "fa": "پاسخ کامل، استدلال بالینی و نکات راهنمای درمانی به فارسی",
+        "en": "Comprehensive clinical answer and rationale in English"
       },
       "pearl": {
-        "fa": "نکته طلایی و کلیدی بالینی به فارسی",
+        "fa": "نکته طلایی بالینی و کلیدی برای داروساز به فارسی",
         "en": "Key clinical pearl in English"
       },
       "type": "clinical_pearl",
@@ -102,24 +99,24 @@ EXACT REQUIRED JSON SCHEMA:
       "topic": "${topic || 'Pharmacology'}",
       "module": ${moduleNumber},
       "mcqOptions": [
-        { "id": "A", "text": { "fa": "گزینه اول", "en": "Option A" }, "isCorrect": true, "explanation": { "fa": "نکته درستی گزینه", "en": "Explanation" } },
-        { "id": "B", "text": { "fa": "گزینه دوم", "en": "Option B" }, "isCorrect": false, "explanation": { "fa": "علت تمایز", "en": "Clinical distinction" } },
-        { "id": "C", "text": { "fa": "گزینه سوم", "en": "Option C" }, "isCorrect": false, "explanation": { "fa": "علت تمایز", "en": "Clinical distinction" } },
-        { "id": "D", "text": { "fa": "گزینه چهارم", "en": "Option D" }, "isCorrect": false, "explanation": { "fa": "علت تمایز", "en": "Clinical distinction" } }
+        { "id": "A", "text": { "fa": "گزینه اول", "en": "Option A" }, "isCorrect": true, "explanation": { "fa": "استدلال بالینی صحت گزینه", "en": "Clinical rationale" } },
+        { "id": "B", "text": { "fa": "گزینه دوم", "en": "Option B" }, "isCorrect": false, "explanation": { "fa": "علت تمایز بالینی", "en": "Why incorrect" } },
+        { "id": "C", "text": { "fa": "گزینه سوم", "en": "Option C" }, "isCorrect": false, "explanation": { "fa": "علت تمایز بالینی", "en": "Why incorrect" } },
+        { "id": "D", "text": { "fa": "گزینه چهارم", "en": "Option D" }, "isCorrect": false, "explanation": { "fa": "علت تمایز بالینی", "en": "Why incorrect" } }
       ],
       "distractorRationale": {
-        "fa": "نکات تشخیصی و تمایز گزینه‌ها",
-        "en": "Clinical distinctions among options"
+        "fa": "تحلیل مقایسه‌ای و تمایز گزینه‌های انحرافی",
+        "en": "Comparative analysis of distractor options"
       },
       "knowledgeTree": {
         "domain": { "fa": "${category || 'داروسازی بالینی استرالیا'}", "en": "${category || 'Australian Clinical Pharmacy'}" },
-        "system": { "fa": "${topic || 'سیستم قلب و عروق'}", "en": "${topic || 'Cardiovascular System'}" },
-        "subsystem": { "fa": "داروهای فشار خون و نارسایی قلبی", "en": "Antihypertensives & Heart Failure" },
-        "subClass": { "fa": "مهارکننده‌های رنین-آنژیوتانسین (ACEi / ARB)", "en": "RAAS Inhibitors (ACEi / ARB)" },
-        "microTopic": { "fa": "عوارض برادی‌کینین و تله‌های بالینی", "en": "Bradykinin Complications & Clinical Traps" },
+        "system": { "fa": "${topic || 'سیستم دارودرمانی'}", "en": "${topic || 'Pharmacotherapy System'}" },
+        "subsystem": { "fa": "رده درمانی و بیماری‌ها", "en": "Therapeutic Class & Conditions" },
+        "subClass": { "fa": "رده دارویی تخصصی", "en": "Specific Drug SubClass" },
+        "microTopic": { "fa": "نکته بالینی و تداخل", "en": "Clinical Pearls & Safety" },
         "path": {
-          "fa": ["${category || 'داروسازی بالینی استرالیا'}", "${topic || 'سیستم قلب و عروق'}", "داروهای فشار خون و نارسایی قلبی", "مهارکننده‌های رنین-آنژیوتانسین (ACEi / ARB)", "عوارض برادی‌کینین و تله‌های بالینی"],
-          "en": ["${category || 'Australian Clinical Pharmacy'}", "${topic || 'Cardiovascular System'}", "Antihypertensives & Heart Failure", "RAAS Inhibitors (ACEi / ARB)", "Bradykinin Complications & Clinical Traps"]
+          "fa": ["${category || 'داروسازی بالینی استرالیا'}", "${topic || 'سیستم دارودرمانی'}", "رده درمانی و بیماری‌ها", "رده دارویی تخصصی", "نکته بالینی و تداخل"],
+          "en": ["${category || 'Australian Clinical Pharmacy'}", "${topic || 'Pharmacotherapy System'}", "Therapeutic Class & Conditions", "Specific Drug SubClass", "Clinical Pearls & Safety"]
         }
       },
       "tags": ["${category || 'Clinical'}", "${topic || 'Pharmacy'}"]
@@ -127,18 +124,18 @@ EXACT REQUIRED JSON SCHEMA:
   ]
 }`;
 
-    const safeCustomPrompt = customPrompt ? String(customPrompt).slice(0, 1000).replace(/```/g, '') : '';
-    const safeContextSnippet = contextSnippet ? String(contextSnippet).slice(0, 5000).replace(/```/g, '') : '';
+    const safeCustomPrompt = customPrompt ? String(customPrompt).slice(0, 1500).replace(/```/g, '') : '';
+    const safeContextSnippet = contextSnippet ? String(contextSnippet).slice(0, 6000).replace(/```/g, '') : '';
 
     const prompt = `Topic: ${topic || 'Clinical Pharmacology'}
 Category: ${category || 'Clinical Pharmacy'}
 Module: Module ${moduleNumber} (${moduleName})
-Target Card Count: ${count}
-${safeCustomPrompt ? `Custom User Directive: ${safeCustomPrompt}\n` : ''}
-${safeContextSnippet ? `Reference Clinical Content / Selected Context:\n\`\`\`context\n${safeContextSnippet}\n\`\`\`` : ''}
+Target Flashcard Count: ${count}
+${safeCustomPrompt ? `Custom User Directive / Special Instructions:\n${safeCustomPrompt}\n` : ''}
+${safeContextSnippet ? `Clinical Source Reference / Selected Material:\n\`\`\`context\n${safeContextSnippet}\n\`\`\`` : ''}
 
-Generate exactly ${count} high-yield flashcards in valid JSON matching the exact schema above.
-Begin your response directly with { and end with }.`;
+Generate exactly ${count} high-yield, professionally formatted clinical flashcards in valid JSON matching the exact schema above.
+Start your response directly with { and end with }.`;
 
     const rawOutput = await executeAiInference({
       provider,
@@ -147,7 +144,7 @@ Begin your response directly with { and end with }.`;
       prompt,
       systemInstruction,
       responseFormat: 'json',
-      temperature,
+      temperature: Math.min(0.3, Math.max(0.1, temperature || 0.2)),
     });
 
     let parsed: any;
@@ -162,12 +159,11 @@ Begin your response directly with { and end with }.`;
     }
 
     if (!parsed || !Array.isArray(parsed.cards) || parsed.cards.length === 0) {
-      // If the model returned an array directly without "cards" wrapper
       if (Array.isArray(parsed) && parsed.length > 0) {
         parsed = { cards: parsed };
       } else {
         return NextResponse.json(
-          { error: 'هیچ کارتی توسط هوش مصنوعی تولید نشد.', raw: rawOutput },
+          { error: 'ساختار کارت‌های تولید شده توسط هوش مصنوعی معتبر نبود. لطفاً مجدداً امتحان کنید.', raw: rawOutput },
           { status: 500 }
         );
       }

@@ -110,6 +110,37 @@ export async function loadLeitnerCardsFromFirestore(userId: string): Promise<Lei
   }
 }
 
+// Save User AI Config & API Keys to Firestore
+export async function saveUserAiConfigToFirestore(userId: string, aiConfig: any): Promise<void> {
+  if (!userId) return;
+  try {
+    const userDocRef = doc(db, 'users', userId, 'data', 'aiConfig');
+    await setDoc(userDocRef, {
+      ...aiConfig,
+      updatedAt: new Date().toISOString(),
+    }, { merge: true });
+  } catch (error) {
+    console.error('Error saving AI config to Firestore:', error);
+    throw error;
+  }
+}
+
+// Load User AI Config & API Keys from Firestore
+export async function loadUserAiConfigFromFirestore(userId: string): Promise<any | null> {
+  if (!userId) return null;
+  try {
+    const userDocRef = doc(db, 'users', userId, 'data', 'aiConfig');
+    const docSnap = await getDoc(userDocRef);
+    if (docSnap.exists()) {
+      return docSnap.data();
+    }
+    return null;
+  } catch (error) {
+    console.error('Error loading AI config from Firestore:', error);
+    throw error;
+  }
+}
+
 // Fetch user state from Firestore
 export async function loadUserDataFromFirestore(userId: string): Promise<CloudUserData | null> {
   if (!userId) return null;
