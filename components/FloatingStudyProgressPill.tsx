@@ -34,7 +34,7 @@ export const FloatingStudyProgressPill: React.FC<FloatingStudyProgressPillProps>
 
   return (
     <div
-      className="fixed bottom-4 start-4 z-40 select-none animate-in fade-in slide-in-from-bottom-3"
+      className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] start-[calc(1rem+env(safe-area-inset-left,0px))] z-40 select-none animate-in fade-in slide-in-from-bottom-3"
       dir={isFa ? 'rtl' : 'ltr'}
     >
       <div className="relative group">

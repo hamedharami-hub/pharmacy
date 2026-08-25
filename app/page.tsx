@@ -416,6 +416,43 @@ export default function Home() {
     document.body.style.fontSize = activeSize;
     document.documentElement.dir = language === 'fa' ? 'rtl' : 'ltr';
 
+    // 3. Dynamic Mobile Status Bar & Browser Chrome Color Integration
+    const themeColorMap: Record<VisualTheme, { color: string; appleStyle: string }> = {
+      'day': { color: '#F9FAFB', appleStyle: 'default' },
+      'night': { color: '#09090B', appleStyle: 'black-translucent' },
+      'reader-day': { color: '#F5ECD8', appleStyle: 'default' },
+      'reader-night': { color: '#1A1008', appleStyle: 'black-translucent' },
+    };
+
+    const currentThemeInfo = themeColorMap[theme] || themeColorMap['night'];
+
+    // Update or create <meta name="theme-color">
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement;
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement('meta');
+      metaThemeColor.name = 'theme-color';
+      document.head.appendChild(metaThemeColor);
+    }
+    metaThemeColor.content = currentThemeInfo.color;
+
+    // Update or create <meta name="msapplication-navbutton-color">
+    let metaMsNav = document.querySelector('meta[name="msapplication-navbutton-color"]') as HTMLMetaElement;
+    if (!metaMsNav) {
+      metaMsNav = document.createElement('meta');
+      metaMsNav.name = 'msapplication-navbutton-color';
+      document.head.appendChild(metaMsNav);
+    }
+    metaMsNav.content = currentThemeInfo.color;
+
+    // Update or create <meta name="apple-mobile-web-app-status-bar-style">
+    let metaAppleStatus = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]') as HTMLMetaElement;
+    if (!metaAppleStatus) {
+      metaAppleStatus = document.createElement('meta');
+      metaAppleStatus.name = 'apple-mobile-web-app-status-bar-style';
+      document.head.appendChild(metaAppleStatus);
+    }
+    metaAppleStatus.content = currentThemeInfo.appleStyle;
+
     try {
       localStorage.setItem(
         STORAGE_KEY,

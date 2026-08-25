@@ -125,10 +125,30 @@
     border-color: var(--border-color);
   }
 
+  /* =========================================================
+     MODERN MOBILE STATUS BAR & SAFE AREA INSETS (Edge-to-Edge)
+     ========================================================= */
+  :root {
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+  }
+
   html, body {
     width: 100%;
     margin: 0;
     padding: 0;
+    background-color: var(--bg-main);
+  }
+
+  /* Status Bar notch extension */
+  .mobile-status-bar-notch {
+    padding-top: var(--sat);
+  }
+
+  .mobile-safe-bottom {
+    padding-bottom: var(--sab);
   }
 
   /* =========================================================

@@ -18,9 +18,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0f172a',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#F9FAFB' },
+    { media: '(prefers-color-scheme: dark)', color: '#09090B' },
+  ],
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
   viewportFit: 'cover',
 };
 
@@ -33,6 +38,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="AU Pharmacy" />
+        <meta name="theme-color" content="#09090B" id="meta-theme-color" />
+        <meta name="msapplication-navbutton-color" content="#09090B" id="meta-ms-theme-color" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" id="meta-apple-status-bar" />
       </head>
       <body suppressHydrationWarning>{children}</body>
     </html>
