@@ -1,0 +1,60 @@
+{
+  "id": "/",
+  "name": "شبیه‌ساز جامع داروخانه استرالیا | AU Pharmacy Practice Simulator",
+  "short_name": "داروسازی استرالیا",
+  "description": "شبیه‌ساز جامع آزمون‌های KAPS/OPRA، تریاژ سرپایی، نسخه‌پیچی Fred Dispense و جعبه لایتنر هوشمند",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "lang": "fa",
+  "dir": "rtl",
+  "categories": ["medical", "education", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "تریاژ سرپایی و پروتکل‌های OTC",
+      "short_name": "تریاژ OTC",
+      "description": "پروتکل‌های بالینی WWHAM، پرچم‌های قرمز و سناریوهای سرپایی",
+      "url": "/?module=1",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "قفسه داروهای بدون نسخه S2/S3",
+      "short_name": "قفسه داروها",
+      "description": "بررسی محصولات، مواد موثره و Project Stop",
+      "url": "/?module=2",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "شبیه‌ساز نسخه پیچی Fred Dispense",
+      "short_name": "نسخه‌پیچی",
+      "description": "نرم‌افزار Fred، بررسی نسخه‌ها، قوانین PBS و محاسبات",
+      "url": "/?module=4",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "جعبه لایتنر، آزمون و نقشه ذهنی",
+      "short_name": "لایتنر و آزمون",
+      "description": "مرور فاصله‌دار علمی FSRS و نقشه درخت دانش",
+      "url": "/?module=5",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
+    }
+  ]
+}

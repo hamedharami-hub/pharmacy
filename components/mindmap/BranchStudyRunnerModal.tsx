@@ -1,0 +1,354 @@
+'use client';
+
+import React, { useState } from 'react';
+import { LeitnerCard } from '@/types/leitner';
+import { Language } from '@/types/pharmacy';
+import { MindMapNode } from '@/types/mindmap';
+import { FLAG_OPTIONS, FlagColor } from '@/components/LeitnerMindMapPanel';
+import {
+  X,
+  Eye,
+  CheckCircle2,
+  XCircle,
+  RotateCcw,
+  ArrowRight,
+  ArrowLeft,
+  Zap,
+  HelpCircle,
+  Flag,
+  Award,
+  Sparkles,
+  Check,
+} from 'lucide-react';
+
+export interface BranchStudyRunnerModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  node: MindMapNode | null;
+  cards: LeitnerCard[];
+  language: Language;
+  cardLangMode: 'fa' | 'en' | 'bilingual';
+  cardFlags: Record<string, FlagColor>;
+  onSetCardFlag: (cardId: string, flag: FlagColor | null) => void;
+  onRateCard?: (cardId: string, rating: 'again' | 'hard' | 'good' | 'easy') => void;
+  onUpdateCardBox?: (cardId: string, newBox: 1 | 2 | 3 | 4 | 5, isCorrect: boolean) => void;
+}
+
+export const BranchStudyRunnerModal: React.FC<BranchStudyRunnerModalProps> = ({
+  isOpen,
+  onClose,
+  node,
+  cards,
+  language,
+  cardLangMode,
+  cardFlags,
+  onSetCardFlag,
+  onRateCard,
+  onUpdateCardBox,
+}) => {
+  const isFa = language === 'fa';
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
+  const [selectedMcqOption, setSelectedMcqOption] = useState<string | null>(null);
+  const [reviewedResults, setReviewedResults] = useState<Record<string, 'again' | 'hard' | 'good' | 'easy'>>({});
+
+  if (!isOpen || !node || cards.length === 0) return null;
+
+  const currentCard = cards[currentIndex];
+  const progressPercent = Math.round(((currentIndex + 1) / cards.length) * 100);
+
+  const qFa = typeof currentCard?.question === 'object' ? currentCard.question.fa || currentCard.question.en : currentCard?.question;
+  const qEn = typeof currentCard?.question === 'object' ? currentCard.question.en || currentCard.question.fa : currentCard?.question;
+  const aFa = typeof currentCard?.answer === 'object' ? currentCard.answer.fa || currentCard.answer.en : currentCard?.answer;
+  const aEn = typeof currentCard?.answer === 'object' ? currentCard.answer.en || currentCard.answer.fa : currentCard?.answer;
+  const pFa = currentCard?.pearl ? (typeof currentCard.pearl === 'object' ? currentCard.pearl.fa : currentCard.pearl) : null;
+  const pEn = currentCard?.pearl ? (typeof currentCard.pearl === 'object' ? currentCard.pearl.en : currentCard.pearl) : null;
+
+  const flag = currentCard ? cardFlags[currentCard.id] : null;
+  const isMcq = currentCard?.type === 'mcq' && currentCard.mcqOptions && currentCard.mcqOptions.length > 0;
+
+  const handleNext = () => {
+    if (currentIndex < cards.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+      setIsAnswerRevealed(false);
+      setSelectedMcqOption(null);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((prev) => prev - 1);
+      setIsAnswerRevealed(false);
+      setSelectedMcqOption(null);
+    }
+  };
+
+  const handleSelectOption = (key: string) => {
+    setSelectedMcqOption(key);
+    setIsAnswerRevealed(true);
+  };
+
+  const handleGrade = (rating: 'again' | 'hard' | 'good' | 'easy') => {
+    if (!currentCard) return;
+    setReviewedResults((prev) => ({
+      ...prev,
+      [currentCard.id]: rating,
+    }));
+
+    if (onRateCard) {
+      onRateCard(currentCard.id, rating);
+    } else if (onUpdateCardBox) {
+      const isCorrect = rating !== 'again';
+      const nextBox = isCorrect ? Math.min(5, currentCard.box + 1) : 1;
+      onUpdateCardBox(currentCard.id, nextBox as 1 | 2 | 3 | 4 | 5, isCorrect);
+    }
+
+    handleNext();
+  };
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
+      <div className="w-full max-w-2xl p-5 sm:p-7 rounded-3xl bg-slate-900 border border-slate-700/80 shadow-2xl space-y-5 max-h-[90vh] flex flex-col justify-between overflow-y-auto">
+        {/* Header Bar */}
+        <div className="flex items-center justify-between gap-3 border-b border-slate-800 pb-4 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-500/30">
+              <Sparkles className="w-5 h-5 text-purple-400" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-sm sm:text-base text-slate-100">
+                {isFa ? 'مرور ترتیبی شاخه یادگیری لایتنر' : 'Step-by-Step Leitner Branch Study'}
+              </h3>
+              <p className="text-xs text-slate-400 font-mono">
+                {isFa ? node.title.fa || node.title.en : node.title.en || node.title.fa} • {currentIndex + 1} / {cards.length}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden shrink-0">
+          <div
+            className="bg-gradient-to-r from-purple-500 to-indigo-500 h-full transition-all duration-300 rounded-full"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+
+        {/* Flashcard Body */}
+        <div className="space-y-4 flex-1">
+          {/* Question Card Box */}
+          <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3 shadow-inner">
+            <div className="flex items-center justify-between gap-2 text-xs font-bold text-slate-400">
+              <span>{isFa ? 'صورت مسئله و سوال بالینی:' : 'Clinical Scenario & Question:'}</span>
+              <span className="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono">
+                {isFa ? `جعبه ${currentCard.box}` : `Box ${currentCard.box}`}
+              </span>
+            </div>
+
+            {isFa ? (
+              <div className="text-sm sm:text-base font-bold text-slate-100 leading-relaxed break-words whitespace-normal" dir="rtl">
+                {qFa || qEn}
+              </div>
+            ) : (
+              <div
+                className="text-xs sm:text-sm font-semibold text-slate-100 leading-relaxed font-sans break-words whitespace-normal"
+                dir="ltr"
+              >
+                {qEn || qFa}
+              </div>
+            )}
+
+            {/* Flag Selector */}
+            <div className="flex items-center gap-1.5 pt-2 border-t border-slate-800/80">
+              <span className="text-[11px] text-slate-400">{isFa ? 'پرچم:' : 'Flag:'}</span>
+              {(Object.keys(FLAG_OPTIONS) as FlagColor[]).map((fKey) => {
+                const opt = FLAG_OPTIONS[fKey];
+                const isSelected = flag === fKey;
+                return (
+                  <button
+                    key={fKey}
+                    type="button"
+                    onClick={() => onSetCardFlag(currentCard.id, isSelected ? null : fKey)}
+                    className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition border cursor-pointer ${
+                      isSelected ? opt.badge : 'bg-slate-900 text-slate-400 border-slate-800'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full inline-block me-1 ${opt.dot}`} />
+                    {isFa ? opt.name.fa.split(' ')[0] : opt.name.en.split(' ')[0]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* INTERACTIVE MCQ OPTIONS (IF MCQ) */}
+          {isMcq && currentCard.mcqOptions && (
+            <div className="space-y-2">
+              <div className="text-xs font-bold text-slate-300">
+                {isFa ? 'گزینه‌های چهارجوابی (انتخاب پاسخ):' : 'Select Option:'}
+              </div>
+              <div className="space-y-2">
+                {currentCard.mcqOptions.map((opt, idx) => {
+                  const optText = isFa ? opt.text.fa || opt.text.en : opt.text.en || opt.text.fa;
+                  const optId = opt.id || String.fromCharCode(65 + idx);
+                  const isSelected = selectedMcqOption === optId;
+                  const isCorrect = opt.isCorrect;
+
+                  let optStyle = 'bg-slate-950/80 hover:bg-slate-800 border-slate-800 text-slate-200';
+                  if (isAnswerRevealed) {
+                    if (isCorrect) {
+                      optStyle = 'bg-emerald-950/60 border-emerald-500 text-emerald-200 ring-1 ring-emerald-500/50';
+                    } else if (isSelected && !isCorrect) {
+                      optStyle = 'bg-rose-950/60 border-rose-500 text-rose-200 ring-1 ring-rose-500/50';
+                    }
+                  } else if (isSelected) {
+                    optStyle = 'bg-purple-950/60 border-purple-500 text-purple-200';
+                  }
+
+                  return (
+                    <button
+                      key={optId}
+                      type="button"
+                      onClick={() => handleSelectOption(optId)}
+                      className={`w-full p-3 rounded-xl border text-start transition flex items-center justify-between gap-3 text-xs sm:text-sm cursor-pointer ${optStyle}`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="w-6 h-6 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs shrink-0 text-slate-300">
+                          {optId.toUpperCase()}
+                        </span>
+                        <span className="leading-relaxed break-words">{optText}</span>
+                      </div>
+                      {isAnswerRevealed && isCorrect && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
+                      {isAnswerRevealed && isSelected && !isCorrect && <XCircle className="w-4 h-4 text-rose-400 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Reveal Button or Answer */}
+          {!isAnswerRevealed ? (
+            <button
+              type="button"
+              onClick={() => setIsAnswerRevealed(true)}
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 transition cursor-pointer"
+            >
+              <Eye className="w-4 h-4" />
+              <span>{isFa ? 'نمایش پاسخ بالینی و نکته کلیدی' : 'Reveal Target Clinical Answer'}</span>
+            </button>
+          ) : (
+            <div className="p-5 rounded-2xl bg-purple-950/20 border border-purple-500/40 space-y-4 animate-in fade-in">
+              <div className="space-y-2">
+                <div className="text-xs font-bold text-purple-300 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>{isFa ? 'پاسخ صحیح بالینی و استدلال:' : 'Target Answer & Rationale:'}</span>
+                </div>
+                <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs sm:text-sm text-slate-200 leading-relaxed">
+                  {isFa ? (
+                    <div dir="rtl">{aFa || aEn}</div>
+                  ) : (
+                    <div dir="ltr" className="font-sans">
+                      {aEn || aFa}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {(isFa ? pFa || pEn : pEn || pFa) && (
+                <div className="p-3.5 rounded-xl bg-amber-950/25 border border-amber-500/30 text-amber-200 space-y-1.5">
+                  <div className="font-bold flex items-center gap-1.5 text-xs text-amber-400">
+                    <Zap className="w-4 h-4" />
+                    <span>{isFa ? 'مروارید و نکته کلیدی آزمون (Pearl):' : 'Key Exam Pearl:'}</span>
+                  </div>
+                  <div dir={isFa ? 'rtl' : 'ltr'} className="text-xs leading-relaxed">
+                    {isFa ? pFa || pEn : pEn || pFa}
+                  </div>
+                </div>
+              )}
+
+              {/* 4-Tier Leitner Rating Buttons */}
+              <div className="pt-2 border-t border-purple-500/20 space-y-2">
+                <div className="text-xs font-bold text-slate-300">
+                  {isFa ? 'ارزیابی و درجه‌بندی لایتنر:' : 'Grade & Spaced Review:'}
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleGrade('again')}
+                    className="p-2.5 rounded-xl bg-rose-950/80 hover:bg-rose-900 border border-rose-500/50 text-rose-200 font-bold text-xs flex flex-col items-center justify-center gap-0.5 transition cursor-pointer"
+                  >
+                    <span>{isFa ? 'تکرار (نادرست)' : 'Again'}</span>
+                    <span className="text-[10px] text-rose-300/80 font-mono">{isFa ? 'جعبه ۱' : 'Box 1'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleGrade('hard')}
+                    className="p-2.5 rounded-xl bg-amber-950/80 hover:bg-amber-900 border border-amber-500/50 text-amber-200 font-bold text-xs flex flex-col items-center justify-center gap-0.5 transition cursor-pointer"
+                  >
+                    <span>{isFa ? 'سخت' : 'Hard'}</span>
+                    <span className="text-[10px] text-amber-300/80 font-mono">{isFa ? '۲-۳ روز' : '2-3d'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleGrade('good')}
+                    className="p-2.5 rounded-xl bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-200 font-bold text-xs flex flex-col items-center justify-center gap-0.5 transition cursor-pointer"
+                  >
+                    <span>{isFa ? 'خوب' : 'Good'}</span>
+                    <span className="text-[10px] text-emerald-300/80 font-mono">{isFa ? '۱ هفته' : '1w'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleGrade('easy')}
+                    className="p-2.5 rounded-xl bg-sky-950/80 hover:bg-sky-900 border border-sky-500/50 text-sky-200 font-bold text-xs flex flex-col items-center justify-center gap-0.5 transition cursor-pointer"
+                  >
+                    <span>{isFa ? 'آسان' : 'Easy'}</span>
+                    <span className="text-[10px] text-sky-300/80 font-mono">{isFa ? '۲ هفته' : '2w'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Navigation Footer */}
+        <div className="flex items-center justify-between border-t border-slate-800 pt-3 shrink-0">
+          <button
+            type="button"
+            onClick={handlePrev}
+            disabled={currentIndex === 0}
+            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+          >
+            {isFa ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
+            <span>{isFa ? 'کارت قبلی' : 'Previous'}</span>
+          </button>
+
+          <span className="text-xs font-mono text-slate-400">
+            {currentIndex + 1} of {cards.length}
+          </span>
+
+          <button
+            type="button"
+            onClick={handleNext}
+            disabled={currentIndex === cards.length - 1}
+            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+          >
+            <span>{isFa ? 'کارت بعدی' : 'Next'}</span>
+            {isFa ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
