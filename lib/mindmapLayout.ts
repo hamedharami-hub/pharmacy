@@ -5,6 +5,7 @@ import {
   MindMapThemeConfig,
   MindMapTextDisplay,
   MindMapLineStyle,
+  MindMapViewMode,
 } from '@/types/mindmap';
 import { LeitnerCard } from '@/types/leitner';
 
@@ -194,21 +195,255 @@ export interface TreeLayoutResult {
 /**
  * Computes a tree layout with exact parent-child connecting links and proper spacing
  */
+/**
+ * Computes a tree layout with exact parent-child connecting links and proper spacing
+ * Supports: 'interactive_canvas' (Horizontal), 'radial_circle' (360 Radial), 'vertical_tree' (Top-Down)
+ */
 export function computeMindMapLayout(
   root: MindMapNode,
   expandedNodeIds: Record<string, boolean>,
   displayMode: MindMapTextDisplay = 'full_detailed',
   cardLangMode: 'fa' | 'en' | 'bilingual' = 'bilingual',
   lineStyle: MindMapLineStyle = 'smooth_bezier',
-  isDarkTheme: boolean = true
+  isDarkTheme: boolean = true,
+  layoutMode: MindMapViewMode = 'interactive_canvas'
 ): TreeLayoutResult {
   const items: MindMapLayoutItem[] = [];
   const links: MindMapLink[] = [];
 
+  // =========================================================================
+  // 1. RADIAL 360 CIRCULAR LAYOUT
+  // =========================================================================
+  if (layoutMode === 'radial_circle') {
+    const centerX = 1200;
+    const centerY = 1200;
+    const isExpandedRoot = !!expandedNodeIds[root.id];
+    const rootDims = calculateNodeDimensions(root, displayMode, cardLangMode);
+
+    items.push({
+      node: root,
+      id: root.id,
+      x: centerX - rootDims.width / 2,
+      y: centerY - rootDims.height / 2,
+      width: rootDims.width,
+      height: rootDims.height,
+      level: 0,
+      isExpanded: isExpandedRoot,
+      hasChildren: root.children.length > 0,
+      colorTheme: root.colorTheme || 'purple',
+    });
+
+    function layoutRadialSubtree(
+      nodes: MindMapNode[],
+      level: number,
+      startAngle: number,
+      endAngle: number,
+      parentId: string
+    ) {
+      if (!nodes || nodes.length === 0) return;
+      const radius = level === 1 ? 380 : level === 2 ? 720 : level === 3 ? 1040 : 1320;
+      const angleStep = (endAngle - startAngle) / nodes.length;
+
+      nodes.forEach((childNode, idx) => {
+        const isChildExpanded = !!expandedNodeIds[childNode.id];
+        const childDims = calculateNodeDimensions(childNode, displayMode, cardLangMode);
+        const nodeAngle = startAngle + angleStep * (idx + 0.5);
+
+        const posX = centerX + radius * Math.cos(nodeAngle) - childDims.width / 2;
+        const posY = centerY + radius * Math.sin(nodeAngle) - childDims.height / 2;
+
+        items.push({
+          node: childNode,
+          id: childNode.id,
+          parentId,
+          x: posX,
+          y: posY,
+          width: childDims.width,
+          height: childDims.height,
+          level: childNode.level,
+          isExpanded: isChildExpanded,
+          hasChildren: childNode.children.length > 0,
+          colorTheme: childNode.colorTheme || 'purple',
+        });
+
+        if (isChildExpanded && childNode.children.length > 0) {
+          layoutRadialSubtree(
+            childNode.children,
+            level + 1,
+            startAngle + angleStep * idx,
+            startAngle + angleStep * (idx + 1),
+            childNode.id
+          );
+        }
+      });
+    }
+
+    if (isExpandedRoot && root.children.length > 0) {
+      layoutRadialSubtree(root.children, 1, 0, Math.PI * 2, root.id);
+    }
+
+    // Generate Radial Links from Parent to Child center
+    const radialMap = new Map<string, MindMapLayoutItem>();
+    items.forEach((it) => radialMap.set(it.id, it));
+
+    items.forEach((item) => {
+      if (item.parentId) {
+        const parent = radialMap.get(item.parentId);
+        if (parent) {
+          const theme = MINDMAP_THEMES[item.colorTheme] || MINDMAP_THEMES.purple;
+          links.push({
+            id: `link-${parent.id}-${item.id}`,
+            sourceId: parent.id,
+            targetId: item.id,
+            startX: parent.x + parent.width / 2,
+            startY: parent.y + parent.height / 2,
+            endX: item.x + item.width / 2,
+            endY: item.y + item.height / 2,
+            color: isDarkTheme ? theme.darkStroke : theme.lightStroke,
+            strokeWidth: item.level <= 2 ? 3 : 2,
+          });
+        }
+      }
+    });
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    items.forEach((it) => {
+      minX = Math.min(minX, it.x);
+      minY = Math.min(minY, it.y);
+      maxX = Math.max(maxX, it.x + it.width);
+      maxY = Math.max(maxY, it.y + it.height);
+    });
+
+    return {
+      items,
+      links,
+      bounds: {
+        minX: minX - 60,
+        minY: minY - 60,
+        maxX: maxX + 60,
+        maxY: maxY + 60,
+        width: Math.max(1200, maxX - minX + 160),
+        height: Math.max(1000, maxY - minY + 160),
+      },
+    };
+  }
+
+  // =========================================================================
+  // 2. VERTICAL TOP-DOWN HIERARCHICAL LAYOUT (ORG CHART)
+  // =========================================================================
+  if (layoutMode === 'vertical_tree') {
+    let currentX = 60;
+    const rowSpacing = displayMode === 'full_detailed' ? 170 : 130;
+
+    function layoutVerticalSubtree(
+      node: MindMapNode,
+      depth: number,
+      y: number,
+      parentId?: string
+    ): { x: number; width: number } {
+      const isExpanded = !!expandedNodeIds[node.id];
+      const { width, height } = calculateNodeDimensions(node, displayMode, cardLangMode);
+      const visibleChildren = isExpanded ? node.children : [];
+
+      let nodeX: number;
+
+      if (visibleChildren.length === 0) {
+        nodeX = currentX;
+        currentX += width + 28;
+      } else {
+        const childCenters: number[] = [];
+        const nextY = y + rowSpacing;
+
+        visibleChildren.forEach((child) => {
+          const childRes = layoutVerticalSubtree(child, depth + 1, nextY, node.id);
+          childCenters.push(childRes.x + calculateNodeDimensions(child, displayMode, cardLangMode).width / 2);
+        });
+
+        if (childCenters.length === 1) {
+          nodeX = childCenters[0] - width / 2;
+        } else {
+          const firstCenter = childCenters[0];
+          const lastCenter = childCenters[childCenters.length - 1];
+          nodeX = (firstCenter + lastCenter) / 2 - width / 2;
+        }
+      }
+
+      items.push({
+        node,
+        id: node.id,
+        parentId,
+        x: nodeX,
+        y,
+        width,
+        height,
+        level: node.level,
+        isExpanded,
+        hasChildren: node.children.length > 0,
+        colorTheme: node.colorTheme || 'purple',
+      });
+
+      return { x: nodeX, width };
+    }
+
+    layoutVerticalSubtree(root, 0, 50, undefined);
+
+    const minXCoord = Math.min(...items.map((it) => it.x), 50);
+    if (minXCoord < 50) {
+      const shiftX = 50 - minXCoord;
+      items.forEach((it) => (it.x += shiftX));
+    }
+
+    const vertMap = new Map<string, MindMapLayoutItem>();
+    items.forEach((it) => vertMap.set(it.id, it));
+
+    items.forEach((item) => {
+      if (item.parentId) {
+        const parent = vertMap.get(item.parentId);
+        if (parent) {
+          const theme = MINDMAP_THEMES[item.colorTheme] || MINDMAP_THEMES.purple;
+          links.push({
+            id: `link-${parent.id}-${item.id}`,
+            sourceId: parent.id,
+            targetId: item.id,
+            startX: parent.x + parent.width / 2,
+            startY: parent.y + parent.height,
+            endX: item.x + item.width / 2,
+            endY: item.y,
+            color: isDarkTheme ? theme.darkStroke : theme.lightStroke,
+            strokeWidth: item.level <= 2 ? 3 : 2,
+          });
+        }
+      }
+    });
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    items.forEach((it) => {
+      minX = Math.min(minX, it.x);
+      minY = Math.min(minY, it.y);
+      maxX = Math.max(maxX, it.x + it.width);
+      maxY = Math.max(maxY, it.y + it.height);
+    });
+
+    return {
+      items,
+      links,
+      bounds: {
+        minX,
+        minY,
+        maxX,
+        maxY,
+        width: maxX - minX + 140,
+        height: maxY - minY + 140,
+      },
+    };
+  }
+
+  // =========================================================================
+  // 3. HORIZONTAL FLOW GRAPH (DEFAULT)
+  // =========================================================================
   const colSpacing = displayMode === 'full_detailed' ? 380 : 300;
   let currentY = 50;
 
-  // Step 1: Recursive layout calculator to assign (X, Y) and dimensions to each visible node
   function layoutSubtree(
     node: MindMapNode,
     depth: number,
@@ -223,7 +458,6 @@ export function computeMindMapLayout(
     let nodeY: number;
 
     if (visibleChildren.length === 0) {
-      // Leaf in current expanded tree
       nodeY = currentY;
       currentY += height + (node.level === 6 ? 16 : 24);
     } else {
@@ -235,18 +469,12 @@ export function computeMindMapLayout(
         childCenters.push(childRes.y + (calculateNodeDimensions(child, displayMode, cardLangMode).height / 2));
       });
 
-      // Align parent vertically with the centroid of its children
       if (childCenters.length === 1) {
         nodeY = childCenters[0] - height / 2;
       } else {
         const firstCenter = childCenters[0];
         const lastCenter = childCenters[childCenters.length - 1];
         nodeY = (firstCenter + lastCenter) / 2 - height / 2;
-      }
-
-      // Prevent parent from overlapping previous subtree
-      if (nodeY < currentY - height) {
-        // Safe position
       }
     }
 
@@ -354,6 +582,13 @@ export function generateLinkPathData(
   style: MindMapLineStyle = 'smooth_bezier'
 ): string {
   const { startX, startY, endX, endY } = link;
+
+  if (style === 'polar_radial') {
+    const midX = (startX + endX) / 2;
+    const midY = (startY + endY) / 2;
+    return `M ${startX} ${startY} Q ${midX} ${midY} ${endX} ${endY}`;
+  }
+
   const dx = Math.max(30, (endX - startX) * 0.5);
 
   if (style === 'smooth_bezier') {

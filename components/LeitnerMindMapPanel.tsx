@@ -712,9 +712,10 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
       textDisplayMode,
       cardLangMode,
       lineStyle,
-      true
+      true,
+      viewMode
     );
-  }, [mindMapTree, expandedNodeIds, textDisplayMode, cardLangMode, lineStyle]);
+  }, [mindMapTree, expandedNodeIds, textDisplayMode, cardLangMode, lineStyle, viewMode]);
 
   // Toggle node expand/collapse
   const toggleNode = useCallback((nodeId: string) => {
@@ -1310,64 +1311,93 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
             )}
           </div>
 
-          {/* 3. Dropdown: View Mode (ساختار نمایش) */}
+          {/* 3. Dropdown: View Mode (ساختار نمایش و تنوع نقشه‌های ذهنی) */}
           <div className="relative" data-mindmap-dropdown="view">
             <button
               type="button"
               onClick={() => setOpenDropdown((prev) => (prev === 'view' ? null : 'view'))}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer app-bg app-text app-border hover:border-slate-400/50`}
-              title={isFa ? 'انتخاب حالت نمایش ساختار' : 'View Structure Mode'}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer ${
+                viewMode !== 'interactive_canvas'
+                  ? 'bg-purple-600 text-white border-purple-500 shadow-xs'
+                  : 'app-bg app-text app-border hover:border-slate-400/50'
+              }`}
+              title={isFa ? 'انتخاب نوع چیدمان و ساختار نقشه ذهنی' : 'View Structure & Layout Mode'}
             >
-              {viewMode === 'interactive_canvas' ? (
-                <Network className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
-              ) : (
-                <ListTree className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />
-              )}
-              <span>{viewMode === 'interactive_canvas' ? (isFa ? 'بوم گراف' : 'Graph') : (isFa ? 'درختی' : 'Tree')}</span>
+              {viewMode === 'interactive_canvas' && <Network className="w-3.5 h-3.5 text-cyan-400" />}
+              {viewMode === 'radial_circle' && <Sparkles className="w-3.5 h-3.5 text-amber-400" />}
+              {viewMode === 'vertical_tree' && <ListTree className="w-3.5 h-3.5 text-indigo-400" />}
+              {viewMode === 'outliner_tree' && <BookOpen className="w-3.5 h-3.5 text-purple-400" />}
+              {viewMode === 'matrix_grid' && <Layers className="w-3.5 h-3.5 text-emerald-400" />}
+              <span>
+                {viewMode === 'interactive_canvas' && (isFa ? 'گراف افقی' : 'Horizontal Graph')}
+                {viewMode === 'radial_circle' && (isFa ? 'شعاعی ۳۶۰°' : 'Radial 360°')}
+                {viewMode === 'vertical_tree' && (isFa ? 'سازمانی عمودی' : 'Vertical Org')}
+                {viewMode === 'outliner_tree' && (isFa ? 'درختی متنی' : 'Outliner Tree')}
+                {viewMode === 'matrix_grid' && (isFa ? 'ماتریس شبکه‌ای' : 'Matrix Grid')}
+              </span>
               <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform ${openDropdown === 'view' ? 'rotate-180' : ''}`} />
             </button>
 
             {openDropdown === 'view' && (
-              <div className="absolute start-0 top-full mt-1.5 z-50 w-48 p-1.5 rounded-xl app-card border app-border shadow-xl space-y-1 animate-in fade-in zoom-in-95">
+              <div className="absolute start-0 top-full mt-1.5 z-50 w-56 p-1.5 rounded-xl app-card border app-border shadow-xl space-y-1 animate-in fade-in zoom-in-95">
                 <div className="px-2.5 py-1 text-[10px] font-bold app-muted border-b app-border">
-                  {isFa ? 'نوع نمایش ساختار' : 'Structure View'}
+                  {isFa ? 'انواع چیدمان و تنوع نقشه‌های ذهنی' : 'Mind Map Layout Formats'}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setViewMode('interactive_canvas');
-                    setOpenDropdown(null);
-                  }}
-                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
-                    viewMode === 'interactive_canvas'
-                      ? 'bg-purple-600 text-white'
-                      : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <Network className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>{isFa ? 'بوم گراف تعاملی' : 'Interactive Graph'}</span>
-                  </span>
-                  {viewMode === 'interactive_canvas' && <Check className="w-3.5 h-3.5" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setViewMode('outliner_tree');
-                    setOpenDropdown(null);
-                  }}
-                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
-                    viewMode === 'outliner_tree'
-                      ? 'bg-purple-600 text-white'
-                      : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <ListTree className="w-3.5 h-3.5 text-purple-400" />
-                    <span>{isFa ? 'ساختار درختی (Outliner)' : 'Outliner Tree'}</span>
-                  </span>
-                  {viewMode === 'outliner_tree' && <Check className="w-3.5 h-3.5" />}
-                </button>
+                
+                {[
+                  {
+                    id: 'interactive_canvas' as MindMapViewMode,
+                    fa: '🌐 بوم گراف افقی (Horizontal Flow)',
+                    en: '🌐 Horizontal Graph',
+                    desc: isFa ? 'چیدمان استاندارد و مدرن شاخه‌ای' : 'Standard horizontal branching',
+                  },
+                  {
+                    id: 'radial_circle' as MindMapViewMode,
+                    fa: '🌀 نقشه شعاعی ۳۶۰ درجه (Radial Polar)',
+                    en: '🌀 Radial 360° Map',
+                    desc: isFa ? 'شاخه از مرکز به صورت دایره‌ای' : 'Circular radial branches',
+                  },
+                  {
+                    id: 'vertical_tree' as MindMapViewMode,
+                    fa: '🏛️ ساختار سازمانی عمودی (Org Chart)',
+                    en: '🏛️ Vertical Org Chart',
+                    desc: isFa ? 'از بالا به پایین با ریشه در سربرگ' : 'Top-down organizational tree',
+                  },
+                  {
+                    id: 'outliner_tree' as MindMapViewMode,
+                    fa: '📋 ساختار درختی فهرست‌وار (Outliner)',
+                    en: '📋 Outliner Tree',
+                    desc: isFa ? 'لیست تودرتو با آزمون مستقیم' : 'Accordion nested outline list',
+                  },
+                  {
+                    id: 'matrix_grid' as MindMapViewMode,
+                    fa: '📊 ماتریس شبکه‌ای مفاهیم (Matrix Grid)',
+                    en: '📊 Knowledge Matrix Grid',
+                    desc: isFa ? 'دسته‌بندی ستونی سیستم‌های فیزیولوژی' : 'Organ systems multi-column grid',
+                  },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setViewMode(item.id);
+                      setOpenDropdown(null);
+                    }}
+                    className={`w-full px-2.5 py-2 rounded-lg text-xs font-bold text-start flex flex-col gap-0.5 transition cursor-pointer ${
+                      viewMode === item.id
+                        ? 'bg-purple-600 text-white'
+                        : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{isFa ? item.fa : item.en}</span>
+                      {viewMode === item.id && <Check className="w-3.5 h-3.5 shrink-0" />}
+                    </div>
+                    <span className={`text-[10px] font-normal ${viewMode === item.id ? 'text-purple-200' : 'app-muted'}`}>
+                      {item.desc}
+                    </span>
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -1429,7 +1459,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
           </div>
 
           {/* 5. Dropdown: Line Style (خطوط) - Canvas only */}
-          {viewMode === 'interactive_canvas' && (
+          {['interactive_canvas', 'radial_circle', 'vertical_tree'].includes(viewMode) && (
             <div className="relative" data-mindmap-dropdown="lines">
               <button
                 type="button"
@@ -1438,45 +1468,43 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                 title={isFa ? 'انتخاب استایل خطوط اتصال' : 'Connection Line Style'}
               >
                 <Sliders className="w-3.5 h-3.5 text-sky-400" />
-                <span>{lineStyle === 'smooth_bezier' ? (isFa ? 'خطوط: منحنی' : 'Lines: Bezier') : (isFa ? 'خطوط: پله‌ای' : 'Lines: Step')}</span>
+                <span>
+                  {lineStyle === 'smooth_bezier' && (isFa ? 'خطوط: منحنی' : 'Lines: Bezier')}
+                  {lineStyle === 'orthogonal_step' && (isFa ? 'خطوط: پله‌ای' : 'Lines: Step')}
+                  {lineStyle === 'straight' && (isFa ? 'خطوط: مستقیم' : 'Lines: Straight')}
+                  {lineStyle === 'polar_radial' && (isFa ? 'خطوط: قطبی' : 'Lines: Polar')}
+                </span>
                 <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform ${openDropdown === 'lines' ? 'rotate-180' : ''}`} />
               </button>
 
               {openDropdown === 'lines' && (
-                <div className="absolute start-0 top-full mt-1.5 z-50 w-44 p-1.5 rounded-xl app-card border app-border shadow-xl space-y-1 animate-in fade-in zoom-in-95">
+                <div className="absolute start-0 top-full mt-1.5 z-50 w-48 p-1.5 rounded-xl app-card border app-border shadow-xl space-y-1 animate-in fade-in zoom-in-95">
                   <div className="px-2.5 py-1 text-[10px] font-bold app-muted border-b app-border">
                     {isFa ? 'استایل خطوط اتصال' : 'Line Connector Style'}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLineStyle('smooth_bezier');
-                      setOpenDropdown(null);
-                    }}
-                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
-                      lineStyle === 'smooth_bezier'
-                        ? 'bg-purple-600 text-white'
-                        : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    <span>{isFa ? 'منحنی نرم (Bezier)' : 'Smooth Bezier'}</span>
-                    {lineStyle === 'smooth_bezier' && <Check className="w-3.5 h-3.5" />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLineStyle('orthogonal_step');
-                      setOpenDropdown(null);
-                    }}
-                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
-                      lineStyle === 'orthogonal_step'
-                        ? 'bg-purple-600 text-white'
-                        : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    <span>{isFa ? 'پله‌ای (Orthogonal)' : 'Step Orthogonal'}</span>
-                    {lineStyle === 'orthogonal_step' && <Check className="w-3.5 h-3.5" />}
-                  </button>
+                  {[
+                    { id: 'smooth_bezier' as MindMapLineStyle, fa: '〰️ منحنی نرم (Smooth Bezier)', en: 'Smooth Bezier' },
+                    { id: 'orthogonal_step' as MindMapLineStyle, fa: '📐 پله‌ای (Orthogonal Step)', en: 'Step Orthogonal' },
+                    { id: 'straight' as MindMapLineStyle, fa: '📏 مستقیم (Straight Line)', en: 'Straight Line' },
+                    { id: 'polar_radial' as MindMapLineStyle, fa: '🌀 قطبی شعاعی (Polar Curves)', en: 'Polar Radial' },
+                  ].map((ls) => (
+                    <button
+                      key={ls.id}
+                      type="button"
+                      onClick={() => {
+                        setLineStyle(ls.id);
+                        setOpenDropdown(null);
+                      }}
+                      className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
+                        lineStyle === ls.id
+                          ? 'bg-purple-600 text-white'
+                          : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <span>{isFa ? ls.fa : ls.en}</span>
+                      {lineStyle === ls.id && <Check className="w-3.5 h-3.5" />}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
@@ -1609,7 +1637,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
       </div>
 
       {/* Main Mind Map Body */}
-      {viewMode === 'interactive_canvas' ? (
+      {['interactive_canvas', 'radial_circle', 'vertical_tree'].includes(viewMode) ? (
         <MindMapCanvas
           language={language}
           layoutItems={layoutResult.items}
@@ -1631,10 +1659,10 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
           {contextMenu.isOpen && contextMenu.node && (
             <div
               style={{ position: 'fixed', left: `${contextMenu.x}px`, top: `${contextMenu.y}px` }}
-              className="z-[80] w-64 p-2 rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl space-y-1 animate-in fade-in"
+              className="z-[80] w-64 p-2 rounded-2xl app-card border app-border shadow-2xl space-y-1 animate-in fade-in"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 border-b border-slate-800 flex items-center justify-between">
+              <div className="px-3 py-1.5 text-[11px] font-bold app-muted border-b app-border flex items-center justify-between">
                 <span className="truncate">{getNodeDisplayTitle(contextMenu.node)}</span>
                 <span className="text-[9px] font-mono">L{contextMenu.node.level}</span>
               </div>
@@ -1759,8 +1787,114 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
             language={language}
           />
         </MindMapCanvas>
+      ) : viewMode === 'matrix_grid' ? (
+        /* Matrix Grid View Mode */
+        <div className="p-3 sm:p-5 rounded-3xl app-card border app-border shadow-inner space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b app-border">
+            <div className="flex items-center gap-2">
+              <Layers className="w-5 h-5 text-emerald-500" />
+              <h3 className="text-sm sm:text-base font-bold app-text">
+                {isFa ? 'ماتریس شبکه‌ای مفاهیم و سیستم‌های دارویی' : 'Therapeutics & Organ Systems Knowledge Matrix'}
+              </h3>
+              <span className="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                {filteredCards.length} {isFa ? 'کارت فعال' : 'Active Cards'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={expandAll}
+                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-600/20 text-purple-300 border border-purple-500/40 hover:bg-purple-600 hover:text-white transition cursor-pointer"
+              >
+                {isFa ? '➕ باز کردن همه' : '➕ Expand All'}
+              </button>
+              <button
+                type="button"
+                onClick={collapseAll}
+                className="px-2.5 py-1 rounded-lg text-xs font-bold app-bg app-border app-text hover:border-slate-400 transition cursor-pointer"
+              >
+                {isFa ? '➖ بستن همه' : '➖ Collapse All'}
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {mindMapTree.children.map((domainChild) => {
+              const theme = MINDMAP_THEMES[domainChild.colorTheme] || MINDMAP_THEMES.purple;
+              return (
+                <div
+                  key={domainChild.id}
+                  className={`rounded-2xl border ${theme.border} ${theme.bg} p-4 space-y-3 shadow-sm transition hover:shadow-md`}
+                >
+                  <div className="flex items-center justify-between pb-2 border-b app-border">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-3 h-3 rounded-full ${theme.dot}`} />
+                      <h4 className={`text-xs sm:text-sm font-black ${theme.text}`}>
+                        {getNodeDisplayTitle(domainChild)}
+                      </h4>
+                    </div>
+                    <span className="text-[11px] font-mono font-bold app-muted px-2 py-0.5 rounded-md bg-black/20">
+                      {domainChild.cardCount} {isFa ? 'مفهوم' : 'cards'}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {domainChild.children.map((sysChild) => (
+                      <div
+                        key={sysChild.id}
+                        className="rounded-xl app-card border app-border p-2.5 space-y-2"
+                      >
+                        <div className="flex items-center justify-between text-xs font-bold app-text">
+                          <span>{getNodeDisplayTitle(sysChild)}</span>
+                          <span className="text-[10px] font-mono text-purple-400">
+                            {sysChild.cardCount}
+                          </span>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1.5">
+                          {collectCardsUnderNode(sysChild).slice(0, 6).map((c) => {
+                            const qText = typeof c.question === 'object' ? c.question.fa || c.question.en : c.question;
+                            const flag = cardFlags[c.id];
+                            return (
+                              <button
+                                key={c.id}
+                                type="button"
+                                onClick={() => setSelectedQuestionCard(c)}
+                                className="px-2 py-1 rounded-lg text-[11px] font-medium app-bg border app-border hover:border-purple-500 app-text text-start max-w-full truncate transition cursor-pointer flex items-center gap-1.5"
+                                title={qText}
+                              >
+                                {flag && <span className={`w-2 h-2 rounded-full ${FLAG_OPTIONS[flag]?.dot || 'bg-slate-400'}`} />}
+                                <span className="truncate">{qText}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Modals in Matrix Grid View */}
+          {selectedQuestionCard && (
+            <QuestionDetailModal
+              isOpen={!!selectedQuestionCard}
+              onClose={() => setSelectedQuestionCard(null)}
+              card={selectedQuestionCard}
+              language={language}
+              cardLangMode={cardLangMode}
+              cardFlags={cardFlags}
+              onSetCardFlag={handleSetCardFlag}
+              onRateCard={onRateCard}
+              showLeitnerGrading={showLeitnerGrading}
+            />
+          )}
+        </div>
       ) : (
-        <div className="p-4 rounded-3xl bg-slate-950 border border-slate-800/90 shadow-inner space-y-2">
+        /* Outliner Tree View Mode */
+        <div className="p-4 rounded-3xl app-card border app-border shadow-inner space-y-2">
           {mindMapTree.children.length === 0 ? (
             <div className="p-12 text-center text-slate-500 space-y-3">
               <FolderTree className="w-10 h-10 mx-auto text-slate-600" />

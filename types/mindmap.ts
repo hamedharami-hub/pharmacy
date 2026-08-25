@@ -22,9 +22,14 @@ export interface MindMapNode {
   colorTheme: string;
 }
 
-export type MindMapLineStyle = 'smooth_bezier' | 'orthogonal_step' | 'straight';
+export type MindMapLineStyle = 'smooth_bezier' | 'orthogonal_step' | 'straight' | 'polar_radial';
 export type MindMapTextDisplay = 'full_detailed' | 'compact';
-export type MindMapViewMode = 'interactive_canvas' | 'outliner_tree';
+export type MindMapViewMode =
+  | 'interactive_canvas'
+  | 'radial_circle'
+  | 'vertical_tree'
+  | 'outliner_tree'
+  | 'matrix_grid';
 
 export interface MindMapLayoutItem {
   node: MindMapNode;
