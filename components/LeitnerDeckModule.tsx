@@ -864,68 +864,59 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
   return (
     <div className="space-y-3 min-w-0" dir={isFa ? 'rtl' : 'ltr'}>
       {/* 1. TOP HEADER & SWITCH BAR */}
-      <div className="app-card border border-purple-500/30 rounded-2xl p-3 sm:p-4 bg-slate-900/90 backdrop-blur-md shadow-lg flex flex-wrap items-center justify-between gap-3">
+      <div className="app-card border app-border rounded-2xl p-3 sm:p-3.5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
         {/* Left Branding */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-linear-to-tr from-purple-600 via-indigo-600 to-sky-600 flex items-center justify-center text-white shadow-md shadow-purple-900/30 shrink-0">
-            <Layers className="w-5 h-5 text-amber-300" />
+          <div className="w-9 h-9 rounded-xl bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30 flex items-center justify-center shadow-xs shrink-0">
+            <Layers className="w-4.5 h-4.5" />
           </div>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-sm sm:text-base font-black text-white tracking-tight">
-                {isFa ? 'ماژول ۵: جعبه لایتنر و مرور هوشمند (FSRS & SM-2)' : 'Module 5: Smart Spaced Review (FSRS & Anki)'}
-              </h2>
-              <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[11px] font-mono font-bold">
-                FSRS v5 + SM-2
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-400">
-              {isFa
-                ? `${cards.length} کارت در حافظه | ${totalDueCount} کارت نیازمند مرور امروز`
-                : `${cards.length} Total Cards | ${totalDueCount} Cards Due Today`}
-            </p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="text-sm sm:text-base font-black app-text tracking-tight">
+              {isFa ? 'ماژول ۵: جعبه لایتنر و مرور هوشمند (FSRS & SM-2)' : 'Module 5: Smart Spaced Review (FSRS & Anki)'}
+            </h2>
+            <span className="px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-800 dark:text-purple-300 border border-purple-500/30 text-[10.5px] font-mono font-bold">
+              FSRS v5 + SM-2
+            </span>
           </div>
         </div>
 
-        {/* View Switcher: Study Mode vs Decks & Settings */}
-        <div className="flex items-center gap-2 flex-wrap ms-auto">
+        {/* View Switcher: Single Unified Tab Row */}
+        <div className="flex items-center gap-1.5 app-bg p-1 rounded-xl border app-border overflow-x-auto no-scrollbar shrink-0">
+          <button
+            type="button"
+            onClick={() => setCurrentView('anki_study')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+              currentView === 'anki_study'
+                ? 'bg-purple-600 text-white shadow-xs'
+                : 'app-muted hover:app-text hover:bg-black/5 dark:hover:bg-slate-800/60'
+            }`}
+          >
+            <Play className="w-3.5 h-3.5" />
+            <span>{isFa ? 'مرور کارت‌ها (Study)' : 'Study Mode'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setCurrentView('decks_manager')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+              currentView === 'decks_manager'
+                ? 'bg-indigo-600 text-white shadow-xs'
+                : 'app-muted hover:app-text hover:bg-black/5 dark:hover:bg-slate-800/60'
+            }`}
+          >
+            <FolderTree className="w-3.5 h-3.5" />
+            <span>{isFa ? 'دسته‌ها و پوشه‌های دانش (Decks)' : 'Decks & Folders'}</span>
+          </button>
+
           <button
             type="button"
             onClick={() => triggerAiGenerator()}
-            className="px-3 py-1.5 rounded-xl bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md"
+            className="px-3 py-1.5 rounded-lg bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap"
             title={isFa ? 'تولید کارت جدید از متن با هوش مصنوعی' : 'Generate flashcards from text with AI'}
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-            <span className="hidden sm:inline">{isFa ? 'ساخت کارت با AI' : 'AI Card Studio'}</span>
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span>{isFa ? 'ساخت کارت با AI' : 'AI Studio'}</span>
           </button>
-
-          <div className="flex items-center p-1 rounded-xl bg-slate-950 border border-slate-800 flex-wrap gap-1">
-            <button
-              type="button"
-              onClick={() => setCurrentView('anki_study')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                currentView === 'anki_study'
-                  ? 'bg-purple-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <Play className="w-3.5 h-3.5 text-amber-300" />
-              <span>{isFa ? 'مرور کارت‌ها (Study)' : 'Study Mode'}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setCurrentView('decks_manager')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                currentView === 'decks_manager'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <FolderTree className="w-3.5 h-3.5 text-indigo-300" />
-              <span>{isFa ? 'دسته‌ها و پوشه‌های دانش (Decks)' : 'Decks & Folders'}</span>
-            </button>
-          </div>
         </div>
       </div>
 
@@ -936,14 +927,14 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
         /* ========================================================================= */
         <div className="space-y-3">
           {/* Top Bar for Study Mode: Clean Breadcrumb & Scope */}
-          <div className="flex items-center justify-between text-xs px-2 text-slate-400 gap-2 flex-wrap">
+          <div className="flex items-center justify-between text-xs px-2 app-muted gap-2 flex-wrap">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-bold text-purple-300 flex items-center gap-1.5">
-                <Folder className="w-3.5 h-3.5 text-purple-400" />
+              <span className="font-bold text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+                <Folder className="w-3.5 h-3.5" />
                 <span>{studyScopeName}</span>
               </span>
               {activeStudyQueue.length > 0 && !sessionCompleted && (
-                <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 font-mono text-[11px] font-bold">
+                <span className="px-2 py-0.5 rounded-md app-card border app-border app-text font-mono text-[11px] font-bold">
                   {isFa ? `کارت ${studyQueueIndex + 1} از ${activeStudyQueue.length}` : `Card ${studyQueueIndex + 1} of ${activeStudyQueue.length}`}
                 </span>
               )}
@@ -955,10 +946,10 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsZenMode(true)}
-                  className="px-2.5 py-1 rounded-lg bg-purple-600/20 hover:bg-purple-600/35 text-purple-300 border border-purple-500/40 text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  className="px-2.5 py-1 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-800 dark:text-purple-300 border border-purple-500/30 text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
                   title={isFa ? 'ورود به حالت تمرکز کامل بدون حواس‌پرتی (کلید Z)' : 'Enter Zen Deep Focus Mode (Z)'}
                 >
-                  <Maximize2 className="w-3.5 h-3.5 text-purple-300" />
+                  <Maximize2 className="w-3.5 h-3.5" />
                   <span>{isFa ? 'تمرکز کامل (Zen)' : 'Zen Mode'}</span>
                 </button>
               )}
@@ -973,22 +964,22 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                 }
                 className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition flex items-center gap-1 cursor-pointer ${
                   isCramMode
-                    ? 'bg-amber-500/20 text-amber-200 border-amber-500/40'
-                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                    ? 'bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-500/40'
+                    : 'app-bg app-border app-muted hover:app-text hover:bg-black/5 dark:hover:bg-slate-800'
                 }`}
                 title={isFa ? 'تغییر بین کارت‌های نیازمند مرور و کل کارت‌ها' : 'Toggle Cram / Due Mode'}
               >
-                <Zap className="w-3 h-3 text-amber-300" />
+                <Zap className="w-3 h-3" />
                 <span>{isCramMode ? (isFa ? 'حالت فشرده (فعال)' : 'Cram Mode (Active)') : isFa ? 'تمرین فشرده' : 'Cram All'}</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setCurrentView('decks_manager')}
-                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
+                className="px-2.5 py-1 rounded-lg app-bg hover:bg-black/5 dark:hover:bg-slate-800 app-text border app-border text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
               >
-                <FolderTree className="w-3 h-3 text-indigo-400" />
-                <span>{isFa ? 'تغییر دسته / فیلتر' : 'Change Deck'}</span>
+                <FolderTree className="w-3 h-3 text-indigo-500 dark:text-indigo-400" />
+                <span>{isFa ? 'تغییر دسته / فیلتر' : 'Filter / Decks'}</span>
               </button>
             </div>
           </div>
