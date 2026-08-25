@@ -444,11 +444,11 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                 </span>
               </div>
 
-              <div className="flex items-center gap-1.5 bg-slate-900/90 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border border-slate-800">
-                <span className="font-bold text-slate-400 text-[10px] sm:text-[11px]">
+              <div className="flex items-center gap-1.5 app-bg px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border app-border">
+                <span className="font-bold app-muted text-[10px] sm:text-[11px]">
                   {isFa ? 'برند اصلی استرالیا:' : 'Primary Brand:'}
                 </span>
-                <span className="font-bold text-amber-300 text-xs sm:text-sm">
+                <span className="font-bold text-amber-600 dark:text-amber-300 text-xs sm:text-sm">
                   {primaryBrand}
                 </span>
               </div>
@@ -458,9 +458,9 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
             <button
               type="button"
               onClick={() => setShowBrandsPopup(true)}
-              className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/40 text-[11px] sm:text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm group shrink-0"
+              className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-indigo-500/15 hover:bg-indigo-600 text-indigo-700 dark:text-indigo-300 hover:text-white dark:hover:text-white border border-indigo-500/30 text-[11px] sm:text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs group shrink-0"
             >
-              <Tag className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-indigo-400 group-hover:text-white transition" />
+              <Tag className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-indigo-600 dark:text-indigo-400 group-hover:text-white transition" />
               <span>
                 {isFa
                   ? `مشاهده تمام برندها و نام‌ها (${australianBrands.length} برند)`
@@ -471,33 +471,33 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
           </div>
 
           {/* 1. REORGANIZED & CATEGORIZED FIRST-LINE TREATMENT PROTOCOL */}
-          <div className="p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-950/40 via-slate-900 to-indigo-950/40 border border-emerald-500/30 space-y-3 sm:space-y-4 shadow-md">
+          <div className="p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl app-card border border-emerald-500/30 space-y-3 sm:space-y-4 shadow-sm bg-emerald-500/5 dark:bg-emerald-950/20">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-emerald-500/20 pb-2 sm:pb-3">
-              <h3 className="font-bold text-xs sm:text-sm text-emerald-300 flex items-center gap-1.5 sm:gap-2">
-                <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
+              <h3 className="font-black text-xs sm:text-sm text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 sm:gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>{isFa ? 'پروتکل خط اول درمان و راهنمای بالینی داروساز' : 'First-Line Treatment Protocol & Clinical Guidance'}</span>
               </h3>
-              <span className="text-[10px] font-mono font-bold text-emerald-400 px-2 sm:px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+              <span className="text-[10px] font-mono font-bold text-emerald-800 dark:text-emerald-300 px-2 sm:px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30">
                 APF & PBA First-Line
               </span>
             </div>
 
             {/* Categorized Protocol Card */}
-            <div className="p-2.5 sm:p-4 rounded-lg sm:rounded-xl bg-slate-950/80 border border-emerald-500/30 space-y-2.5 sm:space-y-3.5 shadow-xs">
+            <div className="p-2.5 sm:p-4 rounded-lg sm:rounded-xl app-card border border-emerald-500/25 space-y-2.5 sm:space-y-3.5 shadow-xs">
               {/* Top Title: Drug 1 & Class */}
-              <div className="flex flex-wrap items-start justify-between gap-2 border-b border-slate-800 pb-2.5 sm:pb-3">
+              <div className="flex flex-wrap items-start justify-between gap-2 border-b app-border pb-2.5 sm:pb-3">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-md bg-emerald-500/20 text-emerald-300 font-bold text-xs border border-emerald-500/30 flex items-center justify-center font-mono shrink-0">
+                    <span className="w-5 h-5 rounded-md bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold text-xs border border-emerald-500/30 flex items-center justify-center font-mono shrink-0">
                       1
                     </span>
-                    <span className="text-xs sm:text-sm font-black text-emerald-200">
+                    <span className="text-xs sm:text-sm font-black text-emerald-800 dark:text-emerald-200">
                       {firstLineDrug}
                     </span>
                   </div>
-                  <div className="text-[11px] sm:text-xs text-sky-300/90 font-medium flex items-center gap-1.5 pt-0.5">
-                    <Tag className="w-3 h-3 text-sky-400 shrink-0" />
+                  <div className="text-[11px] sm:text-xs text-sky-700 dark:text-sky-300 font-medium flex items-center gap-1.5 pt-0.5">
+                    <Tag className="w-3 h-3 text-sky-600 dark:text-sky-400 shrink-0" />
                     <span>{isFa ? 'طبقه‌بندی دارویی:' : 'Class:'} {firstLineClass}</span>
                   </div>
                 </div>
@@ -505,8 +505,8 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
 
               {/* Dosing Section: Population Segments Breakdown */}
               <div className="space-y-1.5 sm:space-y-2">
-                <div className="flex items-center gap-1.5 text-sky-400 font-bold text-xs sm:text-sm">
-                  <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-sky-400" />
+                <div className="flex items-center gap-1.5 text-sky-700 dark:text-sky-400 font-bold text-xs sm:text-sm">
+                  <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-sky-600 dark:text-sky-400" />
                   <span>{isFa ? 'دوزبندی و نحوه مصرف استرالیا (تفکیک رده‌های سنی):' : 'Australian Dosage & Administration by Age Group:'}</span>
                 </div>
 
@@ -514,14 +514,14 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                   {firstLineDosingSegments.map((seg, sIdx) => (
                     <div
                       key={sIdx}
-                      className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-slate-900/90 border border-slate-800 flex items-start gap-2 sm:gap-2.5 text-xs sm:text-sm text-slate-200"
+                      className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl app-bg border app-border flex items-start gap-2 sm:gap-2.5 text-xs sm:text-sm"
                     >
                       <span className="text-sm sm:text-base leading-none shrink-0 mt-0.5">{seg.icon}</span>
                       <div className="space-y-0.5 flex-1">
-                        <span className="font-bold text-sky-300 text-[10px] sm:text-[11px] block">
+                        <span className="font-bold text-sky-700 dark:text-sky-300 text-[10px] sm:text-[11px] block">
                           {isFa ? seg.labelFa : seg.labelEn}:
                         </span>
-                        <p className="text-xs sm:text-[13px] text-slate-100 font-medium leading-relaxed">
+                        <p className="text-xs sm:text-[13px] app-text font-medium leading-relaxed">
                           {seg.text}
                         </p>
                       </div>
@@ -533,15 +533,15 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
               {/* Grid 2-cols: Onset & Warnings */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 pt-1">
                 {/* Onset & Course */}
-                <div className="p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-slate-900/70 border border-slate-800 space-y-1.5">
-                  <div className="flex items-center gap-1.5 text-amber-400 font-bold text-xs sm:text-sm">
+                <div className="p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-bold text-xs sm:text-sm">
                     <Activity className="w-3.5 h-3.5 shrink-0" />
                     <span>{isFa ? '⚡ شروع اثر و طول دوره:' : '⚡ Onset & Duration:'}</span>
                   </div>
-                  <ul className="space-y-1 text-xs sm:text-[13px] text-slate-200">
+                  <ul className="space-y-1 text-xs sm:text-[13px] text-amber-950 dark:text-amber-100">
                     {onsetBullets.map((b, bIdx) => (
                       <li key={bIdx} className="flex items-start gap-1.5">
-                        <span className="text-amber-400 shrink-0">•</span>
+                        <span className="text-amber-500 shrink-0">•</span>
                         <span>{b}</span>
                       </li>
                     ))}
@@ -549,15 +549,15 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                 </div>
 
                 {/* Warnings & Precautions */}
-                <div className="p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-rose-950/30 border border-rose-500/25 space-y-1.5">
-                  <div className="flex items-center gap-1.5 text-rose-400 font-bold text-xs sm:text-sm">
+                <div className="p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-rose-500/10 border border-rose-500/25 space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-rose-700 dark:text-rose-400 font-bold text-xs sm:text-sm">
                     <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                     <span>{isFa ? '⚠️ هشدارهای کلیدی و احتیاطات:' : '⚠️ Key Warnings & Precautions:'}</span>
                   </div>
-                  <ul className="space-y-1 text-xs sm:text-[13px] text-rose-200">
+                  <ul className="space-y-1 text-xs sm:text-[13px] text-rose-950 dark:text-rose-100">
                     {warningsBullets.map((w, wIdx) => (
                       <li key={wIdx} className="flex items-start gap-1.5">
-                        <span className="text-rose-400 shrink-0">•</span>
+                        <span className="text-rose-500 shrink-0">•</span>
                         <span>{w}</span>
                       </li>
                     ))}
@@ -567,23 +567,23 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
             </div>
 
             {/* Overview, Symptoms & Clinical Diagnostic Notes Block */}
-            <div className="space-y-2.5 sm:space-y-3 pt-2.5 sm:pt-3 border-t border-emerald-500/20 text-slate-200">
+            <div className="space-y-2.5 sm:space-y-3 pt-2.5 sm:pt-3 border-t border-emerald-500/20 app-text">
               {/* 1. Condition Overview */}
               {cleanedOverview && (
-                <div className="p-2.5 sm:p-3.5 rounded-lg sm:rounded-xl bg-slate-950/70 border border-slate-800 space-y-1 sm:space-y-1.5">
-                  <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-emerald-300">
-                    <FileText className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <div className="p-2.5 sm:p-3.5 rounded-lg sm:rounded-xl app-card border app-border space-y-1 sm:space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-300">
+                    <FileText className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>{isFa ? 'نمای کلی بیماری:' : 'Condition Overview:'}</span>
                   </div>
-                  <p className="app-muted text-xs sm:text-[13px] leading-relaxed">{cleanedOverview}</p>
+                  <p className="app-text opacity-90 text-xs sm:text-[13px] leading-relaxed">{cleanedOverview}</p>
                 </div>
               )}
 
               {/* 2. Pathophysiology & Clinical Presentations */}
               {resolvedSymptoms.length > 0 && (
-                <div className="p-2.5 sm:p-3.5 rounded-lg sm:rounded-xl bg-slate-950/70 border border-slate-800 space-y-1.5 sm:space-y-2">
-                  <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-sky-300">
-                    <Activity className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                <div className="p-2.5 sm:p-3.5 rounded-lg sm:rounded-xl app-card border app-border space-y-1.5 sm:space-y-2">
+                  <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-sky-700 dark:text-sky-300">
+                    <Activity className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
                     <span>{isFa ? 'پاتوفیزیولوژی و علائم بالینی:' : 'Pathophysiology & Clinical Presentations:'}</span>
                   </div>
                   <div className="flex flex-wrap gap-1 sm:gap-1.5">
@@ -591,7 +591,7 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                       <span
                         key={sIdx}
                         dir="auto"
-                        className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg bg-sky-950/70 text-sky-200 border border-sky-500/30 text-[11px] sm:text-xs font-medium"
+                        className="px-2.5 sm:px-3 py-1 rounded-lg bg-sky-500/15 text-sky-900 dark:text-sky-200 border border-sky-500/30 text-[11px] sm:text-xs font-bold"
                       >
                         {sym}
                       </span>
@@ -602,15 +602,15 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
 
               {/* 3. Clinical & Diagnostic Notes */}
               {resolvedClinicalNotes.length > 0 && (
-                <div className="p-2.5 sm:p-3.5 rounded-lg sm:rounded-xl bg-amber-950/25 border border-amber-500/30 space-y-1.5 sm:space-y-2">
-                  <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-amber-300">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <div className="p-2.5 sm:p-3.5 rounded-lg sm:rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-1.5 sm:space-y-2">
+                  <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-amber-800 dark:text-amber-300">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                     <span>{isFa ? 'نکات عملکردی و تشخیصی داروساز:' : 'Clinical & Diagnostic Notes:'}</span>
                   </div>
-                  <ul className="space-y-1 text-xs sm:text-[13px] text-amber-200/90 font-medium">
+                  <ul className="space-y-1 text-xs sm:text-[13px] text-amber-950 dark:text-amber-100 font-medium">
                     {resolvedClinicalNotes.map((note, nIdx) => (
                       <li key={nIdx} dir="auto" className="flex items-start gap-1.5 leading-relaxed">
-                        <span className="text-amber-400 font-bold shrink-0 mt-0.5">•</span>
+                        <span className="text-amber-500 font-bold shrink-0 mt-0.5">•</span>
                         <span>{note}</span>
                       </li>
                     ))}
@@ -640,10 +640,10 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                   return (
                     <div
                       key={idx}
-                      className={`rounded-xl sm:rounded-2xl border transition-all duration-200 shadow-sm overflow-hidden ${
+                      className={`rounded-xl sm:rounded-2xl border transition-all duration-200 shadow-xs overflow-hidden ${
                         isExpanded
-                          ? 'bg-slate-900/95 border-indigo-500/60 ring-1 ring-indigo-500/20'
-                          : 'bg-slate-900/75 border-slate-800/90 hover:border-slate-700 hover:bg-slate-900/90'
+                          ? 'app-card border-indigo-500/60 ring-2 ring-indigo-500/20'
+                          : 'app-card border-slate-300 dark:border-slate-800 hover:border-indigo-400/50'
                       }`}
                     >
                       {/* Accordion Header - Clickable */}
@@ -652,17 +652,17 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                         className="p-2.5 sm:p-3.5 flex items-center justify-between gap-2 sm:gap-3 cursor-pointer select-none"
                       >
                         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
-                          <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-indigo-500/20 text-indigo-300 font-bold text-[11px] sm:text-xs border border-indigo-500/30 flex items-center justify-center font-mono shrink-0">
+                          <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 font-bold text-[11px] sm:text-xs border border-indigo-500/30 flex items-center justify-center font-mono shrink-0">
                             {idx + 1}
                           </span>
                           <div className="min-w-0 flex-1">
-                            <div className="font-black text-xs sm:text-sm text-sky-400 truncate">
+                            <div className="font-black text-xs sm:text-sm text-sky-700 dark:text-sky-400 truncate">
                               {med.name}
                             </div>
                             {!isExpanded && (
-                              <div className="text-[10px] sm:text-[11px] text-slate-400 truncate mt-0.5 flex items-center gap-1.5">
-                                <Tag className="w-3 h-3 text-amber-400 shrink-0" />
-                                <span className="text-amber-200/90 truncate">{med.brandExamples}</span>
+                              <div className="text-[10px] sm:text-[11px] app-muted truncate mt-0.5 flex items-center gap-1.5">
+                                <Tag className="w-3 h-3 text-amber-600 dark:text-amber-400 shrink-0" />
+                                <span className="text-amber-700 dark:text-amber-200/90 truncate font-semibold">{med.brandExamples}</span>
                               </div>
                             )}
                           </div>
@@ -670,10 +670,10 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
 
                         {/* Right Pill & Chevron */}
                         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                          <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 hidden sm:inline-block">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 hidden sm:inline-block">
                             {isExpanded ? (isFa ? 'بستن' : 'Close') : (isFa ? 'مشاهده مشخصات' : 'View Details')}
                           </span>
-                          <div className={`p-1 sm:p-1.5 rounded-lg border transition ${isExpanded ? 'bg-indigo-600 text-white border-indigo-500' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                          <div className={`p-1 sm:p-1.5 rounded-lg border transition ${isExpanded ? 'bg-indigo-600 text-white border-indigo-500' : 'app-bg app-muted border-slate-300 dark:border-slate-700'}`}>
                             {isExpanded ? <ChevronUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                           </div>
                         </div>
@@ -681,28 +681,28 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
 
                       {/* Accordion Expanded Details */}
                       {isExpanded && (
-                        <div className="p-2.5 sm:p-4 pt-2 border-t border-slate-800/80 space-y-2.5 sm:space-y-3 bg-slate-950/40 animate-fadeIn">
+                        <div className="p-2.5 sm:p-4 pt-2 border-t app-border space-y-2.5 sm:space-y-3 bg-black/5 dark:bg-slate-950/40 animate-fadeIn">
                           {/* Brands & Safety Badges */}
-                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2 sm:pb-2.5">
-                            <div className="text-xs sm:text-sm text-amber-300/90 font-medium flex items-center gap-1.5">
-                              <Tag className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b app-border pb-2 sm:pb-2.5">
+                            <div className="text-xs sm:text-sm text-amber-800 dark:text-amber-300/90 font-medium flex items-center gap-1.5">
+                              <Tag className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                               <span>
                                 {isFa ? 'برندهای رایج استرالیا:' : 'Australian Brands:'}{' '}
-                                <span className="font-bold text-amber-200">{med.brandExamples}</span>
+                                <span className="font-black text-amber-900 dark:text-amber-200">{med.brandExamples}</span>
                               </span>
                             </div>
 
                             {/* Badges: Age, Pregnancy, Lactation */}
                             <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 text-[10px] sm:text-[11px]">
-                              <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg bg-sky-950/80 text-sky-300 border border-sky-500/30 flex items-center gap-1">
-                                <Baby className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-sky-400" />
-                                <span className="font-medium">
+                              <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg bg-sky-500/15 text-sky-800 dark:text-sky-300 border border-sky-500/30 flex items-center gap-1 font-bold">
+                                <Baby className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-sky-600 dark:text-sky-400" />
+                                <span>
                                   {isFa ? translateMedicineAttribute(med.minAge, 'minAge') : med.minAge}
                                 </span>
                               </span>
-                              <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg bg-purple-950/80 text-purple-300 border border-purple-500/30 flex items-center gap-1">
-                                <HeartPulse className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-purple-400" />
-                                <span className="font-medium">
+                              <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg bg-purple-500/15 text-purple-800 dark:text-purple-300 border border-purple-500/30 flex items-center gap-1 font-bold">
+                                <HeartPulse className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-purple-600 dark:text-purple-400" />
+                                <span>
                                   {isFa ? translateMedicineAttribute(med.pregnancySafety, 'pregnancy') : med.pregnancySafety}
                                 </span>
                               </span>
@@ -710,9 +710,9 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                           </div>
 
                           {/* Dosing Section: Population Segments */}
-                          <div className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-slate-950/70 border border-slate-800 space-y-1.5 sm:space-y-2">
-                            <div className="flex items-center gap-1 text-emerald-400 text-xs sm:text-sm font-bold">
-                              <Clock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          <div className="p-2 sm:p-3 rounded-lg sm:rounded-xl app-card border app-border space-y-1.5 sm:space-y-2">
+                            <div className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 text-xs sm:text-sm font-bold">
+                              <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                               <span>{isFa ? 'دوزبندی تفکیک‌شده و نحوه مصرف استرالیا:' : 'Australian Dosage Breakdown by Population:'}</span>
                             </div>
 
@@ -720,14 +720,14 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                               {medDosingSegments.map((seg, sIdx) => (
                                 <div
                                   key={sIdx}
-                                  className="p-1.5 sm:p-2 rounded-md sm:rounded-lg bg-slate-900/80 border border-slate-800/80 flex items-start gap-1.5 sm:gap-2 text-xs sm:text-sm"
+                                  className="p-1.5 sm:p-2 rounded-md sm:rounded-lg app-bg border app-border flex items-start gap-1.5 sm:gap-2 text-xs sm:text-sm"
                                 >
                                   <span className="text-sm sm:text-base leading-none shrink-0 mt-0.5">{seg.icon}</span>
                                   <div className="space-y-0.5 flex-1">
-                                    <span className="font-bold text-emerald-300 text-[10px] sm:text-[11px] block">
+                                    <span className="font-bold text-emerald-700 dark:text-emerald-300 text-[10px] sm:text-[11px] block">
                                       {isFa ? seg.labelFa : seg.labelEn}:
                                     </span>
-                                    <p className="text-xs sm:text-[13px] text-slate-200 font-medium leading-relaxed">
+                                    <p className="text-xs sm:text-[13px] app-text font-medium leading-relaxed">
                                       {isFa ? translateMedicineAttribute(seg.text, 'dosing') : seg.text}
                                     </p>
                                   </div>
@@ -738,12 +738,12 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
 
                           {/* Extra clinical pearls / notes on separate lines */}
                           {medNotes.length > 0 && (
-                            <div className="text-xs sm:text-sm text-amber-200/90 bg-amber-950/25 border border-amber-500/20 p-2 sm:p-3 rounded-lg sm:rounded-xl space-y-1 sm:space-y-1.5">
-                              <div className="flex items-center gap-1 text-amber-400 font-bold text-[11px] sm:text-xs">
+                            <div className="text-xs sm:text-sm text-amber-950 dark:text-amber-200/90 bg-amber-500/10 border border-amber-500/20 p-2 sm:p-3 rounded-lg sm:rounded-xl space-y-1 sm:space-y-1.5">
+                              <div className="flex items-center gap-1 text-amber-700 dark:text-amber-400 font-bold text-[11px] sm:text-xs">
                                 <span>💡</span>
                                 <span>{isFa ? 'نکات مهم بالینی و مشاوره‌ای داروساز:' : 'Pharmacist Clinical Pearls & Counseling Notes:'}</span>
                               </div>
-                              <ul className="space-y-1 text-xs sm:text-[13px] text-amber-200/90 pr-2">
+                              <ul className="space-y-1 text-xs sm:text-[13px] text-amber-950 dark:text-amber-200/90 pr-2">
                                 {medNotes.map((note, nIdx) => (
                                   <li key={nIdx} className="flex items-start gap-1.5 leading-relaxed">
                                     <span className="text-amber-400 shrink-0">•</span>

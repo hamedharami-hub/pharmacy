@@ -141,10 +141,9 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
   const [searchInputText, setSearchInputText] = useState('');
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
 
-  // Modals & Panels Visibility
+  // Main View Switcher ('shelf' | 'diseases' | 'matrices')
+  const [activeShelfView, setActiveShelfView] = useState<'shelf' | 'diseases' | 'matrices'>('shelf');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isDiseasesOpen, setIsDiseasesOpen] = useState(false);
-  const [isMatricesOpen, setIsMatricesOpen] = useState(false);
   const [isProjectStopOpen, setIsProjectStopOpen] = useState(false);
 
   // Domain & SubCategory Tree State
@@ -394,12 +393,9 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
         <div className="flex items-center gap-1.5 bg-black/30 p-1.5 rounded-xl border app-border text-xs overflow-x-auto no-scrollbar max-w-full">
           <button
             type="button"
-            onClick={() => {
-              setIsDiseasesOpen(false);
-              setIsMatricesOpen(false);
-            }}
+            onClick={() => setActiveShelfView('shelf')}
             className={`px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
-              !isDiseasesOpen && !isMatricesOpen
+              activeShelfView === 'shelf'
                 ? 'bg-teal-600 text-white shadow-sm ring-1 ring-teal-400/40'
                 : 'app-muted hover:app-text hover:bg-slate-800/60'
             }`}
@@ -413,12 +409,9 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
 
           <button
             type="button"
-            onClick={() => {
-              setIsDiseasesOpen(true);
-              setIsMatricesOpen(false);
-            }}
+            onClick={() => setActiveShelfView('diseases')}
             className={`px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
-              isDiseasesOpen
+              activeShelfView === 'diseases'
                 ? 'bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-400/40'
                 : 'app-muted hover:app-text hover:bg-slate-800/60'
             }`}
@@ -429,12 +422,9 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
 
           <button
             type="button"
-            onClick={() => {
-              setIsMatricesOpen(true);
-              setIsDiseasesOpen(false);
-            }}
+            onClick={() => setActiveShelfView('matrices')}
             className={`px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
-              isMatricesOpen
+              activeShelfView === 'matrices'
                 ? 'bg-amber-500 text-slate-950 shadow-sm font-black'
                 : 'app-muted hover:app-text hover:bg-slate-800/60'
             }`}
@@ -442,76 +432,68 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>{isFa ? 'ماتریکس پروتکل بیماری‌ها' : 'Clinical Protocols & Matrices'}</span>
           </button>
-
-          <button
-            type="button"
-            onClick={() => setIsProjectStopOpen(true)}
-            className="px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer text-rose-300 hover:text-white hover:bg-rose-950/40 border border-rose-500/30"
-            title={isFa ? 'بررسی احراز هویت خریدار سودوافدرین و قوانین ایالتی' : 'Project STOP Pseudoepherine verification'}
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-rose-400" />
-            <span>{isFa ? '🛡️ سامانه Project STOP (S3)' : '🛡️ Project STOP (S3)'}</span>
-          </button>
         </div>
 
-        {/* 3. REAL-TIME SEARCH BAR & ADVANCED FILTERS TRIGGER */}
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute right-3.5 top-3 text-slate-400 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={
-                isFa
-                  ? 'جستجوی آنی در نام برند، نام ژنریک، دوز، اندیکاسیون‌ها، کدهای PBS و نکات بالینی...'
-                  : 'Real-time quick search across brand names, generics, indications, PBS codes & CAL labels...'
-              }
-              className="w-full pr-10 pl-4 py-2 rounded-xl border app-border bg-black/30 text-xs app-text focus:outline-none focus:border-teal-500 shadow-inner"
-            />
-            {searchQuery.trim() && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute left-3 top-2.5 text-xs text-slate-400 hover:text-white px-1.5 py-0.5 rounded bg-slate-800 cursor-pointer"
-              >
-                ✕
-              </button>
-            )}
+        {/* 3. REAL-TIME SEARCH BAR & ADVANCED FILTERS TRIGGER (Active in Shelf View) */}
+        {activeShelfView === 'shelf' && (
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 absolute right-3.5 top-3 text-slate-400 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={
+                  isFa
+                    ? 'جستجوی آنی در نام برند، نام ژنریک، دوز، اندیکاسیون‌ها، کدهای PBS و نکات بالینی...'
+                    : 'Real-time quick search across brand names, generics, indications, PBS codes & CAL labels...'
+                }
+                className="w-full pr-10 pl-4 py-2 rounded-xl border app-border bg-black/30 text-xs app-text focus:outline-none focus:border-teal-500 shadow-inner"
+              />
+              {searchQuery.trim() && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute left-3 top-2.5 text-xs text-slate-400 hover:text-white px-1.5 py-0.5 rounded bg-slate-800 cursor-pointer"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(true)}
+              className={`px-3.5 py-2 rounded-xl border text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                activeScheduleTags.length > 0 || activeCalTags.length > 0 || activeSafetyTags.length > 0 || substitutionFilter !== 'ALL'
+                  ? 'bg-sky-600 text-white border-sky-400 shadow-md shadow-sky-950/40 ring-1 ring-sky-300'
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+              }`}
+              title={isFa ? 'فیلترهای پیشرفته برچسب‌های هشدار، ایمنی و جدول‌بندی' : 'Advanced Multi-Tag Filters (CAL, Safety, Schedules)'}
+            >
+              <Filter className="w-3.5 h-3.5 text-sky-400" />
+              <span className="hidden sm:inline">{isFa ? 'فیلترهای پیشرفته' : 'Advanced Filters'}</span>
+              {(activeScheduleTags.length > 0 || activeCalTags.length > 0 || activeSafetyTags.length > 0 || substitutionFilter !== 'ALL') && (
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+              )}
+            </button>
           </div>
-
-          <button
-            type="button"
-            onClick={() => setIsSearchOpen(true)}
-            className={`px-3.5 py-2 rounded-xl border text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer ${
-              activeScheduleTags.length > 0 || activeCalTags.length > 0 || activeSafetyTags.length > 0 || substitutionFilter !== 'ALL'
-                ? 'bg-sky-600 text-white border-sky-400 shadow-md shadow-sky-950/40 ring-1 ring-sky-300'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
-            }`}
-            title={isFa ? 'فیلترهای پیشرفته برچسب‌های هشدار، ایمنی و جدول‌بندی' : 'Advanced Multi-Tag Filters (CAL, Safety, Schedules)'}
-          >
-            <Filter className="w-3.5 h-3.5 text-sky-400" />
-            <span className="hidden sm:inline">{isFa ? 'فیلترهای پیشرفته' : 'Advanced Filters'}</span>
-            {(activeScheduleTags.length > 0 || activeCalTags.length > 0 || activeSafetyTags.length > 0 || substitutionFilter !== 'ALL') && (
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-            )}
-          </button>
-        </div>
+        )}
       </div>
 
-      {/* CLINICAL MATRICES & PROTOCOLS PANEL */}
-      {isMatricesOpen && (
+      {/* VIEW 1: CLINICAL MATRICES & PROTOCOLS PANEL */}
+      {activeShelfView === 'matrices' && (
         <ClinicalMatricesPanel
           language={language}
           onFilterShelfByConcept={(conceptId) => {
             setSelectedConceptId(conceptId);
-            setIsMatricesOpen(false);
+            setActiveShelfView('shelf');
           }}
         />
       )}
 
-      {/* INTERACTIVE DISEASES & TREATMENT EXPLORER PANEL */}
-      {isDiseasesOpen && (
+      {/* VIEW 2: INTERACTIVE DISEASES & TREATMENT EXPLORER PANEL */}
+      {activeShelfView === 'diseases' && (
         <DiseaseCategoryExplorer
           language={language}
           onSelectDisease={(disease) => setSelectedDisease(disease)}
@@ -547,275 +529,280 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
         resetAllFilters={resetAllFilters}
       />
 
-      {/* 7 CLINICAL DOMAINS NAVIGATION & CATEGORY ARCHITECTURE */}
-      <div className="space-y-4 my-2">
-        <ShelfDomainSelector
-          clinicalDomains={CLINICAL_DOMAINS}
-          selectedDomainId={selectedDomainId}
-          onSelectDomain={handleSelectDomain}
-          language={language}
-        />
+      {/* VIEW 3: MAIN PRODUCT SHELF (ONLY VISIBLE WHEN SHELF TAB IS ACTIVE) */}
+      {activeShelfView === 'shelf' && (
+        <>
+          {/* 7 CLINICAL DOMAINS NAVIGATION & CATEGORY ARCHITECTURE */}
+          <div className="space-y-4 my-2">
+            <ShelfDomainSelector
+              clinicalDomains={CLINICAL_DOMAINS}
+              selectedDomainId={selectedDomainId}
+              onSelectDomain={handleSelectDomain}
+              language={language}
+            />
 
-        {/* 3 EXPANDABLE ACCORDIONS */}
-        <div className="space-y-3">
-          {/* ACCORDION 1: Subcategories & Clinical Pearls */}
-          <ShelfSubcategoriesAccordion
-            activeDomain={activeDomain}
-            activeSubCat={activeSubCat}
-            isOpen={isSubcategoriesAccordionOpen}
-            onToggleOpen={() => setIsSubcategoriesAccordionOpen((prev) => !prev)}
-            onSelectSubCatId={(id) => {
-              setSelectedSubCatId(id);
-            }}
-            onSelectDisease={setSelectedDisease}
-            language={language}
-          />
+            {/* 3 EXPANDABLE ACCORDIONS */}
+            <div className="space-y-3">
+              {/* ACCORDION 1: Subcategories & Clinical Pearls */}
+              <ShelfSubcategoriesAccordion
+                activeDomain={activeDomain}
+                activeSubCat={activeSubCat}
+                isOpen={isSubcategoriesAccordionOpen}
+                onToggleOpen={() => setIsSubcategoriesAccordionOpen((prev) => !prev)}
+                onSelectSubCatId={(id) => {
+                  setSelectedSubCatId(id);
+                }}
+                onSelectDisease={setSelectedDisease}
+                language={language}
+              />
 
-          {/* ACCORDION 2: Common Mechanism & Cellular Targets */}
-          <ShelfCommonMechanismAccordion
-            targetId={activeSubCat.id}
-            activeSubCat={activeSubCat}
-            isOpen={isCommonMechanismAccordionOpen}
-            onToggleOpen={() => setIsCommonMechanismAccordionOpen((prev) => !prev)}
-            activeMechanismFilter={activeMechanismFilter}
-            onToggleMechanismFilter={(nameEn) => {
-              setActiveMechanismFilter((prev) => (prev === nameEn ? 'ALL' : nameEn));
-            }}
-            onSelectConceptId={setSelectedConceptId}
-            language={language}
-          />
+              {/* ACCORDION 2: Common Mechanism & Cellular Targets */}
+              <ShelfCommonMechanismAccordion
+                targetId={activeSubCat.id}
+                activeSubCat={activeSubCat}
+                isOpen={isCommonMechanismAccordionOpen}
+                onToggleOpen={() => setIsCommonMechanismAccordionOpen((prev) => !prev)}
+                activeMechanismFilter={activeMechanismFilter}
+                onToggleMechanismFilter={(nameEn) => {
+                  setActiveMechanismFilter((prev) => (prev === nameEn ? 'ALL' : nameEn));
+                }}
+                onSelectConceptId={setSelectedConceptId}
+                language={language}
+              />
 
-          {/* ACCORDION 3: Grouping, Sorting & Schedule Matrix */}
-          <ShelfGroupingAccordion
-            isOpen={isGroupingAccordionOpen}
-            onToggleOpen={() => setIsGroupingAccordionOpen((prev) => !prev)}
-            isGroupedByMechanism={isGroupedByMechanism}
-            onToggleGroupedByMechanism={() => setIsGroupedByMechanism((prev) => !prev)}
-            sortOrder={sortOrder}
-            setSortOrder={setSortOrder}
-            selectedSchedule={selectedSchedule}
-            setSelectedSchedule={setSelectedSchedule}
-            substitutionFilter={substitutionFilter}
-            setSubstitutionFilter={setSubstitutionFilter}
-            language={language}
-          />
-        </div>
-      </div>
-
-      {/* PRODUCTS SECTION: SUBCATEGORY PRODUCTS GRID */}
-      <div className="space-y-3 pt-2 border-t border-slate-800">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <Pill className="w-5 h-5 text-sky-400" />
-              <h3 className="text-base font-bold text-white">
-                {isFa
-                  ? `داروهای زیرمجموعه «${activeSubCat.titleFa}» (${filteredProducts.length} محصول):`
-                  : `Medicines in ${activeSubCat.titleEn} (${filteredProducts.length} products):`}
-              </h3>
-              {activeMechanismFilter !== 'ALL' && (
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/40 font-bold flex items-center gap-1.5 animate-fadeIn">
-                  <Dna className="w-3.5 h-3.5" />
-                  <span>{activeMechanismFilter}</span>
-                  <button
-                    type="button"
-                    onClick={() => setActiveMechanismFilter('ALL')}
-                    className="hover:text-white ml-0.5 font-mono font-bold cursor-pointer"
-                    title={isFa ? 'حذف فیلتر مکانیسم' : 'Clear mechanism filter'}
-                  >
-                    ✕
-                  </button>
-                </span>
-              )}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setIsGroupedByMechanism((prev) => !prev)}
-                className={`text-xs px-3 py-1.5 rounded-xl border font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs ${
-                  isGroupedByMechanism
-                    ? 'bg-teal-500 text-slate-950 border-teal-400 font-black'
-                    : 'bg-slate-800 hover:bg-slate-700 text-teal-300 border-teal-500/30'
-                }`}
-              >
-                <Layers className="w-3.5 h-3.5" />
-                <span>{isFa ? '🧬 گروه‌بندی بر اساس مکانیسم' : '🧬 Group by Mechanism'}</span>
-              </button>
-
-              <div className="text-xs text-slate-400 flex items-center gap-1.5 pl-1">
-                <span>{isFa ? 'ترتیب:' : 'Sort:'}</span>
-                <span className="font-bold text-amber-300">
-                  {sortOrder === 'SUBCATEGORY'
-                    ? isFa ? 'بر اساس زیردسته‌ها' : 'By Subcategory'
-                    : sortOrder === 'ALPHABETICAL'
-                    ? isFa ? 'الفبایی' : 'Alphabetical'
-                    : 'Schedule'}
-                </span>
-              </div>
+              {/* ACCORDION 3: Grouping, Sorting & Schedule Matrix */}
+              <ShelfGroupingAccordion
+                isOpen={isGroupingAccordionOpen}
+                onToggleOpen={() => setIsGroupingAccordionOpen((prev) => !prev)}
+                isGroupedByMechanism={isGroupedByMechanism}
+                onToggleGroupedByMechanism={() => setIsGroupedByMechanism((prev) => !prev)}
+                sortOrder={sortOrder}
+                setSortOrder={setSortOrder}
+                selectedSchedule={selectedSchedule}
+                setSelectedSchedule={setSelectedSchedule}
+                substitutionFilter={substitutionFilter}
+                setSubstitutionFilter={setSubstitutionFilter}
+                language={language}
+              />
             </div>
           </div>
 
-          {/* Quick Mechanism Filter Chips */}
-          {(() => {
-            const availableMechanisms = Array.from(
-              new Set(
-                SHELF_PRODUCTS.filter((p) => {
-                  if (p.domainId && p.domainId !== selectedDomainId) return false;
-                  if (selectedSubCatId && p.subcategoryId && p.subcategoryId !== selectedSubCatId) return false;
-                  return true;
-                }).map((p) => {
-                  const m = getProductMechanism(p);
-                  return JSON.stringify({ code: m.classCode, nameFa: m.classNameFa, nameEn: m.classNameEn, action: m.actionClassification });
-                })
-              )
-            ).map((s) => JSON.parse(s));
+          {/* PRODUCTS SECTION: SUBCATEGORY PRODUCTS GRID */}
+          <div className="space-y-3 pt-2 border-t border-slate-800">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <Pill className="w-5 h-5 text-sky-400" />
+                <h3 className="text-base font-bold text-white">
+                  {isFa
+                    ? `داروهای زیرمجموعه «${activeSubCat.titleFa}» (${filteredProducts.length} محصول):`
+                    : `Medicines in ${activeSubCat.titleEn} (${filteredProducts.length} products):`}
+                </h3>
+                {activeMechanismFilter !== 'ALL' && (
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/40 font-bold flex items-center gap-1.5 animate-fadeIn">
+                    <Dna className="w-3.5 h-3.5" />
+                    <span>{activeMechanismFilter}</span>
+                    <button
+                      type="button"
+                      onClick={() => setActiveMechanismFilter('ALL')}
+                      className="hover:text-white ml-0.5 font-mono font-bold cursor-pointer"
+                      title={isFa ? 'حذف فیلتر مکانیسم' : 'Clear mechanism filter'}
+                    >
+                      ✕
+                    </button>
+                  </span>
+                )}
+              </div>
 
-            if (availableMechanisms.length <= 1) return null;
-
-            return (
-              <div className="flex flex-wrap items-center gap-1.5 p-2 rounded-xl bg-slate-900/60 border border-teal-500/20 text-xs">
-                <span className="text-slate-400 font-semibold flex items-center gap-1 text-[11px]">
-                  <Dna className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                  <span>{isFa ? 'فیلتر سریع مکانیسم:' : 'Quick Mechanism Filter:'}</span>
-                </span>
-
+              <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setActiveMechanismFilter('ALL')}
-                  className={`px-2.5 py-1 rounded-lg border text-[11px] font-bold transition cursor-pointer ${
-                    activeMechanismFilter === 'ALL'
+                  onClick={() => setIsGroupedByMechanism((prev) => !prev)}
+                  className={`text-xs px-3 py-1.5 rounded-xl border font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs ${
+                    isGroupedByMechanism
                       ? 'bg-teal-500 text-slate-950 border-teal-400 font-black'
-                      : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                      : 'bg-slate-800 hover:bg-slate-700 text-teal-300 border-teal-500/30'
                   }`}
                 >
-                  {isFa ? 'همه مکانیسم‌ها' : 'All Mechanisms'}
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>{isFa ? '🧬 گروه‌بندی بر اساس مکانیسم' : '🧬 Group by Mechanism'}</span>
                 </button>
 
-                {availableMechanisms.map((am) => {
-                  const count = SHELF_PRODUCTS.filter((p) => {
+                <div className="text-xs text-slate-400 flex items-center gap-1.5 pl-1">
+                  <span>{isFa ? 'ترتیب:' : 'Sort:'}</span>
+                  <span className="font-bold text-amber-300">
+                    {sortOrder === 'SUBCATEGORY'
+                      ? isFa ? 'بر اساس زیردسته‌ها' : 'By Subcategory'
+                      : sortOrder === 'ALPHABETICAL'
+                      ? isFa ? 'الفبایی' : 'Alphabetical'
+                      : 'Schedule'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Mechanism Filter Chips */}
+            {(() => {
+              const availableMechanisms = Array.from(
+                new Set(
+                  SHELF_PRODUCTS.filter((p) => {
                     if (p.domainId && p.domainId !== selectedDomainId) return false;
                     if (selectedSubCatId && p.subcategoryId && p.subcategoryId !== selectedSubCatId) return false;
-                    return getProductMechanism(p).classCode === am.code;
-                  }).length;
+                    return true;
+                  }).map((p) => {
+                    const m = getProductMechanism(p);
+                    return JSON.stringify({ code: m.classCode, nameFa: m.classNameFa, nameEn: m.classNameEn, action: m.actionClassification });
+                  })
+                )
+              ).map((s) => JSON.parse(s));
 
-                  const isAct = activeMechanismFilter === am.code;
+              if (availableMechanisms.length <= 1) return null;
 
-                  return (
-                    <button
-                      key={am.code}
-                      type="button"
-                      onClick={() => setActiveMechanismFilter(isAct ? 'ALL' : am.code)}
-                      className={`px-2.5 py-1 rounded-lg border text-[11px] font-bold transition cursor-pointer flex items-center gap-1.5 ${
-                        isAct
-                          ? 'bg-teal-500 text-slate-950 border-teal-400 font-black shadow-xs'
-                          : 'bg-teal-950/30 hover:bg-teal-900/40 text-teal-200 border-teal-500/30'
-                      }`}
-                    >
-                      <span>{isFa ? am.nameFa : am.nameEn}</span>
-                      <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${isAct ? 'bg-slate-900 text-teal-300' : 'bg-teal-500/20 text-teal-300'}`}>
-                        {count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            );
-          })()}
+              return (
+                <div className="flex flex-wrap items-center gap-1.5 p-2 rounded-xl bg-slate-900/60 border border-teal-500/20 text-xs">
+                  <span className="text-slate-400 font-semibold flex items-center gap-1 text-[11px]">
+                    <Dna className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                    <span>{isFa ? 'فیلتر سریع مکانیسم:' : 'Quick Mechanism Filter:'}</span>
+                  </span>
 
-          {/* DRUG CARDS GRID (OR GROUPED BY MECHANISM) */}
-          {filteredProducts.length === 0 ? (
-            <div className="p-8 text-center app-card border app-border rounded-2xl text-slate-400 text-xs">
-              {isFa
-                ? 'هیچ دارویی با فیلترهای انتخابی مطابقت ندارد. فیلترها را بازنشانی کنید.'
-                : 'No products match the selected criteria. Try resetting filters.'}
-            </div>
-          ) : isGroupedByMechanism ? (
-            <div className="space-y-5 pt-2">
-              {(() => {
-                const groupedMap = new Map<string, { mech: DrugMechanismInfo; prods: Product[] }>();
-                filteredProducts.forEach((p) => {
-                  const m = getProductMechanism(p);
-                  if (!groupedMap.has(m.classCode)) {
-                    groupedMap.set(m.classCode, { mech: m, prods: [] });
-                  }
-                  groupedMap.get(m.classCode)!.prods.push(p);
-                });
-
-                return Array.from(groupedMap.values()).map(({ mech, prods }) => (
-                  <div
-                    key={mech.classCode}
-                    className="p-4 rounded-2xl border border-teal-500/30 bg-gradient-to-r from-teal-950/20 via-slate-900/40 to-slate-950/40 space-y-3 shadow-sm"
+                  <button
+                    type="button"
+                    onClick={() => setActiveMechanismFilter('ALL')}
+                    className={`px-2.5 py-1 rounded-lg border text-[11px] font-bold transition cursor-pointer ${
+                      activeMechanismFilter === 'ALL'
+                        ? 'bg-teal-500 text-slate-950 border-teal-400 font-black'
+                        : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                    }`}
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-teal-500/20 pb-2.5">
-                      <div className="flex items-center gap-2">
-                        <Dna className="w-4 h-4 text-teal-400" />
-                        <h4 className="font-bold text-sm text-white">
-                          {isFa ? mech.classNameFa : mech.classNameEn}
-                        </h4>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-300 font-mono font-bold">
-                          {mech.actionClassification}
+                    {isFa ? 'همه مکانیسم‌ها' : 'All Mechanisms'}
+                  </button>
+
+                  {availableMechanisms.map((am) => {
+                    const count = SHELF_PRODUCTS.filter((p) => {
+                      if (p.domainId && p.domainId !== selectedDomainId) return false;
+                      if (selectedSubCatId && p.subcategoryId && p.subcategoryId !== selectedSubCatId) return false;
+                      return getProductMechanism(p).classCode === am.code;
+                    }).length;
+
+                    const isAct = activeMechanismFilter === am.code;
+
+                    return (
+                      <button
+                        key={am.code}
+                        type="button"
+                        onClick={() => setActiveMechanismFilter(isAct ? 'ALL' : am.code)}
+                        className={`px-2.5 py-1 rounded-lg border text-[11px] font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                          isAct
+                            ? 'bg-teal-500 text-slate-950 border-teal-400 font-black shadow-xs'
+                            : 'bg-teal-950/30 hover:bg-teal-900/40 text-teal-200 border-teal-500/30'
+                        }`}
+                      >
+                        <span>{isFa ? am.nameFa : am.nameEn}</span>
+                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${isAct ? 'bg-slate-900 text-teal-300' : 'bg-teal-500/20 text-teal-300'}`}>
+                          {count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+
+            {/* DRUG CARDS GRID (OR GROUPED BY MECHANISM) */}
+            {filteredProducts.length === 0 ? (
+              <div className="p-8 text-center app-card border app-border rounded-2xl text-slate-400 text-xs">
+                {isFa
+                  ? 'هیچ دارویی با فیلترهای انتخابی مطابقت ندارد. فیلترها را بازنشانی کنید.'
+                  : 'No products match the selected criteria. Try resetting filters.'}
+              </div>
+            ) : isGroupedByMechanism ? (
+              <div className="space-y-5 pt-2">
+                {(() => {
+                  const groupedMap = new Map<string, { mech: DrugMechanismInfo; prods: Product[] }>();
+                  filteredProducts.forEach((p) => {
+                    const m = getProductMechanism(p);
+                    if (!groupedMap.has(m.classCode)) {
+                      groupedMap.set(m.classCode, { mech: m, prods: [] });
+                    }
+                    groupedMap.get(m.classCode)!.prods.push(p);
+                  });
+
+                  return Array.from(groupedMap.values()).map(({ mech, prods }) => (
+                    <div
+                      key={mech.classCode}
+                      className="p-4 rounded-2xl border border-teal-500/30 bg-gradient-to-r from-teal-950/20 via-slate-900/40 to-slate-950/40 space-y-3 shadow-sm"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-teal-500/20 pb-2.5">
+                        <div className="flex items-center gap-2">
+                          <Dna className="w-4 h-4 text-teal-400" />
+                          <h4 className="font-bold text-sm text-white">
+                            {isFa ? mech.classNameFa : mech.classNameEn}
+                          </h4>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-300 font-mono font-bold">
+                            {mech.actionClassification}
+                          </span>
+                        </div>
+                        <span className="text-xs text-teal-300 font-mono font-bold">
+                          {prods.length} {isFa ? 'دارو' : 'Medicines'}
                         </span>
                       </div>
-                      <span className="text-xs text-teal-300 font-mono font-bold">
-                        {prods.length} {isFa ? 'دارو' : 'Medicines'}
-                      </span>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4.5">
-                      {prods.map((prod) => (
-                        <ShelfDrugCard
-                          key={prod.id}
-                          prod={prod}
-                          language={language}
-                          calLabelsDict={CAL_LABELS_DICT}
-                          onSelectSchedule={(sched) => setSelectedSchedule(sched as any)}
-                          onSelectMechanism={setSelectedMechanismInfo}
-                          onSelectCalInfo={setSelectedCalInfo}
-                          onSelectConceptId={setSelectedConceptId}
-                          onOpenAiLeitner={onOpenAiLeitner}
-                          onNavigateToModule={onNavigateToModule}
-                          onOpenProjectStop={() => {
-                            setActiveProduct(prod);
-                            setIsProjectStopOpen(true);
-                          }}
-                        />
-                      ))}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4.5">
+                        {prods.map((prod) => (
+                          <ShelfDrugCard
+                            key={prod.id}
+                            prod={prod}
+                            language={language}
+                            calLabelsDict={CAL_LABELS_DICT}
+                            onSelectSchedule={(sched) => setSelectedSchedule(sched as any)}
+                            onSelectMechanism={setSelectedMechanismInfo}
+                            onSelectCalInfo={setSelectedCalInfo}
+                            onSelectConceptId={setSelectedConceptId}
+                            onOpenAiLeitner={onOpenAiLeitner}
+                            onNavigateToModule={onNavigateToModule}
+                            onOpenProjectStop={() => {
+                              setActiveProduct(prod);
+                              setIsProjectStopOpen(true);
+                            }}
+                          />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ));
-              })()}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4.5 pt-1">
-              {filteredProducts.map((prod) => (
-                <ShelfDrugCard
-                  key={prod.id}
-                  prod={prod}
-                  language={language}
-                  calLabelsDict={CAL_LABELS_DICT}
-                  onSelectSchedule={(sched) => setSelectedSchedule(sched as any)}
-                  onSelectMechanism={setSelectedMechanismInfo}
-                  onSelectCalInfo={setSelectedCalInfo}
-                  onSelectConceptId={setSelectedConceptId}
-                  onOpenAiLeitner={onOpenAiLeitner}
-                  onNavigateToModule={onNavigateToModule}
-                  onOpenProjectStop={() => {
-                    setActiveProduct(prod);
-                    setIsProjectStopOpen(true);
-                  }}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+                  ));
+                })()}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4.5 pt-1">
+                {filteredProducts.map((prod) => (
+                  <ShelfDrugCard
+                    key={prod.id}
+                    prod={prod}
+                    language={language}
+                    calLabelsDict={CAL_LABELS_DICT}
+                    onSelectSchedule={(sched) => setSelectedSchedule(sched as any)}
+                    onSelectMechanism={setSelectedMechanismInfo}
+                    onSelectCalInfo={setSelectedCalInfo}
+                    onSelectConceptId={setSelectedConceptId}
+                    onOpenAiLeitner={onOpenAiLeitner}
+                    onNavigateToModule={onNavigateToModule}
+                    onOpenProjectStop={() => {
+                      setActiveProduct(prod);
+                      setIsProjectStopOpen(true);
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
 
-      {/* STATE STORAGE RULES COMPLIANCE TESTER */}
-      <ShelfStateStorageTester
-        selectedState={selectedState}
-        onSelectState={setSelectedState}
-        stateStorageRules={STATE_STORAGE_RULES}
-        language={language}
-      />
+          {/* STATE STORAGE RULES COMPLIANCE TESTER */}
+          <ShelfStateStorageTester
+            selectedState={selectedState}
+            onSelectState={setSelectedState}
+            stateStorageRules={STATE_STORAGE_RULES}
+            language={language}
+          />
+        </>
+      )}
 
       {/* PROJECT STOP VERIFICATION MODAL */}
       <ProjectStopModal

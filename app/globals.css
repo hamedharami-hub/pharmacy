@@ -250,127 +250,106 @@
 /* ========================================================================= */
 
 /* Surface & Containers */
-body.theme-light .app-card,
-body.theme-light .bg-slate-900,
-body.theme-light .bg-slate-900\/95,
-body.theme-light .bg-slate-900\/90,
-body.theme-light .bg-slate-900\/80,
-body.theme-light .bg-slate-900\/70,
-body.theme-light .bg-slate-900\/60,
-body.theme-light .bg-slate-900\/50,
-body.theme-light .bg-slate-950,
-body.theme-light .bg-slate-950\/95,
-body.theme-light .bg-slate-950\/90,
-body.theme-light .bg-slate-950\/80,
-body.theme-light .bg-slate-950\/70,
-body.theme-light .bg-slate-950\/60,
-body.theme-light .bg-zinc-900,
-body.theme-light .bg-zinc-950,
-body.theme-light .bg-gray-900,
-body.theme-light .bg-gray-950 {
+body.theme-day .app-card,
+body.theme-day .bg-slate-900,
+body.theme-day .bg-slate-900\/95,
+body.theme-day .bg-slate-900\/90,
+body.theme-day .bg-slate-900\/80,
+body.theme-day .bg-slate-900\/70,
+body.theme-day .bg-slate-900\/60,
+body.theme-day .bg-slate-900\/50,
+body.theme-day .bg-slate-950,
+body.theme-day .bg-slate-950\/95,
+body.theme-day .bg-slate-950\/90,
+body.theme-day .bg-slate-950\/80,
+body.theme-day .bg-slate-950\/70,
+body.theme-day .bg-slate-950\/60,
+body.theme-day .bg-zinc-900,
+body.theme-day .bg-zinc-950,
+body.theme-day .bg-gray-900,
+body.theme-day .bg-gray-950 {
   background-color: #ffffff !important;
   color: #0f172a !important;
 }
 
-body.theme-light .bg-slate-800,
-body.theme-light .bg-slate-800\/90,
-body.theme-light .bg-slate-800\/80,
-body.theme-light .bg-slate-800\/70,
-body.theme-light .bg-slate-800\/60,
-body.theme-light .bg-slate-800\/50,
-body.theme-light .bg-slate-800\/40,
-body.theme-light .bg-black\/5,
-body.theme-light .bg-black\/10,
-body.theme-light .bg-black\/20,
-body.theme-light .bg-black\/30,
-body.theme-light .bg-black\/40,
-body.theme-light .bg-black\/50,
-body.theme-light .bg-black\/60,
-body.theme-light .bg-black\/70,
-body.theme-light .bg-black\/80 {
+body.theme-day .bg-slate-800,
+body.theme-day .bg-slate-800\/90,
+body.theme-day .bg-slate-800\/80,
+body.theme-day .bg-slate-800\/70,
+body.theme-day .bg-slate-800\/60,
+body.theme-day .bg-slate-800\/50,
+body.theme-day .bg-slate-800\/40,
+body.theme-day .bg-black\/5,
+body.theme-day .bg-black\/10,
+body.theme-day .bg-black\/20,
+body.theme-day .bg-black\/30,
+body.theme-day .bg-black\/40,
+body.theme-day .bg-black\/50,
+body.theme-day .bg-black\/60,
+body.theme-day .bg-black\/70,
+body.theme-day .bg-black\/80 {
   background-color: #f8fafc !important;
   color: #0f172a !important;
 }
 
-body.theme-light .bg-slate-800:hover,
-body.theme-light .hover\:bg-slate-700:hover,
-body.theme-light .hover\:bg-slate-800:hover {
+body.theme-day .bg-slate-800:hover,
+body.theme-day .hover\:bg-slate-700:hover,
+body.theme-day .hover\:bg-slate-800:hover {
   background-color: #e2e8f0 !important;
 }
 
-/* Gradient buttons/headers retain their rich contrast in Light Theme */
-body.theme-light button[class*="bg-gradient-"],
-body.theme-light div[class*="bg-gradient-"],
-body.theme-light aside[class*="bg-gradient-"],
-body.theme-light header[class*="bg-gradient-"],
-body.theme-light nav[class*="bg-gradient-"] {
+/* Gradient buttons & main navigation CTA contrast */
+body.theme-day button[class*="bg-gradient-"],
+body.theme-day a[class*="bg-gradient-"],
+body.theme-day header[class*="bg-gradient-"],
+body.theme-day nav[class*="bg-gradient-"] {
   color: #ffffff !important;
 }
 
-/* Text & SVG inside gradient containers stays white in all light-based themes */
-body.theme-light [class*="bg-gradient-"] .text-white,
-body.theme-light [class*="bg-gradient-"] .text-slate-100,
-body.theme-light [class*="bg-gradient-"] .text-slate-200,
-body.theme-light [class*="bg-gradient-"] .text-sky-200,
-body.theme-sepia [class*="bg-gradient-"] .text-white,
-body.theme-sepia [class*="bg-gradient-"] .text-slate-100,
-body.theme-sepia [class*="bg-gradient-"] .text-sky-200,
-body.theme-reading-day [class*="bg-gradient-"] .text-white,
-body.theme-reading-day [class*="bg-gradient-"] .text-slate-100,
-body.theme-reading-day [class*="bg-gradient-"] .text-sky-200,
-body.theme-ereader [class*="bg-gradient-"] .text-white,
-body.theme-ereader [class*="bg-gradient-"] .text-slate-100,
-body.theme-ereader [class*="bg-gradient-"] .text-sky-200 {
-  color: #ffffff !important;
-}
-
-body.theme-light [class*="bg-gradient-"] svg,
-body.theme-sepia [class*="bg-gradient-"] svg,
-body.theme-reading-day [class*="bg-gradient-"] svg,
-body.theme-ereader [class*="bg-gradient-"] svg {
-  color: #ffffff !important;
-  stroke: #ffffff !important;
+body.theme-day button[class*="bg-gradient-"] *,
+body.theme-day a[class*="bg-gradient-"] * {
+  color: inherit !important;
 }
 
 /* Base Borders */
-body.theme-light .border-slate-800,
-body.theme-light .border-slate-800\/80,
-body.theme-light .border-slate-800\/60,
-body.theme-light .border-slate-700,
-body.theme-light .border-slate-700\/80,
-body.theme-light .border-slate-700\/70,
-body.theme-light .border-slate-700\/60,
-body.theme-light .border-slate-600,
-body.theme-light .border-zinc-800,
-body.theme-light .border-zinc-700,
-body.theme-light .border-gray-800,
-body.theme-light .border-gray-700 {
+body.theme-day .border-slate-800,
+body.theme-day .border-slate-800\/80,
+body.theme-day .border-slate-800\/60,
+body.theme-day .border-slate-700,
+body.theme-day .border-slate-700\/80,
+body.theme-day .border-slate-700\/70,
+body.theme-day .border-slate-700\/60,
+body.theme-day .border-slate-600,
+body.theme-day .border-zinc-800,
+body.theme-day .border-zinc-700,
+body.theme-day .border-gray-800,
+body.theme-day .border-gray-700 {
   border-color: #e2e8f0 !important;
 }
 
 /* Text Hierarchy & Contrast in Light Theme */
-body.theme-light .text-white,
-body.theme-light .text-slate-100,
-body.theme-light .text-slate-200,
-body.theme-light .text-zinc-100,
-body.theme-light .text-zinc-200,
-body.theme-light .text-gray-100,
-body.theme-light .text-gray-200 {
+body.theme-day .text-white,
+body.theme-day .text-slate-100,
+body.theme-day .text-slate-200,
+body.theme-day .text-zinc-100,
+body.theme-day .text-zinc-200,
+body.theme-day .text-gray-100,
+body.theme-day .text-gray-200 {
   color: #0f172a !important;
 }
 
-body.theme-light .text-slate-300,
-body.theme-light .text-slate-400,
-body.theme-light .text-zinc-300,
-body.theme-light .text-zinc-400,
-body.theme-light .text-gray-300,
-body.theme-light .text-gray-400 {
+body.theme-day .text-slate-300,
+body.theme-day .text-slate-400,
+body.theme-day .text-zinc-300,
+body.theme-day .text-zinc-400,
+body.theme-day .text-gray-300,
+body.theme-day .text-gray-400 {
   color: #334155 !important;
 }
 
-body.theme-light .text-slate-500,
-body.theme-light .text-zinc-500,
-body.theme-light .text-gray-500 {
+body.theme-day .text-slate-500,
+body.theme-day .text-zinc-500,
+body.theme-day .text-gray-500 {
   color: #64748b !important;
 }
 
@@ -418,371 +397,371 @@ body.theme-reader-night h4, body.theme-reader-night h5, body.theme-reader-night 
 /* ========================================================================= */
 
 /* 1. RED, ROSE & PINK (Red Flags, Urgent Triage, S8 Controlled, Contraindications, Warnings) */
-body.theme-light [class*="text-rose-"],
-body.theme-light [class*="text-red-"],
-body.theme-light [class*="text-pink-"] {
+body.theme-day [class*="text-rose-"],
+body.theme-day [class*="text-red-"],
+body.theme-day [class*="text-pink-"] {
   color: #4c0519 !important; /* Deepest Burgundy / Near Black */
   font-weight: 700 !important;
 }
 
-body.theme-light [class*="bg-rose-950"],
-body.theme-light [class*="bg-rose-900"],
-body.theme-light [class*="bg-rose-500/"],
-body.theme-light [class*="bg-rose-600/"],
-body.theme-light [class*="bg-red-950"],
-body.theme-light [class*="bg-red-900"],
-body.theme-light [class*="bg-red-500/"],
-body.theme-light [class*="bg-red-600/"],
-body.theme-light [class*="bg-pink-950"],
-body.theme-light [class*="bg-pink-500/"],
-body.theme-light span[class*="bg-rose-"],
-body.theme-light span[class*="bg-red-"],
-body.theme-light span[class*="bg-pink-"],
-body.theme-light div[class*="bg-rose-500/"],
-body.theme-light div[class*="bg-red-500/"],
-body.theme-light button[class*="bg-rose-500/"],
-body.theme-light button[class*="bg-red-500/"] {
+body.theme-day [class*="bg-rose-950"],
+body.theme-day [class*="bg-rose-900"],
+body.theme-day [class*="bg-rose-500/"],
+body.theme-day [class*="bg-rose-600/"],
+body.theme-day [class*="bg-red-950"],
+body.theme-day [class*="bg-red-900"],
+body.theme-day [class*="bg-red-500/"],
+body.theme-day [class*="bg-red-600/"],
+body.theme-day [class*="bg-pink-950"],
+body.theme-day [class*="bg-pink-500/"],
+body.theme-day span[class*="bg-rose-"],
+body.theme-day span[class*="bg-red-"],
+body.theme-day span[class*="bg-pink-"],
+body.theme-day div[class*="bg-rose-500/"],
+body.theme-day div[class*="bg-red-500/"],
+body.theme-day button[class*="bg-rose-500/"],
+body.theme-day button[class*="bg-red-500/"] {
   background-color: #fff1f2 !important; /* Ultra-soft rose tint */
   border-color: #fecdd3 !important;
   color: #4c0519 !important;
 }
 
-body.theme-light [class*="border-rose-"],
-body.theme-light [class*="border-red-"],
-body.theme-light [class*="border-pink-"],
-body.theme-light [class*="border-rose-500"],
-body.theme-light [class*="border-red-500"],
-body.theme-light [class*="border-pink-500"] {
+body.theme-day [class*="border-rose-"],
+body.theme-day [class*="border-red-"],
+body.theme-day [class*="border-pink-"],
+body.theme-day [class*="border-rose-500"],
+body.theme-day [class*="border-red-500"],
+body.theme-day [class*="border-pink-500"] {
   border-color: #fecdd3 !important;
 }
 
-body.theme-light [class*="bg-rose-"] svg,
-body.theme-light [class*="border-rose-"] svg,
-body.theme-light [class*="bg-red-"] svg,
-body.theme-light [class*="border-red-"] svg {
+body.theme-day [class*="bg-rose-"] svg,
+body.theme-day [class*="border-rose-"] svg,
+body.theme-day [class*="bg-red-"] svg,
+body.theme-day [class*="border-red-"] svg {
   color: #4c0519 !important;
   stroke: #4c0519 !important;
 }
 
 /* 2. AMBER, YELLOW & ORANGE (Clinical Pearls, Recall Notes, Overviews, CAL 8 & 9) */
-body.theme-light [class*="text-amber-"],
-body.theme-light [class*="text-yellow-"],
-body.theme-light [class*="text-orange-"] {
+body.theme-day [class*="text-amber-"],
+body.theme-day [class*="text-yellow-"],
+body.theme-day [class*="text-orange-"] {
   color: #451a03 !important; /* Deepest Warm Umber / Near Black */
   font-weight: 700 !important;
 }
 
-body.theme-light [class*="bg-amber-950"],
-body.theme-light [class*="bg-amber-900"],
-body.theme-light [class*="bg-amber-500/"],
-body.theme-light [class*="bg-amber-600/"],
-body.theme-light [class*="bg-yellow-950"],
-body.theme-light [class*="bg-yellow-900"],
-body.theme-light [class*="bg-yellow-500/"],
-body.theme-light [class*="bg-orange-950"],
-body.theme-light [class*="bg-orange-900"],
-body.theme-light [class*="bg-orange-500/"],
-body.theme-light span[class*="bg-amber-"],
-body.theme-light span[class*="bg-yellow-"],
-body.theme-light span[class*="bg-orange-"],
-body.theme-light div[class*="bg-amber-500/"],
-body.theme-light div[class*="bg-yellow-500/"],
-body.theme-light div[class*="bg-orange-500/"],
-body.theme-light button[class*="bg-amber-500/"],
-body.theme-light button[class*="bg-yellow-500/"],
-body.theme-light button[class*="bg-orange-500/"] {
+body.theme-day [class*="bg-amber-950"],
+body.theme-day [class*="bg-amber-900"],
+body.theme-day [class*="bg-amber-500/"],
+body.theme-day [class*="bg-amber-600/"],
+body.theme-day [class*="bg-yellow-950"],
+body.theme-day [class*="bg-yellow-900"],
+body.theme-day [class*="bg-yellow-500/"],
+body.theme-day [class*="bg-orange-950"],
+body.theme-day [class*="bg-orange-900"],
+body.theme-day [class*="bg-orange-500/"],
+body.theme-day span[class*="bg-amber-"],
+body.theme-day span[class*="bg-yellow-"],
+body.theme-day span[class*="bg-orange-"],
+body.theme-day div[class*="bg-amber-500/"],
+body.theme-day div[class*="bg-yellow-500/"],
+body.theme-day div[class*="bg-orange-500/"],
+body.theme-day button[class*="bg-amber-500/"],
+body.theme-day button[class*="bg-yellow-500/"],
+body.theme-day button[class*="bg-orange-500/"] {
   background-color: #fefce8 !important; /* Ultra-soft warm cream tint */
   border-color: #fef08a !important;
   color: #451a03 !important;
 }
 
-body.theme-light [class*="border-amber-"],
-body.theme-light [class*="border-yellow-"],
-body.theme-light [class*="border-orange-"],
-body.theme-light [class*="border-amber-500"],
-body.theme-light [class*="border-yellow-500"],
-body.theme-light [class*="border-orange-500"] {
+body.theme-day [class*="border-amber-"],
+body.theme-day [class*="border-yellow-"],
+body.theme-day [class*="border-orange-"],
+body.theme-day [class*="border-amber-500"],
+body.theme-day [class*="border-yellow-500"],
+body.theme-day [class*="border-orange-500"] {
   border-color: #fde68a !important;
 }
 
-body.theme-light [class*="bg-amber-"] svg,
-body.theme-light [class*="border-amber-"] svg,
-body.theme-light [class*="bg-yellow-"] svg,
-body.theme-light [class*="bg-orange-"] svg {
+body.theme-day [class*="bg-amber-"] svg,
+body.theme-day [class*="border-amber-"] svg,
+body.theme-day [class*="bg-yellow-"] svg,
+body.theme-day [class*="bg-orange-"] svg {
   color: #451a03 !important;
   stroke: #451a03 !important;
 }
 
 /* 3. SKY, BLUE & CYAN (S2 Medicines, Info, Clinical Tags, CAL 4 Cold Chain, Shelf Search) */
-body.theme-light [class*="text-sky-"],
-body.theme-light [class*="text-blue-"],
-body.theme-light [class*="text-cyan-"] {
+body.theme-day [class*="text-sky-"],
+body.theme-day [class*="text-blue-"],
+body.theme-day [class*="text-cyan-"] {
   color: #082f49 !important; /* Deepest Midnight Blue / Near Black */
   font-weight: 700 !important;
 }
 
-body.theme-light [class*="bg-sky-950"],
-body.theme-light [class*="bg-sky-900"],
-body.theme-light [class*="bg-sky-500/"],
-body.theme-light [class*="bg-sky-600/"],
-body.theme-light [class*="bg-blue-950"],
-body.theme-light [class*="bg-blue-900"],
-body.theme-light [class*="bg-blue-500/"],
-body.theme-light [class*="bg-cyan-950"],
-body.theme-light [class*="bg-cyan-900"],
-body.theme-light [class*="bg-cyan-500/"],
-body.theme-light span[class*="bg-sky-"],
-body.theme-light span[class*="bg-blue-"],
-body.theme-light span[class*="bg-cyan-"],
-body.theme-light div[class*="bg-sky-500/"],
-body.theme-light div[class*="bg-blue-500/"],
-body.theme-light div[class*="bg-cyan-500/"],
-body.theme-light button[class*="bg-sky-500/"],
-body.theme-light button[class*="bg-blue-500/"],
-body.theme-light button[class*="bg-cyan-500/"] {
+body.theme-day [class*="bg-sky-950"],
+body.theme-day [class*="bg-sky-900"],
+body.theme-day [class*="bg-sky-500/"],
+body.theme-day [class*="bg-sky-600/"],
+body.theme-day [class*="bg-blue-950"],
+body.theme-day [class*="bg-blue-900"],
+body.theme-day [class*="bg-blue-500/"],
+body.theme-day [class*="bg-cyan-950"],
+body.theme-day [class*="bg-cyan-900"],
+body.theme-day [class*="bg-cyan-500/"],
+body.theme-day span[class*="bg-sky-"],
+body.theme-day span[class*="bg-blue-"],
+body.theme-day span[class*="bg-cyan-"],
+body.theme-day div[class*="bg-sky-500/"],
+body.theme-day div[class*="bg-blue-500/"],
+body.theme-day div[class*="bg-cyan-500/"],
+body.theme-day button[class*="bg-sky-500/"],
+body.theme-day button[class*="bg-blue-500/"],
+body.theme-day button[class*="bg-cyan-500/"] {
   background-color: #f0f9ff !important; /* Ultra-soft ice blue */
   border-color: #bae6fd !important;
   color: #082f49 !important;
 }
 
-body.theme-light [class*="border-sky-"],
-body.theme-light [class*="border-blue-"],
-body.theme-light [class*="border-cyan-"],
-body.theme-light [class*="border-sky-500"],
-body.theme-light [class*="border-blue-500"],
-body.theme-light [class*="border-cyan-500"] {
+body.theme-day [class*="border-sky-"],
+body.theme-day [class*="border-blue-"],
+body.theme-day [class*="border-cyan-"],
+body.theme-day [class*="border-sky-500"],
+body.theme-day [class*="border-blue-500"],
+body.theme-day [class*="border-cyan-500"] {
   border-color: #bae6fd !important;
 }
 
-body.theme-light [class*="bg-sky-"] svg,
-body.theme-light [class*="border-sky-"] svg,
-body.theme-light [class*="bg-blue-"] svg,
-body.theme-light [class*="bg-cyan-"] svg {
+body.theme-day [class*="bg-sky-"] svg,
+body.theme-day [class*="border-sky-"] svg,
+body.theme-day [class*="bg-blue-"] svg,
+body.theme-day [class*="bg-cyan-"] svg {
   color: #082f49 !important;
   stroke: #082f49 !important;
 }
 
 /* 4. EMERALD, GREEN & TEAL (S3 Pharmacist Only, First-Line, Mastered, Bioequivalence A-Flag) */
-body.theme-light [class*="text-emerald-"],
-body.theme-light [class*="text-green-"],
-body.theme-light [class*="text-teal-"] {
+body.theme-day [class*="text-emerald-"],
+body.theme-day [class*="text-green-"],
+body.theme-day [class*="text-teal-"] {
   color: #022c22 !important; /* Deepest Forest Jade / Near Black */
   font-weight: 700 !important;
 }
 
-body.theme-light [class*="bg-emerald-950"],
-body.theme-light [class*="bg-emerald-900"],
-body.theme-light [class*="bg-emerald-500/"],
-body.theme-light [class*="bg-emerald-600/"],
-body.theme-light [class*="bg-green-950"],
-body.theme-light [class*="bg-green-900"],
-body.theme-light [class*="bg-green-500/"],
-body.theme-light [class*="bg-teal-950"],
-body.theme-light [class*="bg-teal-900"],
-body.theme-light [class*="bg-teal-500/"],
-body.theme-light span[class*="bg-emerald-"],
-body.theme-light span[class*="bg-green-"],
-body.theme-light span[class*="bg-teal-"],
-body.theme-light div[class*="bg-emerald-500/"],
-body.theme-light div[class*="bg-green-500/"],
-body.theme-light div[class*="bg-teal-500/"],
-body.theme-light button[class*="bg-emerald-500/"],
-body.theme-light button[class*="bg-green-500/"],
-body.theme-light button[class*="bg-teal-500/"] {
+body.theme-day [class*="bg-emerald-950"],
+body.theme-day [class*="bg-emerald-900"],
+body.theme-day [class*="bg-emerald-500/"],
+body.theme-day [class*="bg-emerald-600/"],
+body.theme-day [class*="bg-green-950"],
+body.theme-day [class*="bg-green-900"],
+body.theme-day [class*="bg-green-500/"],
+body.theme-day [class*="bg-teal-950"],
+body.theme-day [class*="bg-teal-900"],
+body.theme-day [class*="bg-teal-500/"],
+body.theme-day span[class*="bg-emerald-"],
+body.theme-day span[class*="bg-green-"],
+body.theme-day span[class*="bg-teal-"],
+body.theme-day div[class*="bg-emerald-500/"],
+body.theme-day div[class*="bg-green-500/"],
+body.theme-day div[class*="bg-teal-500/"],
+body.theme-day button[class*="bg-emerald-500/"],
+body.theme-day button[class*="bg-green-500/"],
+body.theme-day button[class*="bg-teal-500/"] {
   background-color: #f0fdf4 !important; /* Ultra-soft sage tint */
   border-color: #bbf7d0 !important;
   color: #022c22 !important;
 }
 
-body.theme-light [class*="border-emerald-"],
-body.theme-light [class*="border-green-"],
-body.theme-light [class*="border-teal-"],
-body.theme-light [class*="border-emerald-500"],
-body.theme-light [class*="border-green-500"],
-body.theme-light [class*="border-teal-500"] {
+body.theme-day [class*="border-emerald-"],
+body.theme-day [class*="border-green-"],
+body.theme-day [class*="border-teal-"],
+body.theme-day [class*="border-emerald-500"],
+body.theme-day [class*="border-green-500"],
+body.theme-day [class*="border-teal-500"] {
   border-color: #bbf7d0 !important;
 }
 
-body.theme-light [class*="bg-emerald-"] svg,
-body.theme-light [class*="border-emerald-"] svg,
-body.theme-light [class*="bg-green-"] svg,
-body.theme-light [class*="bg-teal-"] svg {
+body.theme-day [class*="bg-emerald-"] svg,
+body.theme-day [class*="border-emerald-"] svg,
+body.theme-day [class*="bg-green-"] svg,
+body.theme-day [class*="bg-teal-"] svg {
   color: #022c22 !important;
   stroke: #022c22 !important;
 }
 
 /* 5. INDIGO, PURPLE & VIOLET (S4 Rx, Legal Rules, Categories, DAA, Neurological) */
-body.theme-light [class*="text-indigo-"],
-body.theme-light [class*="text-purple-"],
-body.theme-light [class*="text-violet-"] {
+body.theme-day [class*="text-indigo-"],
+body.theme-day [class*="text-purple-"],
+body.theme-day [class*="text-violet-"] {
   color: #1e1b4b !important; /* Deepest Midnight Indigo / Near Black */
   font-weight: 700 !important;
 }
 
-body.theme-light [class*="bg-indigo-950"],
-body.theme-light [class*="bg-indigo-900"],
-body.theme-light [class*="bg-indigo-500/"],
-body.theme-light [class*="bg-indigo-600/"],
-body.theme-light [class*="bg-purple-950"],
-body.theme-light [class*="bg-purple-900"],
-body.theme-light [class*="bg-purple-500/"],
-body.theme-light [class*="bg-purple-600/"],
-body.theme-light [class*="bg-violet-950"],
-body.theme-light [class*="bg-violet-500/"],
-body.theme-light span[class*="bg-indigo-"],
-body.theme-light span[class*="bg-purple-"],
-body.theme-light span[class*="bg-violet-"],
-body.theme-light div[class*="bg-indigo-500/"],
-body.theme-light div[class*="bg-purple-500/"],
-body.theme-light div[class*="bg-violet-500/"],
-body.theme-light button[class*="bg-indigo-500/"],
-body.theme-light button[class*="bg-purple-500/"],
-body.theme-light button[class*="bg-violet-500/"] {
+body.theme-day [class*="bg-indigo-950"],
+body.theme-day [class*="bg-indigo-900"],
+body.theme-day [class*="bg-indigo-500/"],
+body.theme-day [class*="bg-indigo-600/"],
+body.theme-day [class*="bg-purple-950"],
+body.theme-day [class*="bg-purple-900"],
+body.theme-day [class*="bg-purple-500/"],
+body.theme-day [class*="bg-purple-600/"],
+body.theme-day [class*="bg-violet-950"],
+body.theme-day [class*="bg-violet-500/"],
+body.theme-day span[class*="bg-indigo-"],
+body.theme-day span[class*="bg-purple-"],
+body.theme-day span[class*="bg-violet-"],
+body.theme-day div[class*="bg-indigo-500/"],
+body.theme-day div[class*="bg-purple-500/"],
+body.theme-day div[class*="bg-violet-500/"],
+body.theme-day button[class*="bg-indigo-500/"],
+body.theme-day button[class*="bg-purple-500/"],
+body.theme-day button[class*="bg-violet-500/"] {
   background-color: #f5f3ff !important; /* Ultra-soft violet tint */
   border-color: #ddd6fe !important;
   color: #1e1b4b !important;
 }
 
-body.theme-light [class*="border-indigo-"],
-body.theme-light [class*="border-purple-"],
-body.theme-light [class*="border-violet-"],
-body.theme-light [class*="border-indigo-500"],
-body.theme-light [class*="border-purple-500"] {
+body.theme-day [class*="border-indigo-"],
+body.theme-day [class*="border-purple-"],
+body.theme-day [class*="border-violet-"],
+body.theme-day [class*="border-indigo-500"],
+body.theme-day [class*="border-purple-500"] {
   border-color: #ddd6fe !important;
 }
 
-body.theme-light [class*="bg-indigo-"] svg,
-body.theme-light [class*="border-indigo-"] svg,
-body.theme-light [class*="bg-purple-"] svg,
-body.theme-light [class*="border-purple-"] svg,
-body.theme-light [class*="bg-violet-"] svg {
+body.theme-day [class*="bg-indigo-"] svg,
+body.theme-day [class*="border-indigo-"] svg,
+body.theme-day [class*="bg-purple-"] svg,
+body.theme-day [class*="border-purple-"] svg,
+body.theme-day [class*="bg-violet-"] svg {
   color: #1e1b4b !important;
   stroke: #1e1b4b !important;
 }
 
 /* Strong Elements inside Clinical & Alert boxes in Light Theme */
-body.theme-light strong,
-body.theme-light b {
+body.theme-day strong,
+body.theme-day b {
   font-weight: 800;
   color: #0f172a;
 }
 
-body.theme-light [class*="bg-sky-"] strong,
-body.theme-light [class*="border-sky-"] strong {
+body.theme-day [class*="bg-sky-"] strong,
+body.theme-day [class*="border-sky-"] strong {
   color: #0c4a6e !important;
   background-color: rgba(3, 105, 161, 0.08) !important;
   border-color: rgba(3, 105, 161, 0.25) !important;
 }
 
-body.theme-light [class*="bg-rose-"] strong,
-body.theme-light [class*="border-rose-"] strong,
-body.theme-light [class*="bg-red-"] strong {
+body.theme-day [class*="bg-rose-"] strong,
+body.theme-day [class*="border-rose-"] strong,
+body.theme-day [class*="bg-red-"] strong {
   color: #881337 !important;
   background-color: rgba(159, 18, 57, 0.08) !important;
   border-color: rgba(159, 18, 57, 0.25) !important;
 }
 
-body.theme-light [class*="bg-amber-"] strong,
-body.theme-light [class*="border-amber-"] strong {
+body.theme-day [class*="bg-amber-"] strong,
+body.theme-day [class*="border-amber-"] strong {
   color: #713f12 !important;
   background-color: rgba(133, 77, 14, 0.08) !important;
   border-color: rgba(133, 77, 14, 0.25) !important;
 }
 
-body.theme-light [class*="bg-emerald-"] strong,
-body.theme-light [class*="border-emerald-"] strong {
+body.theme-day [class*="bg-emerald-"] strong,
+body.theme-day [class*="border-emerald-"] strong {
   color: #064e3b !important;
   background-color: rgba(6, 95, 70, 0.08) !important;
   border-color: rgba(6, 95, 70, 0.25) !important;
 }
 
-body.theme-light [class*="bg-indigo-"] strong,
-body.theme-light [class*="border-indigo-"] strong {
+body.theme-day [class*="bg-indigo-"] strong,
+body.theme-day [class*="border-indigo-"] strong {
   color: #312e81 !important;
   background-color: rgba(55, 48, 163, 0.08) !important;
   border-color: rgba(55, 48, 163, 0.25) !important;
 }
 
 /* Primary Solid Action Buttons stay crisp white text across all themes */
-body.theme-light button[class*="bg-sky-6"],
-body.theme-light button[class*="bg-sky-5"],
-body.theme-light button[class*="bg-indigo-6"],
-body.theme-light button[class*="bg-indigo-5"],
-body.theme-light button[class*="bg-emerald-6"],
-body.theme-light button[class*="bg-emerald-5"],
-body.theme-light button[class*="bg-teal-6"],
-body.theme-light button[class*="bg-teal-5"],
-body.theme-light button[class*="bg-rose-6"],
-body.theme-light button[class*="bg-rose-5"],
-body.theme-light button[class*="bg-purple-6"],
-body.theme-light button[class*="bg-amber-6"],
-body.theme-light button[class*="bg-blue-6"],
-body.theme-reading-day button[class*="bg-sky-6"],
-body.theme-reading-day button[class*="bg-indigo-6"],
-body.theme-reading-day button[class*="bg-emerald-6"],
-body.theme-reading-day button[class*="bg-teal-6"],
-body.theme-reading-day button[class*="bg-purple-6"],
-body.theme-reading-day button[class*="bg-rose-6"],
-body.theme-reading-day button[class*="bg-amber-6"],
-body.theme-sepia button[class*="bg-sky-6"],
-body.theme-sepia button[class*="bg-indigo-6"],
-body.theme-sepia button[class*="bg-emerald-6"],
-body.theme-sepia button[class*="bg-teal-6"],
-body.theme-sepia button[class*="bg-purple-6"],
-body.theme-sepia button[class*="bg-rose-6"],
-body.theme-sepia button[class*="bg-amber-6"],
-body.theme-ereader button[class*="bg-sky-6"],
-body.theme-ereader button[class*="bg-indigo-6"],
-body.theme-ereader button[class*="bg-emerald-6"],
-body.theme-ereader button[class*="bg-teal-6"],
-body.theme-ereader button[class*="bg-purple-6"],
-body.theme-ereader button[class*="bg-rose-6"],
-body.theme-ereader button[class*="bg-amber-6"] {
+body.theme-day button[class*="bg-sky-6"],
+body.theme-day button[class*="bg-sky-5"],
+body.theme-day button[class*="bg-indigo-6"],
+body.theme-day button[class*="bg-indigo-5"],
+body.theme-day button[class*="bg-emerald-6"],
+body.theme-day button[class*="bg-emerald-5"],
+body.theme-day button[class*="bg-teal-6"],
+body.theme-day button[class*="bg-teal-5"],
+body.theme-day button[class*="bg-rose-6"],
+body.theme-day button[class*="bg-rose-5"],
+body.theme-day button[class*="bg-purple-6"],
+body.theme-day button[class*="bg-amber-6"],
+body.theme-day button[class*="bg-blue-6"],
+body.theme-reader-day button[class*="bg-sky-6"],
+body.theme-reader-day button[class*="bg-indigo-6"],
+body.theme-reader-day button[class*="bg-emerald-6"],
+body.theme-reader-day button[class*="bg-teal-6"],
+body.theme-reader-day button[class*="bg-purple-6"],
+body.theme-reader-day button[class*="bg-rose-6"],
+body.theme-reader-day button[class*="bg-amber-6"],
+body.theme-reader-day button[class*="bg-sky-6"],
+body.theme-reader-day button[class*="bg-indigo-6"],
+body.theme-reader-day button[class*="bg-emerald-6"],
+body.theme-reader-day button[class*="bg-teal-6"],
+body.theme-reader-day button[class*="bg-purple-6"],
+body.theme-reader-day button[class*="bg-rose-6"],
+body.theme-reader-day button[class*="bg-amber-6"],
+body.theme-reader-day button[class*="bg-sky-6"],
+body.theme-reader-day button[class*="bg-indigo-6"],
+body.theme-reader-day button[class*="bg-emerald-6"],
+body.theme-reader-day button[class*="bg-teal-6"],
+body.theme-reader-day button[class*="bg-purple-6"],
+body.theme-reader-day button[class*="bg-rose-6"],
+body.theme-reader-day button[class*="bg-amber-6"] {
   color: #ffffff !important;
 }
 
-body.theme-light button[class*="bg-sky-6"] svg,
-body.theme-light button[class*="bg-indigo-6"] svg,
-body.theme-light button[class*="bg-emerald-6"] svg,
-body.theme-light button[class*="bg-teal-6"] svg,
-body.theme-light button[class*="bg-purple-6"] svg,
-body.theme-light button[class*="bg-rose-6"] svg,
-body.theme-light button[class*="bg-amber-6"] svg,
-body.theme-reading-day button[class*="bg-sky-6"] svg,
-body.theme-reading-day button[class*="bg-indigo-6"] svg,
-body.theme-reading-day button[class*="bg-emerald-6"] svg,
-body.theme-reading-day button[class*="bg-teal-6"] svg,
-body.theme-reading-day button[class*="bg-purple-6"] svg,
-body.theme-reading-day button[class*="bg-rose-6"] svg,
-body.theme-reading-day button[class*="bg-amber-6"] svg,
-body.theme-sepia button[class*="bg-sky-6"] svg,
-body.theme-sepia button[class*="bg-indigo-6"] svg,
-body.theme-sepia button[class*="bg-emerald-6"] svg,
-body.theme-sepia button[class*="bg-teal-6"] svg,
-body.theme-sepia button[class*="bg-purple-6"] svg,
-body.theme-sepia button[class*="bg-rose-6"] svg,
-body.theme-sepia button[class*="bg-amber-6"] svg {
+body.theme-day button[class*="bg-sky-6"] svg,
+body.theme-day button[class*="bg-indigo-6"] svg,
+body.theme-day button[class*="bg-emerald-6"] svg,
+body.theme-day button[class*="bg-teal-6"] svg,
+body.theme-day button[class*="bg-purple-6"] svg,
+body.theme-day button[class*="bg-rose-6"] svg,
+body.theme-day button[class*="bg-amber-6"] svg,
+body.theme-reader-day button[class*="bg-sky-6"] svg,
+body.theme-reader-day button[class*="bg-indigo-6"] svg,
+body.theme-reader-day button[class*="bg-emerald-6"] svg,
+body.theme-reader-day button[class*="bg-teal-6"] svg,
+body.theme-reader-day button[class*="bg-purple-6"] svg,
+body.theme-reader-day button[class*="bg-rose-6"] svg,
+body.theme-reader-day button[class*="bg-amber-6"] svg,
+body.theme-reader-day button[class*="bg-sky-6"] svg,
+body.theme-reader-day button[class*="bg-indigo-6"] svg,
+body.theme-reader-day button[class*="bg-emerald-6"] svg,
+body.theme-reader-day button[class*="bg-teal-6"] svg,
+body.theme-reader-day button[class*="bg-purple-6"] svg,
+body.theme-reader-day button[class*="bg-rose-6"] svg,
+body.theme-reader-day button[class*="bg-amber-6"] svg {
   color: #ffffff !important;
   stroke: #ffffff !important;
 }
 
 /* Inputs & Form Controls in Light Theme */
-body.theme-light input,
-body.theme-light select,
-body.theme-light textarea {
+body.theme-day input,
+body.theme-day select,
+body.theme-day textarea {
   background-color: #ffffff !important;
   border-color: #cbd5e1 !important;
   color: #0f172a !important;
 }
-body.theme-light input::placeholder,
-body.theme-light textarea::placeholder {
+body.theme-day input::placeholder,
+body.theme-day textarea::placeholder {
   color: #94a3b8 !important;
 }
 
 /* Modals & Dialog Backdrop in Light Theme */
-body.theme-light .fixed.inset-0.bg-black\/80,
-body.theme-light .fixed.inset-0.bg-black\/70,
-body.theme-light .fixed.inset-0.bg-black\/60 {
+body.theme-day .fixed.inset-0.bg-black\/80,
+body.theme-day .fixed.inset-0.bg-black\/70,
+body.theme-day .fixed.inset-0.bg-black\/60 {
   background-color: rgba(15, 23, 42, 0.45) !important;
 }
 
@@ -790,64 +769,63 @@ body.theme-light .fixed.inset-0.bg-black\/60 {
 /* ================== GOOGLE MATERIAL SEPIA READING THEME ================== */
 /* ========================================================================= */
 
-body.theme-sepia .app-card,
-body.theme-sepia .bg-slate-900,
-body.theme-sepia .bg-slate-900\/95,
-body.theme-sepia .bg-slate-900\/90,
-body.theme-sepia .bg-slate-900\/80,
-body.theme-sepia .bg-slate-900\/70,
-body.theme-sepia .bg-slate-900\/60,
-body.theme-sepia .bg-slate-950,
-body.theme-sepia .bg-slate-950\/95,
-body.theme-sepia .bg-slate-950\/90,
-body.theme-sepia .bg-slate-950\/80,
-body.theme-sepia .bg-slate-950\/70,
-body.theme-sepia .bg-zinc-900,
-body.theme-sepia .bg-gray-900 {
+body.theme-reader-day .app-card,
+body.theme-reader-day .bg-slate-900,
+body.theme-reader-day .bg-slate-900\/95,
+body.theme-reader-day .bg-slate-900\/90,
+body.theme-reader-day .bg-slate-900\/80,
+body.theme-reader-day .bg-slate-900\/70,
+body.theme-reader-day .bg-slate-900\/60,
+body.theme-reader-day .bg-slate-950,
+body.theme-reader-day .bg-slate-950\/95,
+body.theme-reader-day .bg-slate-950\/90,
+body.theme-reader-day .bg-slate-950\/80,
+body.theme-reader-day .bg-slate-950\/70,
+body.theme-reader-day .bg-zinc-900,
+body.theme-reader-day .bg-gray-900 {
   background-color: #f4e4c1 !important;
   color: #261608 !important;
 }
 
-body.theme-sepia .bg-slate-800,
-body.theme-sepia .bg-slate-800\/90,
-body.theme-sepia .bg-slate-800\/80,
-body.theme-sepia .bg-slate-800\/70,
-body.theme-sepia .bg-slate-800\/60,
-body.theme-sepia .bg-black\/5,
-body.theme-sepia .bg-black\/10,
-body.theme-sepia .bg-black\/20,
-body.theme-sepia .bg-black\/30,
-body.theme-sepia .bg-black\/40 {
+body.theme-reader-day .bg-slate-800,
+body.theme-reader-day .bg-slate-800\/90,
+body.theme-reader-day .bg-slate-800\/80,
+body.theme-reader-day .bg-slate-800\/70,
+body.theme-reader-day .bg-slate-800\/60,
+body.theme-reader-day .bg-black\/5,
+body.theme-reader-day .bg-black\/10,
+body.theme-reader-day .bg-black\/20,
+body.theme-reader-day .bg-black\/30,
+body.theme-reader-day .bg-black\/40 {
   background-color: #ebd9b0 !important;
   color: #261608 !important;
 }
 
-body.theme-sepia button[class*="bg-gradient-"],
-body.theme-sepia div[class*="bg-gradient-"],
-body.theme-sepia aside[class*="bg-gradient-"] {
+body.theme-reader-day button[class*="bg-gradient-"],
+body.theme-reader-day a[class*="bg-gradient-"] {
   color: #ffffff !important;
 }
 
-body.theme-sepia .border-slate-800,
-body.theme-sepia .border-slate-700,
-body.theme-sepia .border-zinc-800,
-body.theme-sepia .border-gray-800 {
+body.theme-reader-day .border-slate-800,
+body.theme-reader-day .border-slate-700,
+body.theme-reader-day .border-zinc-800,
+body.theme-reader-day .border-gray-800 {
   border-color: #d7c29e !important;
 }
 
-body.theme-sepia .text-white,
-body.theme-sepia .text-slate-100,
-body.theme-sepia .text-slate-200 {
+body.theme-reader-day .text-white,
+body.theme-reader-day .text-slate-100,
+body.theme-reader-day .text-slate-200 {
   color: #261608 !important;
 }
 
-body.theme-sepia .text-slate-300,
-body.theme-sepia .text-slate-400 {
+body.theme-reader-day .text-slate-300,
+body.theme-reader-day .text-slate-400 {
   color: #523214 !important;
 }
 
-body.theme-sepia .text-slate-500,
-body.theme-sepia .text-zinc-500 {
+body.theme-reader-day .text-slate-500,
+body.theme-reader-day .text-zinc-500 {
   color: #78522d !important;
 }
 
@@ -856,289 +834,289 @@ body.theme-sepia .text-zinc-500 {
 /* ========================================================================= */
 
 /* 1. RED & ROSE (Sepia) */
-body.theme-sepia [class*="text-rose-100"],
-body.theme-sepia [class*="text-rose-200"],
-body.theme-sepia [class*="text-rose-300"],
-body.theme-sepia [class*="text-rose-400"],
-body.theme-sepia [class*="text-red-100"],
-body.theme-sepia [class*="text-red-200"],
-body.theme-sepia [class*="text-red-300"],
-body.theme-sepia [class*="text-red-400"] {
+body.theme-reader-day [class*="text-rose-100"],
+body.theme-reader-day [class*="text-rose-200"],
+body.theme-reader-day [class*="text-rose-300"],
+body.theme-reader-day [class*="text-rose-400"],
+body.theme-reader-day [class*="text-red-100"],
+body.theme-reader-day [class*="text-red-200"],
+body.theme-reader-day [class*="text-red-300"],
+body.theme-reader-day [class*="text-red-400"] {
   color: #701a28 !important;
 }
 
-body.theme-sepia [class*="bg-rose-950"],
-body.theme-sepia [class*="bg-rose-900"],
-body.theme-sepia [class*="bg-rose-500/5"],
-body.theme-sepia [class*="bg-rose-500/10"],
-body.theme-sepia [class*="bg-rose-500/15"],
-body.theme-sepia [class*="bg-rose-500/20"],
-body.theme-sepia [class*="bg-rose-500/25"],
-body.theme-sepia [class*="bg-rose-500/30"],
-body.theme-sepia [class*="bg-red-950"],
-body.theme-sepia [class*="bg-red-500/10"],
-body.theme-sepia [class*="bg-red-500/20"] {
+body.theme-reader-day [class*="bg-rose-950"],
+body.theme-reader-day [class*="bg-rose-900"],
+body.theme-reader-day [class*="bg-rose-500/5"],
+body.theme-reader-day [class*="bg-rose-500/10"],
+body.theme-reader-day [class*="bg-rose-500/15"],
+body.theme-reader-day [class*="bg-rose-500/20"],
+body.theme-reader-day [class*="bg-rose-500/25"],
+body.theme-reader-day [class*="bg-rose-500/30"],
+body.theme-reader-day [class*="bg-red-950"],
+body.theme-reader-day [class*="bg-red-500/10"],
+body.theme-reader-day [class*="bg-red-500/20"] {
   background-color: #fae8e8 !important;
   border-color: #ebd0d2 !important;
 }
 
-body.theme-sepia [class*="border-rose-500"],
-body.theme-sepia [class*="border-red-500"] {
+body.theme-reader-day [class*="border-rose-500"],
+body.theme-reader-day [class*="border-red-500"] {
   border-color: #ebd0d2 !important;
 }
 
 /* 2. AMBER, YELLOW & ORANGE (Sepia) */
-body.theme-sepia [class*="text-amber-100"],
-body.theme-sepia [class*="text-amber-200"],
-body.theme-sepia [class*="text-amber-300"],
-body.theme-sepia [class*="text-amber-400"],
-body.theme-sepia [class*="text-yellow-100"],
-body.theme-sepia [class*="text-yellow-200"],
-body.theme-sepia [class*="text-yellow-300"],
-body.theme-sepia [class*="text-yellow-400"] {
+body.theme-reader-day [class*="text-amber-100"],
+body.theme-reader-day [class*="text-amber-200"],
+body.theme-reader-day [class*="text-amber-300"],
+body.theme-reader-day [class*="text-amber-400"],
+body.theme-reader-day [class*="text-yellow-100"],
+body.theme-reader-day [class*="text-yellow-200"],
+body.theme-reader-day [class*="text-yellow-300"],
+body.theme-reader-day [class*="text-yellow-400"] {
   color: #572f09 !important;
 }
 
-body.theme-sepia [class*="text-orange-100"],
-body.theme-sepia [class*="text-orange-200"],
-body.theme-sepia [class*="text-orange-300"],
-body.theme-sepia [class*="text-orange-400"] {
+body.theme-reader-day [class*="text-orange-100"],
+body.theme-reader-day [class*="text-orange-200"],
+body.theme-reader-day [class*="text-orange-300"],
+body.theme-reader-day [class*="text-orange-400"] {
   color: #6c2e08 !important;
 }
 
-body.theme-sepia [class*="bg-amber-950"],
-body.theme-sepia [class*="bg-amber-900"],
-body.theme-sepia [class*="bg-amber-500/5"],
-body.theme-sepia [class*="bg-amber-500/10"],
-body.theme-sepia [class*="bg-amber-500/15"],
-body.theme-sepia [class*="bg-amber-500/20"],
-body.theme-sepia [class*="bg-amber-500/25"],
-body.theme-sepia [class*="bg-amber-500/30"],
-body.theme-sepia [class*="bg-yellow-950"],
-body.theme-sepia [class*="bg-yellow-500/10"],
-body.theme-sepia [class*="bg-yellow-500/20"] {
+body.theme-reader-day [class*="bg-amber-950"],
+body.theme-reader-day [class*="bg-amber-900"],
+body.theme-reader-day [class*="bg-amber-500/5"],
+body.theme-reader-day [class*="bg-amber-500/10"],
+body.theme-reader-day [class*="bg-amber-500/15"],
+body.theme-reader-day [class*="bg-amber-500/20"],
+body.theme-reader-day [class*="bg-amber-500/25"],
+body.theme-reader-day [class*="bg-amber-500/30"],
+body.theme-reader-day [class*="bg-yellow-950"],
+body.theme-reader-day [class*="bg-yellow-500/10"],
+body.theme-reader-day [class*="bg-yellow-500/20"] {
   background-color: #f6edd3 !important;
   border-color: #e7d2a5 !important;
 }
 
-body.theme-sepia [class*="bg-orange-950"],
-body.theme-sepia [class*="bg-orange-500/10"],
-body.theme-sepia [class*="bg-orange-500/20"] {
+body.theme-reader-day [class*="bg-orange-950"],
+body.theme-reader-day [class*="bg-orange-500/10"],
+body.theme-reader-day [class*="bg-orange-500/20"] {
   background-color: #faebd9 !important;
   border-color: #ecd2b8 !important;
 }
 
-body.theme-sepia [class*="border-amber-500"],
-body.theme-sepia [class*="border-yellow-500"] {
+body.theme-reader-day [class*="border-amber-500"],
+body.theme-reader-day [class*="border-yellow-500"] {
   border-color: #e7d2a5 !important;
 }
 
-body.theme-sepia [class*="border-orange-500"] {
+body.theme-reader-day [class*="border-orange-500"] {
   border-color: #ecd2b8 !important;
 }
 
 /* 3. SKY, BLUE & CYAN (Sepia) */
-body.theme-sepia [class*="text-sky-100"],
-body.theme-sepia [class*="text-sky-200"],
-body.theme-sepia [class*="text-sky-300"],
-body.theme-sepia [class*="text-sky-400"] {
+body.theme-reader-day [class*="text-sky-100"],
+body.theme-reader-day [class*="text-sky-200"],
+body.theme-reader-day [class*="text-sky-300"],
+body.theme-reader-day [class*="text-sky-400"] {
   color: #073f5f !important;
 }
 
-body.theme-sepia [class*="text-blue-100"],
-body.theme-sepia [class*="text-blue-200"],
-body.theme-sepia [class*="text-blue-300"],
-body.theme-sepia [class*="text-blue-400"] {
+body.theme-reader-day [class*="text-blue-100"],
+body.theme-reader-day [class*="text-blue-200"],
+body.theme-reader-day [class*="text-blue-300"],
+body.theme-reader-day [class*="text-blue-400"] {
   color: #133863 !important;
 }
 
-body.theme-sepia [class*="text-cyan-100"],
-body.theme-sepia [class*="text-cyan-200"],
-body.theme-sepia [class*="text-cyan-300"],
-body.theme-sepia [class*="text-cyan-400"] {
+body.theme-reader-day [class*="text-cyan-100"],
+body.theme-reader-day [class*="text-cyan-200"],
+body.theme-reader-day [class*="text-cyan-300"],
+body.theme-reader-day [class*="text-cyan-400"] {
   color: #074753 !important;
 }
 
-body.theme-sepia [class*="bg-sky-950"],
-body.theme-sepia [class*="bg-sky-900"],
-body.theme-sepia [class*="bg-sky-500/5"],
-body.theme-sepia [class*="bg-sky-500/10"],
-body.theme-sepia [class*="bg-sky-500/15"],
-body.theme-sepia [class*="bg-sky-500/20"],
-body.theme-sepia [class*="bg-sky-500/25"],
-body.theme-sepia [class*="bg-sky-500/30"] {
+body.theme-reader-day [class*="bg-sky-950"],
+body.theme-reader-day [class*="bg-sky-900"],
+body.theme-reader-day [class*="bg-sky-500/5"],
+body.theme-reader-day [class*="bg-sky-500/10"],
+body.theme-reader-day [class*="bg-sky-500/15"],
+body.theme-reader-day [class*="bg-sky-500/20"],
+body.theme-reader-day [class*="bg-sky-500/25"],
+body.theme-reader-day [class*="bg-sky-500/30"] {
   background-color: #e8eff5 !important;
   border-color: #cbdae7 !important;
 }
 
-body.theme-sepia [class*="bg-blue-950"],
-body.theme-sepia [class*="bg-blue-500/10"],
-body.theme-sepia [class*="bg-blue-500/20"] {
+body.theme-reader-day [class*="bg-blue-950"],
+body.theme-reader-day [class*="bg-blue-500/10"],
+body.theme-reader-day [class*="bg-blue-500/20"] {
   background-color: #e8eef8 !important;
   border-color: #ccd8ec !important;
 }
 
-body.theme-sepia [class*="bg-cyan-950"],
-body.theme-sepia [class*="bg-cyan-500/10"],
-body.theme-sepia [class*="bg-cyan-500/20"] {
+body.theme-reader-day [class*="bg-cyan-950"],
+body.theme-reader-day [class*="bg-cyan-500/10"],
+body.theme-reader-day [class*="bg-cyan-500/20"] {
   background-color: #e5f0f2 !important;
   border-color: #c7dee2 !important;
 }
 
-body.theme-sepia [class*="border-sky-500"] {
+body.theme-reader-day [class*="border-sky-500"] {
   border-color: #cbdae7 !important;
 }
 
-body.theme-sepia [class*="border-blue-500"] {
+body.theme-reader-day [class*="border-blue-500"] {
   border-color: #ccd8ec !important;
 }
 
 /* 4. EMERALD, GREEN & TEAL (Sepia) */
-body.theme-sepia [class*="text-emerald-100"],
-body.theme-sepia [class*="text-emerald-200"],
-body.theme-sepia [class*="text-emerald-300"],
-body.theme-sepia [class*="text-emerald-400"],
-body.theme-sepia [class*="text-green-100"],
-body.theme-sepia [class*="text-green-200"],
-body.theme-sepia [class*="text-green-300"],
-body.theme-sepia [class*="text-green-400"] {
+body.theme-reader-day [class*="text-emerald-100"],
+body.theme-reader-day [class*="text-emerald-200"],
+body.theme-reader-day [class*="text-emerald-300"],
+body.theme-reader-day [class*="text-emerald-400"],
+body.theme-reader-day [class*="text-green-100"],
+body.theme-reader-day [class*="text-green-200"],
+body.theme-reader-day [class*="text-green-300"],
+body.theme-reader-day [class*="text-green-400"] {
   color: #0d4833 !important;
 }
 
-body.theme-sepia [class*="text-teal-100"],
-body.theme-sepia [class*="text-teal-200"],
-body.theme-sepia [class*="text-teal-300"],
-body.theme-sepia [class*="text-teal-400"] {
+body.theme-reader-day [class*="text-teal-100"],
+body.theme-reader-day [class*="text-teal-200"],
+body.theme-reader-day [class*="text-teal-300"],
+body.theme-reader-day [class*="text-teal-400"] {
   color: #0a433f !important;
 }
 
-body.theme-sepia [class*="bg-emerald-950"],
-body.theme-sepia [class*="bg-emerald-900"],
-body.theme-sepia [class*="bg-emerald-500/5"],
-body.theme-sepia [class*="bg-emerald-500/10"],
-body.theme-sepia [class*="bg-emerald-500/15"],
-body.theme-sepia [class*="bg-emerald-500/20"],
-body.theme-sepia [class*="bg-emerald-500/25"],
-body.theme-sepia [class*="bg-emerald-500/30"],
-body.theme-sepia [class*="bg-green-950"],
-body.theme-sepia [class*="bg-green-500/10"],
-body.theme-sepia [class*="bg-green-500/20"] {
+body.theme-reader-day [class*="bg-emerald-950"],
+body.theme-reader-day [class*="bg-emerald-900"],
+body.theme-reader-day [class*="bg-emerald-500/5"],
+body.theme-reader-day [class*="bg-emerald-500/10"],
+body.theme-reader-day [class*="bg-emerald-500/15"],
+body.theme-reader-day [class*="bg-emerald-500/20"],
+body.theme-reader-day [class*="bg-emerald-500/25"],
+body.theme-reader-day [class*="bg-emerald-500/30"],
+body.theme-reader-day [class*="bg-green-950"],
+body.theme-reader-day [class*="bg-green-500/10"],
+body.theme-reader-day [class*="bg-green-500/20"] {
   background-color: #e5efe8 !important;
   border-color: #c4ddcd !important;
 }
 
-body.theme-sepia [class*="bg-teal-950"],
-body.theme-sepia [class*="bg-teal-500/10"],
-body.theme-sepia [class*="bg-teal-500/20"] {
+body.theme-reader-day [class*="bg-teal-950"],
+body.theme-reader-day [class*="bg-teal-500/10"],
+body.theme-reader-day [class*="bg-teal-500/20"] {
   background-color: #e4eee9 !important;
   border-color: #c2dcd5 !important;
 }
 
-body.theme-sepia [class*="border-emerald-500"],
-body.theme-sepia [class*="border-green-500"] {
+body.theme-reader-day [class*="border-emerald-500"],
+body.theme-reader-day [class*="border-green-500"] {
   border-color: #c4ddcd !important;
 }
 
-body.theme-sepia [class*="border-teal-500"] {
+body.theme-reader-day [class*="border-teal-500"] {
   border-color: #c2dcd5 !important;
 }
 
 /* 5. INDIGO, PURPLE & VIOLET (Sepia) */
-body.theme-sepia [class*="text-indigo-100"],
-body.theme-sepia [class*="text-indigo-200"],
-body.theme-sepia [class*="text-indigo-300"],
-body.theme-sepia [class*="text-indigo-400"] {
+body.theme-reader-day [class*="text-indigo-100"],
+body.theme-reader-day [class*="text-indigo-200"],
+body.theme-reader-day [class*="text-indigo-300"],
+body.theme-reader-day [class*="text-indigo-400"] {
   color: #2b1f5c !important;
 }
 
-body.theme-sepia [class*="text-purple-100"],
-body.theme-sepia [class*="text-purple-200"],
-body.theme-sepia [class*="text-purple-300"],
-body.theme-sepia [class*="text-purple-400"],
-body.theme-sepia [class*="text-violet-100"],
-body.theme-sepia [class*="text-violet-200"],
-body.theme-sepia [class*="text-violet-300"] {
+body.theme-reader-day [class*="text-purple-100"],
+body.theme-reader-day [class*="text-purple-200"],
+body.theme-reader-day [class*="text-purple-300"],
+body.theme-reader-day [class*="text-purple-400"],
+body.theme-reader-day [class*="text-violet-100"],
+body.theme-reader-day [class*="text-violet-200"],
+body.theme-reader-day [class*="text-violet-300"] {
   color: #3f1559 !important;
 }
 
-body.theme-sepia [class*="bg-indigo-950"],
-body.theme-sepia [class*="bg-indigo-900"],
-body.theme-sepia [class*="bg-indigo-500/5"],
-body.theme-sepia [class*="bg-indigo-500/10"],
-body.theme-sepia [class*="bg-indigo-500/15"],
-body.theme-sepia [class*="bg-indigo-500/20"],
-body.theme-sepia [class*="bg-indigo-500/25"],
-body.theme-sepia [class*="bg-indigo-500/30"] {
+body.theme-reader-day [class*="bg-indigo-950"],
+body.theme-reader-day [class*="bg-indigo-900"],
+body.theme-reader-day [class*="bg-indigo-500/5"],
+body.theme-reader-day [class*="bg-indigo-500/10"],
+body.theme-reader-day [class*="bg-indigo-500/15"],
+body.theme-reader-day [class*="bg-indigo-500/20"],
+body.theme-reader-day [class*="bg-indigo-500/25"],
+body.theme-reader-day [class*="bg-indigo-500/30"] {
   background-color: #ece8f6 !important;
   border-color: #d1c7e9 !important;
 }
 
-body.theme-sepia [class*="bg-purple-950"],
-body.theme-sepia [class*="bg-purple-900"],
-body.theme-sepia [class*="bg-purple-500/5"],
-body.theme-sepia [class*="bg-purple-500/10"],
-body.theme-sepia [class*="bg-purple-500/15"],
-body.theme-sepia [class*="bg-purple-500/20"],
-body.theme-sepia [class*="bg-purple-500/25"],
-body.theme-sepia [class*="bg-purple-500/30"] {
+body.theme-reader-day [class*="bg-purple-950"],
+body.theme-reader-day [class*="bg-purple-900"],
+body.theme-reader-day [class*="bg-purple-500/5"],
+body.theme-reader-day [class*="bg-purple-500/10"],
+body.theme-reader-day [class*="bg-purple-500/15"],
+body.theme-reader-day [class*="bg-purple-500/20"],
+body.theme-reader-day [class*="bg-purple-500/25"],
+body.theme-reader-day [class*="bg-purple-500/30"] {
   background-color: #ede6f5 !important;
   border-color: #d4c6e7 !important;
 }
 
-body.theme-sepia [class*="border-indigo-500"] {
+body.theme-reader-day [class*="border-indigo-500"] {
   border-color: #d1c7e9 !important;
 }
 
-body.theme-sepia [class*="border-purple-500"] {
+body.theme-reader-day [class*="border-purple-500"] {
   border-color: #d4c6e7 !important;
 }
 
 /* Strong Elements inside Clinical & Alert boxes in Sepia Theme */
-body.theme-sepia strong,
-body.theme-sepia b {
+body.theme-reader-day strong,
+body.theme-reader-day b {
   font-weight: 800;
   color: #261608;
 }
 
-body.theme-sepia [class*="bg-sky-"] strong,
-body.theme-sepia [class*="border-sky-"] strong {
+body.theme-reader-day [class*="bg-sky-"] strong,
+body.theme-reader-day [class*="border-sky-"] strong {
   color: #042a41 !important;
   background-color: rgba(7, 63, 95, 0.08) !important;
   border-color: rgba(7, 63, 95, 0.25) !important;
 }
 
-body.theme-sepia [class*="bg-rose-"] strong,
-body.theme-sepia [class*="border-rose-"] strong,
-body.theme-sepia [class*="bg-red-"] strong {
+body.theme-reader-day [class*="bg-rose-"] strong,
+body.theme-reader-day [class*="border-rose-"] strong,
+body.theme-reader-day [class*="bg-red-"] strong {
   color: #4a0917 !important;
   background-color: rgba(112, 26, 40, 0.08) !important;
   border-color: rgba(112, 26, 40, 0.25) !important;
 }
 
-body.theme-sepia [class*="bg-amber-"] strong,
-body.theme-sepia [class*="border-amber-"] strong {
+body.theme-reader-day [class*="bg-amber-"] strong,
+body.theme-reader-day [class*="border-amber-"] strong {
   color: #432204 !important;
   background-color: rgba(87, 47, 9, 0.08) !important;
   border-color: rgba(87, 47, 9, 0.25) !important;
 }
 
-body.theme-sepia [class*="bg-emerald-"] strong,
-body.theme-sepia [class*="border-emerald-"] strong {
+body.theme-reader-day [class*="bg-emerald-"] strong,
+body.theme-reader-day [class*="border-emerald-"] strong {
   color: #063323 !important;
   background-color: rgba(13, 72, 51, 0.08) !important;
   border-color: rgba(13, 72, 51, 0.25) !important;
 }
 
-body.theme-sepia [class*="bg-indigo-"] strong,
-body.theme-sepia [class*="border-indigo-"] strong {
+body.theme-reader-day [class*="bg-indigo-"] strong,
+body.theme-reader-day [class*="border-indigo-"] strong {
   color: #241442 !important;
   background-color: rgba(43, 31, 92, 0.08) !important;
   border-color: rgba(43, 31, 92, 0.25) !important;
 }
 
-body.theme-sepia input,
-body.theme-sepia select,
-body.theme-sepia textarea {
+body.theme-reader-day input,
+body.theme-reader-day select,
+body.theme-reader-day textarea {
   background-color: #f4e4c1 !important;
   border-color: #d7c29e !important;
   color: #261608 !important;
@@ -1269,100 +1247,100 @@ table tbody tr:last-child td {
 }
 
 /* Light Theme Tables */
-body.theme-light table {
+body.theme-day table {
   border: 1px solid #cbd5e1 !important;
   box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05);
 }
 
-body.theme-light table thead tr {
+body.theme-day table thead tr {
   background: #f1f5f9 !important;
   background-image: none !important;
 }
 
-body.theme-light table thead th {
+body.theme-day table thead th {
   background: #f1f5f9 !important;
   border-bottom: 2px solid #0284c7 !important;
   color: #0f172a !important;
   font-weight: 800 !important;
 }
 
-body.theme-light table th + th,
-body.theme-light table td + td {
+body.theme-day table th + th,
+body.theme-day table td + td {
   border-left: 1px solid #e2e8f0 !important;
 }
 
-body.theme-light [dir="rtl"] table th + th,
-body.theme-light [dir="rtl"] table td + td {
+body.theme-day [dir="rtl"] table th + th,
+body.theme-day [dir="rtl"] table td + td {
   border-left: none !important;
   border-right: 1px solid #e2e8f0 !important;
 }
 
-body.theme-light table tbody tr {
+body.theme-day table tbody tr {
   border-bottom: 1px solid #e2e8f0 !important;
 }
 
-body.theme-light table tbody tr:nth-child(even) {
+body.theme-day table tbody tr:nth-child(even) {
   background-color: #f8fafc !important;
 }
 
-body.theme-light table tbody tr:nth-child(odd) {
+body.theme-day table tbody tr:nth-child(odd) {
   background-color: #ffffff !important;
 }
 
-body.theme-light table tbody tr:hover {
+body.theme-day table tbody tr:hover {
   background-color: #e0f2fe !important;
 }
 
-body.theme-light table tbody td {
+body.theme-day table tbody td {
   border-bottom: 1px solid #e2e8f0 !important;
   color: #0f172a !important;
 }
 
 /* Sepia Theme Tables */
-body.theme-sepia table {
+body.theme-reader-day table {
   border: 1px solid #d7c29e !important;
 }
 
-body.theme-sepia table thead tr {
+body.theme-reader-day table thead tr {
   background: #ebd9b0 !important;
   background-image: none !important;
 }
 
-body.theme-sepia table thead th {
+body.theme-reader-day table thead th {
   background: #ebd9b0 !important;
   border-bottom: 2px solid #b45309 !important;
   color: #261608 !important;
   font-weight: 800 !important;
 }
 
-body.theme-sepia table th + th,
-body.theme-sepia table td + td {
+body.theme-reader-day table th + th,
+body.theme-reader-day table td + td {
   border-left: 1px solid #d7c29e !important;
 }
 
-body.theme-sepia [dir="rtl"] table th + th,
-body.theme-sepia [dir="rtl"] table td + td {
+body.theme-reader-day [dir="rtl"] table th + th,
+body.theme-reader-day [dir="rtl"] table td + td {
   border-left: none !important;
   border-right: 1px solid #d7c29e !important;
 }
 
-body.theme-sepia table tbody tr {
+body.theme-reader-day table tbody tr {
   border-bottom: 1px solid #d7c29e !important;
 }
 
-body.theme-sepia table tbody tr:nth-child(even) {
+body.theme-reader-day table tbody tr:nth-child(even) {
   background-color: #f7ebcf !important;
 }
 
-body.theme-sepia table tbody tr:nth-child(odd) {
+body.theme-reader-day table tbody tr:nth-child(odd) {
   background-color: #f4e4c1 !important;
 }
 
-body.theme-sepia table tbody tr:hover {
+body.theme-reader-day table tbody tr:hover {
   background-color: #ebd9b0 !important;
 }
 
-body.theme-sepia table tbody td {
+body.theme-reader-day table tbody td {
   border-bottom: 1px solid #d7c29e !important;
   color: #261608 !important;
 }
@@ -1385,262 +1363,262 @@ body.theme-sepia table tbody td {
 /* ================= Warm Paper Ivory, Zero Blue Light & Anti-Glare ======== */
 /* ========================================================================= */
 
-body.theme-reading-day {
+body.theme-reader-day {
   background-color: #f5efe6 !important;
   color: #1f1b18 !important;
 }
 
 /* Base App Cards & Surfaces */
-body.theme-reading-day .app-card,
-body.theme-reading-day [class*="bg-slate-900"],
-body.theme-reading-day [class*="bg-slate-950"],
-body.theme-reading-day [class*="bg-zinc-900"],
-body.theme-reading-day [class*="bg-zinc-950"],
-body.theme-reading-day [class*="bg-gray-900"],
-body.theme-reading-day [class*="bg-gray-950"],
-body.theme-reading-day [class*="bg-neutral-900"],
-body.theme-reading-day [class*="bg-neutral-950"] {
+body.theme-reader-day .app-card,
+body.theme-reader-day [class*="bg-slate-900"],
+body.theme-reader-day [class*="bg-slate-950"],
+body.theme-reader-day [class*="bg-zinc-900"],
+body.theme-reader-day [class*="bg-zinc-950"],
+body.theme-reader-day [class*="bg-gray-900"],
+body.theme-reader-day [class*="bg-gray-950"],
+body.theme-reader-day [class*="bg-neutral-900"],
+body.theme-reader-day [class*="bg-neutral-950"] {
   background-color: #fdfbf7 !important;
   color: #1f1b18 !important;
 }
 
 /* Secondary Containers, Inactive Tabs, Pill Buttons & Inputs */
-body.theme-reading-day .app-bg,
-body.theme-reading-day [class*="bg-slate-800"],
-body.theme-reading-day [class*="bg-zinc-800"],
-body.theme-reading-day [class*="bg-gray-800"],
-body.theme-reading-day [class*="bg-neutral-800"],
-body.theme-reading-day [class*="bg-black/"],
-body.theme-reading-day .bg-black {
+body.theme-reader-day .app-bg,
+body.theme-reader-day [class*="bg-slate-800"],
+body.theme-reader-day [class*="bg-zinc-800"],
+body.theme-reader-day [class*="bg-gray-800"],
+body.theme-reader-day [class*="bg-neutral-800"],
+body.theme-reader-day [class*="bg-black/"],
+body.theme-reader-day .bg-black {
   background-color: #f0e8dc !important;
   color: #1f1b18 !important;
 }
 
-body.theme-reading-day .app-card-hover:hover,
-body.theme-reading-day [class*="hover:bg-slate-800"]:hover,
-body.theme-reading-day [class*="hover:bg-slate-700"]:hover,
-body.theme-reading-day [class*="hover:bg-slate-900"]:hover,
-body.theme-reading-day [class*="hover:bg-black"]:hover,
-body.theme-reading-day [class*="hover:bg-zinc-800"]:hover,
-body.theme-reading-day [class*="hover:bg-zinc-700"]:hover {
+body.theme-reader-day .app-card-hover:hover,
+body.theme-reader-day [class*="hover:bg-slate-800"]:hover,
+body.theme-reader-day [class*="hover:bg-slate-700"]:hover,
+body.theme-reader-day [class*="hover:bg-slate-900"]:hover,
+body.theme-reader-day [class*="hover:bg-black"]:hover,
+body.theme-reader-day [class*="hover:bg-zinc-800"]:hover,
+body.theme-reader-day [class*="hover:bg-zinc-700"]:hover {
   background-color: #e5dccf !important;
   color: #1f1b18 !important;
 }
 
-body.theme-reading-day button[class*="bg-gradient-"],
-body.theme-reading-day div[class*="bg-gradient-"],
-body.theme-reading-day aside[class*="bg-gradient-"] {
+body.theme-reader-day button[class*="bg-gradient-"],
+body.theme-reader-day div[class*="bg-gradient-"],
+body.theme-reader-day aside[class*="bg-gradient-"] {
   color: #ffffff !important;
 }
 
-body.theme-reading-day [class*="border-slate-800"],
-body.theme-reading-day [class*="border-slate-700"],
-body.theme-reading-day [class*="border-slate-600"],
-body.theme-reading-day [class*="border-zinc-800"],
-body.theme-reading-day [class*="border-zinc-700"],
-body.theme-reading-day [class*="border-gray-800"],
-body.theme-reading-day [class*="border-gray-700"],
-body.theme-reading-day .app-border {
+body.theme-reader-day [class*="border-slate-800"],
+body.theme-reader-day [class*="border-slate-700"],
+body.theme-reader-day [class*="border-slate-600"],
+body.theme-reader-day [class*="border-zinc-800"],
+body.theme-reader-day [class*="border-zinc-700"],
+body.theme-reader-day [class*="border-gray-800"],
+body.theme-reader-day [class*="border-gray-700"],
+body.theme-reader-day .app-border {
   border-color: #dfd5c6 !important;
 }
 
-body.theme-reading-day [class*="hover:border-slate-600"]:hover,
-body.theme-reading-day [class*="hover:border-slate-500"]:hover {
+body.theme-reader-day [class*="hover:border-slate-600"]:hover,
+body.theme-reader-day [class*="hover:border-slate-500"]:hover {
   border-color: #b5a996 !important;
 }
 
-body.theme-reading-day .text-white,
-body.theme-reading-day .text-slate-100,
-body.theme-reading-day .text-slate-200,
-body.theme-reading-day .text-zinc-100,
-body.theme-reading-day .text-zinc-200,
-body.theme-reading-day .text-gray-100,
-body.theme-reading-day .text-gray-200,
-body.theme-reading-day .app-text {
+body.theme-reader-day .text-white,
+body.theme-reader-day .text-slate-100,
+body.theme-reader-day .text-slate-200,
+body.theme-reader-day .text-zinc-100,
+body.theme-reader-day .text-zinc-200,
+body.theme-reader-day .text-gray-100,
+body.theme-reader-day .text-gray-200,
+body.theme-reader-day .app-text {
   color: #1f1b18 !important;
 }
 
-body.theme-reading-day .text-slate-300,
-body.theme-reading-day .text-slate-400,
-body.theme-reading-day .text-zinc-300,
-body.theme-reading-day .text-zinc-400,
-body.theme-reading-day .text-gray-300,
-body.theme-reading-day .text-gray-400 {
+body.theme-reader-day .text-slate-300,
+body.theme-reader-day .text-slate-400,
+body.theme-reader-day .text-zinc-300,
+body.theme-reader-day .text-zinc-400,
+body.theme-reader-day .text-gray-300,
+body.theme-reader-day .text-gray-400 {
   color: #453e35 !important;
 }
 
-body.theme-reading-day .text-slate-500,
-body.theme-reading-day .text-zinc-500,
-body.theme-reading-day .text-gray-500,
-body.theme-reading-day .app-muted {
+body.theme-reader-day .text-slate-500,
+body.theme-reader-day .text-zinc-500,
+body.theme-reader-day .text-gray-500,
+body.theme-reader-day .app-muted {
   color: #5c5347 !important;
 }
 
 /* Badges & Clinical Alert Boxes in Reading Day (Soft Natural Tones) */
-body.theme-reading-day [class*="text-sky-"],
-body.theme-reading-day [class*="text-cyan-"],
-body.theme-reading-day [class*="text-blue-"] {
+body.theme-reader-day [class*="text-sky-"],
+body.theme-reader-day [class*="text-cyan-"],
+body.theme-reader-day [class*="text-blue-"] {
   color: #0c3b60 !important;
   font-weight: 700 !important;
 }
 
-body.theme-reading-day [class*="bg-sky-500/"],
-body.theme-reading-day [class*="bg-sky-950"],
-body.theme-reading-day [class*="bg-sky-900"],
-body.theme-reading-day [class*="bg-blue-500/"],
-body.theme-reading-day [class*="bg-blue-950"],
-body.theme-reading-day [class*="bg-blue-900"],
-body.theme-reading-day [class*="bg-cyan-500/"],
-body.theme-reading-day [class*="bg-cyan-950"] {
+body.theme-reader-day [class*="bg-sky-500/"],
+body.theme-reader-day [class*="bg-sky-950"],
+body.theme-reader-day [class*="bg-sky-900"],
+body.theme-reader-day [class*="bg-blue-500/"],
+body.theme-reader-day [class*="bg-blue-950"],
+body.theme-reader-day [class*="bg-blue-900"],
+body.theme-reader-day [class*="bg-cyan-500/"],
+body.theme-reader-day [class*="bg-cyan-950"] {
   background-color: #eaf3fa !important;
   border-color: #c0ddf3 !important;
   color: #0c3b60 !important;
 }
 
-body.theme-reading-day [class*="border-sky-"],
-body.theme-reading-day [class*="border-blue-"],
-body.theme-reading-day [class*="border-cyan-"] {
+body.theme-reader-day [class*="border-sky-"],
+body.theme-reader-day [class*="border-blue-"],
+body.theme-reader-day [class*="border-cyan-"] {
   border-color: #c0ddf3 !important;
 }
 
-body.theme-reading-day [class*="text-rose-"],
-body.theme-reading-day [class*="text-red-"] {
+body.theme-reader-day [class*="text-rose-"],
+body.theme-reader-day [class*="text-red-"] {
   color: #5c0919 !important;
   font-weight: 700 !important;
 }
 
-body.theme-reading-day [class*="bg-rose-500/"],
-body.theme-reading-day [class*="bg-rose-950"],
-body.theme-reading-day [class*="bg-rose-900"],
-body.theme-reading-day [class*="bg-red-500/"],
-body.theme-reading-day [class*="bg-red-950"],
-body.theme-reading-day [class*="bg-red-900"] {
+body.theme-reader-day [class*="bg-rose-500/"],
+body.theme-reader-day [class*="bg-rose-950"],
+body.theme-reader-day [class*="bg-rose-900"],
+body.theme-reader-day [class*="bg-red-500/"],
+body.theme-reader-day [class*="bg-red-950"],
+body.theme-reader-day [class*="bg-red-900"] {
   background-color: #faedf0 !important;
   border-color: #f7c5cd !important;
   color: #5c0919 !important;
 }
 
-body.theme-reading-day [class*="border-rose-"],
-body.theme-reading-day [class*="border-red-"] {
+body.theme-reader-day [class*="border-rose-"],
+body.theme-reader-day [class*="border-red-"] {
   border-color: #f7c5cd !important;
 }
 
-body.theme-reading-day [class*="text-amber-"],
-body.theme-reading-day [class*="text-yellow-"],
-body.theme-reading-day [class*="text-orange-"] {
+body.theme-reader-day [class*="text-amber-"],
+body.theme-reader-day [class*="text-yellow-"],
+body.theme-reader-day [class*="text-orange-"] {
   color: #522703 !important;
   font-weight: 700 !important;
 }
 
-body.theme-reading-day [class*="bg-amber-500/"],
-body.theme-reading-day [class*="bg-amber-950"],
-body.theme-reading-day [class*="bg-amber-900"],
-body.theme-reading-day [class*="bg-yellow-500/"],
-body.theme-reading-day [class*="bg-yellow-950"],
-body.theme-reading-day [class*="bg-yellow-900"],
-body.theme-reading-day [class*="bg-orange-500/"],
-body.theme-reading-day [class*="bg-orange-950"] {
+body.theme-reader-day [class*="bg-amber-500/"],
+body.theme-reader-day [class*="bg-amber-950"],
+body.theme-reader-day [class*="bg-amber-900"],
+body.theme-reader-day [class*="bg-yellow-500/"],
+body.theme-reader-day [class*="bg-yellow-950"],
+body.theme-reader-day [class*="bg-yellow-900"],
+body.theme-reader-day [class*="bg-orange-500/"],
+body.theme-reader-day [class*="bg-orange-950"] {
   background-color: #fdf5e2 !important;
   border-color: #f6dc9d !important;
   color: #522703 !important;
 }
 
-body.theme-reading-day [class*="border-amber-"],
-body.theme-reading-day [class*="border-yellow-"],
-body.theme-reading-day [class*="border-orange-"] {
+body.theme-reader-day [class*="border-amber-"],
+body.theme-reader-day [class*="border-yellow-"],
+body.theme-reader-day [class*="border-orange-"] {
   border-color: #f6dc9d !important;
 }
 
-body.theme-reading-day [class*="text-emerald-"],
-body.theme-reading-day [class*="text-green-"],
-body.theme-reading-day [class*="text-teal-"] {
+body.theme-reader-day [class*="text-emerald-"],
+body.theme-reader-day [class*="text-green-"],
+body.theme-reader-day [class*="text-teal-"] {
   color: #063c23 !important;
   font-weight: 700 !important;
 }
 
-body.theme-reading-day [class*="bg-emerald-500/"],
-body.theme-reading-day [class*="bg-emerald-950"],
-body.theme-reading-day [class*="bg-emerald-900"],
-body.theme-reading-day [class*="bg-green-500/"],
-body.theme-reading-day [class*="bg-green-950"],
-body.theme-reading-day [class*="bg-green-900"],
-body.theme-reading-day [class*="bg-teal-500/"],
-body.theme-reading-day [class*="bg-teal-950"],
-body.theme-reading-day [class*="bg-teal-900"] {
+body.theme-reader-day [class*="bg-emerald-500/"],
+body.theme-reader-day [class*="bg-emerald-950"],
+body.theme-reader-day [class*="bg-emerald-900"],
+body.theme-reader-day [class*="bg-green-500/"],
+body.theme-reader-day [class*="bg-green-950"],
+body.theme-reader-day [class*="bg-green-900"],
+body.theme-reader-day [class*="bg-teal-500/"],
+body.theme-reader-day [class*="bg-teal-950"],
+body.theme-reader-day [class*="bg-teal-900"] {
   background-color: #edf7f0 !important;
   border-color: #bde4ca !important;
   color: #063c23 !important;
 }
 
-body.theme-reading-day [class*="border-emerald-"],
-body.theme-reading-day [class*="border-green-"],
-body.theme-reading-day [class*="border-teal-"] {
+body.theme-reader-day [class*="border-emerald-"],
+body.theme-reader-day [class*="border-green-"],
+body.theme-reader-day [class*="border-teal-"] {
   border-color: #bde4ca !important;
 }
 
-body.theme-reading-day [class*="text-indigo-"],
-body.theme-reading-day [class*="text-purple-"],
-body.theme-reading-day [class*="text-violet-"] {
+body.theme-reader-day [class*="text-indigo-"],
+body.theme-reader-day [class*="text-purple-"],
+body.theme-reader-day [class*="text-violet-"] {
   color: #271452 !important;
   font-weight: 700 !important;
 }
 
-body.theme-reading-day [class*="bg-indigo-500/"],
-body.theme-reading-day [class*="bg-indigo-950"],
-body.theme-reading-day [class*="bg-indigo-900"],
-body.theme-reading-day [class*="bg-purple-500/"],
-body.theme-reading-day [class*="bg-purple-950"],
-body.theme-reading-day [class*="bg-purple-900"],
-body.theme-reading-day [class*="bg-violet-500/"],
-body.theme-reading-day [class*="bg-violet-950"] {
+body.theme-reader-day [class*="bg-indigo-500/"],
+body.theme-reader-day [class*="bg-indigo-950"],
+body.theme-reader-day [class*="bg-indigo-900"],
+body.theme-reader-day [class*="bg-purple-500/"],
+body.theme-reader-day [class*="bg-purple-950"],
+body.theme-reader-day [class*="bg-purple-900"],
+body.theme-reader-day [class*="bg-violet-500/"],
+body.theme-reader-day [class*="bg-violet-950"] {
   background-color: #f3eff9 !important;
   border-color: #dbceee !important;
   color: #271452 !important;
 }
 
-body.theme-reading-day [class*="border-indigo-"],
-body.theme-reading-day [class*="border-purple-"],
-body.theme-reading-day [class*="border-violet-"] {
+body.theme-reader-day [class*="border-indigo-"],
+body.theme-reader-day [class*="border-purple-"],
+body.theme-reader-day [class*="border-violet-"] {
   border-color: #dbceee !important;
 }
 
-body.theme-reading-day input,
-body.theme-reading-day select,
-body.theme-reading-day textarea {
+body.theme-reader-day input,
+body.theme-reader-day select,
+body.theme-reader-day textarea {
   background-color: #fdfbf7 !important;
   border-color: #dfd5c6 !important;
   color: #1f1b18 !important;
 }
 
-body.theme-reading-day table {
+body.theme-reader-day table {
   border: 1px solid #dfd5c6 !important;
 }
 
-body.theme-reading-day table thead tr {
+body.theme-reader-day table thead tr {
   background: #ede4d6 !important;
   background-image: none !important;
 }
 
-body.theme-reading-day table thead th {
+body.theme-reader-day table thead th {
   background: #ede4d6 !important;
   border-bottom: 2px solid #b45309 !important;
   color: #1f1b18 !important;
   font-weight: 800 !important;
 }
 
-body.theme-reading-day table tbody tr:nth-child(even) {
+body.theme-reader-day table tbody tr:nth-child(even) {
   background-color: #f8f3eb !important;
 }
 
-body.theme-reading-day table tbody tr:nth-child(odd) {
+body.theme-reader-day table tbody tr:nth-child(odd) {
   background-color: #fdfbf7 !important;
 }
 
-body.theme-reading-day table tbody tr:hover {
+body.theme-reader-day table tbody tr:hover {
   background-color: #ede2d1 !important;
 }
 
-body.theme-reading-day table tbody td {
+body.theme-reader-day table tbody td {
   border-bottom: 1px solid #dfd5c6 !important;
   color: #1f1b18 !important;
 }
@@ -1650,270 +1628,270 @@ body.theme-reading-day table tbody td {
 /* ================= Ergonomic Dark Paper, Anti-Blue Light & Eye Comfort ==== */
 /* ========================================================================= */
 
-body.theme-reading-night {
+body.theme-reader-night {
   background-color: #11141b !important;
   color: #e6e2d6 !important;
 }
 
 /* Base App Cards & Surfaces */
-body.theme-reading-night .app-card,
-body.theme-reading-night [class*="bg-slate-900"],
-body.theme-reading-night [class*="bg-slate-950"],
-body.theme-reading-night [class*="bg-zinc-900"],
-body.theme-reading-night [class*="bg-zinc-950"],
-body.theme-reading-night [class*="bg-gray-900"],
-body.theme-reading-night [class*="bg-gray-950"],
-body.theme-reading-night [class*="bg-neutral-900"],
-body.theme-reading-night [class*="bg-neutral-950"] {
+body.theme-reader-night .app-card,
+body.theme-reader-night [class*="bg-slate-900"],
+body.theme-reader-night [class*="bg-slate-950"],
+body.theme-reader-night [class*="bg-zinc-900"],
+body.theme-reader-night [class*="bg-zinc-950"],
+body.theme-reader-night [class*="bg-gray-900"],
+body.theme-reader-night [class*="bg-gray-950"],
+body.theme-reader-night [class*="bg-neutral-900"],
+body.theme-reader-night [class*="bg-neutral-950"] {
   background-color: #181c25 !important;
   color: #e6e2d6 !important;
 }
 
 /* Secondary Containers, Inactive Tabs, Pill Buttons & Inputs */
-body.theme-reading-night .app-bg,
-body.theme-reading-night [class*="bg-slate-800"],
-body.theme-reading-night [class*="bg-zinc-800"],
-body.theme-reading-night [class*="bg-gray-800"],
-body.theme-reading-night [class*="bg-neutral-800"],
-body.theme-reading-night [class*="bg-black/"],
-body.theme-reading-night .bg-black {
+body.theme-reader-night .app-bg,
+body.theme-reader-night [class*="bg-slate-800"],
+body.theme-reader-night [class*="bg-zinc-800"],
+body.theme-reader-night [class*="bg-gray-800"],
+body.theme-reader-night [class*="bg-neutral-800"],
+body.theme-reader-night [class*="bg-black/"],
+body.theme-reader-night .bg-black {
   background-color: #202532 !important;
   color: #e6e2d6 !important;
 }
 
-body.theme-reading-night .app-card-hover:hover,
-body.theme-reading-night [class*="hover:bg-slate-800"]:hover,
-body.theme-reading-night [class*="hover:bg-slate-700"]:hover,
-body.theme-reading-night [class*="hover:bg-slate-900"]:hover,
-body.theme-reading-night [class*="hover:bg-black"]:hover,
-body.theme-reading-night [class*="hover:bg-zinc-800"]:hover,
-body.theme-reading-night [class*="hover:bg-zinc-700"]:hover {
+body.theme-reader-night .app-card-hover:hover,
+body.theme-reader-night [class*="hover:bg-slate-800"]:hover,
+body.theme-reader-night [class*="hover:bg-slate-700"]:hover,
+body.theme-reader-night [class*="hover:bg-slate-900"]:hover,
+body.theme-reader-night [class*="hover:bg-black"]:hover,
+body.theme-reader-night [class*="hover:bg-zinc-800"]:hover,
+body.theme-reader-night [class*="hover:bg-zinc-700"]:hover {
   background-color: #2a3142 !important;
   color: #e6e2d6 !important;
 }
 
 /* Reading Night: preserve gradient buttons/headers; remove only decorative background gradients */
-body.theme-reading-night button[class*="bg-gradient-"],
-body.theme-reading-night div[class*="bg-gradient-"],
-body.theme-reading-night aside[class*="bg-gradient-"] {
+body.theme-reader-night button[class*="bg-gradient-"],
+body.theme-reader-night div[class*="bg-gradient-"],
+body.theme-reader-night aside[class*="bg-gradient-"] {
   color: #e6e2d6 !important;
 }
 
-body.theme-reading-night header[class*="bg-gradient-"],
-body.theme-reading-night nav[class*="bg-gradient-"],
-body.theme-reading-night [class*="bg-gradient-"] button,
-body.theme-reading-night [class*="bg-gradient-"] a {
+body.theme-reader-night header[class*="bg-gradient-"],
+body.theme-reader-night nav[class*="bg-gradient-"],
+body.theme-reader-night [class*="bg-gradient-"] button,
+body.theme-reader-night [class*="bg-gradient-"] a {
   color: #e6e2d6 !important;
 }
 
-body.theme-reading-night [class*="border-slate-800"],
-body.theme-reading-night [class*="border-slate-700"],
-body.theme-reading-night [class*="border-slate-600"],
-body.theme-reading-night [class*="border-zinc-800"],
-body.theme-reading-night [class*="border-zinc-700"],
-body.theme-reading-night [class*="border-gray-800"],
-body.theme-reading-night [class*="border-gray-700"],
-body.theme-reading-night .app-border {
+body.theme-reader-night [class*="border-slate-800"],
+body.theme-reader-night [class*="border-slate-700"],
+body.theme-reader-night [class*="border-slate-600"],
+body.theme-reader-night [class*="border-zinc-800"],
+body.theme-reader-night [class*="border-zinc-700"],
+body.theme-reader-night [class*="border-gray-800"],
+body.theme-reader-night [class*="border-gray-700"],
+body.theme-reader-night .app-border {
   border-color: #282f3e !important;
 }
 
-body.theme-reading-night [class*="hover:border-slate-600"]:hover,
-body.theme-reading-night [class*="hover:border-slate-500"]:hover {
+body.theme-reader-night [class*="hover:border-slate-600"]:hover,
+body.theme-reader-night [class*="hover:border-slate-500"]:hover {
   border-color: #3b475e !important;
 }
 
-body.theme-reading-night .text-white,
-body.theme-reading-night .text-slate-100,
-body.theme-reading-night .text-slate-200,
-body.theme-reading-night .text-zinc-100,
-body.theme-reading-night .text-zinc-200,
-body.theme-reading-night .text-gray-100,
-body.theme-reading-night .text-gray-200,
-body.theme-reading-night .app-text {
+body.theme-reader-night .text-white,
+body.theme-reader-night .text-slate-100,
+body.theme-reader-night .text-slate-200,
+body.theme-reader-night .text-zinc-100,
+body.theme-reader-night .text-zinc-200,
+body.theme-reader-night .text-gray-100,
+body.theme-reader-night .text-gray-200,
+body.theme-reader-night .app-text {
   color: #e6e2d6 !important;
 }
 
-body.theme-reading-night .text-slate-300,
-body.theme-reading-night .text-slate-400,
-body.theme-reading-night .text-zinc-300,
-body.theme-reading-night .text-zinc-400,
-body.theme-reading-night .text-gray-300,
-body.theme-reading-night .text-gray-400 {
+body.theme-reader-night .text-slate-300,
+body.theme-reader-night .text-slate-400,
+body.theme-reader-night .text-zinc-300,
+body.theme-reader-night .text-zinc-400,
+body.theme-reader-night .text-gray-300,
+body.theme-reader-night .text-gray-400 {
   color: #b5b0a3 !important;
 }
 
-body.theme-reading-night .text-slate-500,
-body.theme-reading-night .text-zinc-500,
-body.theme-reading-night .text-gray-500,
-body.theme-reading-night .app-muted {
+body.theme-reader-night .text-slate-500,
+body.theme-reader-night .text-zinc-500,
+body.theme-reader-night .text-gray-500,
+body.theme-reader-night .app-muted {
   color: #8c8577 !important;
 }
 
 /* Badges & Alert boxes in Reading Night (Soft Desaturated Dark Tones) */
-body.theme-reading-night [class*="text-sky-"],
-body.theme-reading-night [class*="text-cyan-"],
-body.theme-reading-night [class*="text-blue-"] {
+body.theme-reader-night [class*="text-sky-"],
+body.theme-reader-night [class*="text-cyan-"],
+body.theme-reader-night [class*="text-blue-"] {
   color: #7dd3fc !important;
   font-weight: 700 !important;
 }
 
-body.theme-reading-night [class*="bg-sky-500/"],
-body.theme-reading-night [class*="bg-sky-950"],
-body.theme-reading-night [class*="bg-sky-900"],
-body.theme-reading-night [class*="bg-blue-500/"],
-body.theme-reading-night [class*="bg-blue-950"],
-body.theme-reading-night [class*="bg-blue-900"],
-body.theme-reading-night [class*="bg-cyan-500/"],
-body.theme-reading-night [class*="bg-cyan-950"] {
+body.theme-reader-night [class*="bg-sky-500/"],
+body.theme-reader-night [class*="bg-sky-950"],
+body.theme-reader-night [class*="bg-sky-900"],
+body.theme-reader-night [class*="bg-blue-500/"],
+body.theme-reader-night [class*="bg-blue-950"],
+body.theme-reader-night [class*="bg-blue-900"],
+body.theme-reader-night [class*="bg-cyan-500/"],
+body.theme-reader-night [class*="bg-cyan-950"] {
   background-color: #102133 !important;
   border-color: #1e4266 !important;
   color: #7dd3fc !important;
 }
 
-body.theme-reading-night [class*="border-sky-"],
-body.theme-reading-night [class*="border-blue-"],
-body.theme-reading-night [class*="border-cyan-"] {
+body.theme-reader-night [class*="border-sky-"],
+body.theme-reader-night [class*="border-blue-"],
+body.theme-reader-night [class*="border-cyan-"] {
   border-color: #1e4266 !important;
 }
 
-body.theme-reading-night [class*="text-rose-"],
-body.theme-reading-night [class*="text-red-"] {
+body.theme-reader-night [class*="text-rose-"],
+body.theme-reader-night [class*="text-red-"] {
   color: #fca5a5 !important;
   font-weight: 700 !important;
 }
 
-body.theme-reading-night [class*="bg-rose-500/"],
-body.theme-reading-night [class*="bg-rose-950"],
-body.theme-reading-night [class*="bg-rose-900"],
-body.theme-reading-night [class*="bg-red-500/"],
-body.theme-reading-night [class*="bg-red-950"],
-body.theme-reading-night [class*="bg-red-900"] {
+body.theme-reader-night [class*="bg-rose-500/"],
+body.theme-reader-night [class*="bg-rose-950"],
+body.theme-reader-night [class*="bg-rose-900"],
+body.theme-reader-night [class*="bg-red-500/"],
+body.theme-reader-night [class*="bg-red-950"],
+body.theme-reader-night [class*="bg-red-900"] {
   background-color: #291217 !important;
   border-color: #57202b !important;
   color: #fca5a5 !important;
 }
 
-body.theme-reading-night [class*="border-rose-"],
-body.theme-reading-night [class*="border-red-"] {
+body.theme-reader-night [class*="border-rose-"],
+body.theme-reader-night [class*="border-red-"] {
   border-color: #57202b !important;
 }
 
-body.theme-reading-night [class*="text-amber-"],
-body.theme-reading-night [class*="text-yellow-"],
-body.theme-reading-night [class*="text-orange-"] {
+body.theme-reader-night [class*="text-amber-"],
+body.theme-reader-night [class*="text-yellow-"],
+body.theme-reader-night [class*="text-orange-"] {
   color: #fcd34d !important;
   font-weight: 700 !important;
 }
 
-body.theme-reading-night [class*="bg-amber-500/"],
-body.theme-reading-night [class*="bg-amber-950"],
-body.theme-reading-night [class*="bg-amber-900"],
-body.theme-reading-night [class*="bg-yellow-500/"],
-body.theme-reading-night [class*="bg-yellow-950"],
-body.theme-reading-night [class*="bg-yellow-900"],
-body.theme-reading-night [class*="bg-orange-500/"],
-body.theme-reading-night [class*="bg-orange-950"] {
+body.theme-reader-night [class*="bg-amber-500/"],
+body.theme-reader-night [class*="bg-amber-950"],
+body.theme-reader-night [class*="bg-amber-900"],
+body.theme-reader-night [class*="bg-yellow-500/"],
+body.theme-reader-night [class*="bg-yellow-950"],
+body.theme-reader-night [class*="bg-yellow-900"],
+body.theme-reader-night [class*="bg-orange-500/"],
+body.theme-reader-night [class*="bg-orange-950"] {
   background-color: #271a08 !important;
   border-color: #52370f !important;
   color: #fcd34d !important;
 }
 
-body.theme-reading-night [class*="border-amber-"],
-body.theme-reading-night [class*="border-yellow-"],
-body.theme-reading-night [class*="border-orange-"] {
+body.theme-reader-night [class*="border-amber-"],
+body.theme-reader-night [class*="border-yellow-"],
+body.theme-reader-night [class*="border-orange-"] {
   border-color: #52370f !important;
 }
 
-body.theme-reading-night [class*="text-emerald-"],
-body.theme-reading-night [class*="text-green-"],
-body.theme-reading-night [class*="text-teal-"] {
+body.theme-reader-night [class*="text-emerald-"],
+body.theme-reader-night [class*="text-green-"],
+body.theme-reader-night [class*="text-teal-"] {
   color: #86efac !important;
   font-weight: 700 !important;
 }
 
-body.theme-reading-night [class*="bg-emerald-500/"],
-body.theme-reading-night [class*="bg-emerald-950"],
-body.theme-reading-night [class*="bg-emerald-900"],
-body.theme-reading-night [class*="bg-green-500/"],
-body.theme-reading-night [class*="bg-green-950"],
-body.theme-reading-night [class*="bg-green-900"],
-body.theme-reading-night [class*="bg-teal-500/"],
-body.theme-reading-night [class*="bg-teal-950"],
-body.theme-reading-night [class*="bg-teal-900"] {
+body.theme-reader-night [class*="bg-emerald-500/"],
+body.theme-reader-night [class*="bg-emerald-950"],
+body.theme-reader-night [class*="bg-emerald-900"],
+body.theme-reader-night [class*="bg-green-500/"],
+body.theme-reader-night [class*="bg-green-950"],
+body.theme-reader-night [class*="bg-green-900"],
+body.theme-reader-night [class*="bg-teal-500/"],
+body.theme-reader-night [class*="bg-teal-950"],
+body.theme-reader-night [class*="bg-teal-900"] {
   background-color: #0b261b !important;
   border-color: #164f37 !important;
   color: #86efac !important;
 }
 
-body.theme-reading-night [class*="border-emerald-"],
-body.theme-reading-night [class*="border-green-"],
-body.theme-reading-night [class*="border-teal-"] {
+body.theme-reader-night [class*="border-emerald-"],
+body.theme-reader-night [class*="border-green-"],
+body.theme-reader-night [class*="border-teal-"] {
   border-color: #164f37 !important;
 }
 
-body.theme-reading-night [class*="text-indigo-"],
-body.theme-reading-night [class*="text-purple-"],
-body.theme-reading-night [class*="text-violet-"] {
+body.theme-reader-night [class*="text-indigo-"],
+body.theme-reader-night [class*="text-purple-"],
+body.theme-reader-night [class*="text-violet-"] {
   color: #c4b5fd !important;
   font-weight: 700 !important;
 }
 
-body.theme-reading-night [class*="bg-indigo-500/"],
-body.theme-reading-night [class*="bg-indigo-950"],
-body.theme-reading-night [class*="bg-indigo-900"],
-body.theme-reading-night [class*="bg-purple-500/"],
-body.theme-reading-night [class*="bg-purple-950"],
-body.theme-reading-night [class*="bg-purple-900"],
-body.theme-reading-night [class*="bg-violet-500/"],
-body.theme-reading-night [class*="bg-violet-950"] {
+body.theme-reader-night [class*="bg-indigo-500/"],
+body.theme-reader-night [class*="bg-indigo-950"],
+body.theme-reader-night [class*="bg-indigo-900"],
+body.theme-reader-night [class*="bg-purple-500/"],
+body.theme-reader-night [class*="bg-purple-950"],
+body.theme-reader-night [class*="bg-purple-900"],
+body.theme-reader-night [class*="bg-violet-500/"],
+body.theme-reader-night [class*="bg-violet-950"] {
   background-color: #1d1630 !important;
   border-color: #3f2f6a !important;
   color: #c4b5fd !important;
 }
 
-body.theme-reading-night [class*="border-indigo-"],
-body.theme-reading-night [class*="border-purple-"],
-body.theme-reading-night [class*="border-violet-"] {
+body.theme-reader-night [class*="border-indigo-"],
+body.theme-reader-night [class*="border-purple-"],
+body.theme-reader-night [class*="border-violet-"] {
   border-color: #3f2f6a !important;
 }
 
-body.theme-reading-night input,
-body.theme-reading-night select,
-body.theme-reading-night textarea {
+body.theme-reader-night input,
+body.theme-reader-night select,
+body.theme-reader-night textarea {
   background-color: #181c25 !important;
   border-color: #282f3e !important;
   color: #e6e2d6 !important;
 }
 
-body.theme-reading-night table {
+body.theme-reader-night table {
   border: 1px solid #282f3e !important;
 }
 
-body.theme-reading-night table thead tr {
+body.theme-reader-night table thead tr {
   background: #1c222e !important;
   background-image: none !important;
 }
 
-body.theme-reading-night table thead th {
+body.theme-reader-night table thead th {
   background: #1c222e !important;
   border-bottom: 2px solid #38bdf8 !important;
   color: #f8fafc !important;
   font-weight: 800 !important;
 }
 
-body.theme-reading-night table tbody tr:nth-child(even) {
+body.theme-reader-night table tbody tr:nth-child(even) {
   background-color: #151921 !important;
 }
 
-body.theme-reading-night table tbody tr:nth-child(odd) {
+body.theme-reader-night table tbody tr:nth-child(odd) {
   background-color: #181c25 !important;
 }
 
-body.theme-reading-night table tbody tr:hover {
+body.theme-reader-night table tbody tr:hover {
   background-color: #242b3a !important;
 }
 
-body.theme-reading-night table tbody td {
+body.theme-reader-night table tbody td {
   border-bottom: 1px solid #282f3e !important;
   color: #e6e2d6 !important;
 }
@@ -1923,7 +1901,7 @@ body.theme-reading-night table tbody td {
 /* ================= Neutral E-Ink Matte Paper, Eye-Comfort & Book Font ===== */
 /* ========================================================================= */
 
-body.theme-ereader {
+body.theme-reader-day {
   background-color: #e8e6de !important;
   color: #050505 !important;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Vazirmatn", "IRANSans", "B Nazanin", system-ui, serif !important;
@@ -1933,258 +1911,258 @@ body.theme-ereader {
 }
 
 /* Base App Cards & Surfaces */
-body.theme-ereader .app-card,
-body.theme-ereader [class*="bg-slate-900"],
-body.theme-ereader [class*="bg-slate-950"],
-body.theme-ereader [class*="bg-zinc-900"],
-body.theme-ereader [class*="bg-zinc-950"],
-body.theme-ereader [class*="bg-gray-900"],
-body.theme-ereader [class*="bg-gray-950"],
-body.theme-ereader [class*="bg-neutral-900"],
-body.theme-ereader [class*="bg-neutral-950"] {
+body.theme-reader-day .app-card,
+body.theme-reader-day [class*="bg-slate-900"],
+body.theme-reader-day [class*="bg-slate-950"],
+body.theme-reader-day [class*="bg-zinc-900"],
+body.theme-reader-day [class*="bg-zinc-950"],
+body.theme-reader-day [class*="bg-gray-900"],
+body.theme-reader-day [class*="bg-gray-950"],
+body.theme-reader-day [class*="bg-neutral-900"],
+body.theme-reader-day [class*="bg-neutral-950"] {
   background-color: #f7f6f0 !important;
   color: #050505 !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* Secondary Containers, Inactive Tabs, Pill Buttons & Inputs */
-body.theme-ereader .app-bg,
-body.theme-ereader [class*="bg-slate-800"],
-body.theme-ereader [class*="bg-zinc-800"],
-body.theme-ereader [class*="bg-gray-800"],
-body.theme-ereader [class*="bg-neutral-800"],
-body.theme-ereader [class*="bg-black/"],
-body.theme-ereader .bg-black {
+body.theme-reader-day .app-bg,
+body.theme-reader-day [class*="bg-slate-800"],
+body.theme-reader-day [class*="bg-zinc-800"],
+body.theme-reader-day [class*="bg-gray-800"],
+body.theme-reader-day [class*="bg-neutral-800"],
+body.theme-reader-day [class*="bg-black/"],
+body.theme-reader-day .bg-black {
   background-color: #dedbd0 !important;
   color: #050505 !important;
 }
 
-body.theme-ereader .app-card-hover:hover,
-body.theme-ereader [class*="hover:bg-slate-800"]:hover,
-body.theme-ereader [class*="hover:bg-slate-700"]:hover,
-body.theme-ereader [class*="hover:bg-slate-900"]:hover,
-body.theme-ereader [class*="hover:bg-black"]:hover,
-body.theme-ereader [class*="hover:bg-zinc-800"]:hover,
-body.theme-ereader [class*="hover:bg-zinc-700"]:hover {
+body.theme-reader-day .app-card-hover:hover,
+body.theme-reader-day [class*="hover:bg-slate-800"]:hover,
+body.theme-reader-day [class*="hover:bg-slate-700"]:hover,
+body.theme-reader-day [class*="hover:bg-slate-900"]:hover,
+body.theme-reader-day [class*="hover:bg-black"]:hover,
+body.theme-reader-day [class*="hover:bg-zinc-800"]:hover,
+body.theme-reader-day [class*="hover:bg-zinc-700"]:hover {
   background-color: #d3cfc2 !important;
   color: #050505 !important;
 }
 
-body.theme-ereader button[class*="bg-gradient-"],
-body.theme-ereader div[class*="bg-gradient-"],
-body.theme-ereader aside[class*="bg-gradient-"] {
+body.theme-reader-day button[class*="bg-gradient-"],
+body.theme-reader-day div[class*="bg-gradient-"],
+body.theme-reader-day aside[class*="bg-gradient-"] {
   color: #ffffff !important;
 }
 
-body.theme-ereader [class*="border-slate-800"],
-body.theme-ereader [class*="border-slate-700"],
-body.theme-ereader [class*="border-slate-600"],
-body.theme-ereader [class*="border-zinc-800"],
-body.theme-ereader [class*="border-zinc-700"],
-body.theme-ereader [class*="border-gray-800"],
-body.theme-ereader [class*="border-gray-700"],
-body.theme-ereader .app-border {
+body.theme-reader-day [class*="border-slate-800"],
+body.theme-reader-day [class*="border-slate-700"],
+body.theme-reader-day [class*="border-slate-600"],
+body.theme-reader-day [class*="border-zinc-800"],
+body.theme-reader-day [class*="border-zinc-700"],
+body.theme-reader-day [class*="border-gray-800"],
+body.theme-reader-day [class*="border-gray-700"],
+body.theme-reader-day .app-border {
   border-color: #b5b1a2 !important;
 }
 
-body.theme-ereader [class*="hover:border-slate-600"]:hover,
-body.theme-ereader [class*="hover:border-slate-500"]:hover {
+body.theme-reader-day [class*="hover:border-slate-600"]:hover,
+body.theme-reader-day [class*="hover:border-slate-500"]:hover {
   border-color: #8c8879 !important;
 }
 
 /* Crisp Ink High-Contrast Typography */
-body.theme-ereader .text-white,
-body.theme-ereader .text-slate-100,
-body.theme-ereader .text-slate-200,
-body.theme-ereader .text-zinc-100,
-body.theme-ereader .text-zinc-200,
-body.theme-ereader .text-gray-100,
-body.theme-ereader .text-gray-200,
-body.theme-ereader .app-text {
+body.theme-reader-day .text-white,
+body.theme-reader-day .text-slate-100,
+body.theme-reader-day .text-slate-200,
+body.theme-reader-day .text-zinc-100,
+body.theme-reader-day .text-zinc-200,
+body.theme-reader-day .text-gray-100,
+body.theme-reader-day .text-gray-200,
+body.theme-reader-day .app-text {
   color: #050505 !important;
 }
 
-body.theme-ereader .text-slate-300,
-body.theme-ereader .text-slate-400,
-body.theme-ereader .text-zinc-300,
-body.theme-ereader .text-zinc-400,
-body.theme-ereader .text-gray-300,
-body.theme-ereader .text-gray-400 {
+body.theme-reader-day .text-slate-300,
+body.theme-reader-day .text-slate-400,
+body.theme-reader-day .text-zinc-300,
+body.theme-reader-day .text-zinc-400,
+body.theme-reader-day .text-gray-300,
+body.theme-reader-day .text-gray-400 {
   color: #242424 !important;
 }
 
-body.theme-ereader .text-slate-500,
-body.theme-ereader .text-zinc-500,
-body.theme-ereader .text-gray-500,
-body.theme-ereader .app-muted {
+body.theme-reader-day .text-slate-500,
+body.theme-reader-day .text-zinc-500,
+body.theme-reader-day .text-gray-500,
+body.theme-reader-day .app-muted {
   color: #383838 !important;
 }
 
 /* Badges & Alert boxes in E-Reader Mode (Neutral Tones, High Legibility & Solid Dark Text) */
-body.theme-ereader [class*="text-sky-"],
-body.theme-ereader [class*="text-cyan-"],
-body.theme-ereader [class*="text-blue-"] {
+body.theme-reader-day [class*="text-sky-"],
+body.theme-reader-day [class*="text-cyan-"],
+body.theme-reader-day [class*="text-blue-"] {
   color: #082845 !important;
   font-weight: 700 !important;
 }
 
-body.theme-ereader [class*="bg-sky-500/"],
-body.theme-ereader [class*="bg-sky-950"],
-body.theme-ereader [class*="bg-sky-900"],
-body.theme-ereader [class*="bg-blue-500/"],
-body.theme-ereader [class*="bg-blue-950"],
-body.theme-ereader [class*="bg-blue-900"],
-body.theme-ereader [class*="bg-cyan-500/"],
-body.theme-ereader [class*="bg-cyan-950"] {
+body.theme-reader-day [class*="bg-sky-500/"],
+body.theme-reader-day [class*="bg-sky-950"],
+body.theme-reader-day [class*="bg-sky-900"],
+body.theme-reader-day [class*="bg-blue-500/"],
+body.theme-reader-day [class*="bg-blue-950"],
+body.theme-reader-day [class*="bg-blue-900"],
+body.theme-reader-day [class*="bg-cyan-500/"],
+body.theme-reader-day [class*="bg-cyan-950"] {
   background-color: #e0eaf3 !important;
   border-color: #90b8d8 !important;
   color: #082845 !important;
 }
 
-body.theme-ereader [class*="border-sky-"],
-body.theme-ereader [class*="border-blue-"],
-body.theme-ereader [class*="border-cyan-"] {
+body.theme-reader-day [class*="border-sky-"],
+body.theme-reader-day [class*="border-blue-"],
+body.theme-reader-day [class*="border-cyan-"] {
   border-color: #90b8d8 !important;
 }
 
-body.theme-ereader [class*="text-rose-"],
-body.theme-ereader [class*="text-red-"] {
+body.theme-reader-day [class*="text-rose-"],
+body.theme-reader-day [class*="text-red-"] {
   color: #4a0713 !important;
   font-weight: 700 !important;
 }
 
-body.theme-ereader [class*="bg-rose-500/"],
-body.theme-ereader [class*="bg-rose-950"],
-body.theme-ereader [class*="bg-rose-900"],
-body.theme-ereader [class*="bg-red-500/"],
-body.theme-ereader [class*="bg-red-950"],
-body.theme-ereader [class*="bg-red-900"] {
+body.theme-reader-day [class*="bg-rose-500/"],
+body.theme-reader-day [class*="bg-rose-950"],
+body.theme-reader-day [class*="bg-rose-900"],
+body.theme-reader-day [class*="bg-red-500/"],
+body.theme-reader-day [class*="bg-red-950"],
+body.theme-reader-day [class*="bg-red-900"] {
   background-color: #fae8eb !important;
   border-color: #e09ba7 !important;
   color: #4a0713 !important;
 }
 
-body.theme-ereader [class*="border-rose-"],
-body.theme-ereader [class*="border-red-"] {
+body.theme-reader-day [class*="border-rose-"],
+body.theme-reader-day [class*="border-red-"] {
   border-color: #e09ba7 !important;
 }
 
-body.theme-ereader [class*="text-amber-"],
-body.theme-ereader [class*="text-yellow-"],
-body.theme-ereader [class*="text-orange-"] {
+body.theme-reader-day [class*="text-amber-"],
+body.theme-reader-day [class*="text-yellow-"],
+body.theme-reader-day [class*="text-orange-"] {
   color: #3d2103 !important;
   font-weight: 700 !important;
 }
 
-body.theme-ereader [class*="bg-amber-500/"],
-body.theme-ereader [class*="bg-amber-950"],
-body.theme-ereader [class*="bg-amber-900"],
-body.theme-ereader [class*="bg-yellow-500/"],
-body.theme-ereader [class*="bg-yellow-950"],
-body.theme-ereader [class*="bg-yellow-900"],
-body.theme-ereader [class*="bg-orange-500/"],
-body.theme-ereader [class*="bg-orange-950"] {
+body.theme-reader-day [class*="bg-amber-500/"],
+body.theme-reader-day [class*="bg-amber-950"],
+body.theme-reader-day [class*="bg-amber-900"],
+body.theme-reader-day [class*="bg-yellow-500/"],
+body.theme-reader-day [class*="bg-yellow-950"],
+body.theme-reader-day [class*="bg-yellow-900"],
+body.theme-reader-day [class*="bg-orange-500/"],
+body.theme-reader-day [class*="bg-orange-950"] {
   background-color: #f5ede0 !important;
   border-color: #d8be8d !important;
   color: #3d2103 !important;
 }
 
-body.theme-ereader [class*="border-amber-"],
-body.theme-ereader [class*="border-yellow-"],
-body.theme-ereader [class*="border-orange-"] {
+body.theme-reader-day [class*="border-amber-"],
+body.theme-reader-day [class*="border-yellow-"],
+body.theme-reader-day [class*="border-orange-"] {
   border-color: #d8be8d !important;
 }
 
-body.theme-ereader [class*="text-emerald-"],
-body.theme-ereader [class*="text-green-"],
-body.theme-ereader [class*="text-teal-"] {
+body.theme-reader-day [class*="text-emerald-"],
+body.theme-reader-day [class*="text-green-"],
+body.theme-reader-day [class*="text-teal-"] {
   color: #032e14 !important;
   font-weight: 700 !important;
 }
 
-body.theme-ereader [class*="bg-emerald-500/"],
-body.theme-ereader [class*="bg-emerald-950"],
-body.theme-ereader [class*="bg-emerald-900"],
-body.theme-ereader [class*="bg-green-500/"],
-body.theme-ereader [class*="bg-green-950"],
-body.theme-ereader [class*="bg-green-900"],
-body.theme-ereader [class*="bg-teal-500/"],
-body.theme-ereader [class*="bg-teal-950"],
-body.theme-ereader [class*="bg-teal-900"] {
+body.theme-reader-day [class*="bg-emerald-500/"],
+body.theme-reader-day [class*="bg-emerald-950"],
+body.theme-reader-day [class*="bg-emerald-900"],
+body.theme-reader-day [class*="bg-green-500/"],
+body.theme-reader-day [class*="bg-green-950"],
+body.theme-reader-day [class*="bg-green-900"],
+body.theme-reader-day [class*="bg-teal-500/"],
+body.theme-reader-day [class*="bg-teal-950"],
+body.theme-reader-day [class*="bg-teal-900"] {
   background-color: #e2ede5 !important;
   border-color: #8abf98 !important;
   color: #032e14 !important;
 }
 
-body.theme-ereader [class*="border-emerald-"],
-body.theme-ereader [class*="border-green-"],
-body.theme-ereader [class*="border-teal-"] {
+body.theme-reader-day [class*="border-emerald-"],
+body.theme-reader-day [class*="border-green-"],
+body.theme-reader-day [class*="border-teal-"] {
   border-color: #8abf98 !important;
 }
 
-body.theme-ereader [class*="text-indigo-"],
-body.theme-ereader [class*="text-purple-"],
-body.theme-ereader [class*="text-violet-"] {
+body.theme-reader-day [class*="text-indigo-"],
+body.theme-reader-day [class*="text-purple-"],
+body.theme-reader-day [class*="text-violet-"] {
   color: #220942 !important;
   font-weight: 700 !important;
 }
 
-body.theme-ereader [class*="bg-indigo-500/"],
-body.theme-ereader [class*="bg-indigo-950"],
-body.theme-ereader [class*="bg-indigo-900"],
-body.theme-ereader [class*="bg-purple-500/"],
-body.theme-ereader [class*="bg-purple-950"],
-body.theme-ereader [class*="bg-purple-900"],
-body.theme-ereader [class*="bg-violet-500/"],
-body.theme-ereader [class*="bg-violet-950"] {
+body.theme-reader-day [class*="bg-indigo-500/"],
+body.theme-reader-day [class*="bg-indigo-950"],
+body.theme-reader-day [class*="bg-indigo-900"],
+body.theme-reader-day [class*="bg-purple-500/"],
+body.theme-reader-day [class*="bg-purple-950"],
+body.theme-reader-day [class*="bg-purple-900"],
+body.theme-reader-day [class*="bg-violet-500/"],
+body.theme-reader-day [class*="bg-violet-950"] {
   background-color: #eee8f5 !important;
   border-color: #baa0d8 !important;
   color: #220942 !important;
 }
 
-body.theme-ereader [class*="border-indigo-"],
-body.theme-ereader [class*="border-purple-"],
-body.theme-ereader [class*="border-violet-"] {
+body.theme-reader-day [class*="border-indigo-"],
+body.theme-reader-day [class*="border-purple-"],
+body.theme-reader-day [class*="border-violet-"] {
   border-color: #baa0d8 !important;
 }
 
-body.theme-ereader input,
-body.theme-ereader select,
-body.theme-ereader textarea {
+body.theme-reader-day input,
+body.theme-reader-day select,
+body.theme-reader-day textarea {
   background-color: #f7f6f0 !important;
   border-color: #b5b1a2 !important;
   color: #050505 !important;
 }
 
-body.theme-ereader table {
+body.theme-reader-day table {
   border: 1px solid #b5b1a2 !important;
 }
 
-body.theme-ereader table thead tr {
+body.theme-reader-day table thead tr {
   background: #dedbd0 !important;
   background-image: none !important;
 }
 
-body.theme-ereader table thead th {
+body.theme-reader-day table thead th {
   background: #dedbd0 !important;
   border-bottom: 2px solid #000000 !important;
   color: #000000 !important;
   font-weight: 800 !important;
 }
 
-body.theme-ereader table tbody tr:nth-child(even) {
+body.theme-reader-day table tbody tr:nth-child(even) {
   background-color: #edeae0 !important;
 }
 
-body.theme-ereader table tbody tr:nth-child(odd) {
+body.theme-reader-day table tbody tr:nth-child(odd) {
   background-color: #f7f6f0 !important;
 }
 
-body.theme-ereader table tbody tr:hover {
+body.theme-reader-day table tbody tr:hover {
   background-color: #dedbd0 !important;
 }
 
-body.theme-ereader table tbody td {
+body.theme-reader-day table tbody td {
   border-bottom: 1px solid #b5b1a2 !important;
   color: #050505 !important;
 }
@@ -2193,30 +2171,31 @@ body.theme-ereader table tbody td {
 /* ================= 4. SPECIALIZED READING TYPOGRAPHY & LAYOUT ============ */
 /* ========================================================================= */
 
-body.theme-ereader p,
-body.theme-reading-day p,
-body.theme-reading-night p,
-body.theme-ereader .reading-text,
-body.theme-reading-day .reading-text,
-body.theme-reading-night .reading-text,
-body.theme-ereader [class*="leading-relaxed"],
-body.theme-reading-day [class*="leading-relaxed"],
-body.theme-reading-night [class*="leading-relaxed"] {
+body.theme-reader-day p,
+body.theme-reader-day p,
+body.theme-reader-night p,
+body.theme-reader-day .reading-text,
+body.theme-reader-day .reading-text,
+body.theme-reader-night .reading-text,
+body.theme-reader-day [class*="leading-relaxed"],
+body.theme-reader-day [class*="leading-relaxed"],
+body.theme-reader-night [class*="leading-relaxed"] {
   line-height: 1.8 !important;
   letter-spacing: 0.015em;
 }
 
-body.theme-ereader h1,
-body.theme-ereader h2,
-body.theme-ereader h3,
-body.theme-reading-day h1,
-body.theme-reading-day h2,
-body.theme-reading-day h3,
-body.theme-reading-night h1,
-body.theme-reading-night h2,
-body.theme-reading-night h3 {
+body.theme-reader-day h1,
+body.theme-reader-day h2,
+body.theme-reader-day h3,
+body.theme-reader-day h1,
+body.theme-reader-day h2,
+body.theme-reader-day h3,
+body.theme-reader-night h1,
+body.theme-reader-night h2,
+body.theme-reader-night h3 {
   letter-spacing: -0.015em;
 }
+
 
 
 

@@ -69,6 +69,11 @@ const PbsClaimingArchivePanel = dynamic(
   { ssr: false }
 );
 
+const ProjectStopModal = dynamic(
+  () => import('@/components/shelf/ProjectStopModal').then((mod) => mod.ProjectStopModal),
+  { ssr: false }
+);
+
 interface ScriptScenario {
   id: string;
   type: 'eScript' | 'Paper' | 'Reg24' | 'Chart';
@@ -232,13 +237,38 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
   const [isOwingReconciled, setIsOwingReconciled] = useState<boolean>(false);
   const [erxBarcode, setErxBarcode] = useState<string>('');
 
-  // Verification & Handout Popup
   const [isHandoutOpen, setIsHandoutOpen] = useState(false);
   const [isFinalCheckModalOpen, setIsFinalCheckModalOpen] = useState(false);
   const [verifiedName, setVerifiedName] = useState(false);
   const [verifiedDob, setVerifiedDob] = useState(false);
   const [dispenseSuccess, setDispenseSuccess] = useState<boolean | null>(null);
   const [dispenseError, setDispenseError] = useState<string | null>(null);
+
+  // Project STOP (S3 Pseudoephedrine) State
+  const [isProjectStopOpen, setIsProjectStopOpen] = useState(false);
+  const [psPatientName, setPsPatientName] = useState('Sarah Jenkins');
+  const [psIdType, setPsIdType] = useState<'Driver License' | 'Passport' | 'Proof of Age'>('Driver License');
+  const [psPatientId, setPsPatientId] = useState('DL-9824017');
+  const [psCounselingCompleted, setPsCounselingCompleted] = useState(false);
+  const [psIsApproved, setPsIsApproved] = useState<boolean | null>(null);
+  const [psApprovalCode, setPsApprovalCode] = useState<string>('');
+
+  const handleVerifyProjectStop = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!psCounselingCompleted) {
+      alert(isFa ? 'لطفاً قبل از ارسال استعلام، مشاوره داروساز با بیمار را تایید کنید.' : 'Please confirm therapeutic pharmacist counseling before submitting.');
+      return;
+    }
+    const cleanId = psPatientId.trim().toUpperCase();
+    if (cleanId.includes('BLOCK') || cleanId.includes('ALERT') || cleanId === 'DL-0000000') {
+      setPsIsApproved(false);
+      setPsApprovalCode('');
+    } else {
+      setPsIsApproved(true);
+      const code = `PS-AU-${Math.floor(100000 + Math.random() * 900000)}`;
+      setPsApprovalCode(code);
+    }
+  };
 
   const scenario = SCRIPT_SCENARIOS.find((s) => s.id === selectedScenarioId) || SCRIPT_SCENARIOS[0];
 
@@ -579,6 +609,14 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
             >
               <Box className="w-3.5 h-3.5 text-purple-300" />
               <span>{isFa ? 'گام ۸: ادعای PBS & POS' : 'Step 8: PBS & POS'}</span>
+            </button>
+            <button
+              onClick={() => setIsProjectStopOpen(true)}
+              className="px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 whitespace-nowrap text-rose-300 hover:text-white hover:bg-rose-950/40 border border-rose-500/40"
+              title={isFa ? 'استعلام هویت خریدار سودوافدرین و قوانین S3' : 'Project STOP Pseudoepherine verification'}
+            >
+              <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+              <span>{isFa ? '🛡️ سامانه Project STOP (S3)' : '🛡️ Project STOP (S3)'}</span>
             </button>
           </div>
         </div>
@@ -1425,6 +1463,25 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
           </div>
         </div>
       )}
+
+      {/* PROJECT STOP VERIFICATION MODAL */}
+      <ProjectStopModal
+        isOpen={isProjectStopOpen}
+        activeProduct={null}
+        language={language}
+        patientName={psPatientName}
+        setPatientName={setPsPatientName}
+        idType={psIdType}
+        setIdType={setPsIdType}
+        patientId={psPatientId}
+        setPatientId={setPsPatientId}
+        counselingCompleted={psCounselingCompleted}
+        setCounselingCompleted={setPsCounselingCompleted}
+        isApproved={psIsApproved}
+        approvalCode={psApprovalCode}
+        onVerify={handleVerifyProjectStop}
+        onClose={() => setIsProjectStopOpen(false)}
+      />
     </div>
   );
 };
