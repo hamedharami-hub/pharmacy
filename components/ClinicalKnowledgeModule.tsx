@@ -164,21 +164,21 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
       )}
 
       {/* UNIFIED MODULE 4 HEADER BAR */}
-      <div className="app-card border app-border rounded-2xl p-4 sm:p-5 shadow-md bg-gradient-to-r from-slate-900/95 via-slate-900/90 to-slate-950/95 backdrop-blur-md space-y-4">
+      <div className="app-card border app-border rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
         {/* 1. TOP ROW: Brand & Action Toolbar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b app-border pb-2.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-teal-600 via-indigo-600 to-sky-600 flex items-center justify-center text-white shadow-sm shrink-0 border border-teal-400/30">
-              <Monitor className="w-4 h-4 text-teal-200" />
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-teal-500/15 text-teal-600 dark:text-teal-300 flex items-center justify-center shadow-xs shrink-0 border border-teal-500/30">
+              <Monitor className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-sm sm:text-base font-black text-white tracking-tight">
+                <h2 className="text-sm sm:text-base font-black app-text tracking-tight">
                   {isFa
                     ? 'ماژول ۴: نسخه‌پیچی (Dispensing) و قوانین استرالیا'
                     : 'Module 4: Prescription Dispensing & Practice'}
                 </h2>
-                <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/30">
                   {activeModule === 'software'
                     ? isFa ? 'نرم‌افزار Fred Dispense' : 'Fred Dispense Software'
                     : isFa ? `${filteredCards.length} مبحث و کارت بالینی` : `${filteredCards.length} Clinical Topics`}
@@ -202,10 +202,10 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
                   className={`px-3 py-1.5 rounded-xl font-bold transition whitespace-nowrap border flex items-center gap-1.5 cursor-pointer ${
                     isSelected
                       ? chip.isSoftware
-                        ? 'bg-teal-600 text-white border-teal-500 shadow-md shadow-teal-950/30 ring-1 ring-teal-400'
-                        : 'bg-indigo-600 text-white border-indigo-500 shadow-sm'
+                        ? 'bg-teal-600 text-white border-teal-500 shadow-xs'
+                        : 'bg-indigo-600 text-white border-indigo-500 shadow-xs'
                       : chip.isSoftware
-                      ? 'bg-teal-950/40 border-teal-500/40 text-teal-300 hover:bg-teal-900/60'
+                      ? 'bg-teal-500/15 border-teal-500/30 text-teal-800 dark:text-teal-300 hover:bg-teal-500/25'
                       : 'app-bg app-border app-muted hover:app-text'
                   }`}
                 >

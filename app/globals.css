@@ -267,8 +267,21 @@ body.theme-day .bg-slate-950\/60,
 body.theme-day .bg-zinc-900,
 body.theme-day .bg-zinc-950,
 body.theme-day .bg-gray-900,
-body.theme-day .bg-gray-950 {
+body.theme-day .bg-gray-950,
+body.theme-day [class*="from-slate-9"],
+body.theme-day [class*="via-slate-9"],
+body.theme-day [class*="to-slate-9"],
+body.theme-day [class*="from-teal-9"],
+body.theme-day [class*="via-teal-9"],
+body.theme-day [class*="to-teal-9"],
+body.theme-day [class*="from-sky-9"],
+body.theme-day [class*="via-sky-9"],
+body.theme-day [class*="to-sky-9"],
+body.theme-day [class*="from-indigo-9"],
+body.theme-day [class*="via-indigo-9"],
+body.theme-day [class*="to-indigo-9"] {
   background-color: #ffffff !important;
+  background-image: none !important;
   color: #0f172a !important;
 }
 
@@ -782,8 +795,21 @@ body.theme-reader-day .bg-slate-950\/90,
 body.theme-reader-day .bg-slate-950\/80,
 body.theme-reader-day .bg-slate-950\/70,
 body.theme-reader-day .bg-zinc-900,
-body.theme-reader-day .bg-gray-900 {
+body.theme-reader-day .bg-gray-900,
+body.theme-reader-day [class*="from-slate-9"],
+body.theme-reader-day [class*="via-slate-9"],
+body.theme-reader-day [class*="to-slate-9"],
+body.theme-reader-day [class*="from-teal-9"],
+body.theme-reader-day [class*="via-teal-9"],
+body.theme-reader-day [class*="to-teal-9"],
+body.theme-reader-day [class*="from-sky-9"],
+body.theme-reader-day [class*="via-sky-9"],
+body.theme-reader-day [class*="to-sky-9"],
+body.theme-reader-day [class*="from-indigo-9"],
+body.theme-reader-day [class*="via-indigo-9"],
+body.theme-reader-day [class*="to-indigo-9"] {
   background-color: #f4e4c1 !important;
+  background-image: none !important;
   color: #261608 !important;
 }
 

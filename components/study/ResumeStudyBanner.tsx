@@ -66,32 +66,32 @@ export const ResumeStudyBanner: React.FC<ResumeStudyBannerProps> = ({
   return (
     <div
       dir={isFa ? 'rtl' : 'ltr'}
-      className={`relative overflow-hidden rounded-2xl border border-sky-500/30 bg-gradient-to-r from-sky-950/70 via-slate-900/90 to-indigo-950/70 backdrop-blur-md p-3 sm:p-3.5 shadow-md shadow-sky-950/40 transition-all animate-fadeIn ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-sky-500/30 app-card p-3 sm:p-3.5 shadow-sm transition-all animate-fadeIn bg-sky-500/5 dark:bg-sky-950/40 ${className}`}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Left Side: Context & Title */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white shrink-0 shadow-sm shadow-sky-800">
-            <Compass className="w-5 h-5 text-cyan-200 animate-pulse" />
+          <div className="w-9 h-9 rounded-xl bg-sky-500/20 dark:bg-sky-600 flex items-center justify-center text-sky-600 dark:text-white shrink-0 shadow-xs">
+            <Compass className="w-5 h-5 animate-pulse" />
           </div>
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[11px] font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1">
+              <span className="text-[11px] font-bold text-sky-700 dark:text-sky-400 uppercase tracking-wider flex items-center gap-1">
                 <Clock className="w-3 h-3" />
                 {isFa ? 'ادامه مطالعه از آخرین مبحث:' : 'Resume from where you left off:'}
               </span>
-              <span className="px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[10px] font-bold">
+              <span className="px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-800 dark:text-sky-300 border border-sky-500/30 text-[10px] font-bold">
                 {isFa ? modBadge.fa : modBadge.en}
               </span>
               {lastStudied.category && (
-                <span className="text-[10px] text-slate-400 hidden sm:inline-block">
+                <span className="text-[10px] app-muted hidden sm:inline-block">
                   ({isFa ? lastStudied.category.fa : lastStudied.category.en})
                 </span>
               )}
             </div>
 
-            <h4 className="text-xs sm:text-sm font-black text-white truncate mt-0.5">
+            <h4 className="text-xs sm:text-sm font-black app-text truncate mt-0.5">
               {isFa ? lastStudied.title.fa : lastStudied.title.en}
             </h4>
           </div>

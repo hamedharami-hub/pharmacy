@@ -54,18 +54,18 @@ export const ScriptVisualizerPanel: React.FC<ScriptVisualizerPanelProps> = ({
   return (
     <div id="script_visualizer_panel_root" className="space-y-4">
       {/* 1. Header & 6-Script Navigation Bar */}
-      <div className="app-card border border-indigo-500/30 rounded-2xl p-4 sm:p-5 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950/50 shadow-xl space-y-3">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+      <div className="app-card border border-indigo-500/30 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b app-border pb-3">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="p-2 rounded-xl bg-indigo-600/30 border border-indigo-500/50 text-indigo-300">
+              <span className="p-2 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-700 dark:text-indigo-300">
                 <FileText className="w-5 h-5" />
               </span>
               <div>
-                <h2 className="font-extrabold text-base sm:text-lg text-white flex items-center gap-2">
+                <h2 className="font-extrabold text-base sm:text-lg app-text flex items-center gap-2">
                   {isFa ? 'شبیه‌ساز و بازرس بصری نسخه‌های استرالیا (۶ نوع نسخه)' : 'Australian 6-Prescription Realistic Inspector'}
                 </h2>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs app-muted">
                   {isFa
                     ? 'روی هر کادر کلیک کنید تا الزامات قانونی، بایدها/نبایدها و نکات امتحانی باز شوند.'
                     : 'Click any interactive section on the script to review legal rules, Dos & Don’ts, and exam tips.'}
@@ -78,7 +78,7 @@ export const ScriptVisualizerPanel: React.FC<ScriptVisualizerPanelProps> = ({
             {onSelectScriptForDispense && (
               <button
                 onClick={() => onSelectScriptForDispense(currentScript.tab_id)}
-                className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-950/50 transition"
+                className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition cursor-pointer"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 {isFa ? 'دیسپنس این نسخه در Fred' : 'Dispense in Fred'}
@@ -98,10 +98,10 @@ export const ScriptVisualizerPanel: React.FC<ScriptVisualizerPanelProps> = ({
                 onClick={() => {
                   setActiveTab(item.tab_id);
                 }}
-                className={`p-2.5 rounded-xl border text-right sm:text-center transition flex flex-col justify-between gap-1.5 ${
+                className={`p-2.5 rounded-xl border text-right sm:text-center transition flex flex-col justify-between gap-1.5 cursor-pointer ${
                   isActive
-                    ? 'bg-indigo-600/90 text-white border-indigo-300 shadow-lg shadow-indigo-950/60 ring-2 ring-indigo-400/50'
-                    : 'bg-slate-900/80 text-slate-300 border-slate-800 hover:border-slate-700 hover:bg-slate-800/60'
+                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-xs'
+                    : 'app-bg app-border app-muted hover:app-text hover:border-slate-400/50'
                 }`}
               >
                 <div className="flex items-center justify-between gap-1 w-full">

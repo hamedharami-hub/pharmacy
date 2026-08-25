@@ -367,21 +367,21 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
   return (
     <div className="space-y-6">
       {/* UNIFIED MODULE HEADER BAR */}
-      <div className="app-card border app-border rounded-2xl p-4 sm:p-5 shadow-md bg-gradient-to-r from-slate-900/95 via-slate-900/90 to-slate-950/95 backdrop-blur-md space-y-4">
+      <div className="app-card border app-border rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
         {/* 1. TOP ROW: Brand */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b app-border pb-2.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-sky-600 flex items-center justify-center text-white shadow-sm shrink-0 border border-teal-400/30">
-              <Boxes className="w-4 h-4 text-teal-200" />
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-teal-500/15 text-teal-600 dark:text-teal-300 flex items-center justify-center shadow-xs shrink-0 border border-teal-500/30">
+              <Boxes className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-sm sm:text-base font-black text-white tracking-tight">
+                <h2 className="text-sm sm:text-base font-black app-text tracking-tight">
                   {isFa
                     ? 'ماژول ۲: قفسه مجازی داروها، جدول‌بندی و اندیکاسیون‌ها'
                     : 'Module 2: Virtual Product Shelf & Schedules'}
                 </h2>
-                <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/30">
                   {isFa ? `${filteredProducts.length} محصول دارویی` : `${filteredProducts.length} Medicines`}
                 </span>
               </div>
@@ -390,19 +390,19 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
         </div>
 
         {/* 2. SUB-NAVIGATION TABS ROW */}
-        <div className="flex items-center gap-1.5 bg-black/30 p-1.5 rounded-xl border app-border text-xs overflow-x-auto no-scrollbar max-w-full">
+        <div className="flex items-center gap-1.5 app-bg p-1.5 rounded-xl border app-border text-xs overflow-x-auto no-scrollbar max-w-full">
           <button
             type="button"
             onClick={() => setActiveShelfView('shelf')}
             className={`px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
               activeShelfView === 'shelf'
-                ? 'bg-teal-600 text-white shadow-sm ring-1 ring-teal-400/40'
-                : 'app-muted hover:app-text hover:bg-slate-800/60'
+                ? 'bg-teal-600 text-white shadow-xs'
+                : 'app-muted hover:app-text hover:bg-black/5 dark:hover:bg-slate-800/60'
             }`}
           >
-            <Boxes className="w-3.5 h-3.5 text-teal-300" />
+            <Boxes className="w-3.5 h-3.5" />
             <span>{isFa ? 'قفسه محصولات و داروها' : 'Shelf Medicines'}</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-black/30 text-teal-200">
+            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-black/10 dark:bg-black/30">
               {filteredProducts.length}
             </span>
           </button>

@@ -516,32 +516,32 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
   return (
     <div className="space-y-5">
       {/* Module Header Container */}
-      <div className="app-card border app-border rounded-2xl p-4 sm:p-5 shadow-sm bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+      <div className="app-card border app-border rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
           <div className="flex items-center gap-2 shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-teal-600 text-white flex items-center justify-center shadow-md">
+            <div className="w-8 h-8 rounded-lg bg-teal-500/15 text-teal-600 dark:text-teal-300 flex items-center justify-center shadow-xs border border-teal-500/30">
               <Monitor className="w-4 h-4" />
             </div>
-            <span className="text-xs font-bold text-teal-300 font-mono">
+            <span className="text-xs font-black text-teal-700 dark:text-teal-300 font-mono">
               Fred Dispense Plus
             </span>
           </div>
 
           {/* Module 3 Display View Toggles */}
-          <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-slate-800 text-xs overflow-x-auto">
+          <div className="flex items-center gap-1 app-bg p-1 rounded-xl border app-border text-xs overflow-x-auto">
             <button
               onClick={() => setViewMode('dual')}
               className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
-                viewMode === 'dual' ? 'bg-teal-600 text-white shadow ring-2 ring-teal-400/40' : 'text-slate-400 hover:text-white'
+                viewMode === 'dual' ? 'bg-teal-600 text-white shadow-xs' : 'app-muted hover:app-text hover:bg-black/5 dark:hover:bg-slate-800/60'
               }`}
             >
-              <Columns className="w-3.5 h-3.5 text-teal-300" />
+              <Columns className="w-3.5 h-3.5" />
               <span>{isFa ? 'نمای کامل زنجیره نسخه پیچی (Dual Pipeline)' : 'Full Dispense Pipeline'}</span>
             </button>
             <button
               onClick={() => setViewMode('visualizer')}
               className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
-                viewMode === 'visualizer' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                viewMode === 'visualizer' ? 'bg-indigo-600 text-white shadow-xs' : 'app-muted hover:app-text hover:bg-black/5 dark:hover:bg-slate-800/60'
               }`}
             >
               <Eye className="w-3.5 h-3.5 text-indigo-300" />
@@ -622,23 +622,23 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
         </div>
 
         {/* Chronological Dispensing Workflow Pipeline Stepper */}
-        <div className="p-3 rounded-2xl bg-slate-900/90 border border-teal-500/30 space-y-2">
-          <div className="flex items-center justify-between text-xs font-bold text-teal-300 border-b border-slate-800 pb-2">
+        <div className="p-3 rounded-2xl app-card border border-teal-500/30 space-y-2">
+          <div className="flex items-center justify-between text-xs font-bold text-teal-700 dark:text-teal-300 border-b app-border pb-2">
             <span className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-teal-400" />
+              <CheckCircle2 className="w-4 h-4 text-teal-600 dark:text-teal-400" />
               {isFa ? 'زنجیره استاندارد و ترتیبی نسخه پیچی داروخانه در استرالیا (Fred Dispense Pipeline):' : 'Australian Pharmacy Standard Chronological Dispensing Pipeline:'}
             </span>
-            <span className="text-[11px] text-slate-400 font-mono">Steps 1 → 8</span>
+            <span className="text-[11px] app-muted font-mono">Steps 1 → 8</span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 text-[11px]">
             <button
               onClick={() => setViewMode('visualizer')}
-              className={`p-2 rounded-xl border text-right transition flex flex-col justify-between h-full ${
-                viewMode === 'visualizer' || viewMode === 'dual' ? 'bg-indigo-950/60 border-indigo-500/60 text-indigo-200' : 'bg-slate-950/40 border-slate-800 text-slate-400'
+              className={`p-2 rounded-xl border text-right transition flex flex-col justify-between h-full cursor-pointer ${
+                viewMode === 'visualizer' || viewMode === 'dual' ? 'bg-indigo-500/15 border-indigo-500/60 text-indigo-900 dark:text-indigo-200' : 'app-bg app-border app-muted'
               }`}
             >
-              <span className="font-mono text-[9px] text-indigo-400 font-bold uppercase">Step 1</span>
+              <span className="font-mono text-[9px] text-indigo-600 dark:text-indigo-400 font-bold uppercase">Step 1</span>
               <span className="font-bold text-xs truncate mt-0.5">{isFa ? '۱. بررسی نسخه' : '1. Visualizer'}</span>
               <span className="text-[9px] opacity-70 truncate">{isFa ? 'اعتبار سنجی قانونی' : 'Legal Check'}</span>
             </button>
