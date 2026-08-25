@@ -22,6 +22,7 @@ import {
   RenameNodeModal,
   ColorPickerModal,
 } from '@/components/mindmap/MindMapModals';
+import { MindMapSettingsModal } from '@/components/mindmap/MindMapSettingsModal';
 import {
   Sparkles,
   Search,
@@ -56,6 +57,7 @@ import {
   Maximize2,
   Minimize2,
   Share2,
+  Settings,
 } from 'lucide-react';
 
 export interface LeitnerMindMapPanelProps {
@@ -156,6 +158,9 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
   const [lineStyle, setLineStyle] = useState<MindMapLineStyle>('smooth_bezier');
   const [isZenMode, setIsZenMode] = useState(false);
   const cardLangMode = language;
+
+  // Settings Modal State
+  const [isMindMapSettingsOpen, setIsMindMapSettingsOpen] = useState(false);
 
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState('');
@@ -1151,11 +1156,11 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
       }`}
     >
       {/* Top Compact Main Toolbar & Filters */}
-      <div className="p-2.5 sm:p-3.5 rounded-2xl app-card border app-border shadow-sm flex flex-wrap items-center justify-between gap-2.5">
-        {/* Left Section: Search & Compact Dropdowns */}
+      <div className="p-2.5 sm:p-3 rounded-2xl app-card border app-border shadow-sm flex flex-wrap items-center justify-between gap-2.5">
+        {/* Left Section: Search & Quick Scope Badge */}
         <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
           {/* Search Bar */}
-          <div className="relative min-w-[160px] sm:min-w-[200px] flex-1 max-w-xs">
+          <div className="relative min-w-[160px] sm:min-w-[220px] flex-1 max-w-sm">
             <Search className="w-3.5 h-3.5 text-slate-400 absolute start-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -1175,424 +1180,74 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
             )}
           </div>
 
-          {/* 1. Dropdown: Module Filter (سرفصل / ماژول درخت دانش) */}
-          <div className="relative" data-mindmap-dropdown="module">
-            <button
-              type="button"
-              onClick={() => setOpenDropdown((prev) => (prev === 'module' ? null : 'module'))}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer ${
-                filterModule !== 'ALL'
-                  ? 'bg-purple-600 text-white border-purple-500 shadow-xs'
-                  : 'app-bg app-text app-border hover:border-slate-400/50'
-              }`}
-              title={isFa ? 'فیلتر بر اساس ماژول و شاخه درخت دانش' : 'Filter by Module'}
-            >
-              <FolderTree className="w-3.5 h-3.5 text-indigo-400" />
-              <span>
-                {filterModule === 'ALL'
-                  ? isFa ? 'همه ماژول‌ها' : 'All Modules'
-                  : isFa
-                  ? `ماژول ${filterModule}`
-                  : `Module ${filterModule}`}
-              </span>
-              <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform ${openDropdown === 'module' ? 'rotate-180' : ''}`} />
-            </button>
+          {/* Quick Active Layout Badge */}
+          <button
+            type="button"
+            onClick={() => setIsMindMapSettingsOpen(true)}
+            className="px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border app-bg app-text app-border hover:border-purple-500/50 cursor-pointer shadow-xs"
+            title={isFa ? 'تغییر نوع ساختار چیدمان نقشه ذهنی' : 'Change Mind Map Layout'}
+          >
+            {viewMode === 'interactive_canvas' && <Network className="w-3.5 h-3.5 text-cyan-400" />}
+            {viewMode === 'radial_circle' && <Sparkles className="w-3.5 h-3.5 text-amber-400" />}
+            {viewMode === 'vertical_tree' && <ListTree className="w-3.5 h-3.5 text-indigo-400" />}
+            {viewMode === 'outliner_tree' && <BookOpen className="w-3.5 h-3.5 text-purple-400" />}
+            {viewMode === 'matrix_grid' && <Layers className="w-3.5 h-3.5 text-emerald-400" />}
+            <span>
+              {viewMode === 'interactive_canvas' && (isFa ? 'گراف افقی' : 'Horizontal Graph')}
+              {viewMode === 'radial_circle' && (isFa ? 'شعاعی ۳۶۰°' : 'Radial 360°')}
+              {viewMode === 'vertical_tree' && (isFa ? 'سازمانی عمودی' : 'Vertical Org')}
+              {viewMode === 'outliner_tree' && (isFa ? 'درختی متنی' : 'Outliner Tree')}
+              {viewMode === 'matrix_grid' && (isFa ? 'ماتریس شبکه‌ای' : 'Matrix Grid')}
+            </span>
+          </button>
 
-            {openDropdown === 'module' && (
-              <div className="absolute start-0 top-full mt-1.5 z-50 w-56 p-1.5 rounded-xl app-card border app-border shadow-xl space-y-1 animate-in fade-in zoom-in-95">
-                <div className="px-2.5 py-1 text-[10px] font-bold app-muted border-b app-border">
-                  {isFa ? 'انتخاب سرفصل و شاخه ماژول' : 'Select Module Tree Branch'}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFilterModule('ALL');
-                    setOpenDropdown(null);
-                  }}
-                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
-                    filterModule === 'ALL'
-                      ? 'bg-purple-600 text-white'
-                      : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  <span>🌐 {isFa ? 'همه ماژول‌ها و شاخه‌ها' : 'All Knowledge Modules'}</span>
-                  {filterModule === 'ALL' && <Check className="w-3.5 h-3.5" />}
-                </button>
-                {[
-                  { id: 1, fa: 'ماژول ۱: تریاژ OTC و مشاوره', en: 'Module 1: OTC Triage' },
-                  { id: 2, fa: 'ماژول ۲: قفسه مجازی و داروها', en: 'Module 2: Product Shelf' },
-                  { id: 3, fa: 'ماژول ۳: نسخه‌پیچی Fred Dispense', en: 'Module 3: Fred Dispense' },
-                  { id: 4, fa: 'ماژول ۴: فارماکولوژی بالینی OPRA', en: 'Module 4: Clinical Pharmacology' },
-                  { id: 5, fa: 'ماژول ۵: مرور لایتنر و کارت‌ها', en: 'Module 5: Leitner Deck' },
-                ].map((mod) => (
-                  <button
-                    key={mod.id}
-                    type="button"
-                    onClick={() => {
-                      setFilterModule(mod.id);
-                      setOpenDropdown(null);
-                    }}
-                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
-                      filterModule === mod.id
-                        ? 'bg-purple-600 text-white'
-                        : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    <span className="truncate">{isFa ? mod.fa : mod.en}</span>
-                    {filterModule === mod.id && <Check className="w-3.5 h-3.5 shrink-0" />}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* 2. Dropdown: Box Filter (فیلتر جعبه لایتنر) */}
-          <div className="relative" data-mindmap-dropdown="box">
-            <button
-              type="button"
-              onClick={() => setOpenDropdown((prev) => (prev === 'box' ? null : 'box'))}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer ${
-                filterBox !== 'ALL'
-                  ? 'bg-purple-600 text-white border-purple-500 shadow-xs'
-                  : 'app-bg app-text app-border hover:border-slate-400/50'
-              }`}
-              title={isFa ? 'فیلتر بر اساس جعبه لایتنر' : 'Filter by Leitner Box'}
-            >
-              <Layers className="w-3.5 h-3.5 text-purple-400" />
-              <span>
-                {filterBox === 'ALL'
-                  ? isFa ? 'همه جعبه‌ها' : 'All Boxes'
-                  : isFa
-                  ? `جعبه ${filterBox}`
-                  : `Box ${filterBox}`}
-              </span>
-              <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform ${openDropdown === 'box' ? 'rotate-180' : ''}`} />
-            </button>
-
-            {openDropdown === 'box' && (
-              <div className="absolute start-0 top-full mt-1.5 z-50 w-44 p-1.5 rounded-xl app-card border app-border shadow-xl space-y-1 animate-in fade-in zoom-in-95">
-                <div className="px-2.5 py-1 text-[10px] font-bold app-muted border-b app-border">
-                  {isFa ? 'جعبه لایتنر' : 'Leitner Box'}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFilterBox('ALL');
-                    setOpenDropdown(null);
-                  }}
-                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
-                    filterBox === 'ALL'
-                      ? 'bg-purple-600 text-white'
-                      : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  <span>📦 {isFa ? 'همه جعبه‌ها (۱ تا ۵)' : 'All Boxes (1-5)'}</span>
-                  {filterBox === 'ALL' && <Check className="w-3.5 h-3.5" />}
-                </button>
-                {[1, 2, 3, 4, 5].map((b) => (
-                  <button
-                    key={b}
-                    type="button"
-                    onClick={() => {
-                      setFilterBox(b);
-                      setOpenDropdown(null);
-                    }}
-                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
-                      filterBox === b
-                        ? 'bg-purple-600 text-white'
-                        : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    <span>{isFa ? `جعبه ${b}` : `Box ${b}`}</span>
-                    {filterBox === b && <Check className="w-3.5 h-3.5" />}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* 3. Dropdown: View Mode (ساختار نمایش و تنوع نقشه‌های ذهنی) */}
-          <div className="relative" data-mindmap-dropdown="view">
-            <button
-              type="button"
-              onClick={() => setOpenDropdown((prev) => (prev === 'view' ? null : 'view'))}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer ${
-                viewMode !== 'interactive_canvas'
-                  ? 'bg-purple-600 text-white border-purple-500 shadow-xs'
-                  : 'app-bg app-text app-border hover:border-slate-400/50'
-              }`}
-              title={isFa ? 'انتخاب نوع چیدمان و ساختار نقشه ذهنی' : 'View Structure & Layout Mode'}
-            >
-              {viewMode === 'interactive_canvas' && <Network className="w-3.5 h-3.5 text-cyan-400" />}
-              {viewMode === 'radial_circle' && <Sparkles className="w-3.5 h-3.5 text-amber-400" />}
-              {viewMode === 'vertical_tree' && <ListTree className="w-3.5 h-3.5 text-indigo-400" />}
-              {viewMode === 'outliner_tree' && <BookOpen className="w-3.5 h-3.5 text-purple-400" />}
-              {viewMode === 'matrix_grid' && <Layers className="w-3.5 h-3.5 text-emerald-400" />}
-              <span>
-                {viewMode === 'interactive_canvas' && (isFa ? 'گراف افقی' : 'Horizontal Graph')}
-                {viewMode === 'radial_circle' && (isFa ? 'شعاعی ۳۶۰°' : 'Radial 360°')}
-                {viewMode === 'vertical_tree' && (isFa ? 'سازمانی عمودی' : 'Vertical Org')}
-                {viewMode === 'outliner_tree' && (isFa ? 'درختی متنی' : 'Outliner Tree')}
-                {viewMode === 'matrix_grid' && (isFa ? 'ماتریس شبکه‌ای' : 'Matrix Grid')}
-              </span>
-              <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform ${openDropdown === 'view' ? 'rotate-180' : ''}`} />
-            </button>
-
-            {openDropdown === 'view' && (
-              <div className="absolute start-0 top-full mt-1.5 z-50 w-56 p-1.5 rounded-xl app-card border app-border shadow-xl space-y-1 animate-in fade-in zoom-in-95">
-                <div className="px-2.5 py-1 text-[10px] font-bold app-muted border-b app-border">
-                  {isFa ? 'انواع چیدمان و تنوع نقشه‌های ذهنی' : 'Mind Map Layout Formats'}
-                </div>
-                
-                {[
-                  {
-                    id: 'interactive_canvas' as MindMapViewMode,
-                    fa: '🌐 بوم گراف افقی (Horizontal Flow)',
-                    en: '🌐 Horizontal Graph',
-                    desc: isFa ? 'چیدمان استاندارد و مدرن شاخه‌ای' : 'Standard horizontal branching',
-                  },
-                  {
-                    id: 'radial_circle' as MindMapViewMode,
-                    fa: '🌀 نقشه شعاعی ۳۶۰ درجه (Radial Polar)',
-                    en: '🌀 Radial 360° Map',
-                    desc: isFa ? 'شاخه از مرکز به صورت دایره‌ای' : 'Circular radial branches',
-                  },
-                  {
-                    id: 'vertical_tree' as MindMapViewMode,
-                    fa: '🏛️ ساختار سازمانی عمودی (Org Chart)',
-                    en: '🏛️ Vertical Org Chart',
-                    desc: isFa ? 'از بالا به پایین با ریشه در سربرگ' : 'Top-down organizational tree',
-                  },
-                  {
-                    id: 'outliner_tree' as MindMapViewMode,
-                    fa: '📋 ساختار درختی فهرست‌وار (Outliner)',
-                    en: '📋 Outliner Tree',
-                    desc: isFa ? 'لیست تودرتو با آزمون مستقیم' : 'Accordion nested outline list',
-                  },
-                  {
-                    id: 'matrix_grid' as MindMapViewMode,
-                    fa: '📊 ماتریس شبکه‌ای مفاهیم (Matrix Grid)',
-                    en: '📊 Knowledge Matrix Grid',
-                    desc: isFa ? 'دسته‌بندی ستونی سیستم‌های فیزیولوژی' : 'Organ systems multi-column grid',
-                  },
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => {
-                      setViewMode(item.id);
-                      setOpenDropdown(null);
-                    }}
-                    className={`w-full px-2.5 py-2 rounded-lg text-xs font-bold text-start flex flex-col gap-0.5 transition cursor-pointer ${
-                      viewMode === item.id
-                        ? 'bg-purple-600 text-white'
-                        : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span>{isFa ? item.fa : item.en}</span>
-                      {viewMode === item.id && <Check className="w-3.5 h-3.5 shrink-0" />}
-                    </div>
-                    <span className={`text-[10px] font-normal ${viewMode === item.id ? 'text-purple-200' : 'app-muted'}`}>
-                      {item.desc}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* 4. Dropdown: Text Display Mode (انواع متن) */}
-          <div className="relative" data-mindmap-dropdown="text">
-            <button
-              type="button"
-              onClick={() => setOpenDropdown((prev) => (prev === 'text' ? null : 'text'))}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer app-bg app-text app-border hover:border-slate-400/50`}
-              title={isFa ? 'تنظیم نحوه نمایش متن سوالات' : 'Text Display Format'}
-            >
-              <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
-              <span>{textDisplayMode === 'full_detailed' ? (isFa ? 'متن کامل' : 'Full Text') : (isFa ? 'متن فشرده' : 'Compact')}</span>
-              <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform ${openDropdown === 'text' ? 'rotate-180' : ''}`} />
-            </button>
-
-            {openDropdown === 'text' && (
-              <div className="absolute start-0 top-full mt-1.5 z-50 w-52 p-1.5 rounded-xl app-card border app-border shadow-xl space-y-1 animate-in fade-in zoom-in-95">
-                <div className="px-2.5 py-1 text-[10px] font-bold app-muted border-b app-border">
-                  {isFa ? 'حالت نمایش متن' : 'Text Display Mode'}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTextDisplayMode('full_detailed');
-                    setOpenDropdown(null);
-                  }}
-                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
-                    textDisplayMode === 'full_detailed'
-                      ? 'bg-purple-600 text-white'
-                      : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <span>📄 {isFa ? 'متن کامل و بدون بریدگی' : 'Full Detailed Text'}</span>
-                  </span>
-                  {textDisplayMode === 'full_detailed' && <Check className="w-3.5 h-3.5" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTextDisplayMode('compact');
-                    setOpenDropdown(null);
-                  }}
-                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
-                    textDisplayMode === 'compact'
-                      ? 'bg-purple-600 text-white'
-                      : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <span>✂️ {isFa ? 'فشرده و خلاصه' : 'Compact Mode'}</span>
-                  </span>
-                  {textDisplayMode === 'compact' && <Check className="w-3.5 h-3.5" />}
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* 5. Dropdown: Line Style (خطوط) - Canvas only */}
-          {['interactive_canvas', 'radial_circle', 'vertical_tree'].includes(viewMode) && (
-            <div className="relative" data-mindmap-dropdown="lines">
+          {/* Filter Status Pills */}
+          {(filterModule !== 'ALL' || filterBox !== 'ALL' || selectedFlagFilters.length > 0) && (
+            <div className="flex items-center gap-1 flex-wrap">
+              {filterModule !== 'ALL' && (
+                <span className="px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-bold">
+                  {isFa ? `ماژول ${filterModule}` : `Mod ${filterModule}`}
+                </span>
+              )}
+              {filterBox !== 'ALL' && (
+                <span className="px-2 py-0.5 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold">
+                  {isFa ? `جعبه ${filterBox}` : `Box ${filterBox}`}
+                </span>
+              )}
+              {selectedFlagFilters.length > 0 && (
+                <span className="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold flex items-center gap-1">
+                  <Flag className="w-2.5 h-2.5 fill-current" />
+                  <span>{selectedFlagFilters.length}</span>
+                </span>
+              )}
               <button
                 type="button"
-                onClick={() => setOpenDropdown((prev) => (prev === 'lines' ? null : 'lines'))}
-                className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer app-bg app-text app-border hover:border-slate-400/50`}
-                title={isFa ? 'انتخاب استایل خطوط اتصال' : 'Connection Line Style'}
+                onClick={() => {
+                  setFilterModule('ALL');
+                  setFilterBox('ALL');
+                  setSelectedFlagFilters([]);
+                }}
+                className="text-[10px] text-slate-400 hover:text-rose-300 underline cursor-pointer"
               >
-                <Sliders className="w-3.5 h-3.5 text-sky-400" />
-                <span>
-                  {lineStyle === 'smooth_bezier' && (isFa ? 'خطوط: منحنی' : 'Lines: Bezier')}
-                  {lineStyle === 'orthogonal_step' && (isFa ? 'خطوط: پله‌ای' : 'Lines: Step')}
-                  {lineStyle === 'straight' && (isFa ? 'خطوط: مستقیم' : 'Lines: Straight')}
-                  {lineStyle === 'polar_radial' && (isFa ? 'خطوط: قطبی' : 'Lines: Polar')}
-                </span>
-                <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform ${openDropdown === 'lines' ? 'rotate-180' : ''}`} />
+                {isFa ? 'حذف فیلترها' : 'Clear'}
               </button>
-
-              {openDropdown === 'lines' && (
-                <div className="absolute start-0 top-full mt-1.5 z-50 w-48 p-1.5 rounded-xl app-card border app-border shadow-xl space-y-1 animate-in fade-in zoom-in-95">
-                  <div className="px-2.5 py-1 text-[10px] font-bold app-muted border-b app-border">
-                    {isFa ? 'استایل خطوط اتصال' : 'Line Connector Style'}
-                  </div>
-                  {[
-                    { id: 'smooth_bezier' as MindMapLineStyle, fa: '〰️ منحنی نرم (Smooth Bezier)', en: 'Smooth Bezier' },
-                    { id: 'orthogonal_step' as MindMapLineStyle, fa: '📐 پله‌ای (Orthogonal Step)', en: 'Step Orthogonal' },
-                    { id: 'straight' as MindMapLineStyle, fa: '📏 مستقیم (Straight Line)', en: 'Straight Line' },
-                    { id: 'polar_radial' as MindMapLineStyle, fa: '🌀 قطبی شعاعی (Polar Curves)', en: 'Polar Radial' },
-                  ].map((ls) => (
-                    <button
-                      key={ls.id}
-                      type="button"
-                      onClick={() => {
-                        setLineStyle(ls.id);
-                        setOpenDropdown(null);
-                      }}
-                      className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
-                        lineStyle === ls.id
-                          ? 'bg-purple-600 text-white'
-                          : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
-                      }`}
-                    >
-                      <span>{isFa ? ls.fa : ls.en}</span>
-                      {lineStyle === ls.id && <Check className="w-3.5 h-3.5" />}
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
           )}
-
-          {/* 6. Dropdown: Flag Filters (فیلتر پرچم) */}
-          <div className="relative" data-mindmap-dropdown="flags">
-            <button
-              type="button"
-              onClick={() => setOpenDropdown((prev) => (prev === 'flags' ? null : 'flags'))}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer ${
-                selectedFlagFilters.length > 0
-                  ? 'bg-purple-600 text-white border-purple-500 shadow-xs'
-                  : 'app-bg app-text app-border hover:border-slate-400/50'
-              }`}
-              title={isFa ? 'فیلتر بر اساس پرچم‌های نشانه‌گذاری' : 'Filter by Flags'}
-            >
-              <Flag className={`w-3.5 h-3.5 ${selectedFlagFilters.length > 0 ? 'text-amber-300 fill-amber-300' : 'text-slate-400'}`} />
-              <span>
-                {selectedFlagFilters.length === 0
-                  ? isFa ? 'همه پرچم‌ها' : 'All Flags'
-                  : isFa
-                  ? `${selectedFlagFilters.length} پرچم`
-                  : `${selectedFlagFilters.length} Flags`}
-              </span>
-              <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform ${openDropdown === 'flags' ? 'rotate-180' : ''}`} />
-            </button>
-
-            {openDropdown === 'flags' && (
-              <div className="absolute start-0 top-full mt-1.5 z-50 w-60 p-2 rounded-xl app-card border app-border shadow-xl space-y-1.5 animate-in fade-in zoom-in-95">
-                <div className="flex items-center justify-between px-2 py-1 text-[10px] font-bold app-muted border-b app-border">
-                  <span>{isFa ? 'فیلتر رنگ پرچم‌ها' : 'Filter by Flag Color'}</span>
-                  {selectedFlagFilters.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => setSelectedFlagFilters([])}
-                      className="text-purple-600 dark:text-purple-300 text-[10px] font-bold cursor-pointer"
-                    >
-                      {isFa ? 'پاکسازی' : 'Reset'}
-                    </button>
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedFlagFilters([])}
-                  className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition cursor-pointer ${
-                    selectedFlagFilters.length === 0
-                      ? 'bg-purple-600 text-white'
-                      : 'app-text hover:bg-black/5 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  <span>{isFa ? 'نمایش همه مفاهیم' : 'Show All Concepts'}</span>
-                  {selectedFlagFilters.length === 0 && <Check className="w-3.5 h-3.5" />}
-                </button>
-
-                {(Object.keys(FLAG_OPTIONS) as FlagColor[]).map((fKey) => {
-                  const opt = FLAG_OPTIONS[fKey];
-                  const isSelected = selectedFlagFilters.includes(fKey);
-                  return (
-                    <button
-                      key={fKey}
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleFlagFilter(fKey);
-                      }}
-                      className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition border cursor-pointer ${
-                        isSelected
-                          ? `${opt.badge} ring-1 ring-white/20`
-                          : 'app-bg app-text app-border hover:bg-black/5 dark:hover:bg-slate-800'
-                      }`}
-                    >
-                      <span className="flex items-center gap-2">
-                        <span className={`w-2.5 h-2.5 rounded-full ${opt.dot}`} />
-                        <span>{isFa ? opt.name.fa : opt.name.en}</span>
-                      </span>
-                      {isSelected && <Check className="w-3.5 h-3.5" />}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
         </div>
 
-        {/* Right Section: AI Generation, Zen Mode & Export */}
+        {/* Right Section: Settings Gear Button, Zen Focus, AI Studio */}
         <div className="flex items-center gap-2">
+          {/* ⚙️ Mind Map Settings Gear Button */}
+          <button
+            type="button"
+            onClick={() => setIsMindMapSettingsOpen(true)}
+            className="px-2.5 py-1.5 rounded-xl app-bg hover:bg-black/5 dark:hover:bg-slate-800 app-text border app-border text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+            title={isFa ? 'تنظیمات چیدمان، خطوط، فیلترها و درخت دانش نقشه ذهنی' : 'Mind Map Settings'}
+          >
+            <Settings className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+            <span className="hidden sm:inline">{isFa ? 'تنظیمات نقشه' : 'Settings'}</span>
+          </button>
+
           {/* Zen / Focus Mode Button */}
           <button
             type="button"
@@ -1600,7 +1255,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
             className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm ${
               isZenMode
                 ? 'bg-amber-500 text-slate-950 border-amber-400 font-black shadow-amber-500/20'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                : 'app-bg app-border app-text hover:bg-black/5 dark:hover:bg-slate-800'
             }`}
             title={
               isZenMode
@@ -1624,15 +1279,6 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
               <span>{isFa ? 'تولید با AI' : 'AI Generate'}</span>
             </button>
           )}
-
-          <button
-            type="button"
-            onClick={handleExportJson}
-            className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition cursor-pointer"
-            title={isFa ? 'دانلود خروجی نقشه ذهنی (JSON)' : 'Export JSON'}
-          >
-            <Download className="w-4 h-4" />
-          </button>
         </div>
       </div>
 
@@ -2035,6 +1681,30 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
             node={colorPickerModal.node}
             onSaveColor={handleSaveColor}
             language={language}
+          />
+
+          {/* ⚙️ MIND MAP SETTINGS MODAL */}
+          <MindMapSettingsModal
+            isOpen={isMindMapSettingsOpen}
+            onClose={() => setIsMindMapSettingsOpen(false)}
+            language={language}
+            viewMode={viewMode}
+            onChangeViewMode={(mode) => setViewMode(mode)}
+            lineStyle={lineStyle}
+            onChangeLineStyle={(style) => setLineStyle(style)}
+            textDisplayMode={textDisplayMode}
+            onChangeTextDisplayMode={(mode) => setTextDisplayMode(mode)}
+            filterModule={filterModule}
+            onChangeFilterModule={(mod) => setFilterModule(mod)}
+            filterBox={filterBox}
+            onChangeFilterBox={(box) => setFilterBox(box)}
+            selectedFlagFilters={selectedFlagFilters as any}
+            onToggleFlagFilter={(flag) => toggleFlagFilter(flag)}
+            onResetFlagFilters={() => setSelectedFlagFilters([])}
+            onExpandAll={expandAll}
+            onCollapseAll={collapseAll}
+            onExportJson={handleExportJson}
+            totalNodesCount={cards.length}
           />
         </div>
       )}
