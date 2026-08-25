@@ -67,8 +67,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       console.error('Google sign in error:', err);
       if (err.code === 'auth/popup-closed-by-user') {
         setErrorMsg(isFa ? 'پنجره ورود توسط کاربر بسته شد.' : 'Popup closed by user.');
+      } else if (err.code === 'auth/operation-not-allowed') {
+        setErrorMsg(isFa ? 'ورود با گوگل در کنسول Firebase هنوز فعال (Enable) نشده است. لطفاً در تب Sign-in method گزینه Google را فعال کنید.' : 'Google provider is not enabled in Firebase Console.');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setErrorMsg(isFa ? 'این دامنه در لیست دامنه‌های مجاز (Authorized domains) فایربیس ثبت نشده است.' : 'This domain is not authorized in Firebase Console.');
       } else {
-        setErrorMsg(isFa ? 'خطا در ورود با گوگل. لطفا مجدداً تلاش کنید.' : 'Failed to sign in with Google.');
+        const detail = err.code ? ` (${err.code})` : (err.message ? ` - ${err.message}` : '');
+        setErrorMsg(isFa ? `خطا در ورود با گوگل: ${detail}` : `Failed to sign in with Google: ${detail}`);
       }
     } finally {
       setLoading(false);
