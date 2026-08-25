@@ -118,14 +118,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     } catch (err: any) {
       console.error('Auth error:', err);
       const code = err?.code || '';
+      const message = err?.message || '';
       if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
         setErrorMsg(isFa ? 'ایمیل یا رمز عبور اشتباه است.' : 'Invalid email or password.');
       } else if (code === 'auth/email-already-in-use') {
-        setErrorMsg(isFa ? 'این ایمیل قبلاً ثبت‌نام شده است. لطفاً وارد شوید.' : 'Email is already registered. Please sign in.');
+        setErrorMsg(isFa ? 'این ایمیل قبلاً ثبت‌نام شده است. لطفاً از تب "ورود به حساب" وارد شوید.' : 'Email is already registered. Please sign in.');
       } else if (code === 'auth/invalid-email') {
-        setErrorMsg(isFa ? 'فرمت ایمیل وارد شده معتبر نیست.' : 'Invalid email address.');
+        setErrorMsg(isFa ? 'فرمت ایمیل معتبر نیست (مثال: name@gmail.com).' : 'Invalid email address.');
+      } else if (code === 'auth/weak-password') {
+        setErrorMsg(isFa ? 'رمز عبور باید حداقل ۶ کاراکتر باشد.' : 'Password is too weak (minimum 6 chars).');
+      } else if (code === 'auth/network-request-failed') {
+        setErrorMsg(isFa ? 'خطای شبکه در اتصال به سرور فایربیس. لطفاً اتصال اینترنت خود را بررسی کنید.' : 'Network request failed. Check your internet connection.');
       } else {
-        setErrorMsg(err?.message || (isFa ? 'خطایی رخ داد. لطفاً دوباره امتحان کنید.' : 'An error occurred.'));
+        setErrorMsg(isFa ? `خطای ثبت‌نام/ورود: ${code || message}` : `Auth Error: ${code || message}`);
       }
     } finally {
       setLoading(false);
