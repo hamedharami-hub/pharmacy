@@ -516,19 +516,10 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
   return (
     <div className="space-y-5">
       {/* Module Header Container */}
-      <div className="app-card border app-border rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-teal-500/15 text-teal-600 dark:text-teal-300 flex items-center justify-center shadow-xs border border-teal-500/30">
-              <Monitor className="w-4 h-4" />
-            </div>
-            <span className="text-xs font-black text-teal-700 dark:text-teal-300 font-mono">
-              Fred Dispense Plus
-            </span>
-          </div>
-
+      <div className="app-card border app-border rounded-2xl p-3 sm:p-4 shadow-sm space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Module 3 Display View Toggles */}
-          <div className="flex items-center gap-1 app-bg p-1 rounded-xl border app-border text-xs overflow-x-auto">
+          <div className="flex items-center gap-1 app-bg p-1 rounded-xl border app-border text-xs overflow-x-auto w-full sm:w-auto">
             <button
               onClick={() => setViewMode('dual')}
               className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
