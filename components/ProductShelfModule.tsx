@@ -542,7 +542,7 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
               )}
             </button>
           )}
-          </div>
+        </div>
       </div>
 
       {/* VIEW 1: CLINICAL MATRICES & PROTOCOLS PANEL */}
