@@ -22,7 +22,16 @@ import {
   Stethoscope,
   ChevronDown,
   ChevronUp,
+  Layers,
+  Search,
 } from 'lucide-react';
+import {
+  MatrixSectionSelector,
+  MatrixSection,
+  MatrixSectionId,
+  MatrixTopic,
+} from '@/components/shelf/MatrixSectionSelector';
+import { MatrixTopicsAccordion } from '@/components/shelf/MatrixTopicsAccordion';
 
 interface ClinicalMatricesPanelProps {
   language: Language;
@@ -31,7 +40,7 @@ interface ClinicalMatricesPanelProps {
   onSearchQueryChange?: (query: string) => void;
 }
 
-type ActiveTab = 'ANTIMICROBIAL' | 'VACCINE' | 'MONITORING_TDM' | 'PREGNANCY_SAFETY';
+type ActiveTab = MatrixSectionId;
 
 // 1. Antimicrobial Matrix Data
 interface PathogenCoverage {
@@ -135,6 +144,128 @@ const VACCINE_SEARCH_TEXT: Record<string, string> = {
     'Shingrix زونا Zostavax NIP National Immunisation Program immunocompromised نقص ایمنی cold chain زنجیره سرد Strive for 5 temperature دما',
 };
 
+const pathogenToTopic = (item: PathogenCoverage): MatrixTopic => ({
+  id: item.pathogen,
+  titleFa: item.nameFa,
+  titleEn: item.pathogen,
+  searchText: [
+    item.pathogen,
+    item.nameFa,
+    item.gram,
+    item.mechanism,
+    ...item.activeDrugs,
+    ...item.resistantDrugs,
+    item.tgNotesFa,
+    item.tgNotesEn,
+  ].join(' '),
+});
+
+export const MATRIX_SECTIONS: MatrixSection[] = [
+  {
+    id: 'ANTIMICROBIAL',
+    titleFa: 'ماتریکس مقاومت میکروبی',
+    titleEn: 'Antimicrobial Resistance',
+    icon: ShieldAlert,
+    palette: 'sky',
+    topics: PATHOGEN_MATRIX.map(pathogenToTopic),
+  },
+  {
+    id: 'VACCINE',
+    titleFa: 'واکسیناسیون و زنجیره سرد',
+    titleEn: 'Vaccines & Cold Chain',
+    icon: Syringe,
+    palette: 'purple',
+    topics: [
+      {
+        id: 'ALL',
+        titleFa: 'همه موارد این سرفصل',
+        titleEn: 'All Topics in Section',
+        searchText: '',
+      },
+      {
+        id: 'spacing',
+        titleFa: 'محاسبه‌گر فواصل واکسن',
+        titleEn: 'Vaccine Spacing Calculator',
+        searchText: VACCINE_SEARCH_TEXT.spacing,
+      },
+      {
+        id: 'shingrix',
+        titleFa: 'شینگریکس و زنجیره سرد',
+        titleEn: 'Shingrix & Cold Chain',
+        searchText: VACCINE_SEARCH_TEXT.shingrix,
+      },
+    ],
+  },
+  {
+    id: 'MONITORING_TDM',
+    titleFa: 'پایش بالینی و رجیستری TDM',
+    titleEn: 'Clinical Monitoring & TDM',
+    icon: Activity,
+    palette: 'emerald',
+    topics: [
+      {
+        id: 'ALL',
+        titleFa: 'همه موارد این سرفصل',
+        titleEn: 'All Topics in Section',
+        searchText: '',
+      },
+      ...(['clozapine', 'amiodarone', 'methotrexate', 'warfarin'] as const).map((id) => ({
+        id,
+        titleFa:
+          id === 'clozapine'
+            ? 'کلوزاپین (رجیستری ANC)'
+            : id === 'amiodarone'
+              ? 'آمیودارون'
+              : id === 'methotrexate'
+                ? 'متوترکسات'
+                : 'وارفارین و INR',
+        titleEn:
+          id === 'clozapine'
+            ? 'Clozapine (ANC Registry)'
+            : id === 'amiodarone'
+              ? 'Amiodarone'
+              : id === 'methotrexate'
+                ? 'Methotrexate'
+                : 'Warfarin & INR',
+        searchText: MONITORING_SEARCH_TEXT[id],
+      })),
+    ],
+  },
+  {
+    id: 'PREGNANCY_SAFETY',
+    titleFa: 'ایمنی در بارداری و زنان',
+    titleEn: 'Pregnancy & Women Safety',
+    icon: Baby,
+    palette: 'amber',
+    topics: [
+      {
+        id: 'ALL',
+        titleFa: 'همه موارد این سرفصل',
+        titleEn: 'All Topics in Section',
+        searchText: '',
+      },
+      {
+        id: 'hypertension',
+        titleFa: 'فشارخون در بارداری',
+        titleEn: 'Hypertension in Pregnancy',
+        searchText: PREGNANCY_SEARCH_TEXT.hypertension,
+      },
+      {
+        id: 'gestationalDiabetes',
+        titleFa: 'دیابت بارداری',
+        titleEn: 'Gestational Diabetes',
+        searchText: PREGNANCY_SEARCH_TEXT.gestationalDiabetes,
+      },
+      {
+        id: 'acne',
+        titleFa: 'آکنه و پوست',
+        titleEn: 'Acne & Dermatology',
+        searchText: PREGNANCY_SEARCH_TEXT.acne,
+      },
+    ],
+  },
+];
+
 export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
   language,
   onFilterShelfByConcept,
@@ -143,7 +274,14 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
 }) => {
   const isFa = language === 'fa';
   const [activeTab, setActiveTab] = useState<ActiveTab>('ANTIMICROBIAL');
-  const [selectedPathogen, setSelectedPathogen] = useState<string>(PATHOGEN_MATRIX[0].pathogen);
+  const [selectedTopics, setSelectedTopics] = useState<Record<ActiveTab, string>>({
+    ANTIMICROBIAL: PATHOGEN_MATRIX[0].pathogen,
+    VACCINE: 'ALL',
+    MONITORING_TDM: 'ALL',
+    PREGNANCY_SAFETY: 'ALL',
+  });
+  const [isBrowseOpen, setIsBrowseOpen] = useState(false);
+  const [isTopicsAccordionOpen, setIsTopicsAccordionOpen] = useState(false);
 
   // Vaccine Calculator State
   const [vaccine1Type, setVaccine1Type] = useState<'LIVE' | 'INACTIVATED'>('LIVE');
@@ -177,35 +315,49 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
   const monitoringMatches = tabMatchCounts.MONITORING_TDM > 0;
   const pregnancyMatches = tabMatchCounts.PREGNANCY_SAFETY > 0;
   const vaccineMatches = tabMatchCounts.VACCINE > 0;
+  const activeSection = MATRIX_SECTIONS.find((section) => section.id === activeTab) || MATRIX_SECTIONS[0];
+  const visibleTopics =
+    activeTab === 'ANTIMICROBIAL'
+      ? filteredPathogens.map(pathogenToTopic)
+      : activeSection.topics.filter((topic) => topic.id === 'ALL' || !query || matches(topic.searchText));
+  const selectedTopicId =
+    visibleTopics.find((topic) => topic.id === selectedTopics[activeTab])?.id ||
+    visibleTopics.find((topic) => topic.id === 'ALL')?.id ||
+    visibleTopics[0]?.id ||
+    selectedTopics[activeTab];
+  const activeTopic = activeSection.topics.find((topic) => topic.id === selectedTopicId) || activeSection.topics[0];
   const currentPathogen =
-    filteredPathogens.find((p) => p.pathogen === selectedPathogen) || filteredPathogens[0] || PATHOGEN_MATRIX[0];
+    filteredPathogens.find((p) => p.pathogen === selectedTopicId) || filteredPathogens[0] || PATHOGEN_MATRIX[0];
+  const browseOpen = isBrowseOpen || !!query;
 
   const renderEmptyState = (currentTab: ActiveTab) => {
     const matchingTabs = (Object.keys(tabMatchCounts) as ActiveTab[]).filter(
       (tab) => tab !== currentTab && tabMatchCounts[tab] > 0
     );
-    const tabLabels: Record<ActiveTab, { fa: string; en: string }> = {
-      ANTIMICROBIAL: { fa: 'ماتریکس مقاومت میکروبی', en: 'Antimicrobial Resistance' },
-      VACCINE: { fa: 'واکسیناسیون و زنجیره سرد', en: 'Vaccines & Cold Chain' },
-      MONITORING_TDM: { fa: 'پایش بالینی و رجیستری TDM', en: 'Clinical Monitoring & TDM' },
-      PREGNANCY_SAFETY: { fa: 'ایمنی در بارداری و زنان', en: 'Pregnancy & Women Safety' },
-    };
-
     return (
       <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 text-center text-xs text-slate-400">
         <p>{isFa ? 'موردی برای این جستجو یافت نشد.' : 'No matching protocols found.'}</p>
         {matchingTabs.length > 0 && (
           <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
-            {matchingTabs.map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setActiveTab(tab)}
-                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 font-bold"
-              >
-                {isFa ? tabLabels[tab].fa : tabLabels[tab].en} ({tabMatchCounts[tab]})
-              </button>
-            ))}
+            {matchingTabs.map((tab) => {
+              const matchingSection = MATRIX_SECTIONS.find((section) => section.id === tab);
+              if (!matchingSection) return null;
+
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => {
+                    setActiveTab(tab);
+                    setIsBrowseOpen(true);
+                    setIsTopicsAccordionOpen(false);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 font-bold"
+                >
+                  {isFa ? matchingSection.titleFa : matchingSection.titleEn} ({tabMatchCounts[tab]})
+                </button>
+              );
+            })}
           </div>
         )}
         {onSearchQueryChange && (
@@ -223,8 +375,8 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
 
   return (
     <div className="app-card border border-sky-500/30 rounded-2xl p-4 sm:p-6 space-y-5 bg-slate-950/80 shadow-2xl text-slate-200">
-      {/* Header with Badges */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-sky-500/20 pb-3.5">
+      {/* Header */}
+      <div className="flex items-center gap-2 border-b border-sky-500/20 pb-3.5">
         <div>
           <div className="flex items-center gap-2 text-sky-400 font-bold text-base sm:text-lg">
             <Sparkles className="w-5 h-5 text-amber-400" />
@@ -235,105 +387,97 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
             </span>
           </div>
         </div>
-
-        {/* Tab Selector */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold">
-          <button
-            onClick={() => setActiveTab('ANTIMICROBIAL')}
-            className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'ANTIMICROBIAL'
-                ? 'bg-sky-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white'
-            } ${query && tabMatchCounts.ANTIMICROBIAL === 0 ? 'opacity-50' : ''}`}
-          >
-            <ShieldAlert className="w-3.5 h-3.5" />
-            <span>{isFa ? 'ماتریکس مقاومت میکروبی' : 'Antimicrobial Resistance'}</span>
-            {query && tabMatchCounts.ANTIMICROBIAL > 0 && (
-              <span className="text-[9px] font-mono font-bold px-1 py-0.5 rounded bg-black/40 text-amber-300">
-                {tabMatchCounts.ANTIMICROBIAL}
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab('VACCINE')}
-            className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'VACCINE'
-                ? 'bg-purple-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white'
-            } ${query && tabMatchCounts.VACCINE === 0 ? 'opacity-50' : ''}`}
-          >
-            <Syringe className="w-3.5 h-3.5" />
-            <span>{isFa ? 'واکسیناسیون و زنجیره سرد' : 'Vaccines & Cold Chain'}</span>
-            {query && tabMatchCounts.VACCINE > 0 && (
-              <span className="text-[9px] font-mono font-bold px-1 py-0.5 rounded bg-black/40 text-amber-300">
-                {tabMatchCounts.VACCINE}
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab('MONITORING_TDM')}
-            className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'MONITORING_TDM'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white'
-            } ${query && tabMatchCounts.MONITORING_TDM === 0 ? 'opacity-50' : ''}`}
-          >
-            <Activity className="w-3.5 h-3.5" />
-            <span>{isFa ? 'پایش بالینی و رجیستری TDM' : 'Clinical Monitoring & TDM'}</span>
-            {query && tabMatchCounts.MONITORING_TDM > 0 && (
-              <span className="text-[9px] font-mono font-bold px-1 py-0.5 rounded bg-black/40 text-amber-300">
-                {tabMatchCounts.MONITORING_TDM}
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab('PREGNANCY_SAFETY')}
-            className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'PREGNANCY_SAFETY'
-                ? 'bg-amber-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white'
-            } ${query && tabMatchCounts.PREGNANCY_SAFETY === 0 ? 'opacity-50' : ''}`}
-          >
-            <Baby className="w-3.5 h-3.5" />
-            <span>{isFa ? 'ایمنی در بارداری و زنان' : 'Pregnancy & Women Safety'}</span>
-            {query && tabMatchCounts.PREGNANCY_SAFETY > 0 && (
-              <span className="text-[9px] font-mono font-bold px-1 py-0.5 rounded bg-black/40 text-amber-300">
-                {tabMatchCounts.PREGNANCY_SAFETY}
-              </span>
-            )}
-          </button>
-        </div>
       </div>
 
+      {!browseOpen ? (
+        <div className="app-card border border-teal-500/40 rounded-2xl p-4 sm:p-5 space-y-4 shadow-lg bg-linear-to-b from-teal-950/20 to-transparent animate-fadeIn">
+          <div className="border-b app-border pb-3 flex items-center gap-2">
+            <div className="p-2 rounded-xl bg-teal-500/20 text-teal-400">
+              <Layers className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-black app-text">
+                {isFa ? 'انتخاب سرفصل و زیرفصل پروتکل‌های بالینی' : 'Select Protocol Section & Topic'}
+              </h3>
+              <p className="text-[11px] app-muted mt-0.5">
+                {isFa ? 'سرفصل و زیرفصل مورد نظر را برای مطالعه انتخاب کنید.' : 'Choose a clinical protocol section and topic to study.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <MatrixSectionSelector
+              sections={MATRIX_SECTIONS}
+              selectedSectionId={activeTab}
+              onSelectSection={(id) => {
+                setActiveTab(id);
+                setIsTopicsAccordionOpen(false);
+              }}
+              language={language}
+              queryActive={!!query}
+              matchCounts={tabMatchCounts}
+            />
+            <MatrixTopicsAccordion
+              topics={visibleTopics}
+              selectedTopicId={selectedTopicId}
+              isOpen={isTopicsAccordionOpen}
+              onToggleOpen={() => setIsTopicsAccordionOpen((prev) => !prev)}
+              onSelectTopicId={(id) => {
+                setSelectedTopics((previous) => ({ ...previous, [activeTab]: id }));
+              }}
+              language={language}
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsBrowseOpen(true)}
+            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 via-sky-600 to-indigo-600 hover:from-teal-500 hover:to-indigo-500 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-teal-950/50 cursor-pointer transition hover:scale-[1.005] active:scale-99"
+          >
+            <Sparkles className="w-5 h-5 text-amber-300" />
+            <span>{isFa ? '✨ مشاهده و مطالعه پروتکل‌ها (View Protocols)' : '✨ View & Study Protocols'}</span>
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-4 animate-fadeIn">
+          <div className="app-card border app-border rounded-2xl p-3.5 flex items-center justify-between gap-4 shadow-sm bg-linear-to-r from-slate-900/60 to-transparent">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="p-2.5 rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30 shrink-0">
+                <Layers className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base font-black app-text truncate">
+                    {isFa ? activeTopic.titleFa : activeTopic.titleEn}
+                  </h2>
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-teal-500/15 text-teal-300 font-mono font-bold">
+                    {activeSection.titleEn}
+                  </span>
+                </div>
+                <p className="text-xs app-muted mt-0.5" dir="ltr">
+                  {activeTopic.titleEn}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsBrowseOpen(false)}
+                className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <Search className="w-4 h-4" />
+                <span>{isFa ? 'تغییر سرفصل و جستجو' : 'Change Topic'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {browseOpen && (
+        <>
       {/* TAB 1: ANTIMICROBIAL RESISTANCE & SPECTRUM MATRIX */}
       {activeTab === 'ANTIMICROBIAL' && (
         <div className="space-y-4">
-          {/* Pathogen Selector Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-            {filteredPathogens.map((item) => (
-              <button
-                key={item.pathogen}
-                onClick={() => setSelectedPathogen(item.pathogen)}
-                className={`p-3 rounded-xl border text-right rtl:text-right text-left text-xs transition cursor-pointer flex flex-col justify-between ${
-                  currentPathogen.pathogen === item.pathogen
-                    ? 'bg-sky-900/70 border-sky-400 text-white shadow-lg ring-1 ring-sky-400/50'
-                    : 'bg-black/40 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
-                }`}
-              >
-                <div>
-                  <div className="font-bold text-sky-200 truncate">{item.pathogen.split(' ')[0]}</div>
-                  <div className="text-[10px] text-slate-400 mt-1 truncate">{isFa ? item.nameFa.split('(')[0] : item.pathogen}</div>
-                </div>
-                <span className="mt-2 text-[9px] px-1.5 py-0.5 rounded bg-black/50 border border-slate-700 w-fit font-mono font-bold text-slate-300">
-                  {item.gram}
-                </span>
-              </button>
-            ))}
-          </div>
-
           {/* Pathogen Detail Card */}
           {filteredPathogens.length > 0 ? (
             <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-700 space-y-4">
@@ -427,7 +571,7 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
         <div className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Interactive Vaccine Spacing Calculator */}
-            {matches(VACCINE_SEARCH_TEXT.spacing) && (
+            {(selectedTopicId === 'ALL' || selectedTopicId === 'spacing') && matches(VACCINE_SEARCH_TEXT.spacing) && (
               <div className="p-4 rounded-2xl bg-slate-900/90 border border-purple-500/40 space-y-4 text-xs">
                 <div className="flex items-center gap-2 text-purple-300 font-bold text-sm border-b border-slate-800 pb-2">
                   <Syringe className="w-5 h-5 text-purple-400" />
@@ -565,7 +709,7 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
             )}
 
             {/* Shingrix & Cold Chain Guidelines */}
-            {matches(VACCINE_SEARCH_TEXT.shingrix) && (
+            {(selectedTopicId === 'ALL' || selectedTopicId === 'shingrix') && matches(VACCINE_SEARCH_TEXT.shingrix) && (
               <div className="p-4 rounded-2xl bg-slate-900/90 border border-cyan-500/40 space-y-4 text-xs">
                 <div className="flex items-center gap-2 text-cyan-300 font-bold text-sm border-b border-slate-800 pb-2">
                   <ThermometerSnowflake className="w-5 h-5 text-cyan-400" />
@@ -634,7 +778,7 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
           {/* Protocols Accordion Grid */}
           <div className="space-y-3">
             {/* Protocol 1: Clozapine ANC Monitoring */}
-            {matches(MONITORING_SEARCH_TEXT.clozapine) && (
+            {(selectedTopicId === 'ALL' || selectedTopicId === 'clozapine') && matches(MONITORING_SEARCH_TEXT.clozapine) && (
               <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
                 <div
                   onClick={() => setOpenMonitoringId(openMonitoringId === 'clozapine' ? '' : 'clozapine')}
@@ -692,7 +836,7 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
             )}
 
             {/* Protocol 2: Amiodarone Multi-Organ Monitoring */}
-            {matches(MONITORING_SEARCH_TEXT.amiodarone) && (
+            {(selectedTopicId === 'ALL' || selectedTopicId === 'amiodarone') && matches(MONITORING_SEARCH_TEXT.amiodarone) && (
               <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
                 <div
                   onClick={() => setOpenMonitoringId(openMonitoringId === 'amiodarone' ? '' : 'amiodarone')}
@@ -750,7 +894,7 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
             )}
 
             {/* Protocol 3: Once-Weekly Methotrexate Safety */}
-            {matches(MONITORING_SEARCH_TEXT.methotrexate) && (
+            {(selectedTopicId === 'ALL' || selectedTopicId === 'methotrexate') && matches(MONITORING_SEARCH_TEXT.methotrexate) && (
               <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
                 <div
                   onClick={() => setOpenMonitoringId(openMonitoringId === 'methotrexate' ? '' : 'methotrexate')}
@@ -806,7 +950,7 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
             )}
 
             {/* Protocol 4: Warfarin Brand Invariability & Reversal */}
-            {matches(MONITORING_SEARCH_TEXT.warfarin) && (
+            {(selectedTopicId === 'ALL' || selectedTopicId === 'warfarin') && matches(MONITORING_SEARCH_TEXT.warfarin) && (
               <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
                 <div
                   onClick={() => setOpenMonitoringId(openMonitoringId === 'warfarin' ? '' : 'warfarin')}
@@ -876,7 +1020,7 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             {/* Domain 1: Hypertension in Pregnancy */}
-            {matches(PREGNANCY_SEARCH_TEXT.hypertension) && (
+            {(selectedTopicId === 'ALL' || selectedTopicId === 'hypertension') && matches(PREGNANCY_SEARCH_TEXT.hypertension) && (
               <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3 flex flex-col justify-between">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 font-bold text-sky-300 text-sm">
@@ -898,7 +1042,7 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
             )}
 
             {/* Domain 2: Gestational Diabetes & OGTT */}
-            {matches(PREGNANCY_SEARCH_TEXT.gestationalDiabetes) && (
+            {(selectedTopicId === 'ALL' || selectedTopicId === 'gestationalDiabetes') && matches(PREGNANCY_SEARCH_TEXT.gestationalDiabetes) && (
               <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3 flex flex-col justify-between">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 font-bold text-purple-300 text-sm">
@@ -924,7 +1068,7 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
             )}
 
             {/* Domain 3: Acne & Dermatology in Pregnancy */}
-            {matches(PREGNANCY_SEARCH_TEXT.acne) && (
+            {(selectedTopicId === 'ALL' || selectedTopicId === 'acne') && matches(PREGNANCY_SEARCH_TEXT.acne) && (
               <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3 flex flex-col justify-between">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 font-bold text-amber-300 text-sm">
@@ -947,6 +1091,8 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
           </div>
           {query && !pregnancyMatches && renderEmptyState('PREGNANCY_SAFETY')}
         </div>
+      )}
+        </>
       )}
     </div>
   );
