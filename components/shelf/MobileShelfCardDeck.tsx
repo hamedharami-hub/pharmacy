@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { SubCategory, ClinicalDomain, Product } from '@/types/shelf';
 import { Language, DiseaseInfo } from '@/types/pharmacy';
 import { FormattedClinicalText } from './FormattedClinicalText';
-import { getDiseasesForSubCategory } from '@/data/shelf/diseaseHelpers';
+import { getDiseasesForSubCategory, getConceptsForSubCategory } from '@/data/shelf/diseaseHelpers';
+import { getCategoryMechanism } from '@/data/mechanismsRegistry';
 import { ShelfDrugCard } from './ShelfDrugCard';
 import { haptic } from '@/lib/haptics';
 import {
@@ -23,6 +24,9 @@ import {
   Layers,
   ArrowLeft,
   Search,
+  Dna,
+  FlaskConical,
+  Tag,
 } from 'lucide-react';
 
 import { CAL_LABELS_DICT } from '@/data/shelf/calLabels';
@@ -62,13 +66,16 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
 }) => {
   const isFa = language === 'fa';
   const relatedDiseases = getDiseasesForSubCategory(activeSubCat.id);
+  const categoryMech = getCategoryMechanism(activeSubCat.id);
+  const concepts = getConceptsForSubCategory(activeSubCat);
 
   // Deck State:
-  // Step 0: Clinical Specifications (Tabs: Pearls=0, Rules=1, RedFlags=2)
+  // Step 0: Clinical Specifications (Tabs: Pearls=0, Mechanism=1, Rules=2, RedFlags=3)
   // Step 1: Related Diseases & Treatment Matrix
   // Step 2: Medicines / Drugs on the Shelf
   const [verticalStep, setVerticalStep] = useState<0 | 1 | 2>(0);
-  const [horizontalSpecTab, setHorizontalSpecTab] = useState<0 | 1 | 2>(0); // 0: Pearls, 1: Rules, 2: Red Flags
+  const [horizontalSpecTab, setHorizontalSpecTab] = useState<0 | 1 | 2 | 3>(0); // 0: Pearls, 1: Mechanism, 2: Rules, 3: Red Flags
+  const [isQuickMechOpen, setIsQuickMechOpen] = useState<boolean>(false);
 
   const pearls = isFa ? activeSubCat.clinicalPearlsFa : activeSubCat.clinicalPearlsEn;
   const rules = isFa ? activeSubCat.schedulingRulesFa : activeSubCat.schedulingRulesEn;
@@ -127,7 +134,7 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
           }`}
         >
           <Sparkles className="w-3.5 h-3.5" />
-          <span>{isFa ? '۱. نکات و قوانین' : '1. Profile'}</span>
+          <span>{isFa ? '۱. مشخصات سرفصل' : '1. Profile'}</span>
         </button>
 
         <button
@@ -168,32 +175,32 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
       {/* 3. CARD VIEW CONTAINER WITH SMOOTH ANIMATIONS */}
       <div className="relative min-h-[380px]">
         <AnimatePresence mode="wait">
-          {/* STEP 0: CLINICAL SPECIFICATIONS CARDS (PEARLS, RULES, RED FLAGS) */}
+          {/* STEP 0: CLINICAL SPECIFICATIONS CARDS (PEARLS, MECHANISM, RULES, RED FLAGS) */}
           {verticalStep === 0 && (
             <motion.div
               key={`spec-step-${horizontalSpecTab}`}
-              initial={{ opacity: 0, x: horizontalSpecTab === 0 ? -20 : 20 }}
+              initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: horizontalSpecTab === 0 ? 20 : -20 }}
-              transition={{ duration: 0.22, ease: 'easeOut' }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
               className="space-y-3"
             >
-              {/* Horizontal Tabs: [ 💡 نکات | 🛡️ قوانین | 🚨 علائم هشدار ] */}
-              <div className="flex items-center justify-between gap-1 p-1 rounded-xl bg-slate-900/60 border border-slate-800 text-xs">
+              {/* Horizontal Tabs: [ 💡 نکات | 🧬 مکانیسم | 🛡️ قوانین | 🚨 علائم هشدار ] */}
+              <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px]">
                 <button
                   type="button"
                   onClick={() => {
                     haptic.light();
                     setHorizontalSpecTab(0);
                   }}
-                  className={`flex-1 py-1.5 rounded-lg font-bold transition flex items-center justify-center gap-1 cursor-pointer ${
+                  className={`py-1.5 rounded-lg font-bold transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 cursor-pointer ${
                     horizontalSpecTab === 0
                       ? 'bg-sky-500 text-slate-950 font-black shadow-xs'
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  <Lightbulb className="w-3.5 h-3.5" />
-                  <span>{isFa ? '💡 نکات بالینی' : 'Pearls'}</span>
+                  <Lightbulb className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{isFa ? 'نکات بالینی' : 'Pearls'}</span>
                 </button>
 
                 <button
@@ -202,14 +209,14 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                     haptic.light();
                     setHorizontalSpecTab(1);
                   }}
-                  className={`flex-1 py-1.5 rounded-lg font-bold transition flex items-center justify-center gap-1 cursor-pointer ${
+                  className={`py-1.5 rounded-lg font-bold transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 cursor-pointer ${
                     horizontalSpecTab === 1
-                      ? 'bg-indigo-500 text-white font-bold shadow-xs'
+                      ? 'bg-teal-500 text-slate-950 font-black shadow-xs'
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>{isFa ? '🛡️ قوانین SUSMP' : 'Rules'}</span>
+                  <Dna className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{isFa ? 'مکانیسم' : 'Mechanism'}</span>
                 </button>
 
                 <button
@@ -218,14 +225,30 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                     haptic.light();
                     setHorizontalSpecTab(2);
                   }}
-                  className={`flex-1 py-1.5 rounded-lg font-bold transition flex items-center justify-center gap-1 cursor-pointer ${
+                  className={`py-1.5 rounded-lg font-bold transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 cursor-pointer ${
                     horizontalSpecTab === 2
+                      ? 'bg-indigo-500 text-white font-bold shadow-xs'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{isFa ? 'قوانین' : 'Rules'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    haptic.light();
+                    setHorizontalSpecTab(3);
+                  }}
+                  className={`py-1.5 rounded-lg font-bold transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 cursor-pointer ${
+                    horizontalSpecTab === 3
                       ? 'bg-rose-600 text-white font-bold shadow-xs'
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  <span>{isFa ? '🚨 علائم هشدار' : 'Red Flags'}</span>
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{isFa ? 'هشدارها' : 'Red Flags'}</span>
                 </button>
               </div>
 
@@ -258,23 +281,126 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
 
                   {/* Tab Navigation Footer */}
                   <div className="pt-2 flex items-center justify-between text-xs text-slate-400 border-t app-border">
-                    <span className="text-slate-500 font-mono text-[11px]">1 / 3</span>
+                    <span className="text-slate-500 font-mono text-[11px]">1 / 4</span>
                     <button
                       type="button"
                       onClick={() => {
                         haptic.light();
                         setHorizontalSpecTab(1);
                       }}
-                      className="text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1 cursor-pointer"
+                      className="text-teal-400 hover:text-teal-300 font-bold flex items-center gap-1 cursor-pointer"
                     >
-                      <span>{isFa ? 'مشاهده قوانین SUSMP ←' : 'SUSMP Rules →'}</span>
+                      <span>{isFa ? 'مشاهده مکانیسم اثر ←' : 'Mechanism →'}</span>
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* CARD 1: Scheduling Rules */}
+              {/* CARD 1: Common Mechanism of Action & Cellular Targets */}
               {horizontalSpecTab === 1 && (
+                <div className="app-card border border-teal-500/30 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-md bg-linear-to-b from-teal-950/20 to-transparent select-text">
+                  <div className="flex items-center justify-between border-b border-teal-500/20 pb-2.5">
+                    <div className="flex items-center gap-2 text-teal-400 font-black text-sm">
+                      <Dna className="w-4 h-4 text-teal-400" />
+                      <span>{isFa ? 'مکانیسم مشترک و تارگت‌های سلولی' : 'Common Mechanism & Targets'}</span>
+                    </div>
+                    {categoryMech?.actionClassification && (
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300">
+                        {categoryMech.actionClassification}
+                      </span>
+                    )}
+                  </div>
+
+                  {categoryMech ? (
+                    <div className="space-y-3">
+                      {/* Summary */}
+                      <div className="p-3 rounded-xl bg-black/30 border border-teal-500/20 text-xs sm:text-sm text-slate-200 leading-relaxed">
+                        <p>{isFa ? categoryMech.summaryFa : categoryMech.summaryEn}</p>
+                        {categoryMech.targetPathwayEn && (
+                          <div className="mt-2 pt-2 border-t border-teal-500/15 text-[11px] text-teal-300/90 font-mono flex items-center gap-1.5">
+                            <span className="text-teal-400 font-bold">🎯 {isFa ? 'مسیر بیولوژیک:' : 'Pathway:'}</span>
+                            <span>{isFa ? categoryMech.targetPathwayFa : categoryMech.targetPathwayEn}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Key Classes & Specific Targets */}
+                      {categoryMech.keyClasses && categoryMech.keyClasses.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="text-xs font-bold text-teal-300 flex items-center gap-1">
+                            <FlaskConical className="w-3.5 h-3.5 text-teal-400" />
+                            <span>{isFa ? 'کلاس‌های دارویی و تارگت‌ها:' : 'Drug Sub-Classes & Targets:'}</span>
+                          </div>
+
+                          <div className="grid grid-cols-1 gap-2">
+                            {categoryMech.keyClasses.map((kc, idx) => (
+                              <div
+                                key={idx}
+                                className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs space-y-1"
+                              >
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="font-bold text-white text-xs">
+                                    {isFa ? kc.nameFa : kc.nameEn}
+                                  </span>
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-teal-500/15 text-teal-300 font-mono font-bold">
+                                    {kc.actionType.split(' ')[0]}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-teal-200/90 leading-tight">
+                                  🎯 {isFa ? kc.mechanismFa : kc.mechanismEn}
+                                </p>
+                                <p className="text-[10px] text-slate-400">
+                                  <span className="text-slate-500 font-medium">{isFa ? 'نمونه داروها:' : 'Drugs:'}</span> {kc.examples}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Shared Clinical Concepts */}
+                      {concepts.length > 0 && (
+                        <div className="pt-2 border-t border-teal-500/15 space-y-1.5">
+                          <span className="text-xs font-bold text-amber-400 flex items-center gap-1">
+                            <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                            <span>{isFa ? 'مفاهیم و عوارض بالینی مشترک:' : 'Shared Clinical Concepts:'}</span>
+                          </span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {concepts.map((c) => (
+                              <button
+                                key={c.id}
+                                type="button"
+                                onClick={() => onSelectConceptId && onSelectConceptId(c.id)}
+                                className={`px-2.5 py-1 rounded-lg border text-[11px] font-bold transition flex items-center gap-1 cursor-pointer shadow-xs ${c.badgeColor}`}
+                              >
+                                <Tag className="w-3 h-3 opacity-80" />
+                                <span>{isFa ? c.titleFa : c.titleEn}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="p-4 rounded-xl bg-slate-900/60 text-center text-xs text-slate-400">
+                      <p>{isFa ? 'اطلاعات مکانیسم تفصیلی برای این دسته در حال تکمیل است.' : 'Detailed mechanism profile loading.'}</p>
+                    </div>
+                  )}
+
+                  {/* Tab Navigation Footer */}
+                  <div className="pt-2 flex items-center justify-between text-xs text-slate-400 border-t app-border">
+                    <span className="text-slate-500 font-mono text-[11px]">2 / 4</span>
+                    <button
+                      type="button"
+                      onClick={() => setHorizontalSpecTab(2)}
+                      className="text-indigo-400 hover:text-indigo-300 font-bold cursor-pointer"
+                    >
+                      {isFa ? 'قوانین SUSMP →' : 'SUSMP Rules →'}
+                    </button>
+                  </div>
+                </div>
+              )}
+              {horizontalSpecTab === 2 && (
                 <div className="app-card border border-indigo-500/30 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-md bg-linear-to-b from-indigo-950/20 to-transparent select-text">
                   <div className="flex items-center justify-between border-b border-indigo-500/20 pb-2.5">
                     <div className="flex items-center gap-2 text-indigo-400 font-black text-sm">
@@ -294,25 +420,25 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                   <div className="pt-2 flex items-center justify-between text-xs text-slate-400 border-t app-border">
                     <button
                       type="button"
-                      onClick={() => setHorizontalSpecTab(0)}
-                      className="text-sky-400 hover:text-sky-300 font-bold cursor-pointer"
+                      onClick={() => setHorizontalSpecTab(1)}
+                      className="text-teal-400 hover:text-teal-300 font-bold cursor-pointer"
                     >
-                      {isFa ? '→ نکات بالینی' : '← Pearls'}
+                      {isFa ? '← مکانیسم' : '← Mechanism'}
                     </button>
-                    <span className="text-slate-500 font-mono text-[11px]">2 / 3</span>
+                    <span className="text-slate-500 font-mono text-[11px]">3 / 4</span>
                     <button
                       type="button"
-                      onClick={() => setHorizontalSpecTab(2)}
+                      onClick={() => setHorizontalSpecTab(3)}
                       className="text-rose-400 hover:text-rose-300 font-bold cursor-pointer"
                     >
-                      {isFa ? 'علائم هشدار ←' : 'Red Flags →'}
+                      {isFa ? 'علائم هشدار →' : 'Red Flags →'}
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* CARD 2: Red Flags */}
-              {horizontalSpecTab === 2 && (
+              {/* CARD 3: Red Flags */}
+              {horizontalSpecTab === 3 && (
                 <div className="app-card border border-rose-500/30 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-md bg-linear-to-b from-rose-950/20 to-transparent select-text">
                   <div className="flex items-center justify-between border-b border-rose-500/20 pb-2.5">
                     <div className="flex items-center gap-2 text-rose-400 font-black text-sm">
@@ -342,12 +468,12 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                   <div className="pt-2 flex items-center justify-between text-xs text-slate-400 border-t app-border">
                     <button
                       type="button"
-                      onClick={() => setHorizontalSpecTab(1)}
+                      onClick={() => setHorizontalSpecTab(2)}
                       className="text-indigo-400 hover:text-indigo-300 font-bold cursor-pointer"
                     >
-                      {isFa ? '→ قوانین SUSMP' : '← SUSMP Rules'}
+                      {isFa ? '← قوانین SUSMP' : '← SUSMP Rules'}
                     </button>
-                    <span className="text-slate-500 font-mono text-[11px]">3 / 3</span>
+                    <span className="text-slate-500 font-mono text-[11px]">4 / 4</span>
                   </div>
                 </div>
               )}
@@ -461,6 +587,83 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
               transition={{ duration: 0.22 }}
               className="space-y-3"
             >
+              {/* QUICK MECHANISM & TARGETS BANNER IN MEDICINES VIEW */}
+              {categoryMech && (
+                <div className="app-card border border-teal-500/30 rounded-2xl overflow-hidden shadow-xs bg-linear-to-r from-teal-950/30 via-slate-900/40 to-slate-950/60">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      haptic.light();
+                      setIsQuickMechOpen((prev) => !prev);
+                    }}
+                    className="w-full p-2.5 sm:p-3 flex items-center justify-between gap-2 text-start cursor-pointer hover:bg-teal-500/10 transition"
+                  >
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <div className="p-1.5 rounded-lg bg-teal-500/20 text-teal-400 shrink-0">
+                        <Dna className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-xs font-black text-white">
+                            {isFa ? 'مکانیسم مشترک و تارگت‌های دسته دارویی' : 'Common Mechanism & Targets'}
+                          </span>
+                          {categoryMech.actionClassification && (
+                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-teal-500/20 text-teal-300 font-mono font-bold">
+                              {categoryMech.actionClassification}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-teal-300/80 truncate">
+                          {isFa ? categoryMech.summaryFa : categoryMech.summaryEn}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      <span className="text-[10px] font-bold text-teal-400">
+                        {isQuickMechOpen ? (isFa ? 'بستن' : 'Close') : (isFa ? 'مشاهده مکانیسم' : 'View')}
+                      </span>
+                      <ChevronDown className={`w-3.5 h-3.5 text-teal-400 transition-transform duration-200 ${isQuickMechOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                  </button>
+
+                  {isQuickMechOpen && (
+                    <div className="p-3 pt-1 border-t border-teal-500/20 space-y-2.5 text-xs animate-fadeIn select-text">
+                      <p className="text-slate-200 leading-relaxed text-xs sm:text-[13px]">
+                        {isFa ? categoryMech.summaryFa : categoryMech.summaryEn}
+                      </p>
+
+                      {categoryMech.keyClasses && categoryMech.keyClasses.length > 0 && (
+                        <div className="space-y-1.5 pt-1">
+                          <span className="text-[11px] font-bold text-teal-300 flex items-center gap-1">
+                            <FlaskConical className="w-3.5 h-3.5 text-teal-400" />
+                            <span>{isFa ? 'کلاس‌ها و زیرمکانیسم‌ها:' : 'Sub-classes & Targets:'}</span>
+                          </span>
+                          <div className="grid grid-cols-1 gap-1.5">
+                            {categoryMech.keyClasses.map((kc, idx) => (
+                              <div key={idx} className="p-2 rounded-xl bg-black/40 border border-slate-800 space-y-0.5">
+                                <div className="flex items-center justify-between text-xs font-bold text-white">
+                                  <span>{isFa ? kc.nameFa : kc.nameEn}</span>
+                                  <span className="text-[9px] px-1 rounded bg-teal-500/15 text-teal-300 font-mono">
+                                    {kc.actionType}
+                                  </span>
+                                </div>
+                                <div className="text-[11px] text-teal-200/90 leading-tight">
+                                  🎯 {isFa ? kc.mechanismFa : kc.mechanismEn}
+                                </div>
+                                <div className="text-[10px] text-slate-400">
+                                  <span className="text-slate-500 font-medium">{isFa ? 'داروها:' : 'Drugs:'}</span> {kc.examples}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="flex items-center justify-between text-xs font-bold app-text px-1">
                 <span className="flex items-center gap-1.5 text-teal-400">
                   <Pill className="w-4 h-4" />
@@ -479,7 +682,7 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                   className="text-xs text-sky-400 hover:underline flex items-center gap-1 cursor-pointer font-bold"
                 >
                   <ChevronUp className="w-3.5 h-3.5" />
-                  <span>{isFa ? 'نکات بالینی' : 'Profile'}</span>
+                  <span>{isFa ? 'مشخصات کامل' : 'Profile'}</span>
                 </button>
               </div>
 
