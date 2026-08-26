@@ -64,6 +64,7 @@ import {
   Sun,
   Moon,
   Settings,
+  Star,
 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import {
@@ -169,6 +170,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
   const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const dragStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const [showStarBurst, setShowStarBurst] = useState<boolean>(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   // Manager state: search, folder expansion, filters
@@ -724,7 +726,22 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentView, isAnswerRevealed, sessionCompleted, currentStudyCard, handleRateCard, isZenMode]);
 
-  // Tinder Touch & Drag Gesture Handlers
+  // Toggle Star / Bookmark status on the current card
+  const handleToggleStarCurrentCard = useCallback(() => {
+    if (!currentStudyCard) return;
+    const newStarred = !currentStudyCard.isStarred;
+    const updated = cards.map((c) => (c.id === currentStudyCard.id ? { ...c, isStarred: newStarred } : c));
+    onUpdateCards(updated);
+    if (typeof window !== 'undefined' && 'navigator' in window && navigator.vibrate) {
+      try { navigator.vibrate([20, 40, 20]); } catch {}
+    }
+    if (newStarred) {
+      setShowStarBurst(true);
+      setTimeout(() => setShowStarBurst(false), 1100);
+    }
+  }, [currentStudyCard, cards, onUpdateCards]);
+
+  // 4-Way Tinder Touch & Drag Gesture Handlers
   const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
     const target = e.target as HTMLElement;
     if (target.closest('button') || target.closest('a') || target.closest('input')) return;
@@ -747,11 +764,27 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
   const handleTouchEnd = () => {
     if (!dragStartRef.current || !isDragging) return;
     const deltaX = dragOffset.x;
-    const threshold = Math.min(110, window.innerWidth * 0.25);
+    const deltaY = dragOffset.y;
+    const thresholdX = Math.min(100, window.innerWidth * 0.22);
+    const thresholdY = 55;
 
     setIsDragging(false);
 
-    if (deltaX > threshold) {
+    // 1. VERTICAL SWIPES (PULL DOWN TO REVEAL ANSWER, PULL UP TO STAR CARD)
+    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > thresholdY) {
+      if (deltaY > thresholdY) {
+        // Swiped Down -> Reveal Answer
+        if (typeof window !== 'undefined' && 'navigator' in window && navigator.vibrate) {
+          try { navigator.vibrate(20); } catch {}
+        }
+        setIsAnswerRevealed(true);
+        setDragOffset({ x: 0, y: 0 });
+      } else if (deltaY < -thresholdY) {
+        // Swiped Up -> Star / Bookmark Card
+        handleToggleStarCurrentCard();
+        setDragOffset({ x: 0, y: 0 });
+      }
+    } else if (deltaX > thresholdX) {
       // Swiped Right -> GOOD (بلدم)
       if (typeof window !== 'undefined' && 'navigator' in window && navigator.vibrate) {
         try { navigator.vibrate(15); } catch {}
@@ -761,7 +794,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
         handleRateCard('good');
         setDragOffset({ x: 0, y: 0 });
       }, 150);
-    } else if (deltaX < -threshold) {
+    } else if (deltaX < -thresholdX) {
       // Swiped Left -> AGAIN (مرور مجدد)
       if (typeof window !== 'undefined' && 'navigator' in window && navigator.vibrate) {
         try { navigator.vibrate(25); } catch {}
@@ -1202,24 +1235,60 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
               <div className="w-full space-y-3">
                 {/* ACTIVE CARD & CONTROLS */}
                 <div className="space-y-3 w-full relative">
-                  {/* TINDER SWIPE STAMP OVERLAYS */}
-                  {dragOffset.x > 35 && (
+                  {/* TINDER & GESTURE SWIPE STAMP OVERLAYS */}
+                  {/* 1. SWIPED RIGHT -> GOOD (بلدم) */}
+                  {dragOffset.x > 35 && Math.abs(dragOffset.x) > Math.abs(dragOffset.y) && (
                     <div
                       className="absolute top-6 end-6 z-30 px-4 py-2 rounded-2xl border-4 border-emerald-400 bg-emerald-950/90 text-emerald-300 font-black text-sm sm:text-base tracking-wider uppercase shadow-2xl rotate-12 flex items-center gap-2 pointer-events-none animate-in fade-in zoom-in-95"
-                      style={{ opacity: Math.min(1, dragOffset.x / 100) }}
+                      style={{ opacity: Math.min(1, dragOffset.x / 90) }}
                     >
                       <ThumbsUp className="w-5 h-5 text-emerald-400" />
                       <span>{isFa ? 'بلدم (GOOD)' : 'GOOD'}</span>
                     </div>
                   )}
 
-                  {dragOffset.x < -35 && (
+                  {/* 2. SWIPED LEFT -> AGAIN (مرور مجدد) */}
+                  {dragOffset.x < -35 && Math.abs(dragOffset.x) > Math.abs(dragOffset.y) && (
                     <div
                       className="absolute top-6 start-6 z-30 px-4 py-2 rounded-2xl border-4 border-rose-500 bg-rose-950/90 text-rose-300 font-black text-sm sm:text-base tracking-wider uppercase shadow-2xl -rotate-12 flex items-center gap-2 pointer-events-none animate-in fade-in zoom-in-95"
-                      style={{ opacity: Math.min(1, Math.abs(dragOffset.x) / 100) }}
+                      style={{ opacity: Math.min(1, Math.abs(dragOffset.x) / 90) }}
                     >
                       <RotateCcw className="w-5 h-5 text-rose-400" />
                       <span>{isFa ? 'مرور مجدد (AGAIN)' : 'AGAIN'}</span>
+                    </div>
+                  )}
+
+                  {/* 3. SWIPED DOWN -> REVEAL ANSWER (نمایش پاسخ) */}
+                  {dragOffset.y > 35 && Math.abs(dragOffset.y) > Math.abs(dragOffset.x) && !isAnswerRevealed && (
+                    <div
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 px-5 py-3 rounded-2xl border-2 border-cyan-400 bg-slate-950/95 text-cyan-200 font-black text-sm sm:text-base tracking-wider uppercase shadow-2xl flex items-center gap-2.5 pointer-events-none animate-in fade-in zoom-in-90 backdrop-blur-md"
+                      style={{ opacity: Math.min(1, dragOffset.y / 70) }}
+                    >
+                      <Eye className="w-5 h-5 text-cyan-300 animate-pulse" />
+                      <span>{isFa ? '✨ رها کنید: نمایش پاسخ ✨' : '✨ Release to Reveal Answer ✨'}</span>
+                    </div>
+                  )}
+
+                  {/* 4. SWIPED UP -> STAR / BOOKMARK (ستاره‌دار کردن) */}
+                  {dragOffset.y < -35 && Math.abs(dragOffset.y) > Math.abs(dragOffset.x) && (
+                    <div
+                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 px-5 py-3 rounded-2xl border-2 border-amber-400 bg-slate-950/95 text-amber-300 font-black text-sm sm:text-base tracking-wider uppercase shadow-2xl flex items-center gap-2.5 pointer-events-none animate-in fade-in zoom-in-90 backdrop-blur-md"
+                      style={{ opacity: Math.min(1, Math.abs(dragOffset.y) / 70) }}
+                    >
+                      <Star className="w-5 h-5 text-amber-400 fill-amber-400 animate-spin" />
+                      <span>{isFa ? '⭐ رها کنید: ستاره‌دار کردن ⭐' : '⭐ Release to Star Card ⭐'}</span>
+                    </div>
+                  )}
+
+                  {/* ⭐ STAR BURST CELEBRATION OVERLAY ⭐ */}
+                  {showStarBurst && (
+                    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center pointer-events-none animate-in zoom-in-50 fade-in duration-300">
+                      <div className="p-4 rounded-full bg-amber-500/20 border-2 border-amber-400/80 shadow-[0_0_60px_rgba(245,158,11,0.7)] backdrop-blur-md flex items-center justify-center animate-bounce">
+                        <Star className="w-14 h-14 text-amber-400 fill-amber-400 drop-shadow-[0_0_25px_rgba(245,158,11,0.9)]" />
+                      </div>
+                      <span className="mt-2 text-xs font-black text-amber-300 bg-slate-950/90 px-4 py-1.5 rounded-full border border-amber-400/50 shadow-xl">
+                        {isFa ? '⭐ کارت نشانه‌دار شد ⭐' : '⭐ Card Starred ⭐'}
+                      </span>
                     </div>
                   )}
 
@@ -1244,7 +1313,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                         : 'bg-slate-900 border-slate-700 hover:border-purple-500/40'
                     }`}
                   >
-                    {/* CARD TOP BAR: PURE LANGUAGE SWITCHER ONLY */}
+                    {/* CARD TOP BAR: PURE LANGUAGE SWITCHER & STAR BUTTON */}
                     <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
                       {/* 🌐 Interactive Bilingual / FA / EN Switcher on Card */}
                       <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-700/80 text-xs font-bold">
@@ -1292,18 +1361,36 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                         </button>
                       </div>
 
-                      {/* Optional minimal delete button */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteCard(currentStudyCard.id);
-                        }}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
-                        title={isFa ? 'حذف این کارت' : 'Delete card'}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {/* Right Action: Star Button & Delete Button */}
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleStarCurrentCard();
+                          }}
+                          className={`p-1.5 rounded-lg border transition cursor-pointer flex items-center gap-1 ${
+                            currentStudyCard.isStarred
+                              ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-xs'
+                              : 'text-slate-500 border-transparent hover:text-amber-300 hover:bg-white/5'
+                          }`}
+                          title={isFa ? (currentStudyCard.isStarred ? 'حذف ستاره' : 'ستاره‌دار کردن کارت') : 'Toggle Star Card'}
+                        >
+                          <Star className={`w-4 h-4 ${currentStudyCard.isStarred ? 'fill-amber-400 text-amber-400' : ''}`} />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteCard(currentStudyCard.id);
+                          }}
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
+                          title={isFa ? 'حذف این کارت' : 'Delete card'}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
 
                     {/* CARD FRONT: QUESTION */}
@@ -1562,17 +1649,29 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                     )}
                   </div>
 
-                  {/* ANKIDROID BOTTOM CONTROLS */}
+                  {/* ANKIDROID BOTTOM CONTROLS & GESTURE BAR */}
                   {!isAnswerRevealed ? (
-                    /* SHOW ANSWER BUTTON */
-                    <button
-                      type="button"
+                    /* SLEEK INTERACTIVE REVEAL & GESTURE BAR */
+                    <div
                       onClick={() => setIsAnswerRevealed(true)}
-                      className="w-full py-4 rounded-2xl bg-linear-to-r from-purple-600 via-indigo-600 to-sky-600 hover:from-purple-500 hover:to-sky-500 text-white text-sm sm:text-base font-bold shadow-xl shadow-purple-900/30 transition flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-3 px-4 rounded-2xl bg-slate-900/90 hover:bg-slate-850 border border-slate-700/80 hover:border-purple-500/50 text-slate-200 text-xs font-bold shadow-md transition flex flex-col sm:flex-row items-center justify-between gap-2 cursor-pointer group select-none backdrop-blur-md"
                     >
-                      <Eye className="w-5 h-5" />
-                      <span>{isFa ? 'نمایش پاسخ (کلید Space یا سوایپ)' : 'Show Answer (Space or Swipe)'}</span>
-                    </button>
+                      <div className="flex items-center gap-2 text-purple-300">
+                        <Eye className="w-4 h-4 text-purple-400 group-hover:scale-110 transition" />
+                        <span>{isFa ? 'لمس یا کلیک برای نمایش پاسخ' : 'Tap to reveal answer'}</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 text-[11px] text-slate-400 font-normal">
+                        <span className="flex items-center gap-1 text-cyan-300 font-medium">
+                          <span>↓</span>
+                          <span>{isFa ? 'سوایپ به پایین: پاسخ' : 'Swipe Down: Answer'}</span>
+                        </span>
+                        <span className="text-slate-600">•</span>
+                        <span className="flex items-center gap-1 text-amber-300 font-medium">
+                          <span>↑</span>
+                          <span>{isFa ? 'سوایپ به بالا: ستاره ⭐' : 'Swipe Up: Star ⭐'}</span>
+                        </span>
+                      </div>
+                    </div>
                   ) : (
                     /* ANKI & FSRS 4-RATING BUTTON BAR */
                     <div className="space-y-1.5">

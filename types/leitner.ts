@@ -76,6 +76,7 @@ export interface LeitnerCard {
   fsrsDifficulty?: number;   // D (1.0 to 10.0)
   fsrsLapses?: number;       // Number of times forgotten
   fsrsReps?: number;         // Total review repetitions
+  isStarred?: boolean;       // ⭐ User Starred / Bookmarked status
 }
 
 export interface CandidateCard {
