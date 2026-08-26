@@ -163,86 +163,60 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
         />
       )}
 
-      {/* UNIFIED MODULE 4 HEADER BAR */}
-      <div className="app-card border app-border rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
-        {/* 1. TOP ROW: Brand & Action Toolbar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b app-border pb-2.5">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-teal-500/15 text-teal-600 dark:text-teal-300 flex items-center justify-center shadow-xs shrink-0 border border-teal-500/30">
-              <Monitor className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-sm sm:text-base font-black app-text tracking-tight">
-                  {isFa
-                    ? 'ماژول ۴: نسخه‌پیچی (Dispensing) و قوانین استرالیا'
-                    : 'Module 4: Prescription Dispensing & Practice'}
-                </h2>
-                <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/30">
-                  {activeModule === 'software'
-                    ? isFa ? 'نرم‌افزار Fred Dispense' : 'Fred Dispense Software'
-                    : isFa ? `${filteredCards.length} مبحث و کارت بالینی` : `${filteredCards.length} Clinical Topics`}
-                </span>
-              </div>
-            </div>
-          </div>
+      {/* DIRECT TOPICS & SOFTWARE BAR (NO REDUNDANT INTRO) */}
+      <div className="space-y-3">
+        {/* Submodule Category Chips (First is "نرم‌افزار", followed by topics) */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
+          {categoryChips.map((chip) => {
+            const Icon = chip.icon;
+            const isSelected = activeModule === chip.id;
+            return (
+              <button
+                key={chip.id}
+                onClick={() => onSelectModule(chip.id)}
+                className={`px-3 py-1.5 rounded-xl font-bold transition whitespace-nowrap border flex items-center gap-1.5 cursor-pointer text-xs ${
+                  isSelected
+                    ? chip.isSoftware
+                      ? 'bg-teal-600 text-white border-teal-500 shadow-xs'
+                      : 'bg-indigo-600 text-white border-indigo-500 shadow-xs'
+                    : chip.isSoftware
+                    ? 'bg-teal-500/15 border-teal-500/30 text-teal-800 dark:text-teal-300 hover:bg-teal-500/25'
+                    : 'app-bg app-border app-muted hover:app-text'
+                }`}
+              >
+                {Icon && <Icon className="w-3.5 h-3.5" />}
+                <span>{chip.name[language]}</span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* 2. REAL-TIME SEARCH BAR (IF ON KNOWLEDGE TABS) & SUBMODULE CATEGORY CHIPS */}
-        <div className="space-y-3">
-          {/* Submodule Category Chips 1 to 6 (First is "نرم‌افزار") */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
-            {categoryChips.map((chip) => {
-              const Icon = chip.icon;
-              const isSelected = activeModule === chip.id;
-              return (
-                <button
-                  key={chip.id}
-                  onClick={() => onSelectModule(chip.id)}
-                  className={`px-3 py-1.5 rounded-xl font-bold transition whitespace-nowrap border flex items-center gap-1.5 cursor-pointer ${
-                    isSelected
-                      ? chip.isSoftware
-                        ? 'bg-teal-600 text-white border-teal-500 shadow-xs'
-                        : 'bg-indigo-600 text-white border-indigo-500 shadow-xs'
-                      : chip.isSoftware
-                      ? 'bg-teal-500/15 border-teal-500/30 text-teal-800 dark:text-teal-300 hover:bg-teal-500/25'
-                      : 'app-bg app-border app-muted hover:app-text'
-                  }`}
-                >
-                  {Icon && <Icon className="w-3.5 h-3.5" />}
-                  <span>{chip.name[language]}</span>
-                </button>
-              );
-            })}
+        {/* Real-Time Search Input (Displayed when browsing knowledge cards) */}
+        {activeModule !== 'software' && (
+          <div className="relative w-full">
+            <Search className="w-4 h-4 absolute end-3.5 top-2.5 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder={
+                isFa
+                  ? 'جستجو در مباحث، کلمات کلیدی، کدهای PBS و قوانین ایالتی...'
+                  : 'Search across topics, PBS codes, SUSMP schedules & state laws...'
+              }
+              className="w-full pe-10 ps-4 py-2 rounded-xl border app-border bg-black/20 text-xs app-text focus:outline-none focus:border-indigo-500 shadow-inner"
+            />
+            {searchQuery.trim() && (
+              <button
+                type="button"
+                onClick={() => onSearchChange('')}
+                className="absolute start-3 top-2 text-xs text-slate-400 hover:text-white px-1.5 py-0.5 rounded bg-slate-800 cursor-pointer"
+              >
+                ✕
+              </button>
+            )}
           </div>
-
-          {/* Real-Time Search Input (Displayed when browsing knowledge cards) */}
-          {activeModule !== 'software' && (
-            <div className="relative w-full">
-              <Search className="w-4 h-4 absolute right-3.5 top-3 text-slate-400 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
-                placeholder={
-                  isFa
-                    ? 'جستجوی آنی در تمام مباحث، کلمات کلیدی، کدهای PBS و قوانین ایالتی...'
-                    : 'Real-time quick search across all topics, PBS codes, SUSMP schedules & state laws...'
-                }
-                className="w-full pr-10 pl-4 py-2 rounded-xl border app-border bg-black/30 text-xs app-text focus:outline-none focus:border-indigo-500 shadow-inner"
-              />
-              {searchQuery.trim() && (
-                <button
-                  type="button"
-                  onClick={() => onSearchChange('')}
-                  className="absolute left-3 top-2.5 text-xs text-slate-400 hover:text-white px-1.5 py-0.5 rounded bg-slate-800 cursor-pointer"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
       {/* 3. CONTENT DISPLAY: EITHER SOFTWARE (FRED DISPENSE) OR CARDS */}
