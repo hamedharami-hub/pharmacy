@@ -164,6 +164,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
 
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [filterModule, setFilterModule] = useState<number | 'ALL'>('ALL');
   const [filterBox, setFilterBox] = useState<number | 'ALL'>('ALL');
   const [selectedFlagFilters, setSelectedFlagFilters] = useState<string[]>([]);
@@ -1152,71 +1153,48 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
           : ''
       }`}
     >
-      {/* Top Compact Main Toolbar & Filters */}
-      <div className="p-2.5 sm:p-3 rounded-2xl app-card border app-border shadow-sm flex flex-wrap items-center justify-between gap-2.5">
-        {/* Left Section: Search & Quick Scope Badge */}
-        <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
-          {/* Search Bar */}
-          <div className="relative min-w-[160px] sm:min-w-[220px] flex-1 max-w-sm">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute start-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={isFa ? 'جستجو در مفاهیم، داروها و سوالات...' : 'Search concepts, pearls...'}
-              className="w-full ps-9 pe-7 py-1.5 rounded-xl app-bg border app-border text-xs app-text placeholder-slate-400 focus:outline-none focus:border-purple-500 transition"
-            />
-            {searchQuery && (
+      {/* Ultra-Minimal Top Bar: [ 🔍 Search | ✨ AI | ⚙️ Settings ] */}
+      <div className="flex items-center justify-between gap-2 p-1.5 sm:p-2 rounded-2xl app-card border app-border shadow-xs bg-slate-900/70 backdrop-blur-md">
+        {/* Expandable Search Trigger */}
+        <div className="flex items-center gap-1.5 flex-1 min-w-0">
+          {isSearchExpanded || searchQuery ? (
+            <div className="relative flex-1 max-w-xs animate-in fade-in duration-150">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute start-2.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                autoFocus
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={isFa ? 'جستجو در مفاهیم...' : 'Search...'}
+                className="w-full ps-8 pe-7 py-1 rounded-xl app-bg border app-border text-xs app-text placeholder-slate-400 focus:outline-none focus:border-purple-500 transition"
+              />
               <button
                 type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute end-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:app-text"
+                onClick={() => {
+                  setSearchQuery('');
+                  setIsSearchExpanded(false);
+                }}
+                className="absolute end-2 top-1/2 -translate-y-1/2 text-slate-400 hover:app-text cursor-pointer p-0.5"
+                title={isFa ? 'بستن جستجو' : 'Close search'}
               >
                 <X className="w-3.5 h-3.5" />
               </button>
-            )}
-          </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsSearchExpanded(true)}
+              className="p-1.5 rounded-xl app-bg hover:bg-black/5 dark:hover:bg-slate-800 app-text border app-border transition cursor-pointer flex items-center gap-1 text-xs"
+              title={isFa ? 'جستجو در نقشه ذهنی' : 'Search Mind Map'}
+            >
+              <Search className="w-3.5 h-3.5 text-slate-300" />
+            </button>
+          )}
 
-          {/* Quick Active Layout Badge */}
-          <button
-            type="button"
-            onClick={() => setIsMindMapSettingsOpen(true)}
-            className="px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border app-bg app-text app-border hover:border-purple-500/50 cursor-pointer shadow-xs"
-            title={isFa ? 'تغییر نوع ساختار چیدمان نقشه ذهنی' : 'Change Mind Map Layout'}
-          >
-            {viewMode === 'interactive_canvas' && <Network className="w-3.5 h-3.5 text-cyan-400" />}
-            {viewMode === 'radial_circle' && <Sparkles className="w-3.5 h-3.5 text-amber-400" />}
-            {viewMode === 'vertical_tree' && <ListTree className="w-3.5 h-3.5 text-indigo-400" />}
-            {viewMode === 'outliner_tree' && <BookOpen className="w-3.5 h-3.5 text-purple-400" />}
-            {viewMode === 'matrix_grid' && <Layers className="w-3.5 h-3.5 text-emerald-400" />}
-            <span>
-              {viewMode === 'interactive_canvas' && (isFa ? 'گراف افقی' : 'Horizontal Graph')}
-              {viewMode === 'radial_circle' && (isFa ? 'شعاعی ۳۶۰°' : 'Radial 360°')}
-              {viewMode === 'vertical_tree' && (isFa ? 'سازمانی عمودی' : 'Vertical Org')}
-              {viewMode === 'outliner_tree' && (isFa ? 'درختی متنی' : 'Outliner Tree')}
-              {viewMode === 'matrix_grid' && (isFa ? 'ماتریس شبکه‌ای' : 'Matrix Grid')}
-            </span>
-          </button>
-
-          {/* Filter Status Pills */}
+          {/* Active Filter Indicators (if set via Settings) */}
           {(filterModule !== 'ALL' || filterBox !== 'ALL' || selectedFlagFilters.length > 0) && (
-            <div className="flex items-center gap-1 flex-wrap">
-              {filterModule !== 'ALL' && (
-                <span className="px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-bold">
-                  {isFa ? `ماژول ${filterModule}` : `Mod ${filterModule}`}
-                </span>
-              )}
-              {filterBox !== 'ALL' && (
-                <span className="px-2 py-0.5 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold">
-                  {isFa ? `جعبه ${filterBox}` : `Box ${filterBox}`}
-                </span>
-              )}
-              {selectedFlagFilters.length > 0 && (
-                <span className="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold flex items-center gap-1">
-                  <Flag className="w-2.5 h-2.5 fill-current" />
-                  <span>{selectedFlagFilters.length}</span>
-                </span>
-              )}
+            <div className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" title={isFa ? 'فیلتر فعال است' : 'Filter active'} />
               <button
                 type="button"
                 onClick={() => {
@@ -1226,56 +1204,37 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                 }}
                 className="text-[10px] text-slate-400 hover:text-rose-300 underline cursor-pointer"
               >
-                {isFa ? 'حذف فیلترها' : 'Clear'}
+                {isFa ? 'حذف فیلتر' : 'Clear'}
               </button>
             </div>
           )}
         </div>
 
-        {/* Right Section: Settings Gear Button, Zen Focus, AI Studio */}
-        <div className="flex items-center gap-2">
-          {/* ⚙️ Mind Map Settings Gear Button */}
-          <button
-            type="button"
-            onClick={() => setIsMindMapSettingsOpen(true)}
-            className="px-2.5 py-1.5 rounded-xl app-bg hover:bg-black/5 dark:hover:bg-slate-800 app-text border app-border text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
-            title={isFa ? 'تنظیمات چیدمان، خطوط، فیلترها و درخت دانش نقشه ذهنی' : 'Mind Map Settings'}
-          >
-            <Settings className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-            <span className="hidden sm:inline">{isFa ? 'تنظیمات نقشه' : 'Settings'}</span>
-          </button>
-
-          {/* Zen / Focus Mode Button */}
-          <button
-            type="button"
-            onClick={() => setIsZenMode((prev) => !prev)}
-            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm ${
-              isZenMode
-                ? 'bg-amber-500 text-slate-950 border-amber-400 font-black shadow-amber-500/20'
-                : 'app-bg app-border app-text hover:bg-black/5 dark:hover:bg-slate-800'
-            }`}
-            title={
-              isZenMode
-                ? isFa ? 'خروج از حالت تمام‌صفحه و تمرکز' : 'Exit Focus / Zen Mode'
-                : isFa ? 'حالت تمام‌صفحه و تمرکز بدون حاشیه (Zen Mode)' : 'Focus Zen Mode (Fullscreen)'
-            }
-          >
-            {isZenMode ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5 text-amber-400" />}
-            <span className="hidden md:inline">
-              {isZenMode ? (isFa ? 'خروج از تمرکز' : 'Exit Zen') : (isFa ? 'تمرکز کامل' : 'Zen Focus')}
-            </span>
-          </button>
-
+        {/* Right Section: [ ✨ AI Button | ⚙️ Settings Gear ] */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {/* ✨ AI Generator Button */}
           {onOpenAiGenerator && (
             <button
               type="button"
               onClick={() => onOpenAiGenerator()}
-              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition shrink-0 cursor-pointer"
+              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center gap-1 shadow-xs transition cursor-pointer"
+              title={isFa ? 'تولید کارت جدید با هوش مصنوعی' : 'Generate with AI'}
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{isFa ? 'تولید با AI' : 'AI Generate'}</span>
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <span className="hidden sm:inline">AI</span>
             </button>
           )}
+
+          {/* ⚙️ Mind Map Settings Gear Button */}
+          <button
+            type="button"
+            onClick={() => setIsMindMapSettingsOpen(true)}
+            className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl app-bg hover:bg-black/5 dark:hover:bg-slate-800 app-text border app-border text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-xs"
+            title={isFa ? 'تنظیمات چیدمان، ساختار و فیلترهای نقشه ذهنی' : 'Mind Map Settings'}
+          >
+            <Settings className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />
+            <span className="hidden sm:inline">{isFa ? 'تنظیمات' : 'Settings'}</span>
+          </button>
         </div>
       </div>
 
