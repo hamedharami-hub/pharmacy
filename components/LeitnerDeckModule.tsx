@@ -1018,11 +1018,11 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
           <button
             type="button"
             onClick={() => triggerAiGenerator()}
-            className="px-2.5 py-1.5 rounded-lg bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap"
-            title={isFa ? 'تولید کارت جدید از متن با هوش مصنوعی' : 'Generate flashcards from text with AI'}
+            className="px-2 py-1.5 rounded-lg bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-xs whitespace-nowrap"
+            title={isFa ? 'تولید کارت جدید با هوش مصنوعی (AI Studio)' : 'Generate flashcards with AI'}
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>{isFa ? 'ساخت کارت AI' : 'AI Studio'}</span>
+            <span className="text-[11px] font-bold">AI</span>
           </button>
 
           {/* ⚙️ Unified Leitner Study Settings Gear Button */}
@@ -1749,80 +1749,50 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
         </div>
       ) : (
         /* ========================================================================= */
-        /* DECKS, KNOWLEDGE TREE FOLDERS & LEITNER BOXES MANAGEMENT VIEW             */
+        /* DECKS / KNOWLEDGE TREE FOLDERS VIEW (DIRECT & MAXIMAL HEADLINE SPACE)     */
         /* ========================================================================= */
-        <div className="space-y-4">
-          {/* Sub Navigation Bar for Management */}
-          <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2.5 flex-wrap">
-            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800 flex-wrap">
-              <button
-                type="button"
-                onClick={() => setManagerActiveTab('folders')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                  managerActiveTab === 'folders'
-                    ? 'bg-purple-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <FolderTree className="w-3.5 h-3.5 text-purple-300" />
-                <span>{isFa ? 'درخت و دسته‌های دانش (Knowledge Tree)' : 'Knowledge Folders'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setManagerActiveTab('all_cards')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                  managerActiveTab === 'all_cards'
-                    ? 'bg-rose-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <Trash2 className="w-3.5 h-3.5 text-rose-300" />
-                <span>{isFa ? `مدیریت و حذف کارت‌ها (${cards.length})` : `Manage & Delete (${cards.length})`}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setManagerActiveTab('boxes')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                  managerActiveTab === 'boxes'
-                    ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <Layers className="w-3.5 h-3.5 text-indigo-300" />
-                <span>{isFa ? 'جعبه‌های ۵ گانه' : '5 Leitner Boxes'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setManagerActiveTab('add_card')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                  managerActiveTab === 'add_card'
-                    ? 'bg-emerald-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <Plus className="w-3.5 h-3.5 text-emerald-300" />
-                <span>{isFa ? 'افزودن کارت دستی' : 'Add Card'}</span>
-              </button>
+        <div className="space-y-3">
+          {/* Sub Navigation & Actions Bar */}
+          <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-white">
+                {isFa ? 'دسته‌بندی موضوعی درخت دانش' : 'Knowledge Tree Decks'}
+              </span>
+              <span className="text-[10.5px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono">
+                {Object.keys(folderTree).length} {isFa ? 'شاخه' : 'Domains'}
+              </span>
             </div>
 
-            {/* JSON Backup Tools */}
+            {/* Quick Actions: Expand/Collapse All & Backup */}
             <div className="flex items-center gap-2">
               <button
                 type="button"
+                onClick={() => {
+                  const allExpanded = Object.keys(folderTree).every((k) => expandedFolders[k]);
+                  const next: Record<string, boolean> = {};
+                  Object.keys(folderTree).forEach((k) => {
+                    next[k] = !allExpanded;
+                  });
+                  setExpandedFolders(next);
+                }}
+                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold transition cursor-pointer"
+              >
+                {Object.keys(folderTree).every((k) => expandedFolders[k])
+                  ? isFa ? 'بستن همه' : 'Collapse All'
+                  : isFa ? 'باز کردن همه' : 'Expand All'}
+              </button>
+
+              <button
+                type="button"
                 onClick={handleExportJson}
-                className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border border-slate-700"
+                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer border border-slate-700"
                 title={isFa ? 'پشتیبان‌گیری از تمام کارت‌ها در قالب JSON' : 'Export all flashcards to JSON'}
               >
                 <Download className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{isFa ? 'خروجی JSON' : 'Export'}</span>
               </button>
 
-              <label className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border border-slate-700">
+              <label className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer border border-slate-700">
                 <Upload className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{isFa ? 'ورود JSON' : 'Import'}</span>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -1834,566 +1804,122 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
             </div>
           </div>
 
-          {/* TAB 1: PURE KNOWLEDGE TREE FOLDERS & SYSTEM DECKS */}
-          {managerActiveTab === 'folders' && (
-            <div className="space-y-3">
-              {/* KNOWLEDGE FOLDER ACCORDION TREE */}
-              <div className="app-card border border-slate-800 rounded-2xl p-4 bg-slate-900/90 shadow-md space-y-3">
-                <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2">
-                  <div className="flex items-center gap-2">
-                    <FolderTree className="w-4 h-4 text-purple-400" />
-                    <h3 className="text-xs sm:text-sm font-bold text-white">
-                      {isFa ? 'دسته‌بندی موضوعی بر اساس درخت دانش (Knowledge Tree):' : 'Categorization by Knowledge Tree:'}
-                    </h3>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono">
-                      {Object.keys(folderTree).length} {isFa ? 'حوزه کلان دانش' : 'Domains'}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const allExpanded = Object.keys(folderTree).every((k) => expandedFolders[k]);
-                        const next: Record<string, boolean> = {};
-                        Object.keys(folderTree).forEach((k) => {
-                          next[k] = !allExpanded;
-                        });
-                        setExpandedFolders(next);
-                      }}
-                      className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold transition cursor-pointer"
-                    >
-                      {Object.keys(folderTree).every((k) => expandedFolders[k])
-                        ? isFa ? 'بستن همه' : 'Collapse All'
-                        : isFa ? 'باز کردن همه' : 'Expand All'}
-                    </button>
-                  </div>
-                </div>
+          {/* KNOWLEDGE FOLDER ACCORDION TREE */}
+          <div className="space-y-2">
+            {Object.entries(folderTree).map(([domainName, domainData]) => {
+              const isExpanded = !!expandedFolders[domainName];
 
-                <div className="space-y-2.5">
-                  {Object.entries(folderTree).map(([domainName, domainData]) => {
-                    const isExpanded = !!expandedFolders[domainName];
+              return (
+                <div key={domainName} className="rounded-xl border border-slate-800 bg-slate-950/70 overflow-hidden shadow-xs">
+                  {/* Level 1: Domain Row (Maximal Headline Space) */}
+                  <div
+                    onClick={() =>
+                      setExpandedFolders((prev) => ({ ...prev, [domainName]: !prev[domainName] }))
+                    }
+                    className="p-3 flex items-center justify-between gap-3 hover:bg-slate-900 cursor-pointer transition select-none"
+                  >
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      {isExpanded ? (
+                        <ChevronDown className="w-4 h-4 text-purple-400 shrink-0" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-slate-500 shrink-0" />
+                      )}
+                      <span className="text-sm font-black text-white truncate leading-normal">{domainName}</span>
+                    </div>
 
-                    return (
-                      <div key={domainName} className="rounded-xl border border-slate-800 bg-slate-950/70 overflow-hidden shadow-sm">
-                        {/* Level 1: Domain Row */}
-                        <div
-                          onClick={() =>
-                            setExpandedFolders((prev) => ({ ...prev, [domainName]: !prev[domainName] }))
-                          }
-                          className="p-3.5 flex items-center justify-between gap-2 hover:bg-slate-900 cursor-pointer transition text-xs select-none"
-                        >
-                          <div className="flex items-center gap-2.5 font-bold text-slate-200">
-                            {isExpanded ? (
-                              <ChevronDown className="w-4 h-4 text-purple-400" />
-                            ) : (
-                              <ChevronRight className="w-4 h-4 text-slate-500" />
-                            )}
-                            <FolderOpen className="w-4 h-4 text-amber-400" />
-                            <span className="text-sm font-black text-white">{domainName}</span>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono">
-                              {domainData.count} {isFa ? 'کارت' : 'cards'}
-                              {domainData.dueCount > 0 && (
-                                <span className="ms-1 text-amber-400 font-bold">({domainData.dueCount} {isFa ? 'موعد' : 'due'})</span>
-                              )}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                startStudyForScope({
-                                  title: domainName,
-                                  domain: domainName,
-                                  cram: domainData.dueCount === 0,
-                                });
-                              }}
-                              className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
-                            >
-                              <Play className="w-3 h-3 text-amber-300" />
-                              <span>{domainData.dueCount > 0 ? (isFa ? 'مرور موعددارها' : 'Study Due') : isFa ? 'مرور فشرده' : 'Cram'}</span>
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Level 2: Systems inside Domain */}
-                        {isExpanded && (
-                          <div className="p-3 bg-slate-900/90 border-t border-slate-800 space-y-2 text-xs">
-                            {Object.entries(domainData.systems).map(([systemName, systemData]) => (
-                              <div
-                                key={systemName}
-                                className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col gap-2"
-                              >
-                                <div className="flex items-center justify-between gap-2">
-                                  <div className="flex items-center gap-2 text-slate-200 ps-2">
-                                    <Folder className="w-4 h-4 text-indigo-400" />
-                                    <span className="font-bold text-xs">{systemName}</span>
-                                    <span className="text-[10.5px] text-slate-400 font-mono">
-                                      ({systemData.count} {isFa ? 'کارت' : 'cards'}
-                                      {systemData.dueCount > 0 && (
-                                        <span className="text-amber-400 font-bold ms-1">| {systemData.dueCount} {isFa ? 'موعد' : 'due'}</span>
-                                      )})
-                                    </span>
-                                  </div>
-
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      startStudyForScope({
-                                        title: `${domainName} / ${systemName}`,
-                                        domain: domainName,
-                                        system: systemName,
-                                        cram: systemData.dueCount === 0,
-                                      })
-                                    }
-                                    className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
-                                  >
-                                    <Play className="w-2.5 h-2.5 text-amber-300" />
-                                    <span>{systemData.dueCount > 0 ? (isFa ? 'مرور' : 'Study') : isFa ? 'مرور فشرده' : 'Cram'}</span>
-                                  </button>
-                                </div>
-
-                                {/* Level 3: Subsystems / Topics Chips */}
-                                <div className="flex items-center gap-1.5 flex-wrap ps-6 pt-1">
-                                  {Object.entries(systemData.subsystems).map(([subName, subData]) => (
-                                    <button
-                                      key={subName}
-                                      type="button"
-                                      onClick={() =>
-                                        startStudyForScope({
-                                          title: `${domainName} > ${systemName} > ${subName}`,
-                                          domain: domainName,
-                                          system: systemName,
-                                          subsystem: subName,
-                                          cram: subData.dueCount === 0,
-                                        })
-                                      }
-                                      className="px-2 py-0.5 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10.5px] text-slate-300 hover:text-white transition flex items-center gap-1 cursor-pointer"
-                                    >
-                                      <span>{subName}</span>
-                                      <span className="text-[9.5px] px-1 rounded bg-slate-800 text-slate-400 font-mono">
-                                        {subData.count}
-                                      </span>
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono font-bold">
+                        {domainData.count}
+                        {domainData.dueCount > 0 && (
+                          <span className="ms-1 text-amber-400">({domainData.dueCount}!)</span>
                         )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 2: ALL CARDS & INDIVIDUAL DELETE MANAGEMENT */}
-          {managerActiveTab === 'all_cards' && (
-            <div className="space-y-4">
-              {/* Filter and Search Toolbar */}
-              <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-md">
-                <div className="flex items-center gap-2 flex-1 min-w-[240px]">
-                  <div className="relative flex-1">
-                    <Search className="w-4 h-4 text-slate-400 absolute start-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder={isFa ? 'جستجو در درخت دانش، سوال، پاسخ یا نکته...' : 'Search knowledge tree, question, answer...'}
-                      className="w-full ps-9 pe-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
-                    />
-                    {searchQuery && (
+                      </span>
                       <button
                         type="button"
-                        onClick={() => setSearchQuery('')}
-                        className="absolute end-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startStudyForScope({
+                            title: domainName,
+                            domain: domainName,
+                            cram: domainData.dueCount === 0,
+                          });
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer shadow-xs"
                       >
-                        <X className="w-3.5 h-3.5" />
+                        <Play className="w-2.5 h-2.5 text-amber-300" />
+                        <span>{domainData.dueCount > 0 ? (isFa ? 'مرور' : 'Study') : (isFa ? 'فشرده' : 'Cram')}</span>
                       </button>
-                    )}
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-2 flex-wrap">
-                  {/* Knowledge Tree Domain Filter */}
-                  <select
-                    value={managerFilterDomain}
-                    onChange={(e) => setManagerFilterDomain(e.target.value)}
-                    className="px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-purple-500 max-w-[200px]"
-                  >
-                    <option value="ALL">{isFa ? 'همه حوزه‌های درخت دانش' : 'All Knowledge Domains'}</option>
-                    {uniqueDomains.map((dom) => (
-                      <option key={dom} value={dom}>
-                        {dom}
-                      </option>
-                    ))}
-                  </select>
-
-                  {/* Box Filter */}
-                  <select
-                    value={managerFilterBox}
-                    onChange={(e) => setManagerFilterBox(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))}
-                    className="px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-purple-500"
-                  >
-                    <option value="ALL">{isFa ? 'همه جعبه‌ها (۱ تا ۵)' : 'All Boxes (1-5)'}</option>
-                    <option value={1}>{isFa ? 'جعبه ۱ (روزانه)' : 'Box 1 (Daily)'}</option>
-                    <option value={2}>{isFa ? 'جعبه ۲ (۳ روز)' : 'Box 2 (3 Days)'}</option>
-                    <option value={3}>{isFa ? 'جعبه ۳ (۷ روز)' : 'Box 3 (7 Days)'}</option>
-                    <option value={4}>{isFa ? 'جعبه ۴ (۱۴ روز)' : 'Box 4 (14 Days)'}</option>
-                    <option value={5}>{isFa ? 'جعبه ۵ (۳۰ روز)' : 'Box 5 (30 Days)'}</option>
-                  </select>
-
-                  {/* Reset Filters */}
-                  {(searchQuery || managerFilterDomain !== 'ALL' || managerFilterBox !== 'ALL') && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSearchQuery('');
-                        setManagerFilterDomain('ALL');
-                        setManagerFilterBox('ALL');
-                      }}
-                      className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-                    >
-                      <RotateCw className="w-3 h-3 text-slate-400" />
-                      <span>{isFa ? 'ریست فیلتر' : 'Reset'}</span>
-                    </button>
-                  )}
-
-                  {/* Clear All Cards Button */}
-                  {cards.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={handleDeleteAllCards}
-                      className="px-2.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-                      title={isFa ? 'پاکسازی کامل همه کارت‌های لایتنر' : 'Clear all Leitner cards'}
-                    >
-                      <Trash2 className="w-3.5 h-3.5 text-rose-400" />
-                      <span className="hidden sm:inline">{isFa ? 'حذف همه کارت‌ها' : 'Clear All'}</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Cards Count Header */}
-              <div className="flex items-center justify-between px-1 text-xs text-slate-400">
-                <span>
-                  {isFa
-                    ? `نمایش ${filteredManagerCards.length} کارت از مجموع ${cards.length} کارت لایتنر`
-                    : `Showing ${filteredManagerCards.length} of ${cards.length} Leitner flashcards`}
-                </span>
-                {filteredManagerCards.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (filteredManagerCards.length > 0) {
-                        setStudyScopeName(
-                          isFa
-                            ? `مرور سفارشی (${filteredManagerCards.length} کارت فیلتر شده)`
-                            : `Filtered Study (${filteredManagerCards.length} Cards)`
-                        );
-                        setStudyFilterDomain(managerFilterDomain);
-                        setStudyFilterSystem('ALL');
-                        setStudyFilterSubsystem('ALL');
-                        setStudyFilterBox(managerFilterBox);
-                        setIsCramMode(true);
-                        setStudyQueueIndex(0);
-                        setIsAnswerRevealed(false);
-                        setSelectedMcqOption(null);
-                        setSessionCompleted(false);
-                        setSessionStats({ again: 0, hard: 0, good: 0, easy: 0 });
-                        setCurrentView('anki_study');
-                      }
-                    }}
-                    className="text-purple-300 hover:text-purple-200 font-bold flex items-center gap-1 cursor-pointer"
-                  >
-                    <Play className="w-3.5 h-3.5 text-amber-300" />
-                    <span>{isFa ? 'مرور فشرده این موارد فیلتر شده' : 'Study Filtered Cards'}</span>
-                  </button>
-                )}
-              </div>
-
-              {/* Cards List */}
-              {filteredManagerCards.length === 0 ? (
-                <div className="p-8 rounded-2xl bg-slate-900/60 border border-slate-800 text-center space-y-3">
-                  <div className="w-12 h-12 rounded-full bg-slate-800 text-slate-500 mx-auto flex items-center justify-center">
-                    <FileText className="w-6 h-6" />
-                  </div>
-                  <p className="text-sm text-slate-400">
-                    {isFa ? 'هیچ کارتی با این مشخصات یافت نشد.' : 'No flashcards matched your filters.'}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchQuery('');
-                      setManagerFilterDomain('ALL');
-                      setManagerFilterBox('ALL');
-                    }}
-                    className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold cursor-pointer"
-                  >
-                    {isFa ? 'نمایش همه کارت‌ها' : 'Show All Cards'}
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-2.5">
-                  {filteredManagerCards.map((card, idx) => {
-                    const qText = getQuestionText(card);
-                    const aText = getAnswerText(card);
-                    const pText = getPearlText(card);
-                    const domainLabel = typeof card.knowledgeTree?.domain === 'object'
-                      ? isFa ? card.knowledgeTree.domain.fa || card.knowledgeTree.domain.en : card.knowledgeTree.domain.en || card.knowledgeTree.domain.fa
-                      : card.knowledgeTree?.domain || card.category || (isFa ? 'دانش بالینی OPRA' : 'Clinical Knowledge');
-                    const systemLabel = typeof card.knowledgeTree?.system === 'object'
-                      ? isFa ? card.knowledgeTree.system.fa || card.knowledgeTree.system.en : card.knowledgeTree.system.en || card.knowledgeTree.system.fa
-                      : card.knowledgeTree?.system || card.topic || (isFa ? 'مورد بالینی' : 'Clinical Case');
-                    const subsystemLabel = typeof card.knowledgeTree?.subsystem === 'object'
-                      ? isFa ? card.knowledgeTree.subsystem.fa || card.knowledgeTree.subsystem.en : card.knowledgeTree.subsystem.en || card.knowledgeTree.subsystem.fa
-                      : card.knowledgeTree?.subsystem || '';
-
-                    return (
-                      <div
-                        key={card.id}
-                        className="p-3.5 rounded-2xl bg-slate-900/90 hover:bg-slate-900 border border-slate-800 hover:border-slate-700/80 transition shadow-sm space-y-2.5"
-                      >
-                        {/* Header: Badges & Actions */}
-                        <div className="flex items-center justify-between gap-2 flex-wrap border-b border-slate-800/80 pb-2">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-[11px] font-mono font-bold text-slate-500">#{idx + 1}</span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border bg-purple-500/10 text-purple-300 border-purple-500/30">
-                              {domainLabel}
-                            </span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border bg-indigo-500/10 text-indigo-300 border-indigo-500/30">
-                              {systemLabel}
-                            </span>
-                            {getTypeBadge(card.type)}
-                            <span
-                              className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
-                                LEITNER_BOX_NAMES[card.box].color
-                              }`}
-                            >
-                              {LEITNER_BOX_NAMES[card.box][isFa ? 'fa' : 'en']}
-                            </span>
-                            {subsystemLabel && (
-                              <span className="text-[11px] text-slate-400 font-medium hidden sm:inline">
-                                › {subsystemLabel}
+                  {/* Level 2: Systems inside Domain */}
+                  {isExpanded && (
+                    <div className="p-2.5 bg-slate-900/90 border-t border-slate-800/80 space-y-2">
+                      {Object.entries(domainData.systems).map(([systemName, systemData]) => (
+                        <div
+                          key={systemName}
+                          className="p-2 rounded-xl bg-slate-950/80 border border-slate-800/70 flex flex-col gap-1.5"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5 text-slate-200 flex-1 min-w-0">
+                              <span className="text-xs font-bold text-slate-100 truncate">{systemName}</span>
+                              <span className="text-[9.5px] px-1 py-0.2 rounded bg-slate-800 text-slate-400 font-mono shrink-0">
+                                {systemData.count}
+                                {systemData.dueCount > 0 && (
+                                  <span className="text-amber-400 ms-0.5">({systemData.dueCount})</span>
+                                )}
                               </span>
-                            )}
-                          </div>
+                            </div>
 
-                          {/* Fast Action Buttons */}
-                          <div className="flex items-center gap-1.5 ms-auto">
-                            {/* Study this card */}
                             <button
                               type="button"
                               onClick={() =>
                                 startStudyForScope({
-                                  title: qText,
-                                  singleCardId: card.id,
-                                  cram: true,
+                                  title: `${domainName} / ${systemName}`,
+                                  domain: domainName,
+                                  system: systemName,
+                                  cram: systemData.dueCount === 0,
                                 })
                               }
-                              className="px-2.5 py-1 rounded-lg bg-purple-600/90 hover:bg-purple-600 text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
-                              title={isFa ? 'مرور اختصاصی این کارت' : 'Study this card'}
+                              className="px-2 py-0.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-[10.5px] font-bold transition flex items-center gap-1 cursor-pointer shrink-0"
                             >
-                              <Play className="w-3 h-3 text-amber-300" />
-                              <span>{isFa ? 'مرور کارت' : 'Study'}</span>
-                            </button>
-
-                            {/* Delete this card */}
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteCard(card.id)}
-                              className="px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/25 text-rose-300 hover:text-rose-200 border border-rose-500/30 text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
-                              title={isFa ? 'حذف این کارت از لایتنر' : 'Delete this flashcard'}
-                            >
-                              <Trash2 className="w-3 h-3 text-rose-400" />
-                              <span>{isFa ? 'حذف' : 'Delete'}</span>
+                              <Play className="w-2 h-2 text-amber-300" />
+                              <span>{systemData.dueCount > 0 ? (isFa ? 'مرور' : 'Study') : (isFa ? 'فشرده' : 'Cram')}</span>
                             </button>
                           </div>
-                        </div>
 
-                        {/* Question Text */}
-                        <div>
-                          <div className="text-[11px] font-bold text-amber-400/90 flex items-center gap-1 mb-0.5">
-                            <HelpCircle className="w-3 h-3 text-amber-400" />
-                            <span>{isFa ? 'صورت سوال (Question):' : 'Question:'}</span>
+                          {/* Level 3: Subsystems / Topics Chips (Full width & readable) */}
+                          <div className="flex items-center gap-1 flex-wrap pt-0.5">
+                            {Object.entries(systemData.subsystems).map(([subName, subData]) => (
+                              <button
+                                key={subName}
+                                type="button"
+                                onClick={() =>
+                                  startStudyForScope({
+                                    title: `${domainName} > ${systemName} > ${subName}`,
+                                    domain: domainName,
+                                    system: systemName,
+                                    subsystem: subName,
+                                    cram: subData.dueCount === 0,
+                                  })
+                                }
+                                className="px-2 py-0.5 rounded-md bg-slate-900 hover:bg-slate-850 border border-slate-800/80 text-[10px] text-slate-300 hover:text-white transition flex items-center gap-1 cursor-pointer"
+                              >
+                                <span>{subName}</span>
+                                <span className="text-[9px] px-1 rounded bg-slate-800 text-slate-400 font-mono">
+                                  {subData.count}
+                                </span>
+                              </button>
+                            ))}
                           </div>
-                          <p className="text-xs sm:text-sm font-semibold text-slate-100 leading-relaxed">
-                            {qText}
-                          </p>
                         </div>
-
-                        {/* Answer Text */}
-                        <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1 text-xs">
-                          <div className="text-[11px] font-bold text-purple-300 flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                            <span>{isFa ? 'پاسخ و تحلیل بالینی (Answer):' : 'Target Answer:'}</span>
-                          </div>
-                          <p className="text-slate-300 leading-relaxed font-medium">
-                            {aText}
-                          </p>
-                        </div>
-
-                        {/* Pearl or Source (if present) */}
-                        {pText && (
-                          <div className="p-2 rounded-lg bg-amber-950/20 border border-amber-500/20 text-[11.5px] text-amber-200/90 flex items-start gap-1.5">
-                            <Flame className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
-                            <div>
-                              <span className="font-bold text-amber-400">{isFa ? 'نکته طلایی: ' : 'Clinical Pearl: '}</span>
-                              <span>{pText}</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* TAB 3: LEITNER 5 BOXES DISTRIBUTION */}
-          {managerActiveTab === 'boxes' && (
-            <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
-              {([1, 2, 3, 4, 5] as const).map((boxNum) => {
-                const count = boxCounts[boxNum];
-                const boxInfo = LEITNER_BOX_NAMES[boxNum];
-                const interval = LEITNER_INTERVALS[boxNum];
-
-                return (
-                  <div
-                    key={boxNum}
-                    className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between gap-3 shadow-md"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-400">
-                          {isFa ? `جعبه ${boxNum}` : `Box ${boxNum}`}
-                        </span>
-                        <span className={`text-[10.5px] font-bold px-2 py-0.5 rounded border ${boxInfo.color}`}>
-                          {boxInfo[isFa ? 'fa' : 'en']}
-                        </span>
-                      </div>
-                      <div className="text-2xl font-mono font-black text-white pt-1">{count}</div>
-                      <div className="text-[11px] text-slate-500">
-                        {isFa ? `فاصله مرور: هر ${interval} روز` : `Interval: every ${interval} days`}
-                      </div>
+                      ))}
                     </div>
-
-                    <button
-                      type="button"
-                      disabled={count === 0}
-                      onClick={() =>
-                        startStudyForScope({
-                          title: isFa ? `مرور جعبه ${boxNum} (${boxInfo.fa})` : `Box ${boxNum} Review`,
-                          box: boxNum,
-                          cram: true,
-                        })
-                      }
-                      className="w-full py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-30 text-white text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer disabled:cursor-not-allowed"
-                    >
-                      <Play className="w-3 h-3 text-amber-300" />
-                      <span>{isFa ? 'مرور این جعبه' : 'Study Box'}</span>
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* TAB 3: ADD MANUAL CARD FORM */}
-          {managerActiveTab === 'add_card' && (
-            <div className="app-card border border-slate-800 rounded-2xl p-4 sm:p-5 bg-slate-900/90 shadow-md max-w-2xl mx-auto space-y-4">
-              <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-                <Plus className="w-4 h-4 text-emerald-400" />
-                <span>{isFa ? 'افزودن دستی فلش‌کارت جدید به جعبه ۱:' : 'Create Custom Flashcard in Box 1:'}</span>
-              </h3>
-
-              <form onSubmit={handleAddManualCard} className="space-y-3 text-xs">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  <div>
-                    <label className="text-slate-400 block mb-1">{isFa ? 'حوزه درخت دانش (Domain):' : 'Knowledge Domain:'}</label>
-                    <input
-                      type="text"
-                      value={newCardForm.domain}
-                      onChange={(e) => setNewCardForm({ ...newCardForm, domain: e.target.value })}
-                      className="w-full p-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200"
-                      placeholder="e.g. Clinical Pharmacotherapy"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-slate-400 block mb-1">{isFa ? 'سیستم / دستگاه (System):' : 'System:'}</label>
-                    <input
-                      type="text"
-                      value={newCardForm.system}
-                      onChange={(e) => setNewCardForm({ ...newCardForm, system: e.target.value })}
-                      className="w-full p-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200"
-                      placeholder="e.g. Respiratory & Asthma"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-slate-400 block mb-1">{isFa ? 'زیرشاخه (Subsystem):' : 'Subsystem / Topic:'}</label>
-                    <input
-                      type="text"
-                      value={newCardForm.subsystem}
-                      onChange={(e) => setNewCardForm({ ...newCardForm, subsystem: e.target.value })}
-                      placeholder="e.g. Inhaler Technique"
-                      className="w-full p-2 rounded-lg bg-slate-950 border border-slate-700 text-slate-200"
-                    />
-                  </div>
+                  )}
                 </div>
-
-                <div>
-                  <label className="text-slate-400 block mb-1">{isFa ? 'پرسش کارت (روی کارت):' : 'Question (Front):'}</label>
-                  <textarea
-                    rows={3}
-                    value={newCardForm.question}
-                    onChange={(e) => setNewCardForm({ ...newCardForm, question: e.target.value })}
-                    className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200"
-                    placeholder={isFa ? 'پرسش سناریو یا مفهوم بالینی...' : 'Enter question or scenario...'}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="text-slate-400 block mb-1">{isFa ? 'پاسخ صحیح (پشت کارت):' : 'Answer (Back):'}</label>
-                  <textarea
-                    rows={3}
-                    value={newCardForm.answer}
-                    onChange={(e) => setNewCardForm({ ...newCardForm, answer: e.target.value })}
-                    className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200"
-                    placeholder={isFa ? 'پاسخ و تحلیل بالینی کامل...' : 'Enter detailed answer...'}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="text-slate-400 block mb-1">{isFa ? 'نکته کلیدی بالینی (اختیاری):' : 'Key Clinical Point (Optional):'}</label>
-                  <input
-                    type="text"
-                    value={newCardForm.pearl}
-                    onChange={(e) => setNewCardForm({ ...newCardForm, pearl: e.target.value })}
-                    className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-700 text-slate-200"
-                    placeholder={isFa ? 'نکته کلیدی و تمایز بالینی...' : 'Key clinical point or pearl...'}
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>{isFa ? 'ذخیره و افزودن به جعبه ۱' : 'Save Flashcard'}</span>
-                </button>
-              </form>
-            </div>
-          )}
+              );
+            })}
+          </div>
         </div>
       )}
 
