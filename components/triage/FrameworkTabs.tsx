@@ -161,26 +161,57 @@ export const FrameworkTabs: React.FC<FrameworkTabsProps> = ({
           </div>
         )}
 
-        {/* Tab 2: Red Flags Screen (Opens Modal with Red Flags & Star) */}
+        {/* Tab 2: Red Flags Screen & Explicit List */}
         {activeFrameworkTab === 'redflags' && (
-          <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-500/40 space-y-2">
-            <p className="text-xs text-rose-200 font-medium">
-              {isFa
-                ? 'اجرای غربالگری ایمنی و ارزیابی پرچم‌های قرمز (Red Flags) در پنجره پاپ‌آپ:'
-                : 'Perform clinical safety screening & review Red Flags checklist in popup modal:'}
-            </p>
-            <button
-              type="button"
-              onClick={onCheckRedFlags}
-              className="w-full py-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer bg-rose-600 hover:bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-600/30"
-            >
-              <ShieldAlert className="w-4 h-4" />
-              <span>
-                {askedRedFlagChecks['rf-check']
-                  ? (isFa ? 'مشاهده مجدد پاپ‌آپ پرچم‌های قرمز 🚩' : 'Re-open Red Flags Popup 🚩')
-                  : (isFa ? 'باز کردن پاپ‌آپ غربالگری پرچم‌های قرمز' : 'Open Red Flags Screening Popup')}
-              </span>
-            </button>
+          <div className="space-y-3">
+            <div className="p-3.5 rounded-2xl bg-rose-950/30 border border-rose-500/40 space-y-3">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-rose-300 font-bold flex items-center gap-1.5">
+                  <ShieldAlert className="w-4 h-4 text-rose-400" />
+                  <span>{isFa ? 'علائم هشدار بالینی و پرچم‌های قرمز (Red Flags) این سناریو:' : 'Clinical Red Flags for this Scenario:'}</span>
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-300 font-bold">
+                  {scenario.redFlags.length} {isFa ? 'پرچم قرمز' : 'Flags'}
+                </span>
+              </div>
+
+              {/* Explicit Red Flags List */}
+              <div className="space-y-2">
+                {scenario.redFlags.map((rf, idx) => (
+                  <div
+                    key={idx}
+                    className="p-2.5 rounded-xl bg-black/40 border border-rose-500/30 text-xs text-rose-100 flex items-start gap-2"
+                  >
+                    <span className="text-rose-400 font-bold shrink-0 mt-0.5">🚩</span>
+                    <div className="flex-1 space-y-0.5">
+                      <p className="font-bold text-rose-200">
+                        {isFa ? rf.fa : rf.en}
+                      </p>
+                      {isFa && rf.en && (
+                        <p className="text-[11px] text-slate-400 font-mono" dir="ltr">
+                          {rf.en}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-2 border-t border-rose-500/20 flex flex-col sm:flex-row gap-2">
+                <button
+                  type="button"
+                  onClick={onCheckRedFlags}
+                  className="flex-1 py-2.5 px-3 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer bg-rose-600 hover:bg-rose-500 text-white border-rose-400 shadow-md shadow-rose-600/30"
+                >
+                  <ShieldAlert className="w-4 h-4" />
+                  <span>
+                    {askedRedFlagChecks['rf-check']
+                      ? (isFa ? 'مشاهده پاپ‌آپ پرچم‌های قرمز 🚩' : 'Re-open Red Flags Modal 🚩')
+                      : (isFa ? 'اجرای غربالگری پرچم‌های قرمز' : 'Open Red Flags Modal')}
+                  </span>
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

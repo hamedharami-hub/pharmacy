@@ -147,33 +147,37 @@ export const ModeSelectorBar: React.FC<ModeSelectorBarProps> = ({
           </button>
         </div>
       ) : (
-        <div className="app-card border app-border rounded-2xl p-3.5 flex items-center justify-between gap-4 shadow-sm bg-linear-to-r from-slate-900/60 to-transparent">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="p-2.5 rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30 shrink-0">
-              <Layers className="w-5 h-5" />
+        <div className="app-card border border-teal-500/30 rounded-2xl p-3.5 sm:p-4 shadow-sm bg-gradient-to-b from-slate-900/90 to-slate-950/80 space-y-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-slate-800/80">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-md bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                {getCleanCategory(scenario)}
+              </span>
+              <span className="text-xs font-mono font-bold text-slate-400">
+                ID: {scenario.id}
+              </span>
             </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <h2 className="text-base font-black app-text truncate">
-                  {getCleanTitle(scenario)}
-                </h2>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-teal-500/15 text-teal-300 font-mono font-bold">
-                  {getCleanCategory(scenario)}
-                </span>
-              </div>
-              <p className="text-xs app-muted mt-0.5" dir="ltr">
+
+            <button
+              type="button"
+              onClick={() => setIsBrowseOpen(false)}
+              className="self-start sm:self-auto px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shrink-0"
+            >
+              <Search className="w-3.5 h-3.5 text-teal-400" />
+              <span>{isFa ? 'تغییر سناریو و فهرست' : 'Change Scenario'}</span>
+            </button>
+          </div>
+
+          <div className="w-full space-y-1">
+            <h2 className="text-sm sm:text-base font-black text-white leading-relaxed">
+              {getCleanTitle(scenario)}
+            </h2>
+            {isFa && scenario.title.en && (
+              <p className="text-xs text-teal-400/90 font-mono leading-relaxed" dir="ltr">
                 {scenario.title.en}
               </p>
-            </div>
+            )}
           </div>
-          <button
-            type="button"
-            onClick={() => setIsBrowseOpen(false)}
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
-          >
-            <Search className="w-4 h-4" />
-            <span>{isFa ? 'تغییر سناریو و جستجو' : 'Change Scenario'}</span>
-          </button>
         </div>
       )}
     </div>
