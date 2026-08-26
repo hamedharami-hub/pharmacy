@@ -20,6 +20,11 @@ export interface EnrichedDrugMonograph {
     fa: string;
     en: string;
   };
+  tierLabel: {
+    fa: string;
+    en: string;
+  };
+  tierType: 'first-line' | 'second-line' | 'adjunctive';
 }
 
 // Comprehensive registry of quick concise mechanisms for all Australian OTC & Guideline Pharmacotherapies
@@ -126,7 +131,8 @@ export function resolveDrugMonographDetails(
   rawName: string,
   rawBrands: string,
   rawDosing?: string,
-  rawExtra?: string
+  rawExtra?: string,
+  tier: 'first-line' | 'second-line' | 'adjunctive' = 'adjunctive'
 ): EnrichedDrugMonograph {
   const norm = (rawName || '').toLowerCase().trim();
   const brandsNorm = (rawBrands || '').toLowerCase().trim();
@@ -160,7 +166,7 @@ export function resolveDrugMonographDetails(
   // Resolve Mechanism
   const mechanismFa = customMech?.fa || conciseInfo?.mechanismFa || (
     matchingShelfProd
-      ? `داروی اختصاصی با اثر هدفمند بر گیرنده‌ها و واسطه‌های بیولوژیک مرتبط در شاخه درمانی استرالیا.`
+      ? `داروی اختصاصی شاخه درمانی استرالیا با اثر تنظیمی بر گیرنده‌ها و واسطه‌های بیولوژیک مرتبط.`
       : 'مهار یا تعدیل فرآیندهای پاتوفیزیولوژیک بیماری مطابق با فارماکوپه داروسازی استرالیا (APF).'
   );
 
@@ -197,6 +203,18 @@ export function resolveDrugMonographDetails(
     });
   }
 
+  // Resolve Tier Labels
+  let tierLabelFa = '💊 داروی کمکی / OTC مجاز';
+  let tierLabelEn = '💊 Adjunctive / Approved OTC';
+
+  if (tier === 'first-line') {
+    tierLabelFa = '🥇 خط اول درمان استاندارد (First-Line Standard)';
+    tierLabelEn = '🥇 First-Line Standard Pharmacotherapy';
+  } else if (tier === 'second-line') {
+    tierLabelFa = '🥈 خط دوم / درمان جایگزین (Second-Line / Alternative)';
+    tierLabelEn = '🥈 Second-Line / Alternative Therapy';
+  }
+
   // Resolve Full Clean Names
   const fullEn = matchingShelfProd?.brandName 
     ? `${rawName} (${matchingShelfProd.brandName})` 
@@ -227,5 +245,77 @@ export function resolveDrugMonographDetails(
       fa: rawDosing || matchingShelfProd?.counselingPoints?.[0]?.fa || conciseInfo?.doseFa || 'دوزبندی استاندارد بالینی',
       en: rawDosing || matchingShelfProd?.counselingPoints?.[0]?.en || conciseInfo?.doseEn || 'Standard clinical dosing',
     },
+    tierLabel: {
+      fa: tierLabelFa,
+      en: tierLabelEn,
+    },
+    tierType: tier,
+  };
+}
+
+/**
+ * Intelligent parser for Second-Line / Alternative Therapies
+ */
+export function extractSpecificAlternativeDrug(
+  altFa?: string,
+  altEn?: string,
+  australianBrands?: { brand: string; generic: string; form?: string }[]
+): {
+  nameFa: string;
+  nameEn: string;
+  brandExamples: string;
+  dosingFa: string;
+  dosingEn: string;
+  reasonFa: string;
+  reasonEn: string;
+} | null {
+  if (!altFa && !altEn) return null;
+
+  const rawFa = (altFa || '').trim();
+  const rawEn = (altEn || '').trim();
+
+  // Look for specific drug matches in australianBrands list
+  const matchedBrand = australianBrands?.find(b =>
+    (b.generic && rawFa.toLowerCase().includes(b.generic.toLowerCase())) ||
+    (b.brand && rawFa.toLowerCase().includes(b.brand.toLowerCase())) ||
+    (b.generic && rawEn.toLowerCase().includes(b.generic.toLowerCase())) ||
+    (b.brand && rawEn.toLowerCase().includes(b.brand.toLowerCase()))
+  );
+
+  let cleanNameFa = '';
+  let cleanNameEn = '';
+  let brandName = matchedBrand?.brand || '';
+
+  if (matchedBrand) {
+    cleanNameFa = `${matchedBrand.generic} (${matchedBrand.brand})`;
+    cleanNameEn = `${matchedBrand.generic} (${matchedBrand.brand})`;
+  } else {
+    const parenMatchFa = rawFa.match(/^([^(]+)\s*\(([^)]+)\)/);
+    if (parenMatchFa) {
+      cleanNameFa = `${parenMatchFa[1].trim()} (${parenMatchFa[2].trim()})`;
+      brandName = parenMatchFa[2].trim();
+    } else {
+      const parts = rawFa.split(/برای|جهت|در صورت|یا/);
+      cleanNameFa = parts[0]?.trim() || rawFa;
+    }
+
+    const parenMatchEn = rawEn.match(/^([^(]+)\s*\(([^)]+)\)/);
+    if (parenMatchEn) {
+      cleanNameEn = `${parenMatchEn[1].trim()} (${parenMatchEn[2].trim()})`;
+      if (!brandName) brandName = parenMatchEn[2].trim();
+    } else {
+      const parts = rawEn.split(/for|in case of|or/i);
+      cleanNameEn = parts[0]?.trim() || rawEn;
+    }
+  }
+
+  return {
+    nameFa: cleanNameFa || 'داروی خط دوم و جایگزین بالینی',
+    nameEn: cleanNameEn || 'Second-Line Alternative Pharmacotherapy',
+    brandExamples: brandName || 'Australian Equivalent Brands',
+    dosingFa: matchedBrand?.form ? `فرم دارویی: ${matchedBrand.form}` : 'طبق پروتکل دوزینگ و برچسب بسته‌بندی استرالیا.',
+    dosingEn: matchedBrand?.form ? `Formulation: ${matchedBrand.form}` : 'As per Australian dosage protocol.',
+    reasonFa: rawFa,
+    reasonEn: rawEn,
   };
 }

@@ -6,7 +6,7 @@ import { DiseaseInfo, DISEASE_CATEGORIES } from '@/data/diseasesRegistry';
 import { Language } from '@/types/pharmacy';
 import { findHandbookGuide, OTCDrugInfo } from '@/src/data/otcHandbookData';
 import { getOtcClinicalTranslation, translateMedicineAttribute, translateClinicalText } from '@/data/otcClinicalTranslations';
-import { resolveDrugMonographDetails } from '@/lib/clinicalDrugEnricher';
+import { resolveDrugMonographDetails, extractSpecificAlternativeDrug } from '@/lib/clinicalDrugEnricher';
 import { useStudyTrackerContext } from './study/StudyTrackerContext';
 import { StudyStatusBadge } from './study/StudyStatusBadge';
 import {
@@ -17,6 +17,7 @@ import {
   ShieldAlert,
   Sparkles,
   Dna,
+  Award,
   Info,
   Baby,
   HeartPulse,
@@ -285,11 +286,15 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
     ? (firstLineData?.drugClassFa || 'داروی استاندارد خط اول (First-Line Pharmacotherapy)')
     : (firstLineData?.drugClassEn || 'Standard First-Line Pharmacotherapy');
 
-  // Build Comprehensive Medicines Deck (First-Line + Handbook OTCs + Australian Brands + Alternatives)
-  const medicines: (OTCDrugInfo & { isFirstLine?: boolean; isAlternative?: boolean; drugClass?: string })[] = [];
+  // Build Comprehensive Medicines Deck (First-Line + Second-Line Alternatives + Approved OTCs)
+  const medicines: (OTCDrugInfo & {
+    tier: 'first-line' | 'second-line' | 'adjunctive';
+    roleExplanation?: { fa: string; en: string };
+    drugClass?: string;
+  })[] = [];
   const addedNames = new Set<string>();
 
-  // 1. Add First-Line Pharmacotherapy as primary card
+  // 1. Add First-Line Standard Pharmacotherapy as primary card
   if (firstLineDrug) {
     medicines.push({
       name: firstLineDrug,
@@ -299,38 +304,63 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
       pregnancySafety: baseMedicines[0]?.pregnancySafety || 'Check Category',
       breastfeedingSafety: baseMedicines[0]?.breastfeedingSafety || 'Compatible',
       extraInfo: firstLineData?.keyWarningsFa || firstLineData?.keyWarningsEn || '',
-      isFirstLine: true,
+      tier: 'first-line',
       drugClass: firstLineClass,
+      roleExplanation: {
+        fa: '🥇 خط اول درمان استاندارد طلایی (Gold Standard) بر اساس فارماکوپه داروسازی استرالیا (APF) و انجمن داروسازان (PSA).',
+        en: '🥇 First-Line Gold Standard Pharmacotherapy according to Australian Pharmacy Formulary (APF) & PSA guidelines.',
+      },
     });
     addedNames.add(firstLineDrug.toLowerCase());
   }
 
-  // 2. Add Existing Base Medicines (from Handbook / Registry)
+  // 2. Add Second-Line / Clinical Alternative Therapy with precise parsed drug name
+  const altDrugParsed = extractSpecificAlternativeDrug(
+    firstLineData?.alternativesFa,
+    firstLineData?.alternativesEn,
+    australianBrands
+  );
+
+  if (altDrugParsed) {
+    const altDrugName = isFa ? altDrugParsed.nameFa : altDrugParsed.nameEn;
+    const normAltName = altDrugName.toLowerCase();
+    
+    // Check if not already added
+    const isDup = Array.from(addedNames).some(name => normAltName.includes(name) || name.includes(normAltName));
+    if (!isDup) {
+      medicines.push({
+        name: altDrugName,
+        brandExamples: altDrugParsed.brandExamples,
+        dosing: isFa ? altDrugParsed.dosingFa : altDrugParsed.dosingEn,
+        minAge: baseMedicines[1]?.minAge || baseMedicines[0]?.minAge || 'Standard age range',
+        pregnancySafety: baseMedicines[1]?.pregnancySafety || 'Consult Pharmacist',
+        breastfeedingSafety: baseMedicines[1]?.breastfeedingSafety || 'Compatible with monitoring',
+        extraInfo: isFa ? altDrugParsed.reasonFa : altDrugParsed.reasonEn,
+        tier: 'second-line',
+        roleExplanation: {
+          fa: `🥈 خط دوم / درمان جایگزین بالینی: ${altDrugParsed.reasonFa}`,
+          en: `🥈 Second-Line / Clinical Alternative: ${altDrugParsed.reasonEn}`,
+        },
+      });
+      addedNames.add(normAltName);
+    }
+  }
+
+  // 3. Add Existing Base Medicines (from Handbook / Registry)
   for (const m of baseMedicines) {
     const normName = m.name.toLowerCase();
     const isDup = Array.from(addedNames).some(name => normName.includes(name) || name.includes(normName));
     if (!isDup) {
       medicines.push({
         ...m,
-        isFirstLine: false,
+        tier: 'adjunctive',
+        roleExplanation: {
+          fa: '💊 داروی کمکی / گزینه درمانی بدون نسخه (OTC) مجاز.',
+          en: '💊 Adjunctive therapy / Approved OTC option.',
+        },
       });
       addedNames.add(normName);
     }
-  }
-
-  // 3. Add Clinical Alternatives if present
-  const altText = isFa ? firstLineData?.alternativesFa : firstLineData?.alternativesEn;
-  if (altText && altText.length > 5) {
-    medicines.push({
-      name: isFa ? 'درمان جایگزین / خط دوم (Alternative)' : 'Second-Line / Alternative Therapy',
-      brandExamples: isFa ? 'برندهای تجاری معادل در داروخانه استرالیا' : 'Australian Equivalent Pharmacy Brands',
-      dosing: altText,
-      minAge: 'Check individual product',
-      pregnancySafety: 'Consult Pharmacist',
-      breastfeedingSafety: 'Consult Pharmacist',
-      extraInfo: isFa ? 'در صورت عدم پاسخ به خط اول یا منع مصرف به کار می‌رود.' : 'Used if first-line therapy is contraindicated or ineffective.',
-      isAlternative: true,
-    });
   }
 
   // 4. Add additional unique Australian commercial brands
@@ -345,7 +375,11 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
         pregnancySafety: 'Refer to product monograph',
         breastfeedingSafety: 'Compatible with monitoring',
         extraInfo: isFa ? `فرم دارویی رایج در استرالیا: ${b.form || 'استاندارد'}` : `Australian formulation: ${b.form || 'Standard'}`,
-        isFirstLine: false,
+        tier: 'adjunctive',
+        roleExplanation: {
+          fa: `📦 فرمولاسیون تجاری مجاز در داروخانه‌های استرالیا (${b.brand}).`,
+          en: `📦 TGA approved commercial formulation in Australian pharmacies (${b.brand}).`,
+        },
       });
       addedNames.add(normGeneric);
     }
@@ -826,7 +860,7 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                   <div className="grid grid-cols-1 gap-2.5 sm:gap-3">
                     {medicines.map((med: any, idx: number) => {
                       const isExpanded = !!expandedMedIds[idx];
-                      const enriched = resolveDrugMonographDetails(med.name, med.brandExamples, med.dosing, med.extraInfo);
+                      const enriched = resolveDrugMonographDetails(med.name, med.brandExamples, med.dosing, med.extraInfo, med.tier);
                       const medDosingSegments = parseDosingToSegments(med.dosing, isFa);
                       const medNotes = parseExtraInfoToNotes(med.extraInfo);
 
@@ -842,13 +876,19 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                       ])).filter(Boolean);
 
                       const displayPearls = isFa ? combinedPearlsFa : combinedPearlsEn;
+                      const isFirstLine = med.tier === 'first-line';
+                      const isSecondLine = med.tier === 'second-line';
 
                       return (
                         <div
                           key={idx}
                           className={`rounded-2xl border transition-all duration-200 shadow-xs overflow-hidden ${
                             isExpanded
-                              ? 'app-card border-indigo-500/60 ring-2 ring-indigo-500/20'
+                              ? isFirstLine
+                                ? 'app-card border-emerald-500/60 ring-2 ring-emerald-500/20'
+                                : isSecondLine
+                                ? 'app-card border-purple-500/60 ring-2 ring-purple-500/20'
+                                : 'app-card border-indigo-500/60 ring-2 ring-indigo-500/20'
                               : 'app-card border-slate-300 dark:border-slate-800 hover:border-indigo-400/50'
                           }`}
                         >
@@ -859,9 +899,9 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                           >
                             <div className="flex items-center gap-2.5 min-w-0 flex-1">
                               <span className={`w-6 h-6 rounded-lg font-bold text-xs border flex items-center justify-center font-mono shrink-0 ${
-                                med.isFirstLine
+                                isFirstLine
                                   ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                                  : med.isAlternative
+                                  : isSecondLine
                                   ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
                                   : 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30'
                               }`}>
@@ -872,17 +912,25 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                                   <div className="font-black text-xs sm:text-sm text-sky-700 dark:text-sky-400 truncate">
                                     {isFa ? enriched.fullName.fa : enriched.fullName.en}
                                   </div>
-                                  {med.isFirstLine && (
-                                    <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
-                                      {isFa ? '✨ داروی خط اول' : '✨ First-Line'}
+                                  
+                                  {/* Clear Treatment Tier Badge */}
+                                  {isFirstLine ? (
+                                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 text-[10px] sm:text-[11px] font-black flex items-center gap-1 shadow-xs">
+                                      <Award className="w-3 h-3 text-emerald-500 shrink-0" />
+                                      <span>{isFa ? '🥇 خط اول درمان استاندارد' : '🥇 First-Line Standard'}</span>
                                     </span>
-                                  )}
-                                  {med.isAlternative && (
-                                    <span className="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-bold">
-                                      {isFa ? '🔄 خط دوم / جایگزین' : '🔄 Alternative'}
+                                  ) : isSecondLine ? (
+                                    <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/40 text-[10px] sm:text-[11px] font-black flex items-center gap-1 shadow-xs">
+                                      <Sparkles className="w-3 h-3 text-purple-500 shrink-0" />
+                                      <span>{isFa ? '🥈 خط دوم / جایگزین بالینی' : '🥈 Second-Line / Alternative'}</span>
+                                    </span>
+                                  ) : (
+                                    <span className="px-2 py-0.5 rounded-full bg-slate-500/15 text-slate-700 dark:text-slate-300 border border-slate-500/30 text-[10px] font-bold">
+                                      {isFa ? '💊 داروی کمکی / OTC' : '💊 Adjunctive / OTC'}
                                     </span>
                                   )}
                                 </div>
+
                                 {!isExpanded && (
                                   <div className="text-[10px] sm:text-[11px] app-muted truncate mt-0.5 flex items-center gap-1.5">
                                     <Tag className="w-3 h-3 text-amber-600 dark:text-amber-400 shrink-0" />
@@ -933,10 +981,29 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                                 </div>
                               </div>
 
-                              {/* 1. MECHANISM OF ACTION SECTION */}
+                              {/* 1. CLINICAL LINE & ROLE BOX */}
+                              {med.roleExplanation && (
+                                <div className={`p-2.5 sm:p-3 rounded-xl border space-y-1 ${
+                                  isFirstLine
+                                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-950 dark:text-emerald-200'
+                                    : isSecondLine
+                                    ? 'bg-purple-500/10 border-purple-500/30 text-purple-950 dark:text-purple-200'
+                                    : 'bg-slate-500/10 border-slate-500/30 app-text'
+                                }`}>
+                                  <div className="flex items-center gap-1.5 text-xs font-bold">
+                                    <Award className={`w-3.5 h-3.5 shrink-0 ${isFirstLine ? 'text-emerald-500' : isSecondLine ? 'text-purple-500' : 'text-slate-400'}`} />
+                                    <span>{isFa ? 'جایگاه در الگوریتم درمان (Treatment Line & Role):' : 'Clinical Treatment Line & Role:'}</span>
+                                  </div>
+                                  <p className="text-xs sm:text-sm leading-relaxed font-semibold">
+                                    {isFa ? med.roleExplanation.fa : med.roleExplanation.en}
+                                  </p>
+                                </div>
+                              )}
+
+                              {/* 2. MECHANISM OF ACTION SECTION */}
                               <div className="p-2.5 sm:p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/30 space-y-1">
-                                <div className="flex items-center gap-1.5 text-indigo-400 text-xs font-bold">
-                                  <Dna className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                                <div className="flex items-center gap-1.5 text-indigo-700 dark:text-indigo-400 text-xs font-bold">
+                                  <Dna className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
                                   <span>{isFa ? 'مکانیسم اثر دارو (Mechanism of Action):' : 'Mechanism of Action:'}</span>
                                 </div>
                                 <p className="text-xs sm:text-sm text-indigo-950 dark:text-indigo-200 leading-relaxed font-medium">
@@ -944,7 +1011,7 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                                 </p>
                               </div>
 
-                              {/* 2. DOSING BREAKDOWN SECTION */}
+                              {/* 3. DOSING BREAKDOWN SECTION */}
                               <div className="p-2.5 sm:p-3 rounded-xl app-card border app-border space-y-2">
                                 <div className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 text-xs sm:text-sm font-bold">
                                   <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -971,7 +1038,7 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                                 </div>
                               </div>
 
-                              {/* 3. CLINICAL PEARLS & EXTRACTED TEXT NOTES */}
+                              {/* 4. CLINICAL PEARLS & EXTRACTED TEXT NOTES */}
                               {displayPearls.length > 0 && (
                                 <div className="text-xs sm:text-sm text-amber-950 dark:text-amber-200/90 bg-amber-500/10 border border-amber-500/20 p-2.5 sm:p-3 rounded-xl space-y-1.5">
                                   <div className="flex items-center gap-1 text-amber-700 dark:text-amber-400 font-bold text-xs">
