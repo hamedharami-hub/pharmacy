@@ -249,7 +249,7 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
 
   const allSynonyms = isFa
     ? (clinicalTranslation?.commonSynonymsFa || disease.synonyms || [])
-    : (clinicalTranslation?.commonSynonymsEn || disease.synonyms || []);
+    : (clinicalTranslation?.commonSynonymsEn || (disease.synonyms ? disease.synonyms.filter(s => /^[a-zA-Z0-9\s.,!?:;()\-]+$/.test(s.trim())) : []));
 
   const totalExtraBrands = Math.max(0, (australianBrands.length > 1 ? australianBrands.length - 1 : 0) + (allSynonyms.length > 1 ? allSynonyms.length - 1 : 0));
 
@@ -392,78 +392,72 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
     : (firstLineData?.keyWarningsEn || 'Check contraindications, drug interactions, and special patient populations prior to supply.');
   const warningsBullets = parseTextToBulletList(firstLineWarnings);
 
-  // Red Flags
-  const redFlagsList: string[] = isFa
-    ? (clinicalTranslation?.redFlagsFa || disease.redFlags?.fa || fallbackGuide?.referralCriteria || [])
-    : (disease.redFlags?.en || fallbackGuide?.referralCriteria || clinicalTranslation?.redFlagsFa || []);
-
-  // Overview, Symptoms & Diagnostic Notes extraction
-  const rawOverview = disease.overview?.[language] || disease.overview?.en || '';
-  const cleanedOverview = rawOverview
-    .replace(/[\.\s]*علائم تشخیصی کلیدی:.*$/i, '')
-    .replace(/[\.\s]*Key presentations:.*$/i, '')
-    .trim();
-
-  // Symptoms extraction
+  // Symptoms extraction strictly adhering to current language
   let resolvedSymptoms: string[] = [];
-  if (isFa && clinicalTranslation?.symptomsFa && clinicalTranslation.symptomsFa.length > 0) {
-    resolvedSymptoms = clinicalTranslation.symptomsFa;
-  } else if (disease.symptoms && disease.symptoms.length > 0) {
-    resolvedSymptoms = disease.symptoms.flatMap((s) => s.split(/[,،;•]/).map((t) => t.trim()).filter(Boolean));
-  } else if (fallbackGuide?.symptoms && fallbackGuide.symptoms.length > 0) {
-    resolvedSymptoms = fallbackGuide.symptoms.flatMap((s: string) => s.split(/[,،;•]/).map((t: string) => t.trim()).filter(Boolean));
-  } else if (disease.pathophysiology) {
-    const rawPatho = disease.pathophysiology[language] || disease.pathophysiology.en || '';
-    if (rawPatho.includes('علائم بالینی:') || rawPatho.includes('Clinical Symptoms:')) {
-      const match = rawPatho.match(/(?:علائم بالینی:|Clinical Symptoms:)\s*([^.\n]+)/i);
-      if (match && match[1]) {
-        resolvedSymptoms = match[1].split(/[,،;•-]/).map((t) => t.trim()).filter(Boolean);
-      }
+  if (isFa) {
+    if (clinicalTranslation?.symptomsFa && clinicalTranslation.symptomsFa.length > 0) {
+      resolvedSymptoms = clinicalTranslation.symptomsFa;
+    } else if (fallbackGuide?.symptoms && fallbackGuide.symptoms.length > 0) {
+      resolvedSymptoms = fallbackGuide.symptoms.map((s: string) => translateClinicalText(s));
+    } else if (disease.symptoms && disease.symptoms.length > 0) {
+      resolvedSymptoms = disease.symptoms.map(s => translateClinicalText(s));
+    }
+  } else {
+    // Strictly English
+    if (fallbackGuide?.symptoms && fallbackGuide.symptoms.length > 0) {
+      resolvedSymptoms = fallbackGuide.symptoms.flatMap((s: string) => s.split(/[,;•]/).map(t => t.trim()).filter(Boolean));
+    } else if (disease.symptoms && disease.symptoms.length > 0) {
+      resolvedSymptoms = disease.symptoms.flatMap((s) => s.split(/[,;•]/).map(t => t.trim()).filter(Boolean));
+    } else if (disease.pathophysiology?.en) {
+      resolvedSymptoms = [disease.pathophysiology.en];
     }
   }
 
-  // Clinical & Diagnostic Notes extraction
+  // Clinical & Diagnostic Notes extraction strictly adhering to current language
   let resolvedClinicalNotes: string[] = [];
-  if (isFa && clinicalTranslation?.clinicalPearlsFa && clinicalTranslation.clinicalPearlsFa.length > 0) {
-    resolvedClinicalNotes = clinicalTranslation.clinicalPearlsFa;
-  } else if (disease.clinicalNotes && disease.clinicalNotes.length > 0) {
-    resolvedClinicalNotes = disease.clinicalNotes;
-  } else if (fallbackGuide?.clinicalNotes && fallbackGuide.clinicalNotes.length > 0) {
-    resolvedClinicalNotes = fallbackGuide.clinicalNotes;
-  } else if (disease.pathophysiology) {
-    const rawPatho = disease.pathophysiology[language] || disease.pathophysiology.en || '';
-    if (rawPatho.includes('نکات عملکردی و تشخیصی:') || rawPatho.includes('Practice Pearls:')) {
-      const match = rawPatho.match(/(?:نکات عملکردی و تشخیصی:|Practice Pearls:)\s*([\s\S]+)$/i);
-      if (match && match[1]) {
-        resolvedClinicalNotes = match[1].split(/(?<=[.!?])\s+/).map((t) => t.trim()).filter(Boolean);
-      }
+  if (isFa) {
+    if (clinicalTranslation?.clinicalPearlsFa && clinicalTranslation.clinicalPearlsFa.length > 0) {
+      resolvedClinicalNotes = clinicalTranslation.clinicalPearlsFa;
+    } else if (fallbackGuide?.clinicalNotes && fallbackGuide.clinicalNotes.length > 0) {
+      resolvedClinicalNotes = fallbackGuide.clinicalNotes.map((n: string) => translateClinicalText(n));
+    } else if (disease.clinicalNotes && disease.clinicalNotes.length > 0) {
+      resolvedClinicalNotes = disease.clinicalNotes.map(n => translateClinicalText(n));
+    }
+  } else {
+    // Strictly English
+    if (fallbackGuide?.clinicalNotes && fallbackGuide.clinicalNotes.length > 0) {
+      resolvedClinicalNotes = fallbackGuide.clinicalNotes;
+    } else if (disease.clinicalNotes && disease.clinicalNotes.length > 0) {
+      resolvedClinicalNotes = disease.clinicalNotes;
     }
   }
 
-  // Pharmacist Counseling & Non-pharm advice
+  // Red Flags extraction strictly adhering to current language
+  const redFlagsList: string[] = isFa
+    ? (clinicalTranslation?.redFlagsFa || disease.redFlags?.fa || (fallbackGuide?.referralCriteria?.map(r => translateClinicalText(r))) || [])
+    : (fallbackGuide?.referralCriteria || disease.redFlags?.en || []);
+
+  // Pharmacist Counseling & Non-pharm advice strictly adhering to current language
   let pharmacistInstructions = '';
   if (isFa) {
     if (clinicalTranslation?.nonPharmFa && clinicalTranslation.nonPharmFa.length > 0) {
       pharmacistInstructions = clinicalTranslation.nonPharmFa.map((a, i) => `${i + 1}) ${a}`).join('\n');
     } else if (disease.instructions?.fa && !/^[a-zA-Z0-9\s.,!?:;()\-]+$/.test(disease.instructions.fa.trim())) {
       pharmacistInstructions = disease.instructions.fa;
+    } else if (fallbackGuide?.nonPharmAdvice && fallbackGuide.nonPharmAdvice.length > 0) {
+      pharmacistInstructions = fallbackGuide.nonPharmAdvice.map((a: string, i: number) => `${i + 1}) ${translateClinicalText(a)}`).join('\n');
     } else if (disease.nonPharmAdvice && disease.nonPharmAdvice.length > 0) {
       pharmacistInstructions = disease.nonPharmAdvice.map((a, i) => `${i + 1}) ${translateClinicalText(a)}`).join('\n');
-    } else {
-      const rawIns = disease.instructions?.fa || disease.instructions?.en || '';
-      pharmacistInstructions = rawIns
-        .split('\n')
-        .map((line) => {
-          const numMatch = line.match(/^([0-9]+\))\s*(.*)$/);
-          if (numMatch) {
-            return `${numMatch[1]} ${translateClinicalText(numMatch[2])}`;
-          }
-          return translateClinicalText(line);
-        })
-        .join('\n');
     }
   } else {
-    pharmacistInstructions = disease.instructions?.en || disease.instructions?.fa || '';
+    // Strictly English
+    if (fallbackGuide?.nonPharmAdvice && fallbackGuide.nonPharmAdvice.length > 0) {
+      pharmacistInstructions = fallbackGuide.nonPharmAdvice.map((a: string, i: number) => `${i + 1}) ${a}`).join('\n');
+    } else if (disease.instructions?.en) {
+      pharmacistInstructions = disease.instructions.en;
+    } else if (disease.nonPharmAdvice && disease.nonPharmAdvice.length > 0) {
+      pharmacistInstructions = disease.nonPharmAdvice.map((a, i) => `${i + 1}) ${a}`).join('\n');
+    }
   }
 
   const [activePhaseTab, setActivePhaseTab] = useState<'profile' | 'treatment' | 'medicines'>('profile');

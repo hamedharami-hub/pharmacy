@@ -233,9 +233,9 @@ const CONVERTED_OTC_DISEASES: DiseaseInfo[] = ALL_OTC_HANDBOOK_DISEASES.map((gui
     },
     medicines: guide.medicines,
     nonPharmAdvice: guide.nonPharmAdvice,
-    clinicalNotes: clinicalNotesFa,
-    symptoms: symptomsFa,
-    referralCriteria: redFlagsFa,
+    clinicalNotes: guide.clinicalNotes,
+    symptoms: guide.symptoms,
+    referralCriteria: guide.referralCriteria,
     relatedShelfProducts: [],
   };
 });
