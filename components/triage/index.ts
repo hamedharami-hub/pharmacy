@@ -11,3 +11,4 @@ export * from './WwhamQuestionModal';
 export * from './RedFlagsModal';
 export * from './ReferralLetterModal';
 export * from './StarredPhrasesModal';
+export * from './TriageStepDeck';

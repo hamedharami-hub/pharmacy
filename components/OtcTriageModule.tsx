@@ -10,15 +10,9 @@ import {
   StarredPhrase,
   getScenarioMode,
   ModeSelectorBar,
-  PatientDemographicsCard,
-  AussieContextCard,
-  RedFlagsChecklistCard,
-  FrameworkTabs,
-  ChatFeed,
-  OutcomeFeedbackCard,
+  TriageStepDeck,
 } from './triage';
 import { haptic } from '@/lib/haptics';
-import { Flag, MessagesSquare, Search, ShieldAlert, UserRound } from 'lucide-react';
 
 const DiseaseDetailModal = dynamic(
   () => import('./DiseaseDetailModal').then((mod) => mod.DiseaseDetailModal),
@@ -59,7 +53,6 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [scenarioSearchTerm, setScenarioSearchTerm] = useState('');
   const [isBrowseOpen, setIsBrowseOpen] = useState(false);
-  const [activeMainTab, setActiveMainTab] = useState<'profile' | 'redflags' | 'conversation'>('profile');
 
   // Current active scenario
   const scenario = useMemo(() => {
@@ -166,7 +159,6 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
     setSelectedDialogueId(null);
     setShowOutcome(false);
     setActiveFrameworkTab('wwham');
-    setActiveMainTab('profile');
     setActiveWwhamQuestion(null);
     setShowRedFlagsModal(false);
 
@@ -491,7 +483,7 @@ REFERRING PHARMACIST:
 
   const wwhamCount = Object.keys(askedQuestions).length;
   const allWwhamAsked = wwhamCount >= 4;
-  const selectedOption = scenario.dialogueOptions.find((o) => o.id === selectedDialogueId);
+  const selectedOption = scenario.dialogueOptions.find((o) => o.id === selectedDialogueId) || null;
   const browseOpen = isBrowseOpen && !scenarioSearchTerm.trim();
 
   return (
@@ -517,151 +509,42 @@ REFERRING PHARMACIST:
       />
 
       {browseOpen && (
-        <>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={() => setActiveMainTab('profile')}
-              className={`p-3 sm:p-4 rounded-xl border transition text-center cursor-pointer ${
-                activeMainTab === 'profile'
-                  ? 'bg-sky-600 text-white border-sky-400 shadow-md shadow-sky-600/20 font-bold'
-                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-slate-200 font-medium'
-              }`}
-            >
-              <UserRound className="w-7 h-7 mx-auto mb-1.5" />
-              <div className="text-[11px] sm:text-xs leading-tight">
-                {isFa ? 'پرونده بالینی بیمار' : 'Patient Clinical Profile'}
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveMainTab('redflags')}
-              className={`p-3 sm:p-4 rounded-xl border transition text-center cursor-pointer ${
-                activeMainTab === 'redflags'
-                  ? 'bg-rose-600 text-white border-rose-400 shadow-md shadow-rose-600/20 font-bold'
-                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-slate-200 font-medium'
-              }`}
-            >
-              <Flag className="w-7 h-7 mx-auto mb-1.5 text-rose-500 fill-rose-500" />
-              <div className="text-[11px] sm:text-xs leading-tight">
-                {isFa ? 'چک‌لیست پرچم‌های قرمز' : 'Clinical Red Flags Checklist'}
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveMainTab('conversation')}
-              className={`p-3 sm:p-4 rounded-xl border transition text-center cursor-pointer ${
-                activeMainTab === 'conversation'
-                  ? 'bg-purple-600 text-white border-purple-400 shadow-md shadow-purple-600/20 font-bold'
-                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-slate-200 font-medium'
-              }`}
-            >
-              <MessagesSquare className="w-7 h-7 mx-auto mb-1.5" />
-              <div className="text-[11px] sm:text-xs leading-tight">
-                {isFa ? 'مکالمه بالینی' : 'Clinical Conversation'}
-              </div>
-            </button>
-          </div>
-
-          {activeMainTab === 'profile' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
-              <PatientDemographicsCard
-                language={language}
-                scenario={scenario}
-                linkedHandbookDisease={linkedHandbookDisease}
-                onOpenDiseaseModal={setSelectedDisease}
-              />
-
-              <AussieContextCard
-                language={language}
-                scenario={scenario}
-              />
-            </div>
-          )}
-
-          {activeMainTab === 'redflags' && (
-            <div className="space-y-4">
-              <RedFlagsChecklistCard
-                language={language}
-                scenario={scenario}
-              />
-              <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-500/40 space-y-2">
-                <p className="text-xs text-rose-200 font-medium">
-                  {isFa
-                    ? 'اجرای غربالگری ایمنی و ارزیابی پرچم‌های قرمز (Red Flags) در پنجره پاپ‌آپ:'
-                    : 'Perform clinical safety screening & review Red Flags checklist in popup modal:'}
-                </p>
-                <button
-                  type="button"
-                  onClick={handleCheckRedFlags}
-                  className="w-full py-2.5 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer bg-rose-600 hover:bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-600/30"
-                >
-                  <ShieldAlert className="w-4 h-4" />
-                  <span>
-                    {askedRedFlagChecks['rf-check']
-                      ? (isFa ? 'مشاهده مجدد پاپ‌آپ پرچم‌های قرمز 🚩' : 'Re-open Red Flags Popup 🚩')
-                      : (isFa ? 'باز کردن پاپ‌آپ غربالگری پرچم‌های قرمز' : 'Open Red Flags Screening Popup')}
-                  </span>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {activeMainTab === 'conversation' && (
-            <div className="space-y-4">
-              <div className="app-card border app-border rounded-2xl p-4 sm:p-5 space-y-4 shadow-sm bg-slate-900/70">
-                <FrameworkTabs
-                  language={language}
-                  scenario={scenario}
-                  activeFrameworkTab={activeFrameworkTab}
-                  setActiveFrameworkTab={setActiveFrameworkTab}
-                  wwhamCount={wwhamCount}
-                  askedQuestions={askedQuestions}
-                  isQnaStarred={isQnaStarred}
-                  onAskWwhamQuestion={handleAskWwhamQuestion}
-                  askedRedFlagChecks={askedRedFlagChecks}
-                  onCheckRedFlags={handleCheckRedFlags}
-                  allWwhamAsked={allWwhamAsked}
-                  selectedDialogueId={selectedDialogueId}
-                  selectedOption={selectedOption}
-                  onSelectDialogueOption={handleSelectDialogueOption}
-                />
-
-                <ChatFeed
-                  language={language}
-                  scenario={scenario}
-                  chatMessages={chatMessages}
-                  isChatExpanded={isChatExpanded}
-                  setIsChatExpanded={setIsChatExpanded}
-                  starredPhrases={starredPhrases}
-                  showStarredBelow={showStarredBelow}
-                  setShowStarredBelow={setShowStarredBelow}
-                  setShowStarredModal={setShowStarredModal}
-                  toggleStarMessage={toggleStarMessage}
-                  isMessageStarred={isMessageStarred}
-                  removeStarredPhrase={removeStarredPhrase}
-                  onCopySinglePhrase={handleCopySinglePhrase}
-                  copiedPhraseId={copiedPhraseId}
-                  onReset={handleReset}
-                />
-              </div>
-
-              {showOutcome && (
-                <OutcomeFeedbackCard
-                  language={language}
-                  scenario={scenario}
-                  selectedOption={selectedOption}
-                  onOpenReferralModal={() => setShowReferralModal(true)}
-                  onNavigateToFred={onNavigateToFred}
-                  onNavigateToModule={onNavigateToModule}
-                  onOpenAiLeitner={onOpenAiLeitner}
-                />
-              )}
-            </div>
-          )}
-        </>
+        <TriageStepDeck
+          language={language}
+          scenario={scenario}
+          linkedHandbookDisease={linkedHandbookDisease}
+          onOpenDiseaseModal={setSelectedDisease}
+          activeFrameworkTab={activeFrameworkTab}
+          setActiveFrameworkTab={setActiveFrameworkTab}
+          wwhamCount={wwhamCount}
+          askedQuestions={askedQuestions}
+          isQnaStarred={isQnaStarred}
+          onAskWwhamQuestion={handleAskWwhamQuestion}
+          askedRedFlagChecks={askedRedFlagChecks}
+          onCheckRedFlags={handleCheckRedFlags}
+          allWwhamAsked={allWwhamAsked}
+          selectedDialogueId={selectedDialogueId}
+          selectedOption={selectedOption}
+          onSelectDialogueOption={handleSelectDialogueOption}
+          chatMessages={chatMessages}
+          isChatExpanded={isChatExpanded}
+          setIsChatExpanded={setIsChatExpanded}
+          starredPhrases={starredPhrases}
+          showStarredBelow={showStarredBelow}
+          setShowStarredBelow={setShowStarredBelow}
+          setShowStarredModal={setShowStarredModal}
+          toggleStarMessage={toggleStarMessage}
+          isMessageStarred={isMessageStarred}
+          removeStarredPhrase={removeStarredPhrase}
+          onCopySinglePhrase={handleCopySinglePhrase}
+          copiedPhraseId={copiedPhraseId}
+          onReset={handleReset}
+          showOutcome={showOutcome}
+          onOpenReferralModal={() => setShowReferralModal(true)}
+          onNavigateToFred={onNavigateToFred}
+          onNavigateToModule={onNavigateToModule}
+          onOpenAiLeitner={onOpenAiLeitner}
+        />
       )}
 
       {/* GP Referral Letter Modal */}
