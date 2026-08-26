@@ -140,6 +140,7 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
   const [selectedSchedule, setSelectedSchedule] = useState<'ALL' | 'Unscheduled' | 'S2' | 'S3' | 'S4' | 'S8'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [diseaseSearchQuery, setDiseaseSearchQuery] = useState('');
+  const [matricesSearchQuery, setMatricesSearchQuery] = useState('');
   const [searchInputText, setSearchInputText] = useState('');
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
 
@@ -370,11 +371,23 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
     selectedDomainId,
     selectedSubCatId,
     sortOrder,
+    searchQuery,
   ]);
 
   const isMobile = useIsMobile();
   const [isMobileSelectorCollapsed, setIsMobileSelectorCollapsed] = useState(false);
   const { studyState } = useStudyTrackerContext();
+  const activeSearchValue =
+    activeShelfView === 'shelf'
+      ? searchQuery
+      : activeShelfView === 'diseases'
+        ? diseaseSearchQuery
+        : matricesSearchQuery;
+  const setActiveSearchValue = (value: string) => {
+    if (activeShelfView === 'shelf') setSearchQuery(value);
+    else if (activeShelfView === 'diseases') setDiseaseSearchQuery(value);
+    else setMatricesSearchQuery(value);
+  };
 
   // Get last 2-3 unique recently studied items for Module 2/3/4
   const recentHistoryItems = useMemo(() => {
@@ -400,7 +413,7 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
       });
     }
     return items.slice(0, 3);
-  }, [studyState?.lastStudiedGlobal, studyState?.lastStudiedByModule]);
+  }, [studyState]);
 
   return (
     <div className="space-y-4">
@@ -478,70 +491,66 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
         </div>
 
         {/* 2. REAL-TIME SEARCH BAR & ADVANCED FILTERS TRIGGER */}
-        {(activeShelfView === 'shelf' || activeShelfView === 'diseases') && (
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 absolute right-3.5 top-3 text-slate-400 pointer-events-none" />
-              <input
-                type="text"
-                value={activeShelfView === 'shelf' ? searchQuery : diseaseSearchQuery}
-                onChange={(e) =>
-                  activeShelfView === 'shelf'
-                    ? setSearchQuery(e.target.value)
-                    : setDiseaseSearchQuery(e.target.value)
-                }
-                placeholder={
-                  activeShelfView === 'shelf'
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 absolute right-3.5 top-3 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              value={activeSearchValue}
+              onChange={(e) => setActiveSearchValue(e.target.value)}
+              placeholder={
+                activeShelfView === 'shelf'
+                  ? isFa
+                    ? 'جستجوی آنی در نام برند، نام ژنریک، دوز، اندیکاسیون‌ها، کدهای PBS و نکات بالینی...'
+                    : 'Real-time quick search across brand names, generics, indications, PBS codes & CAL labels...'
+                  : activeShelfView === 'diseases'
                     ? isFa
-                      ? 'جستجوی آنی در نام برند، نام ژنریک، دوز، اندیکاسیون‌ها، کدهای PBS و نکات بالینی...'
-                      : 'Real-time quick search across brand names, generics, indications, PBS codes & CAL labels...'
-                    : isFa
                       ? 'جستجوی نام بیماری، علائم یا نام‌های رایج...'
                       : 'Search disease names, symptoms or common names...'
-                }
-                className="w-full pr-10 pl-4 py-2 rounded-xl border app-border bg-black/30 text-xs app-text focus:outline-none focus:border-teal-500 shadow-inner"
-              />
-              {(activeShelfView === 'shelf' ? searchQuery : diseaseSearchQuery).trim() && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    activeShelfView === 'shelf'
-                      ? setSearchQuery('')
-                      : setDiseaseSearchQuery('')
-                  }
-                  className="absolute left-3 top-2.5 text-xs text-slate-400 hover:text-white px-1.5 py-0.5 rounded bg-slate-800 cursor-pointer"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-
-            {activeShelfView === 'shelf' && (
+                    : isFa
+                      ? 'جستجوی پاتوژن، پروتکل پایش، واکسن یا دارو...'
+                      : 'Search pathogens, monitoring protocols, vaccines or drugs...'
+              }
+              className="w-full pr-10 pl-4 py-2 rounded-xl border app-border bg-black/30 text-xs app-text focus:outline-none focus:border-teal-500 shadow-inner"
+            />
+            {activeSearchValue.trim() && (
               <button
                 type="button"
-                onClick={() => setIsSearchOpen(true)}
-                className={`px-3.5 py-2 rounded-xl border text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer ${
-                  activeScheduleTags.length > 0 || activeCalTags.length > 0 || activeSafetyTags.length > 0 || substitutionFilter !== 'ALL'
-                    ? 'bg-sky-600 text-white border-sky-400 shadow-md shadow-sky-950/40 ring-1 ring-sky-300'
-                    : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
-                }`}
-                title={isFa ? 'فیلترهای پیشرفته برچسب‌های هشدار، ایمنی و جدول‌بندی' : 'Advanced Multi-Tag Filters (CAL, Safety, Schedules)'}
+                onClick={() => setActiveSearchValue('')}
+                className="absolute left-3 top-2.5 text-xs text-slate-400 hover:text-white px-1.5 py-0.5 rounded bg-slate-800 cursor-pointer"
               >
-                <Filter className="w-3.5 h-3.5 text-sky-400" />
-                <span className="hidden sm:inline">{isFa ? 'فیلترهای پیشرفته' : 'Advanced Filters'}</span>
-                {(activeScheduleTags.length > 0 || activeCalTags.length > 0 || activeSafetyTags.length > 0 || substitutionFilter !== 'ALL') && (
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-                )}
+                ✕
               </button>
             )}
           </div>
-        )}
+
+          {activeShelfView === 'shelf' && (
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(true)}
+              className={`px-3.5 py-2 rounded-xl border text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                activeScheduleTags.length > 0 || activeCalTags.length > 0 || activeSafetyTags.length > 0 || substitutionFilter !== 'ALL'
+                  ? 'bg-sky-600 text-white border-sky-400 shadow-md shadow-sky-950/40 ring-1 ring-sky-300'
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+              }`}
+              title={isFa ? 'فیلترهای پیشرفته برچسب‌های هشدار، ایمنی و جدول‌بندی' : 'Advanced Multi-Tag Filters (CAL, Safety, Schedules)'}
+            >
+              <Filter className="w-3.5 h-3.5 text-sky-400" />
+              <span className="hidden sm:inline">{isFa ? 'فیلترهای پیشرفته' : 'Advanced Filters'}</span>
+              {(activeScheduleTags.length > 0 || activeCalTags.length > 0 || activeSafetyTags.length > 0 || substitutionFilter !== 'ALL') && (
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+              )}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* VIEW 1: CLINICAL MATRICES & PROTOCOLS PANEL */}
       {activeShelfView === 'matrices' && (
         <ClinicalMatricesPanel
           language={language}
+          searchQuery={matricesSearchQuery}
+          onSearchQueryChange={setMatricesSearchQuery}
           onFilterShelfByConcept={(conceptId) => {
             setSelectedConceptId(conceptId);
             setActiveShelfView('shelf');

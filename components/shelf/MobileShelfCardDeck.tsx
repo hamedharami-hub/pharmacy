@@ -74,11 +74,11 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
   const concepts = getConceptsForSubCategory(activeSubCat);
 
   // Deck State:
-  // Step 0: Clinical Specifications (Tabs: Pearls=0, Mechanism=1, Rules=2, RedFlags=3)
+  // Step 0: Clinical Specifications (Tabs: Pearls=0, Rules=1, RedFlags=2, Mechanism=3)
   // Step 1: Related Diseases & Treatment Matrix
   // Step 2: Medicines / Drugs on the Shelf
   const [verticalStep, setVerticalStep] = useState<0 | 1 | 2>(0);
-  const [horizontalSpecTab, setHorizontalSpecTab] = useState<0 | 1 | 2 | 3>(0); // 0: Pearls, 1: Mechanism, 2: Rules, 3: Red Flags
+  const [horizontalSpecTab, setHorizontalSpecTab] = useState<0 | 1 | 2 | 3>(0); // 0: Pearls, 1: Rules, 2: Red Flags, 3: Mechanism
   const [isQuickMechOpen, setIsQuickMechOpen] = useState<boolean>(false);
   const [internalSortOrder, setInternalSortOrder] = useState<'SUBCATEGORY' | 'MECHANISM' | 'ALPHABETICAL' | 'SCHEDULE'>('SUBCATEGORY');
 
@@ -218,7 +218,7 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
               transition={{ duration: 0.2, ease: 'easeOut' }}
               className="space-y-3"
             >
-              {/* Horizontal Tabs: [ 💡 نکات | 🧬 مکانیسم | 🛡️ قوانین | 🚨 علائم هشدار ] */}
+              {/* Horizontal Tabs: [ 💡 نکات | 🛡️ قوانین | 🚨 علائم هشدار | 🧬 مکانیسم ] */}
               <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px]">
                 <button
                   type="button"
@@ -244,22 +244,6 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                   }}
                   className={`py-1.5 rounded-lg font-bold transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 cursor-pointer ${
                     horizontalSpecTab === 1
-                      ? 'bg-teal-500 text-slate-950 font-black shadow-xs'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  <Dna className="w-3.5 h-3.5 shrink-0" />
-                  <span className="truncate">{isFa ? 'مکانیسم' : 'Mechanism'}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    haptic.light();
-                    setHorizontalSpecTab(2);
-                  }}
-                  className={`py-1.5 rounded-lg font-bold transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 cursor-pointer ${
-                    horizontalSpecTab === 2
                       ? 'bg-indigo-500 text-white font-bold shadow-xs'
                       : 'text-slate-400 hover:text-white'
                   }`}
@@ -272,16 +256,32 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                   type="button"
                   onClick={() => {
                     haptic.light();
-                    setHorizontalSpecTab(3);
+                    setHorizontalSpecTab(2);
                   }}
                   className={`py-1.5 rounded-lg font-bold transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 cursor-pointer ${
-                    horizontalSpecTab === 3
+                    horizontalSpecTab === 2
                       ? 'bg-rose-600 text-white font-bold shadow-xs'
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                   <span className="truncate">{isFa ? 'هشدارها' : 'Red Flags'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    haptic.light();
+                    setHorizontalSpecTab(3);
+                  }}
+                  className={`py-1.5 rounded-lg font-bold transition flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 cursor-pointer ${
+                    horizontalSpecTab === 3
+                      ? 'bg-teal-500 text-slate-950 font-black shadow-xs'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <Dna className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{isFa ? 'مکانیسم' : 'Mechanism'}</span>
                 </button>
               </div>
 
@@ -321,16 +321,16 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                         haptic.light();
                         setHorizontalSpecTab(1);
                       }}
-                      className="text-teal-400 hover:text-teal-300 font-bold flex items-center gap-1 cursor-pointer"
+                      className="text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1 cursor-pointer"
                     >
-                      <span>{isFa ? 'مشاهده مکانیسم اثر ←' : 'Mechanism →'}</span>
+                      <span>{isFa ? 'قوانین SUSMP →' : 'SUSMP Rules →'}</span>
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* CARD 1: Common Mechanism of Action & Cellular Targets */}
-              {horizontalSpecTab === 1 && (
+              {/* CARD 3: Common Mechanism of Action & Cellular Targets */}
+              {horizontalSpecTab === 3 && (
                 <div className="app-card border border-teal-500/30 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-md bg-linear-to-b from-teal-950/20 to-transparent select-text">
                   <div className="flex items-center justify-between border-b border-teal-500/20 pb-2.5">
                     <div className="flex items-center gap-2 text-teal-400 font-black text-sm">
@@ -422,18 +422,18 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
 
                   {/* Tab Navigation Footer */}
                   <div className="pt-2 flex items-center justify-between text-xs text-slate-400 border-t app-border">
-                    <span className="text-slate-500 font-mono text-[11px]">2 / 4</span>
                     <button
                       type="button"
                       onClick={() => setHorizontalSpecTab(2)}
-                      className="text-indigo-400 hover:text-indigo-300 font-bold cursor-pointer"
+                      className="text-rose-400 hover:text-rose-300 font-bold cursor-pointer"
                     >
-                      {isFa ? 'قوانین SUSMP →' : 'SUSMP Rules →'}
+                      {isFa ? '← علائم هشدار' : '← Red Flags'}
                     </button>
+                    <span className="text-slate-500 font-mono text-[11px]">4 / 4</span>
                   </div>
                 </div>
               )}
-              {horizontalSpecTab === 2 && (
+              {horizontalSpecTab === 1 && (
                 <div className="app-card border border-indigo-500/30 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-md bg-linear-to-b from-indigo-950/20 to-transparent select-text">
                   <div className="flex items-center justify-between border-b border-indigo-500/20 pb-2.5">
                     <div className="flex items-center gap-2 text-indigo-400 font-black text-sm">
@@ -453,15 +453,15 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                   <div className="pt-2 flex items-center justify-between text-xs text-slate-400 border-t app-border">
                     <button
                       type="button"
-                      onClick={() => setHorizontalSpecTab(1)}
-                      className="text-teal-400 hover:text-teal-300 font-bold cursor-pointer"
+                      onClick={() => setHorizontalSpecTab(0)}
+                      className="text-sky-400 hover:text-sky-300 font-bold cursor-pointer"
                     >
-                      {isFa ? '← مکانیسم' : '← Mechanism'}
+                      {isFa ? '← نکات بالینی' : '← Pearls'}
                     </button>
-                    <span className="text-slate-500 font-mono text-[11px]">3 / 4</span>
+                    <span className="text-slate-500 font-mono text-[11px]">2 / 4</span>
                     <button
                       type="button"
-                      onClick={() => setHorizontalSpecTab(3)}
+                      onClick={() => setHorizontalSpecTab(2)}
                       className="text-rose-400 hover:text-rose-300 font-bold cursor-pointer"
                     >
                       {isFa ? 'علائم هشدار →' : 'Red Flags →'}
@@ -470,8 +470,8 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                 </div>
               )}
 
-              {/* CARD 3: Red Flags */}
-              {horizontalSpecTab === 3 && (
+              {/* CARD 2: Red Flags */}
+              {horizontalSpecTab === 2 && (
                 <div className="app-card border border-rose-500/30 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-md bg-linear-to-b from-rose-950/20 to-transparent select-text">
                   <div className="flex items-center justify-between border-b border-rose-500/20 pb-2.5">
                     <div className="flex items-center gap-2 text-rose-400 font-black text-sm">
@@ -501,12 +501,19 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                   <div className="pt-2 flex items-center justify-between text-xs text-slate-400 border-t app-border">
                     <button
                       type="button"
-                      onClick={() => setHorizontalSpecTab(2)}
+                      onClick={() => setHorizontalSpecTab(1)}
                       className="text-indigo-400 hover:text-indigo-300 font-bold cursor-pointer"
                     >
                       {isFa ? '← قوانین SUSMP' : '← SUSMP Rules'}
                     </button>
-                    <span className="text-slate-500 font-mono text-[11px]">4 / 4</span>
+                    <span className="text-slate-500 font-mono text-[11px]">3 / 4</span>
+                    <button
+                      type="button"
+                      onClick={() => setHorizontalSpecTab(3)}
+                      className="text-teal-400 hover:text-teal-300 font-bold cursor-pointer"
+                    >
+                      {isFa ? 'مکانیسم اثر →' : 'Mechanism →'}
+                    </button>
                   </div>
                 </div>
               )}
