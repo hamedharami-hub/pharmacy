@@ -518,7 +518,7 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
             </motion.div>
           )}
 
-          {/* STEP 2: MEDICINES ON THE SHELF (SWIPEABLE DRUG CARDS) */}
+          {/* STEP 2: MEDICINES ON THE SHELF (ORGANIZED LIST VIEW) */}
           {verticalStep === 2 && (
             <motion.div
               key="medicines-step"
@@ -533,15 +533,21 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                   <Pill className="w-4 h-4" />
                   <span>
                     {isFa
-                      ? `داروهای قفسه (${products.length} دارو)`
-                      : `Shelf Medicines (${products.length})`}
+                      ? `لیست داروهای سرفصل (${products.length} دارو)`
+                      : `Medicines List (${products.length})`}
                   </span>
                 </span>
-                {products.length > 0 && (
-                  <span className="text-[11px] font-mono text-slate-400">
-                    {currentDrugIndex + 1} / {products.length}
-                  </span>
-                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    haptic.light();
+                    setVerticalStep(0);
+                  }}
+                  className="text-xs text-sky-400 hover:underline flex items-center gap-1 cursor-pointer font-bold"
+                >
+                  <ChevronUp className="w-3.5 h-3.5" />
+                  <span>{isFa ? 'نکات بالینی' : 'Profile'}</span>
+                </button>
               </div>
 
               {products.length === 0 ? (
@@ -551,84 +557,24 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {/* Active Full Drug Card */}
-                  {products[currentDrugIndex] && (
-                    <div className="relative">
+                  {/* Clean List of All Drug Cards */}
+                  <div className="space-y-3">
+                    {products.map((prod) => (
                       <ShelfDrugCard
-                        prod={products[currentDrugIndex]}
+                        key={prod.id}
+                        prod={prod}
                         language={language}
                         calLabelsDict={CAL_LABELS_DICT}
                         onSelectSchedule={onSelectSchedule || (() => {})}
                         onSelectMechanism={onSelectMechanism || (() => {})}
                         onSelectCalInfo={onSelectCalInfo || (() => {})}
                         onSelectConceptId={onSelectConceptId || (() => {})}
-                        onOpenProjectStop={() => onOpenProjectStop && onOpenProjectStop(products[currentDrugIndex])}
+                        onOpenProjectStop={() => onOpenProjectStop && onOpenProjectStop(prod)}
                         onOpenAiLeitner={onOpenAiLeitner}
                         onNavigateToModule={onNavigateToModule}
                       />
-                    </div>
-                  )}
-
-                  {/* Horizontal Drug Pagination Slider */}
-                  {products.length > 1 && (
-                    <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-900/80 border border-slate-800">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (currentDrugIndex > 0) {
-                            haptic.light();
-                            setCurrentDrugIndex((prev) => prev - 1);
-                          }
-                        }}
-                        disabled={currentDrugIndex === 0}
-                        className={`p-2 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
-                          currentDrugIndex > 0
-                            ? 'bg-slate-800 text-teal-300 hover:bg-slate-700'
-                            : 'opacity-30 cursor-not-allowed'
-                        }`}
-                      >
-                        <ChevronRight className="w-4 h-4 rtl:rotate-0 rotate-180" />
-                        <span>{isFa ? 'داروی قبلی' : 'Previous'}</span>
-                      </button>
-
-                      {/* Dots Indicator */}
-                      <div className="flex items-center gap-1 overflow-x-auto max-w-[150px] no-scrollbar px-1">
-                        {products.map((_, idx) => (
-                          <span
-                            key={idx}
-                            onClick={() => {
-                              haptic.light();
-                              setCurrentDrugIndex(idx);
-                            }}
-                            className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
-                              idx === currentDrugIndex
-                                ? 'w-4 bg-teal-400'
-                                : 'bg-slate-700 hover:bg-slate-500'
-                            }`}
-                          />
-                        ))}
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (currentDrugIndex < products.length - 1) {
-                            haptic.light();
-                            setCurrentDrugIndex((prev) => prev + 1);
-                          }
-                        }}
-                        disabled={currentDrugIndex === products.length - 1}
-                        className={`p-2 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer ${
-                          currentDrugIndex < products.length - 1
-                            ? 'bg-slate-800 text-teal-300 hover:bg-slate-700'
-                            : 'opacity-30 cursor-not-allowed'
-                        }`}
-                      >
-                        <span>{isFa ? 'داروی بعدی' : 'Next'}</span>
-                        <ChevronLeft className="w-4 h-4 rtl:rotate-0 rotate-180" />
-                      </button>
-                    </div>
-                  )}
+                    ))}
+                  </div>
 
                   {/* Return to specifications button */}
                   <button
@@ -637,7 +583,7 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                       haptic.light();
                       setVerticalStep(0);
                     }}
-                    className="w-full py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-slate-800 transition cursor-pointer"
+                    className="w-full py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-slate-800 transition cursor-pointer shadow-xs"
                   >
                     <ChevronUp className="w-4 h-4" />
                     <span>{isFa ? 'بازگشت به نکات بالینی سرفصل' : 'Return to Clinical Profile'}</span>

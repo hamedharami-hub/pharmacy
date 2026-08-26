@@ -568,7 +568,7 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
       {/* VIEW 3: MAIN PRODUCT SHELF (WHEN SHELF TAB IS ACTIVE) */}
       {activeShelfView === 'shelf' && (
         <>
-          {/* MOBILE EXPERIENCE: COLLAPSIBLE SELECTOR + GESTURE DECK */}
+          {/* UNIFIED CARD DECK & SELECTOR EXPERIENCE (MOBILE & DESKTOP) */}
           {isMobile ? (
             <div className="space-y-4">
               {!isMobileSelectorCollapsed ? (
@@ -636,96 +636,188 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
               )}
             </div>
           ) : (
-            /* DESKTOP EXPERIENCE: RICH MULTI-COLUMN VIEW */
+            /* DESKTOP EXPERIENCE: MODERN CARD-CENTRIC STUDY HUB */
             <div className="space-y-4 my-2">
-              <ShelfDomainSelector
-                clinicalDomains={CLINICAL_DOMAINS}
-                selectedDomainId={selectedDomainId}
-                onSelectDomain={handleSelectDomain}
-                language={language}
-              />
-
-              <div className="space-y-3">
-                <ShelfSubcategoriesAccordion
-                  activeDomain={activeDomain}
-                  activeSubCat={activeSubCat}
-                  isOpen={isSubcategoriesAccordionOpen}
-                  onToggleOpen={() => setIsSubcategoriesAccordionOpen((prev) => !prev)}
-                  onSelectSubCatId={(id) => setSelectedSubCatId(id)}
-                  onSelectDisease={setSelectedDisease}
-                  language={language}
-                />
-
-                <ShelfCommonMechanismAccordion
-                  targetId={activeSubCat.id}
-                  activeSubCat={activeSubCat}
-                  isOpen={isCommonMechanismAccordionOpen}
-                  onToggleOpen={() => setIsCommonMechanismAccordionOpen((prev) => !prev)}
-                  activeMechanismFilter={activeMechanismFilter}
-                  onToggleMechanismFilter={(nameEn) => {
-                    setActiveMechanismFilter((prev) => (prev === nameEn ? 'ALL' : nameEn));
-                  }}
-                  onSelectConceptId={setSelectedConceptId}
-                  language={language}
-                />
-
-                <ShelfGroupingAccordion
-                  isOpen={isGroupingAccordionOpen}
-                  onToggleOpen={() => setIsGroupingAccordionOpen((prev) => !prev)}
-                  isGroupedByMechanism={isGroupedByMechanism}
-                  onToggleGroupedByMechanism={() => setIsGroupedByMechanism((prev) => !prev)}
-                  sortOrder={sortOrder}
-                  setSortOrder={setSortOrder}
-                  selectedSchedule={selectedSchedule}
-                  setSelectedSchedule={setSelectedSchedule}
-                  substitutionFilter={substitutionFilter}
-                  setSubstitutionFilter={setSubstitutionFilter}
-                  language={language}
-                />
-              </div>
-
-              {/* PRODUCTS SECTION: SUBCATEGORY PRODUCTS GRID (DESKTOP) */}
-              <div className="space-y-3 pt-2 border-t border-slate-800">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Pill className="w-5 h-5 text-sky-400" />
-                    <h3 className="text-base font-bold text-white">
-                      {isFa
-                        ? `داروهای زیرمجموعه «${activeSubCat.titleFa}» (${filteredProducts.length} محصول):`
-                        : `Medicines in ${activeSubCat.titleEn} (${filteredProducts.length} products):`}
-                    </h3>
+              {!isMobileSelectorCollapsed ? (
+                /* Desktop Selector Card */
+                <div className="app-card border border-teal-500/40 rounded-3xl p-5 space-y-4 shadow-xl bg-linear-to-b from-teal-950/25 via-slate-900/30 to-transparent animate-fadeIn">
+                  <div className="border-b app-border pb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 rounded-xl bg-teal-500/20 text-teal-400">
+                        <Layers className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-black app-text">
+                          {isFa ? 'انتخاب سرفصل بالینی و زیرمجموعه' : 'Select Clinical Domain & Subcategory'}
+                        </h3>
+                        <p className="text-xs app-muted">
+                          {isFa
+                            ? 'دامنه بالینی و زیرمجموعه دارویی مورد نظر را انتخاب و دکمه ورود به کارت‌ها را بزنید.'
+                            : 'Choose your clinical domain and subcategory, then click View Cards.'}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {filteredProducts.map((prod) => (
-                    <ShelfDrugCard
-                      key={prod.id}
-                      prod={prod}
+                  <div className="space-y-3">
+                    <ShelfDomainSelector
+                      clinicalDomains={CLINICAL_DOMAINS}
+                      selectedDomainId={selectedDomainId}
+                      onSelectDomain={handleSelectDomain}
                       language={language}
-                      calLabelsDict={CAL_LABELS_DICT}
-                      onSelectSchedule={(sched) => setSelectedSchedule(sched as any)}
-                      onSelectMechanism={setSelectedMechanismInfo}
-                      onSelectCalInfo={setSelectedCalInfo}
-                      onSelectConceptId={setSelectedConceptId}
-                      onOpenProjectStop={() => {
-                        setActiveProduct(prod);
-                        setIsProjectStopOpen(true);
-                      }}
-                      onOpenAiLeitner={onOpenAiLeitner}
-                      onNavigateToModule={onNavigateToModule}
                     />
-                  ))}
-                </div>
-              </div>
 
-              {/* STATE STORAGE RULES COMPLIANCE TESTER */}
-              <ShelfStateStorageTester
-                selectedState={selectedState}
-                onSelectState={setSelectedState}
-                stateStorageRules={STATE_STORAGE_RULES}
-                language={language}
-              />
+                    <ShelfSubcategoriesAccordion
+                      activeDomain={activeDomain}
+                      activeSubCat={activeSubCat}
+                      isOpen={isSubcategoriesAccordionOpen}
+                      onToggleOpen={() => setIsSubcategoriesAccordionOpen((prev) => !prev)}
+                      onSelectSubCatId={(id) => setSelectedSubCatId(id)}
+                      onSelectDisease={setSelectedDisease}
+                      language={language}
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileSelectorCollapsed(true)}
+                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 via-sky-600 to-indigo-600 hover:from-teal-500 hover:to-indigo-500 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-teal-950/50 cursor-pointer transition hover:scale-[1.005] active:scale-99"
+                  >
+                    <Sparkles className="w-5 h-5 text-amber-300" />
+                    <span>{isFa ? '✨ مشاهده و مطالعه کامل سرفصل و داروها (View Cards & Shelf)' : '✨ View Cards & Shelf'}</span>
+                  </button>
+                </div>
+              ) : (
+                /* Desktop Focused Card Hub */
+                <div className="space-y-4 animate-fadeIn">
+                  {/* Top Hub Bar */}
+                  <div className="app-card border app-border rounded-2xl p-3.5 flex items-center justify-between gap-4 shadow-sm bg-linear-to-r from-slate-900/60 to-transparent">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="p-2.5 rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30 shrink-0">
+                        <Layers className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h2 className="text-base font-black app-text truncate">
+                            {isFa ? activeSubCat.titleFa : activeSubCat.titleEn}
+                          </h2>
+                          <span className="text-xs px-2.5 py-0.5 rounded-full bg-teal-500/15 text-teal-300 font-mono font-bold">
+                            {activeDomain.titleEn}
+                          </span>
+                        </div>
+                        <p className="text-xs app-muted mt-0.5" dir="ltr">
+                          {activeSubCat.titleEn}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setIsMobileSelectorCollapsed(false)}
+                        className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+                      >
+                        <Search className="w-4 h-4" />
+                        <span>{isFa ? 'تغییر سرفصل و جستجو' : 'Change Topic'}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 1. Clinical Specifications Card */}
+                  <ShelfSubcategoriesAccordion
+                    activeDomain={activeDomain}
+                    activeSubCat={activeSubCat}
+                    isOpen={false}
+                    onToggleOpen={() => setIsMobileSelectorCollapsed(false)}
+                    onSelectSubCatId={(id) => setSelectedSubCatId(id)}
+                    onSelectDisease={setSelectedDisease}
+                    language={language}
+                  />
+
+                  {/* 2. Common Mechanism Accordion */}
+                  <ShelfCommonMechanismAccordion
+                    targetId={activeSubCat.id}
+                    activeSubCat={activeSubCat}
+                    isOpen={isCommonMechanismAccordionOpen}
+                    onToggleOpen={() => setIsCommonMechanismAccordionOpen((prev) => !prev)}
+                    activeMechanismFilter={activeMechanismFilter}
+                    onToggleMechanismFilter={(nameEn) => {
+                      setActiveMechanismFilter((prev) => (prev === nameEn ? 'ALL' : nameEn));
+                    }}
+                    onSelectConceptId={setSelectedConceptId}
+                    language={language}
+                  />
+
+                  {/* 3. Medicines Shelf: Clean List of Drug Cards */}
+                  <div className="space-y-3 pt-2 border-t border-slate-800">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Pill className="w-5 h-5 text-sky-400" />
+                        <h3 className="text-base font-bold text-white">
+                          {isFa
+                            ? `لیست داروهای سرفصل (${filteredProducts.length} محصول):`
+                            : `Medicines in ${activeSubCat.titleEn} (${filteredProducts.length} products):`}
+                        </h3>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setIsGroupingAccordionOpen((prev) => !prev)}
+                        className="text-xs px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold transition flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Filter className="w-3.5 h-3.5 text-sky-400" />
+                        <span>{isFa ? 'مرتب‌سازی و فیلترها' : 'Sorting & Filters'}</span>
+                      </button>
+                    </div>
+
+                    {isGroupingAccordionOpen && (
+                      <ShelfGroupingAccordion
+                        isOpen={isGroupingAccordionOpen}
+                        onToggleOpen={() => setIsGroupingAccordionOpen((prev) => !prev)}
+                        isGroupedByMechanism={isGroupedByMechanism}
+                        onToggleGroupedByMechanism={() => setIsGroupedByMechanism((prev) => !prev)}
+                        sortOrder={sortOrder}
+                        setSortOrder={setSortOrder}
+                        selectedSchedule={selectedSchedule}
+                        setSelectedSchedule={setSelectedSchedule}
+                        substitutionFilter={substitutionFilter}
+                        setSubstitutionFilter={setSubstitutionFilter}
+                        language={language}
+                      />
+                    )}
+
+                    {/* Drug Cards List */}
+                    <div className="space-y-3">
+                      {filteredProducts.map((prod) => (
+                        <ShelfDrugCard
+                          key={prod.id}
+                          prod={prod}
+                          language={language}
+                          calLabelsDict={CAL_LABELS_DICT}
+                          onSelectSchedule={(sched) => setSelectedSchedule(sched as any)}
+                          onSelectMechanism={setSelectedMechanismInfo}
+                          onSelectCalInfo={setSelectedCalInfo}
+                          onSelectConceptId={setSelectedConceptId}
+                          onOpenProjectStop={() => {
+                            setActiveProduct(prod);
+                            setIsProjectStopOpen(true);
+                          }}
+                          onOpenAiLeitner={onOpenAiLeitner}
+                          onNavigateToModule={onNavigateToModule}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* State Storage Rules Tester */}
+                  <ShelfStateStorageTester
+                    selectedState={selectedState}
+                    onSelectState={setSelectedState}
+                    stateStorageRules={STATE_STORAGE_RULES}
+                    language={language}
+                  />
+                </div>
+              )}
             </div>
           )}
         </>
