@@ -27,6 +27,8 @@ import {
 interface ClinicalMatricesPanelProps {
   language: Language;
   onFilterShelfByConcept?: (conceptId: string) => void;
+  searchQuery?: string;
+  onSearchQueryChange?: (query: string) => void;
 }
 
 type ActiveTab = 'ANTIMICROBIAL' | 'VACCINE' | 'MONITORING_TDM' | 'PREGNANCY_SAFETY';
@@ -106,9 +108,38 @@ const PATHOGEN_MATRIX: PathogenCoverage[] = [
   },
 ];
 
+const MONITORING_SEARCH_TEXT: Record<string, string> = {
+  clozapine:
+    'clozapine کلوزاپین ANC WBC agranulocytosis آگرانولوسیتوز myocarditis میوکاردیت CPN CPMS CYP1A2 smoking سیگار blood register monitoring پایش',
+  amiodarone:
+    'amiodarone آمیودارون thyroid تیروئید TFT liver کبد LFT lungs ریه CXR ophthalmology چشم Slit-lamp pulmonary fibrosis فیبروز',
+  methotrexate:
+    'methotrexate متوترکسات once weekly یک بار در هفته rheumatoid arthritis آرتریت روماتوئید psoriasis پسوریازیس folic acid اسید فولیک FBC eGFR LFT',
+  warfarin:
+    'warfarin وارفارین Coumadin Marevan INR brand reversal خونریزی vitamin K فیتومنادیون Prothrombinex DVT PE',
+};
+
+const PREGNANCY_SEARCH_TEXT: Record<string, string> = {
+  hypertension:
+    'hypertension فشارخون بارداری pregnancy Labetalol Trandate Nifedipine Adalat Methyldopa ACE inhibitors Perindopril Ramipril ARBs',
+  gestationalDiabetes:
+    'gestational diabetes GDM دیابت بارداری OGTT Fasting insulin انسولین metformin متفورمین glucose گلوکز',
+  acne:
+    'acne آکنه dermatology پوست Clindamycin Dalacin Duac Erythromycin Benzoyl Peroxide Azelaic Acid Isotretinoin Roaccutane Differin Retin-A Doxycycline',
+};
+
+const VACCINE_SEARCH_TEXT: Record<string, string> = {
+  spacing:
+    'vaccine واکسن spacing calculator محاسبه‌گر interval فاصله live زنده inactivated غیرزنده MMR Varicella Shingrix DTPa Yellow Fever BCG Flu Hepatitis B',
+  shingrix:
+    'Shingrix زونا Zostavax NIP National Immunisation Program immunocompromised نقص ایمنی cold chain زنجیره سرد Strive for 5 temperature دما',
+};
+
 export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
   language,
   onFilterShelfByConcept,
+  searchQuery,
+  onSearchQueryChange,
 }) => {
   const isFa = language === 'fa';
   const [activeTab, setActiveTab] = useState<ActiveTab>('ANTIMICROBIAL');
@@ -122,8 +153,41 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
   // Monitoring Open Detail Accordions
   const [openMonitoringId, setOpenMonitoringId] = useState<string>('clozapine');
 
+  const query = (searchQuery || '').trim().toLowerCase();
+  const matches = (...texts: string[]) =>
+    !query || texts.some((text) => (text || '').toLowerCase().includes(query));
+  const filteredPathogens = PATHOGEN_MATRIX.filter((item) =>
+    matches(
+      item.pathogen,
+      item.nameFa,
+      item.gram,
+      item.mechanism,
+      ...item.activeDrugs,
+      ...item.resistantDrugs,
+      item.tgNotesFa,
+      item.tgNotesEn
+    )
+  );
+  const monitoringMatches = Object.values(MONITORING_SEARCH_TEXT).some((text) => matches(text));
+  const pregnancyMatches = Object.values(PREGNANCY_SEARCH_TEXT).some((text) => matches(text));
+  const vaccineMatches = Object.values(VACCINE_SEARCH_TEXT).some((text) => matches(text));
   const currentPathogen =
-    PATHOGEN_MATRIX.find((p) => p.pathogen === selectedPathogen) || PATHOGEN_MATRIX[0];
+    filteredPathogens.find((p) => p.pathogen === selectedPathogen) || filteredPathogens[0] || PATHOGEN_MATRIX[0];
+
+  const renderEmptyState = () => (
+    <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 text-center text-xs text-slate-400">
+      <p>{isFa ? 'موردی برای این جستجو یافت نشد.' : 'No matching protocols found.'}</p>
+      {onSearchQueryChange && (
+        <button
+          type="button"
+          onClick={() => onSearchQueryChange('')}
+          className="mt-3 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 font-bold transition cursor-pointer"
+        >
+          {isFa ? 'پاک کردن جستجو' : 'Clear search'}
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <div className="app-card border border-sky-500/30 rounded-2xl p-4 sm:p-6 space-y-5 bg-slate-950/80 shadow-2xl text-slate-200">
@@ -197,12 +261,12 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
         <div className="space-y-4">
           {/* Pathogen Selector Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-            {PATHOGEN_MATRIX.map((item) => (
+            {filteredPathogens.map((item) => (
               <button
                 key={item.pathogen}
                 onClick={() => setSelectedPathogen(item.pathogen)}
                 className={`p-3 rounded-xl border text-right rtl:text-right text-left text-xs transition cursor-pointer flex flex-col justify-between ${
-                  selectedPathogen === item.pathogen
+                  currentPathogen.pathogen === item.pathogen
                     ? 'bg-sky-900/70 border-sky-400 text-white shadow-lg ring-1 ring-sky-400/50'
                     : 'bg-black/40 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
                 }`}
@@ -219,7 +283,8 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
           </div>
 
           {/* Pathogen Detail Card */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-700 space-y-4">
+          {filteredPathogens.length > 0 ? (
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-700 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
               <div>
                 <h3 className="font-bold text-base text-amber-300 flex items-center gap-2">
@@ -298,7 +363,10 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
                 {isFa ? currentPathogen.tgNotesFa : currentPathogen.tgNotesEn}
               </p>
             </div>
-          </div>
+            </div>
+          ) : (
+            renderEmptyState()
+          )}
         </div>
       )}
 
@@ -307,7 +375,8 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
         <div className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Interactive Vaccine Spacing Calculator */}
-            <div className="p-4 rounded-2xl bg-slate-900/90 border border-purple-500/40 space-y-4 text-xs">
+            {matches(VACCINE_SEARCH_TEXT.spacing) && (
+              <div className="p-4 rounded-2xl bg-slate-900/90 border border-purple-500/40 space-y-4 text-xs">
               <div className="flex items-center gap-2 text-purple-300 font-bold text-sm border-b border-slate-800 pb-2">
                 <Syringe className="w-5 h-5 text-purple-400" />
                 <span>{isFa ? 'محاسبه‌گر قانون فواصل تزریق واکسن‌ها (Australian Immunisation Handbook)' : 'Vaccine Spacing Rule Calculator'}</span>
@@ -440,10 +509,12 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
                   </div>
                 );
               })()}
-            </div>
+              </div>
+            )}
 
             {/* Shingrix & Cold Chain Guidelines */}
-            <div className="p-4 rounded-2xl bg-slate-900/90 border border-cyan-500/40 space-y-4 text-xs">
+            {matches(VACCINE_SEARCH_TEXT.shingrix) && (
+              <div className="p-4 rounded-2xl bg-slate-900/90 border border-cyan-500/40 space-y-4 text-xs">
               <div className="flex items-center gap-2 text-cyan-300 font-bold text-sm border-b border-slate-800 pb-2">
                 <ThermometerSnowflake className="w-5 h-5 text-cyan-400" />
                 <span>{isFa ? 'پروتکل Shingrix و مدیریت زنجیره سرد (Strive for 5)' : 'Shingrix NIP Schedule & Cold Chain Management'}</span>
@@ -485,8 +556,10 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
                     : 'Maintain 2°C to 8°C. Upon temperature breach: 1) Keep fridge closed 2) Tag "DO NOT USE" 3) Immediately report to State Public Health Unit and quarantine stock until assessed.'}
                 </p>
               </div>
-            </div>
+              </div>
+            )}
           </div>
+          {query && !vaccineMatches && renderEmptyState()}
         </div>
       )}
 
@@ -509,7 +582,8 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
           {/* Protocols Accordion Grid */}
           <div className="space-y-3">
             {/* Protocol 1: Clozapine ANC Monitoring */}
-            <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
+            {matches(MONITORING_SEARCH_TEXT.clozapine) && (
+              <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
               <div
                 onClick={() => setOpenMonitoringId(openMonitoringId === 'clozapine' ? '' : 'clozapine')}
                 className="flex items-center justify-between cursor-pointer"
@@ -562,10 +636,12 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
                   </div>
                 </div>
               )}
-            </div>
+              </div>
+            )}
 
             {/* Protocol 2: Amiodarone Multi-Organ Monitoring */}
-            <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
+            {matches(MONITORING_SEARCH_TEXT.amiodarone) && (
+              <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
               <div
                 onClick={() => setOpenMonitoringId(openMonitoringId === 'amiodarone' ? '' : 'amiodarone')}
                 className="flex items-center justify-between cursor-pointer"
@@ -618,10 +694,12 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
                   </p>
                 </div>
               )}
-            </div>
+              </div>
+            )}
 
             {/* Protocol 3: Once-Weekly Methotrexate Safety */}
-            <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
+            {matches(MONITORING_SEARCH_TEXT.methotrexate) && (
+              <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
               <div
                 onClick={() => setOpenMonitoringId(openMonitoringId === 'methotrexate' ? '' : 'methotrexate')}
                 className="flex items-center justify-between cursor-pointer"
@@ -672,10 +750,12 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
                   </div>
                 </div>
               )}
-            </div>
+              </div>
+            )}
 
             {/* Protocol 4: Warfarin Brand Invariability & Reversal */}
-            <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
+            {matches(MONITORING_SEARCH_TEXT.warfarin) && (
+              <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
               <div
                 onClick={() => setOpenMonitoringId(openMonitoringId === 'warfarin' ? '' : 'warfarin')}
                 className="flex items-center justify-between cursor-pointer"
@@ -719,8 +799,10 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
                   </div>
                 </div>
               )}
-            </div>
+              </div>
+            )}
           </div>
+          {query && !monitoringMatches && renderEmptyState()}
         </div>
       )}
 
@@ -742,7 +824,8 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             {/* Domain 1: Hypertension in Pregnancy */}
-            <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3 flex flex-col justify-between">
+            {matches(PREGNANCY_SEARCH_TEXT.hypertension) && (
+              <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3 flex flex-col justify-between">
               <div className="space-y-2">
                 <div className="flex items-center gap-2 font-bold text-sky-300 text-sm">
                   <Stethoscope className="w-4 h-4 text-sky-400" />
@@ -759,10 +842,12 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
                   <p className="text-slate-300">ACE inhibitors (Perindopril, Ramipril) & ARBs (خطر نارسایی کلیه جنین و الیگوهیدرآمنیوس)</p>
                 </div>
               </div>
-            </div>
+              </div>
+            )}
 
             {/* Domain 2: Gestational Diabetes & OGTT */}
-            <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3 flex flex-col justify-between">
+            {matches(PREGNANCY_SEARCH_TEXT.gestationalDiabetes) && (
+              <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3 flex flex-col justify-between">
               <div className="space-y-2">
                 <div className="flex items-center gap-2 font-bold text-purple-300 text-sm">
                   <Activity className="w-4 h-4 text-purple-400" />
@@ -783,10 +868,12 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
                   <p className="text-slate-300">تغییر سبک زندگی سپس انسولین تزریقی (یا متفورمین خوراکی طبق پروتکل استرالیا).</p>
                 </div>
               </div>
-            </div>
+              </div>
+            )}
 
             {/* Domain 3: Acne & Dermatology in Pregnancy */}
-            <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3 flex flex-col justify-between">
+            {matches(PREGNANCY_SEARCH_TEXT.acne) && (
+              <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3 flex flex-col justify-between">
               <div className="space-y-2">
                 <div className="flex items-center gap-2 font-bold text-amber-300 text-sm">
                   <Baby className="w-4 h-4 text-amber-400" />
@@ -803,8 +890,10 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
                   <p className="text-slate-300">Oral Isotretinoin (Roaccutane), Topical Retinoids (Differin, Retin-A), Oral Tetracyclines (Doxycycline)</p>
                 </div>
               </div>
-            </div>
+              </div>
+            )}
           </div>
+          {query && !pregnancyMatches && renderEmptyState()}
         </div>
       )}
     </div>
