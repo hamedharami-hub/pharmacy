@@ -33,6 +33,7 @@ import {
   Sliders,
   CheckCircle2,
   ExternalLink,
+  Settings,
 } from 'lucide-react';
 
 export interface MindMapCanvasProps {
@@ -51,6 +52,7 @@ export interface MindMapCanvasProps {
   textDisplayMode: MindMapTextDisplay;
   lineStyle: MindMapLineStyle;
   isDarkTheme?: boolean;
+  onOpenSettings?: () => void;
   children?: React.ReactNode;
 }
 
@@ -70,6 +72,7 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
   textDisplayMode,
   lineStyle,
   isDarkTheme = true,
+  onOpenSettings,
   children,
 }) => {
   const isFa = language === 'fa';
@@ -462,6 +465,18 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
         >
           {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4 text-purple-400" />}
         </button>
+
+        {/* ⚙️ Settings Gear Button in Floating Toolbar */}
+        {onOpenSettings && (
+          <button
+            type="button"
+            onClick={onOpenSettings}
+            className="p-2 rounded-xl bg-slate-800/90 hover:bg-purple-600 text-purple-300 hover:text-white transition shadow-sm cursor-pointer border border-purple-500/30"
+            title={isFa ? 'تنظیمات چیدمان و خطوط نقشه ذهنی' : 'Mind Map Settings'}
+          >
+            <Settings className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Canvas Status & Touch Guidance Helper Bar */}

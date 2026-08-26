@@ -54,7 +54,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     },
     {
       id: 5 as const,
-      label: { fa: 'لایتنر', en: 'Leitner' },
+      label: { fa: 'مرور', en: 'Review' },
       icon: Brain,
       activeColor: 'text-purple-500 dark:text-purple-400',
       activeBg: 'bg-purple-500/12 text-purple-700 dark:text-purple-300 border-purple-500/30 shadow-xs shadow-purple-950/20',

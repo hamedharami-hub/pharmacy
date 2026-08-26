@@ -42,49 +42,44 @@ export const LearningToolsModule: React.FC<LearningToolsModuleProps> = ({
 
   return (
     <div className="space-y-3 min-w-0" dir={isFa ? 'rtl' : 'ltr'}>
-      {/* Unified Tab Switcher Header */}
-      <div className="app-card border border-purple-500/30 rounded-2xl p-3 sm:p-4 bg-slate-900/90 backdrop-blur-md shadow-lg flex flex-wrap items-center justify-between gap-2.5">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-sky-600 flex items-center justify-center text-white shadow-sm shrink-0">
+      {/* Ultra-Compact Header & Dual-Shape View Switcher */}
+      <div className="app-card border app-border rounded-2xl p-2.5 sm:p-3 bg-slate-900/80 backdrop-blur-md shadow-md flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-linear-to-tr from-purple-600 via-indigo-600 to-sky-600 flex items-center justify-center text-white shadow-xs shrink-0">
             {activeTab === 'leitner' ? (
-              <Layers className="w-4 h-4 text-purple-200" />
+              <Layers className="w-3.5 h-3.5 text-purple-200" />
             ) : (
-              <Network className="w-4 h-4 text-cyan-300" />
+              <Network className="w-3.5 h-3.5 text-cyan-200" />
             )}
           </div>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-sm sm:text-base font-black text-white tracking-tight">
-                {isFa
-                  ? 'ماژول ۵: ابزارهای یادگیری، مرور فاصله‌دار و نقشه ذهنی'
-                  : 'Module 5: Learning Tools, Leitner Spaced Review & Mind Map'}
-              </h2>
-              <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[10px] sm:text-[11px] font-mono font-bold">
-                {activeTab === 'leitner'
-                  ? isFa
-                    ? 'جعبه لایتنر SM-2'
-                    : 'Leitner SM-2'
-                  : isFa
-                  ? 'درخت دانش و ارتباط مفاهیم'
-                  : 'Knowledge Graph'}
-              </span>
-            </div>
+          <div className="min-w-0">
+            <h2 className="text-xs sm:text-sm font-black text-white truncate leading-tight">
+              {isFa
+                ? activeTab === 'leitner'
+                  ? 'مرور هوشمند و فلش‌کارت‌ها (Review)'
+                  : 'نقشه ذهنی و درخت دانش (Mind Map)'
+                : activeTab === 'leitner'
+                ? 'Smart Flashcard Review'
+                : 'Knowledge Tree & Mind Map'}
+            </h2>
           </div>
         </div>
 
-        {/* Dual Mode Switcher Button */}
-        <div className="flex items-center gap-1.5 bg-black/40 p-1.5 rounded-xl border app-border text-xs">
+        {/* Dual Shape Icon Switcher (Compact & Modern) */}
+        <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border app-border">
+          {/* Shape 1: Flashcard / Review Icon */}
           <button
             type="button"
             onClick={() => setActiveTab('leitner')}
-            className={`px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 cursor-pointer ${
+            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 cursor-pointer relative ${
               activeTab === 'leitner'
-                ? 'bg-purple-600 text-white shadow-sm ring-1 ring-purple-400/40'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                ? 'bg-purple-600 text-white shadow-xs ring-1 ring-purple-400/40'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
             }`}
+            title={isFa ? 'مرور فلش‌کارت‌ها (Review)' : 'Flashcard Review'}
           >
-            <Layers className="w-3.5 h-3.5" />
-            <span>{isFa ? 'مرور فاصله‌دار لایتنر (Anki)' : 'Leitner Review (Anki)'}</span>
+            <Layers className="w-4 h-4" />
+            <span className="text-[11px] hidden sm:inline">{isFa ? 'مرور' : 'Review'}</span>
             {dueCount > 0 && (
               <span className="px-1.5 py-0.2 text-[9px] font-mono font-black rounded-full bg-amber-400 text-slate-950">
                 {dueCount}
@@ -92,17 +87,19 @@ export const LearningToolsModule: React.FC<LearningToolsModuleProps> = ({
             )}
           </button>
 
+          {/* Shape 2: Mind Map Network Icon */}
           <button
             type="button"
             onClick={() => setActiveTab('mindmap')}
-            className={`px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 cursor-pointer ${
+            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'mindmap'
-                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-sm ring-1 ring-indigo-400/40'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                ? 'bg-linear-to-r from-purple-600 to-indigo-600 text-white shadow-xs ring-1 ring-indigo-400/40'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
             }`}
+            title={isFa ? 'نقشه ذهنی (Mind Map)' : 'Mind Map'}
           >
-            <Network className="w-3.5 h-3.5 text-cyan-300" />
-            <span>{isFa ? '🗺️ نقشه ذهنی و درخت دانش' : '🗺️ Mind Map & Tree'}</span>
+            <Network className="w-4 h-4 text-cyan-300" />
+            <span className="text-[11px] hidden sm:inline">{isFa ? 'نقشه ذهنی' : 'Mind Map'}</span>
           </button>
         </div>
       </div>

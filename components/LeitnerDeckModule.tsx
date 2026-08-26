@@ -944,35 +944,35 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
   return (
     <div className="space-y-3 min-w-0" dir={isFa ? 'rtl' : 'ltr'}>
       {/* 1. TOP HEADER & SWITCH BAR */}
-      <div className="app-card border app-border rounded-2xl p-3 sm:p-3.5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="app-card border app-border rounded-2xl p-2.5 sm:p-3 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-2.5 bg-slate-900/60 backdrop-blur-md">
         {/* Left Branding */}
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30 flex items-center justify-center shadow-xs shrink-0">
-            <Layers className="w-4.5 h-4.5" />
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 flex items-center justify-center shadow-xs shrink-0">
+            <Layers className="w-4 h-4" />
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <h2 className="text-sm sm:text-base font-black app-text tracking-tight">
-              {isFa ? 'ماژول ۵: جعبه لایتنر و مرور هوشمند (FSRS & SM-2)' : 'Module 5: Smart Spaced Review (FSRS & Anki)'}
+          <div className="flex items-center gap-2 flex-wrap min-w-0">
+            <h2 className="text-xs sm:text-sm font-black app-text tracking-tight truncate">
+              {isFa ? 'مرور هوشمند و فلش‌کارت‌ها (Review)' : 'Smart Flashcard Review'}
             </h2>
-            <span className="px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-800 dark:text-purple-300 border border-purple-500/30 text-[10.5px] font-mono font-bold">
+            <span className="px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30 text-[10px] font-mono font-bold">
               FSRS v5 + SM-2
             </span>
           </div>
         </div>
 
         {/* View Switcher: Single Unified Tab Row with Settings Gear Button */}
-        <div className="flex items-center gap-1.5 app-bg p-1 rounded-xl border app-border overflow-x-auto no-scrollbar shrink-0">
+        <div className="flex items-center gap-1 app-bg p-1 rounded-xl border app-border overflow-x-auto no-scrollbar shrink-0">
           <button
             type="button"
             onClick={() => setCurrentView('anki_study')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
               currentView === 'anki_study'
-                ? 'bg-purple-600 text-white shadow-xs'
+                ? 'bg-purple-600 text-white shadow-xs ring-1 ring-purple-400/30'
                 : 'app-muted hover:app-text hover:bg-black/5 dark:hover:bg-slate-800/60'
             }`}
           >
             <Play className="w-3.5 h-3.5" />
-            <span>{isFa ? 'مرور کارت‌ها (Study)' : 'Study Mode'}</span>
+            <span>{isFa ? 'مرور کارت‌ها' : 'Study Mode'}</span>
           </button>
 
           <button
@@ -980,30 +980,30 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
             onClick={() => setCurrentView('decks_manager')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
               currentView === 'decks_manager'
-                ? 'bg-indigo-600 text-white shadow-xs'
+                ? 'bg-indigo-600 text-white shadow-xs ring-1 ring-indigo-400/30'
                 : 'app-muted hover:app-text hover:bg-black/5 dark:hover:bg-slate-800/60'
             }`}
           >
             <FolderTree className="w-3.5 h-3.5" />
-            <span>{isFa ? 'دسته‌ها و پوشه‌ها (Decks)' : 'Decks & Folders'}</span>
+            <span>{isFa ? 'دسته‌ها و پوشه‌ها' : 'Decks'}</span>
           </button>
 
           <button
             type="button"
             onClick={() => triggerAiGenerator()}
-            className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+            className="px-2.5 py-1.5 rounded-lg bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap"
             title={isFa ? 'تولید کارت جدید از متن با هوش مصنوعی' : 'Generate flashcards from text with AI'}
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>{isFa ? 'ساخت کارت با AI' : 'AI Studio'}</span>
+            <span>{isFa ? 'ساخت کارت AI' : 'AI Studio'}</span>
           </button>
 
           {/* ⚙️ Unified Leitner Study Settings Gear Button */}
           <button
             type="button"
             onClick={() => setIsStudySettingsOpen(true)}
-            className="px-2.5 py-1.5 rounded-lg app-bg hover:bg-black/5 dark:hover:bg-slate-800 app-text border app-border text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
-            title={isFa ? 'تنظیمات پیشرفته مطالعه، الگوریتم مرور و زمان‌بندی لایتنر' : 'Leitner Study & Review Settings'}
+            className="px-2 py-1.5 rounded-lg app-bg hover:bg-black/5 dark:hover:bg-slate-800 app-text border app-border text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+            title={isFa ? 'تنظیمات پیشرفته مطالعه، الگوریتم مرور و زمان‌بندی' : 'Review & Algorithm Settings'}
           >
             <Settings className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
             <span className="hidden sm:inline">{isFa ? 'تنظیمات' : 'Settings'}</span>

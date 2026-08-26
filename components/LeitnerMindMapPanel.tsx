@@ -1297,6 +1297,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
           textDisplayMode={textDisplayMode}
           lineStyle={lineStyle}
           isDarkTheme={true}
+          onOpenSettings={() => setIsMindMapSettingsOpen(true)}
         >
           {/* Context Menu Popup */}
           {contextMenu.isOpen && contextMenu.node && (
@@ -1428,6 +1429,30 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
             node={colorPickerModal.node}
             onSaveColor={handleSaveColor}
             language={language}
+          />
+
+          {/* ⚙️ MIND MAP SETTINGS MODAL (Inside Canvas for Fullscreen Support) */}
+          <MindMapSettingsModal
+            isOpen={isMindMapSettingsOpen}
+            onClose={() => setIsMindMapSettingsOpen(false)}
+            language={language}
+            viewMode={viewMode}
+            onChangeViewMode={(mode) => setViewMode(mode)}
+            lineStyle={lineStyle}
+            onChangeLineStyle={(style) => setLineStyle(style)}
+            textDisplayMode={textDisplayMode}
+            onChangeTextDisplayMode={(mode) => setTextDisplayMode(mode)}
+            filterModule={filterModule}
+            onChangeFilterModule={(mod) => setFilterModule(mod)}
+            filterBox={filterBox}
+            onChangeFilterBox={(box) => setFilterBox(box)}
+            selectedFlagFilters={selectedFlagFilters as any}
+            onToggleFlagFilter={(flag) => toggleFlagFilter(flag)}
+            onResetFlagFilters={() => setSelectedFlagFilters([])}
+            onExpandAll={expandAll}
+            onCollapseAll={collapseAll}
+            onExportJson={handleExportJson}
+            totalNodesCount={cards.length}
           />
         </MindMapCanvas>
       ) : viewMode === 'matrix_grid' ? (
