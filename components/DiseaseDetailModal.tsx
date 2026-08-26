@@ -228,10 +228,15 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
   const fallbackGuide = findHandbookGuide(disease);
   const baseMedicines: OTCDrugInfo[] = disease.medicines || fallbackGuide?.medicines || [];
 
-  // Primary display names
+  // Primary display names (Strictly pure English in English mode, bilingual in Persian mode)
+  const rawFa = clinicalTranslation?.cleanFaName || disease.name.fa || '';
+  const rawEn = clinicalTranslation?.cleanEnName || disease.name.en || '';
+  const cleanEn = (rawEn.replace(/[آ-ی].*$/g, '').replace(/^[^\w\d(]+/g, '').trim()) || disease.name.en || 'Clinical Condition';
+  const cleanFaOnly = (rawFa.replace(/\([^)]+\)/g, '').trim()) || disease.name.fa || rawFa;
+
   const diseaseTitle = isFa
-    ? (clinicalTranslation?.cleanFaName || disease.name.fa || disease.name.en)
-    : (clinicalTranslation?.cleanEnName || disease.name.en);
+    ? (cleanFaOnly.includes(cleanEn) ? cleanFaOnly : `${cleanFaOnly} (${cleanEn})`)
+    : cleanEn;
 
   // Primary Common Name & Brand
   const primaryCommonName = isFa

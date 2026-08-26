@@ -300,7 +300,9 @@ export const DiseaseCategoryExplorer: React.FC<DiseaseCategoryExplorerProps> = (
                     </div>
 
                     <div className="font-black text-xs sm:text-sm text-slate-100 group-hover:text-emerald-400 transition line-clamp-1">
-                      {d.name[language] || d.name.en}
+                      {isFa
+                        ? (d.name.fa.includes('(') ? d.name.fa : `${d.name.fa} (${d.name.en})`)
+                        : d.name.en}
                     </div>
 
                     <p className="text-[11px] app-muted line-clamp-2 leading-relaxed">
