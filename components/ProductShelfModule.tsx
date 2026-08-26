@@ -29,8 +29,9 @@ import {
 } from '@/data/mechanismsRegistry';
 
 import dynamic from 'next/dynamic';
-
-// Sub-components
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useStudyTrackerContext } from './study/StudyTrackerContext';
+import { MobileShelfCardDeck } from './shelf/MobileShelfCardDeck';
 import { ShelfDrugCard } from './shelf/ShelfDrugCard';
 import { ShelfDomainSelector } from './shelf/ShelfDomainSelector';
 import { ShelfSubcategoriesAccordion } from './shelf/ShelfSubcategoriesAccordion';
@@ -364,8 +365,67 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
     sortOrder,
   ]);
 
+  const isMobile = useIsMobile();
+  const [isMobileSelectorCollapsed, setIsMobileSelectorCollapsed] = useState(false);
+  const { studyState } = useStudyTrackerContext();
+
+  // Get last 2-3 unique recently studied items for Module 2/3/4
+  const recentHistoryItems = useMemo(() => {
+    const items: Array<{ itemId: string; moduleId: number; itemTitle: { fa: string; en: string }; routeContext?: any }> = [];
+    if (studyState?.lastStudiedGlobal) {
+      items.push({
+        itemId: studyState.lastStudiedGlobal.itemId,
+        moduleId: studyState.lastStudiedGlobal.moduleId,
+        itemTitle: studyState.lastStudiedGlobal.title,
+        routeContext: studyState.lastStudiedGlobal.routeContext,
+      });
+    }
+    if (studyState?.lastStudiedByModule) {
+      Object.values(studyState.lastStudiedByModule).forEach((m) => {
+        if (m && !items.some((it) => it.itemId === m.itemId)) {
+          items.push({
+            itemId: m.itemId,
+            moduleId: m.moduleId,
+            itemTitle: m.title,
+            routeContext: m.routeContext,
+          });
+        }
+      });
+    }
+    return items.slice(0, 3);
+  }, [studyState?.lastStudiedGlobal, studyState?.lastStudiedByModule]);
+
   return (
     <div className="space-y-4">
+      {/* 0. RECENTLY STUDIED ITEMS STRIP (Quick 1-Tap Access) */}
+      {recentHistoryItems.length > 0 && (
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
+          <span className="text-[11px] font-bold app-muted shrink-0 flex items-center gap-1">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>{isFa ? 'مطالعه‌های اخیر:' : 'Recent:'}</span>
+          </span>
+          {recentHistoryItems.map((h, idx) => (
+            <button
+              key={`${h.itemId}-${idx}`}
+              type="button"
+              onClick={() => {
+                if (h.moduleId === 2 && h.routeContext?.subCategoryId) {
+                  setSelectedSubCatId(h.routeContext.subCategoryId);
+                  if (h.routeContext.domainId) setSelectedDomainId(h.routeContext.domainId);
+                  setIsMobileSelectorCollapsed(true);
+                } else if (onNavigateToModule && h.moduleId) {
+                  onNavigateToModule(h.moduleId as 1 | 2 | 3 | 4 | 5 | 6);
+                }
+              }}
+              className="px-2.5 py-1 rounded-lg app-bg border app-border hover:border-teal-500/50 text-[11px] font-medium app-text truncate max-w-[200px] shrink-0 flex items-center gap-1 transition cursor-pointer"
+            >
+              <span className="text-[10px] opacity-70">M{h.moduleId}</span>
+              <span className="truncate">{h.itemTitle ? (isFa ? h.itemTitle.fa : h.itemTitle.en) : h.itemId}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* UNIFIED MODULE 2 TOP NAVIGATION & SEARCH */}
       <div className="space-y-3">
         {/* 1. SUB-NAVIGATION TABS ROW */}
@@ -505,278 +565,169 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
         resetAllFilters={resetAllFilters}
       />
 
-      {/* VIEW 3: MAIN PRODUCT SHELF (ONLY VISIBLE WHEN SHELF TAB IS ACTIVE) */}
+      {/* VIEW 3: MAIN PRODUCT SHELF (WHEN SHELF TAB IS ACTIVE) */}
       {activeShelfView === 'shelf' && (
         <>
-          {/* 7 CLINICAL DOMAINS NAVIGATION & CATEGORY ARCHITECTURE */}
-          <div className="space-y-4 my-2">
-            <ShelfDomainSelector
-              clinicalDomains={CLINICAL_DOMAINS}
-              selectedDomainId={selectedDomainId}
-              onSelectDomain={handleSelectDomain}
-              language={language}
-            />
+          {/* MOBILE EXPERIENCE: COLLAPSIBLE SELECTOR + GESTURE DECK */}
+          {isMobile ? (
+            <div className="space-y-4">
+              {!isMobileSelectorCollapsed ? (
+                /* Mobile Selector Card: Choose Domain & Subcategory then Confirm */
+                <div className="app-card border border-teal-500/40 rounded-2xl p-4 space-y-4 shadow-lg bg-linear-to-b from-teal-950/20 to-transparent animate-fadeIn">
+                  <div className="border-b app-border pb-2 flex items-center justify-between">
+                    <h3 className="text-xs sm:text-sm font-black app-text flex items-center gap-1.5">
+                      <Layers className="w-4 h-4 text-teal-400" />
+                      <span>{isFa ? 'انتخاب سرفصل و زیرمجموعه بالینی' : 'Select Domain & Subcategory'}</span>
+                    </h3>
+                  </div>
 
-            {/* 3 EXPANDABLE ACCORDIONS */}
-            <div className="space-y-3">
-              {/* ACCORDION 1: Subcategories & Clinical Pearls */}
-              <ShelfSubcategoriesAccordion
-                activeDomain={activeDomain}
-                activeSubCat={activeSubCat}
-                isOpen={isSubcategoriesAccordionOpen}
-                onToggleOpen={() => setIsSubcategoriesAccordionOpen((prev) => !prev)}
-                onSelectSubCatId={(id) => {
-                  setSelectedSubCatId(id);
-                }}
-                onSelectDisease={setSelectedDisease}
-                language={language}
-              />
+                  <div className="space-y-3">
+                    <ShelfDomainSelector
+                      clinicalDomains={CLINICAL_DOMAINS}
+                      selectedDomainId={selectedDomainId}
+                      onSelectDomain={handleSelectDomain}
+                      language={language}
+                    />
 
-              {/* ACCORDION 2: Common Mechanism & Cellular Targets */}
-              <ShelfCommonMechanismAccordion
-                targetId={activeSubCat.id}
-                activeSubCat={activeSubCat}
-                isOpen={isCommonMechanismAccordionOpen}
-                onToggleOpen={() => setIsCommonMechanismAccordionOpen((prev) => !prev)}
-                activeMechanismFilter={activeMechanismFilter}
-                onToggleMechanismFilter={(nameEn) => {
-                  setActiveMechanismFilter((prev) => (prev === nameEn ? 'ALL' : nameEn));
-                }}
-                onSelectConceptId={setSelectedConceptId}
-                language={language}
-              />
+                    <ShelfSubcategoriesAccordion
+                      activeDomain={activeDomain}
+                      activeSubCat={activeSubCat}
+                      isOpen={isSubcategoriesAccordionOpen}
+                      onToggleOpen={() => setIsSubcategoriesAccordionOpen((prev) => !prev)}
+                      onSelectSubCatId={(id) => setSelectedSubCatId(id)}
+                      onSelectDisease={setSelectedDisease}
+                      language={language}
+                    />
+                  </div>
 
-              {/* ACCORDION 3: Grouping, Sorting & Schedule Matrix */}
-              <ShelfGroupingAccordion
-                isOpen={isGroupingAccordionOpen}
-                onToggleOpen={() => setIsGroupingAccordionOpen((prev) => !prev)}
-                isGroupedByMechanism={isGroupedByMechanism}
-                onToggleGroupedByMechanism={() => setIsGroupedByMechanism((prev) => !prev)}
-                sortOrder={sortOrder}
-                setSortOrder={setSortOrder}
-                selectedSchedule={selectedSchedule}
-                setSelectedSchedule={setSelectedSchedule}
-                substitutionFilter={substitutionFilter}
-                setSubstitutionFilter={setSubstitutionFilter}
-                language={language}
-              />
-            </div>
-          </div>
-
-          {/* PRODUCTS SECTION: SUBCATEGORY PRODUCTS GRID */}
-          <div className="space-y-3 pt-2 border-t border-slate-800">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
-              <div className="flex flex-wrap items-center gap-2">
-                <Pill className="w-5 h-5 text-sky-400" />
-                <h3 className="text-base font-bold text-white">
-                  {isFa
-                    ? `داروهای زیرمجموعه «${activeSubCat.titleFa}» (${filteredProducts.length} محصول):`
-                    : `Medicines in ${activeSubCat.titleEn} (${filteredProducts.length} products):`}
-                </h3>
-                {activeMechanismFilter !== 'ALL' && (
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/40 font-bold flex items-center gap-1.5 animate-fadeIn">
-                    <Dna className="w-3.5 h-3.5" />
-                    <span>{activeMechanismFilter}</span>
-                    <button
-                      type="button"
-                      onClick={() => setActiveMechanismFilter('ALL')}
-                      className="hover:text-white ml-0.5 font-mono font-bold cursor-pointer"
-                      title={isFa ? 'حذف فیلتر مکانیسم' : 'Clear mechanism filter'}
-                    >
-                      ✕
-                    </button>
-                  </span>
-                )}
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsGroupedByMechanism((prev) => !prev)}
-                  className={`text-xs px-3 py-1.5 rounded-xl border font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs ${
-                    isGroupedByMechanism
-                      ? 'bg-teal-500 text-slate-950 border-teal-400 font-black'
-                      : 'bg-slate-800 hover:bg-slate-700 text-teal-300 border-teal-500/30'
-                  }`}
-                >
-                  <Layers className="w-3.5 h-3.5" />
-                  <span>{isFa ? '🧬 گروه‌بندی بر اساس مکانیسم' : '🧬 Group by Mechanism'}</span>
-                </button>
-
-                <div className="text-xs text-slate-400 flex items-center gap-1.5 pl-1">
-                  <span>{isFa ? 'ترتیب:' : 'Sort:'}</span>
-                  <span className="font-bold text-amber-300">
-                    {sortOrder === 'SUBCATEGORY'
-                      ? isFa ? 'بر اساس زیردسته‌ها' : 'By Subcategory'
-                      : sortOrder === 'ALPHABETICAL'
-                      ? isFa ? 'الفبایی' : 'Alphabetical'
-                      : 'Schedule'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Mechanism Filter Chips */}
-            {(() => {
-              const availableMechanisms = Array.from(
-                new Set(
-                  SHELF_PRODUCTS.filter((p) => {
-                    if (p.domainId && p.domainId !== selectedDomainId) return false;
-                    if (selectedSubCatId && p.subcategoryId && p.subcategoryId !== selectedSubCatId) return false;
-                    return true;
-                  }).map((p) => {
-                    const m = getProductMechanism(p);
-                    return JSON.stringify({ code: m.classCode, nameFa: m.classNameFa, nameEn: m.classNameEn, action: m.actionClassification });
-                  })
-                )
-              ).map((s) => JSON.parse(s));
-
-              if (availableMechanisms.length <= 1) return null;
-
-              return (
-                <div className="flex flex-wrap items-center gap-1.5 p-2 rounded-xl bg-slate-900/60 border border-teal-500/20 text-xs">
-                  <span className="text-slate-400 font-semibold flex items-center gap-1 text-[11px]">
-                    <Dna className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                    <span>{isFa ? 'فیلتر سریع مکانیسم:' : 'Quick Mechanism Filter:'}</span>
-                  </span>
-
+                  {/* Big Confirmation Button: Collapses selector and shows interactive card deck */}
                   <button
                     type="button"
-                    onClick={() => setActiveMechanismFilter('ALL')}
-                    className={`px-2.5 py-1 rounded-lg border text-[11px] font-bold transition cursor-pointer ${
-                      activeMechanismFilter === 'ALL'
-                        ? 'bg-teal-500 text-slate-950 border-teal-400 font-black'
-                        : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
-                    }`}
-                  >
-                    {isFa ? 'همه مکانیسم‌ها' : 'All Mechanisms'}
-                  </button>
-
-                  {availableMechanisms.map((am) => {
-                    const count = SHELF_PRODUCTS.filter((p) => {
-                      if (p.domainId && p.domainId !== selectedDomainId) return false;
-                      if (selectedSubCatId && p.subcategoryId && p.subcategoryId !== selectedSubCatId) return false;
-                      return getProductMechanism(p).classCode === am.code;
-                    }).length;
-
-                    const isAct = activeMechanismFilter === am.code;
-
-                    return (
-                      <button
-                        key={am.code}
-                        type="button"
-                        onClick={() => setActiveMechanismFilter(isAct ? 'ALL' : am.code)}
-                        className={`px-2.5 py-1 rounded-lg border text-[11px] font-bold transition cursor-pointer flex items-center gap-1.5 ${
-                          isAct
-                            ? 'bg-teal-500 text-slate-950 border-teal-400 font-black shadow-xs'
-                            : 'bg-teal-950/30 hover:bg-teal-900/40 text-teal-200 border-teal-500/30'
-                        }`}
-                      >
-                        <span>{isFa ? am.nameFa : am.nameEn}</span>
-                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${isAct ? 'bg-slate-900 text-teal-300' : 'bg-teal-500/20 text-teal-300'}`}>
-                          {count}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              );
-            })()}
-
-            {/* DRUG CARDS GRID (OR GROUPED BY MECHANISM) */}
-            {filteredProducts.length === 0 ? (
-              <div className="p-8 text-center app-card border app-border rounded-2xl text-slate-400 text-xs">
-                {isFa
-                  ? 'هیچ دارویی با فیلترهای انتخابی مطابقت ندارد. فیلترها را بازنشانی کنید.'
-                  : 'No products match the selected criteria. Try resetting filters.'}
-              </div>
-            ) : isGroupedByMechanism ? (
-              <div className="space-y-5 pt-2">
-                {(() => {
-                  const groupedMap = new Map<string, { mech: DrugMechanismInfo; prods: Product[] }>();
-                  filteredProducts.forEach((p) => {
-                    const m = getProductMechanism(p);
-                    if (!groupedMap.has(m.classCode)) {
-                      groupedMap.set(m.classCode, { mech: m, prods: [] });
-                    }
-                    groupedMap.get(m.classCode)!.prods.push(p);
-                  });
-
-                  return Array.from(groupedMap.values()).map(({ mech, prods }) => (
-                    <div
-                      key={mech.classCode}
-                      className="p-4 rounded-2xl border border-teal-500/30 bg-gradient-to-r from-teal-950/20 via-slate-900/40 to-slate-950/40 space-y-3 shadow-sm"
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-teal-500/20 pb-2.5">
-                        <div className="flex items-center gap-2">
-                          <Dna className="w-4 h-4 text-teal-400" />
-                          <h4 className="font-bold text-sm text-white">
-                            {isFa ? mech.classNameFa : mech.classNameEn}
-                          </h4>
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-300 font-mono font-bold">
-                            {mech.actionClassification}
-                          </span>
-                        </div>
-                        <span className="text-xs text-teal-300 font-mono font-bold">
-                          {prods.length} {isFa ? 'دارو' : 'Medicines'}
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4.5">
-                        {prods.map((prod) => (
-                          <ShelfDrugCard
-                            key={prod.id}
-                            prod={prod}
-                            language={language}
-                            calLabelsDict={CAL_LABELS_DICT}
-                            onSelectSchedule={(sched) => setSelectedSchedule(sched as any)}
-                            onSelectMechanism={setSelectedMechanismInfo}
-                            onSelectCalInfo={setSelectedCalInfo}
-                            onSelectConceptId={setSelectedConceptId}
-                            onOpenAiLeitner={onOpenAiLeitner}
-                            onNavigateToModule={onNavigateToModule}
-                            onOpenProjectStop={() => {
-                              setActiveProduct(prod);
-                              setIsProjectStopOpen(true);
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ));
-                })()}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4.5 pt-1">
-                {filteredProducts.map((prod) => (
-                  <ShelfDrugCard
-                    key={prod.id}
-                    prod={prod}
-                    language={language}
-                    calLabelsDict={CAL_LABELS_DICT}
-                    onSelectSchedule={(sched) => setSelectedSchedule(sched as any)}
-                    onSelectMechanism={setSelectedMechanismInfo}
-                    onSelectCalInfo={setSelectedCalInfo}
-                    onSelectConceptId={setSelectedConceptId}
-                    onOpenAiLeitner={onOpenAiLeitner}
-                    onNavigateToModule={onNavigateToModule}
-                    onOpenProjectStop={() => {
-                      setActiveProduct(prod);
-                      setIsProjectStopOpen(true);
+                    onClick={() => {
+                      setIsMobileSelectorCollapsed(true);
                     }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-indigo-600 hover:from-teal-500 hover:to-indigo-500 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-teal-950/40 cursor-pointer transition active:scale-98"
+                  >
+                    <Sparkles className="w-4 h-4 text-amber-300" />
+                    <span>{isFa ? '✨ مشاهده و مطالعه کارت‌ها (View Cards)' : '✨ View & Study Cards'}</span>
+                  </button>
+                </div>
+              ) : (
+                /* Mobile Interactive Gesture-Driven Card Deck */
+                <MobileShelfCardDeck
+                  activeDomain={activeDomain}
+                  activeSubCat={activeSubCat}
+                  products={filteredProducts}
+                  language={language}
+                  onOpenSelector={() => setIsMobileSelectorCollapsed(false)}
+                  onSelectDisease={setSelectedDisease}
+                  onSelectProduct={handleSelectProduct}
+                  onSelectSchedule={(sched) => setSelectedSchedule(sched as any)}
+                  onSelectMechanism={setSelectedMechanismInfo}
+                  onSelectCalInfo={setSelectedCalInfo}
+                  onSelectConceptId={setSelectedConceptId}
+                  onOpenProjectStop={(prod) => {
+                    setActiveProduct(prod);
+                    setIsProjectStopOpen(true);
+                  }}
+                  onNavigateToModule={onNavigateToModule}
+                  onOpenAiLeitner={onOpenAiLeitner}
+                />
+              )}
+            </div>
+          ) : (
+            /* DESKTOP EXPERIENCE: RICH MULTI-COLUMN VIEW */
+            <div className="space-y-4 my-2">
+              <ShelfDomainSelector
+                clinicalDomains={CLINICAL_DOMAINS}
+                selectedDomainId={selectedDomainId}
+                onSelectDomain={handleSelectDomain}
+                language={language}
+              />
 
-          {/* STATE STORAGE RULES COMPLIANCE TESTER */}
-          <ShelfStateStorageTester
-            selectedState={selectedState}
-            onSelectState={setSelectedState}
-            stateStorageRules={STATE_STORAGE_RULES}
-            language={language}
-          />
+              <div className="space-y-3">
+                <ShelfSubcategoriesAccordion
+                  activeDomain={activeDomain}
+                  activeSubCat={activeSubCat}
+                  isOpen={isSubcategoriesAccordionOpen}
+                  onToggleOpen={() => setIsSubcategoriesAccordionOpen((prev) => !prev)}
+                  onSelectSubCatId={(id) => setSelectedSubCatId(id)}
+                  onSelectDisease={setSelectedDisease}
+                  language={language}
+                />
+
+                <ShelfCommonMechanismAccordion
+                  targetId={activeSubCat.id}
+                  activeSubCat={activeSubCat}
+                  isOpen={isCommonMechanismAccordionOpen}
+                  onToggleOpen={() => setIsCommonMechanismAccordionOpen((prev) => !prev)}
+                  activeMechanismFilter={activeMechanismFilter}
+                  onToggleMechanismFilter={(nameEn) => {
+                    setActiveMechanismFilter((prev) => (prev === nameEn ? 'ALL' : nameEn));
+                  }}
+                  onSelectConceptId={setSelectedConceptId}
+                  language={language}
+                />
+
+                <ShelfGroupingAccordion
+                  isOpen={isGroupingAccordionOpen}
+                  onToggleOpen={() => setIsGroupingAccordionOpen((prev) => !prev)}
+                  isGroupedByMechanism={isGroupedByMechanism}
+                  onToggleGroupedByMechanism={() => setIsGroupedByMechanism((prev) => !prev)}
+                  sortOrder={sortOrder}
+                  setSortOrder={setSortOrder}
+                  selectedSchedule={selectedSchedule}
+                  setSelectedSchedule={setSelectedSchedule}
+                  substitutionFilter={substitutionFilter}
+                  setSubstitutionFilter={setSubstitutionFilter}
+                  language={language}
+                />
+              </div>
+
+              {/* PRODUCTS SECTION: SUBCATEGORY PRODUCTS GRID (DESKTOP) */}
+              <div className="space-y-3 pt-2 border-t border-slate-800">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Pill className="w-5 h-5 text-sky-400" />
+                    <h3 className="text-base font-bold text-white">
+                      {isFa
+                        ? `داروهای زیرمجموعه «${activeSubCat.titleFa}» (${filteredProducts.length} محصول):`
+                        : `Medicines in ${activeSubCat.titleEn} (${filteredProducts.length} products):`}
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {filteredProducts.map((prod) => (
+                    <ShelfDrugCard
+                      key={prod.id}
+                      prod={prod}
+                      language={language}
+                      calLabelsDict={CAL_LABELS_DICT}
+                      onSelectSchedule={(sched) => setSelectedSchedule(sched as any)}
+                      onSelectMechanism={setSelectedMechanismInfo}
+                      onSelectCalInfo={setSelectedCalInfo}
+                      onSelectConceptId={setSelectedConceptId}
+                      onOpenProjectStop={() => {
+                        setActiveProduct(prod);
+                        setIsProjectStopOpen(true);
+                      }}
+                      onOpenAiLeitner={onOpenAiLeitner}
+                      onNavigateToModule={onNavigateToModule}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* STATE STORAGE RULES COMPLIANCE TESTER */}
+              <ShelfStateStorageTester
+                selectedState={selectedState}
+                onSelectState={setSelectedState}
+                stateStorageRules={STATE_STORAGE_RULES}
+                language={language}
+              />
+            </div>
+          )}
         </>
       )}
 
