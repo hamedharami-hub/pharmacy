@@ -492,7 +492,7 @@ REFERRING PHARMACIST:
   const wwhamCount = Object.keys(askedQuestions).length;
   const allWwhamAsked = wwhamCount >= 4;
   const selectedOption = scenario.dialogueOptions.find((o) => o.id === selectedDialogueId);
-  const browseOpen = isBrowseOpen || !!scenarioSearchTerm.trim();
+  const browseOpen = isBrowseOpen && !scenarioSearchTerm.trim();
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12">

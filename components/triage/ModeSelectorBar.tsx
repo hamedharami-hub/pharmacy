@@ -45,7 +45,8 @@ export const ModeSelectorBar: React.FC<ModeSelectorBarProps> = ({
   modeCCount,
 }) => {
   const isFa = language === 'fa';
-  const browseOpen = isBrowseOpen || !!scenarioSearchTerm.trim();
+  const isSearching = !!scenarioSearchTerm.trim();
+  const browseOpen = isBrowseOpen && !isSearching;
   const getCleanTitle = (sc: Scenario) =>
     isFa ? cleanLocalizedText(sc.title.fa || sc.title.en, true) : sc.title.en;
   const getCleanCategory = (sc: Scenario) =>
@@ -130,7 +131,7 @@ export const ModeSelectorBar: React.FC<ModeSelectorBarProps> = ({
               filteredScenarios={filteredScenarios}
               selectedScenarioId={selectedScenarioId}
               onSelectScenario={onSelectScenario}
-              isOpen={isAccordionOpen}
+              isOpen={isAccordionOpen || isSearching}
               onToggleOpen={() => setIsAccordionOpen((prev) => !prev)}
               language={language}
             />
