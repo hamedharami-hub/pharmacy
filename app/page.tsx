@@ -35,7 +35,6 @@ import { ModuleFilter } from '@/components/ModuleFilter';
 import { StudyCard } from '@/components/StudyCard';
 import { FlashcardView } from '@/components/FlashcardView';
 import { SidebarNav } from '@/components/SidebarNav';
-import { Footer } from '@/components/Footer';
 import { INITIAL_SAMPLE_LEITNER_CARDS } from '@/lib/sample-leitner-cards';
 import { StudyTrackerProvider } from '@/components/study/StudyTrackerContext';
 import { ResumeStudyBanner } from '@/components/study/ResumeStudyBanner';
@@ -810,10 +809,7 @@ export default function Home() {
         )}
       </main>
 
-      {/* 3. Website Footer */}
-      <Footer language={language} />
-
-      {/* 4. Mobile Bottom Navigation Bar (Fixed for Ergonomic Touch) */}
+      {/* Mobile Bottom Navigation Bar (Fixed for Ergonomic Touch) */}
       <BottomNav
         language={language}
         activeModule={activeMainModule}
