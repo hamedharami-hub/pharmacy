@@ -41,37 +41,15 @@ export const LearningToolsModule: React.FC<LearningToolsModuleProps> = ({
   };
 
   return (
-    <div className="space-y-3 min-w-0" dir={isFa ? 'rtl' : 'ltr'}>
-      {/* Ultra-Compact Header & Dual-Shape View Switcher */}
-      <div className="app-card border app-border rounded-2xl p-2.5 sm:p-3 bg-slate-900/80 backdrop-blur-md shadow-md flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-linear-to-tr from-purple-600 via-indigo-600 to-sky-600 flex items-center justify-center text-white shadow-xs shrink-0">
-            {activeTab === 'leitner' ? (
-              <Layers className="w-3.5 h-3.5 text-purple-200" />
-            ) : (
-              <Network className="w-3.5 h-3.5 text-cyan-200" />
-            )}
-          </div>
-          <div className="min-w-0">
-            <h2 className="text-xs sm:text-sm font-black text-white truncate leading-tight">
-              {isFa
-                ? activeTab === 'leitner'
-                  ? 'مرور هوشمند و فلش‌کارت‌ها (Review)'
-                  : 'نقشه ذهنی و درخت دانش (Mind Map)'
-                : activeTab === 'leitner'
-                ? 'Smart Flashcard Review'
-                : 'Knowledge Tree & Mind Map'}
-            </h2>
-          </div>
-        </div>
-
-        {/* Dual Shape Icon Switcher (Compact & Modern) */}
-        <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border app-border">
+    <div className="space-y-2.5 min-w-0" dir={isFa ? 'rtl' : 'ltr'}>
+      {/* Pure Dual-Shape Switcher Bar (Icons Only - Ultra Minimal) */}
+      <div className="flex items-center justify-end">
+        <div className="flex items-center gap-1 bg-slate-900/90 backdrop-blur-md p-1 rounded-2xl border app-border shadow-xs">
           {/* Shape 1: Flashcard / Review Icon */}
           <button
             type="button"
             onClick={() => setActiveTab('leitner')}
-            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 cursor-pointer relative ${
+            className={`p-2 rounded-xl transition flex items-center justify-center cursor-pointer relative ${
               activeTab === 'leitner'
                 ? 'bg-purple-600 text-white shadow-xs ring-1 ring-purple-400/40'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
@@ -79,10 +57,9 @@ export const LearningToolsModule: React.FC<LearningToolsModuleProps> = ({
             title={isFa ? 'مرور فلش‌کارت‌ها (Review)' : 'Flashcard Review'}
           >
             <Layers className="w-4 h-4" />
-            <span className="text-[11px] hidden sm:inline">{isFa ? 'مرور' : 'Review'}</span>
             {dueCount > 0 && (
-              <span className="px-1.5 py-0.2 text-[9px] font-mono font-black rounded-full bg-amber-400 text-slate-950">
-                {dueCount}
+              <span className="absolute -top-1 -end-1 px-1 min-w-3.5 h-3.5 text-[8.5px] font-mono font-black rounded-full bg-amber-400 text-slate-950 flex items-center justify-center shadow-xs">
+                {dueCount > 99 ? '99+' : dueCount}
               </span>
             )}
           </button>
@@ -91,7 +68,7 @@ export const LearningToolsModule: React.FC<LearningToolsModuleProps> = ({
           <button
             type="button"
             onClick={() => setActiveTab('mindmap')}
-            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 cursor-pointer ${
+            className={`p-2 rounded-xl transition flex items-center justify-center cursor-pointer ${
               activeTab === 'mindmap'
                 ? 'bg-linear-to-r from-purple-600 to-indigo-600 text-white shadow-xs ring-1 ring-indigo-400/40'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
@@ -99,7 +76,6 @@ export const LearningToolsModule: React.FC<LearningToolsModuleProps> = ({
             title={isFa ? 'نقشه ذهنی (Mind Map)' : 'Mind Map'}
           >
             <Network className="w-4 h-4 text-cyan-300" />
-            <span className="text-[11px] hidden sm:inline">{isFa ? 'نقشه ذهنی' : 'Mind Map'}</span>
           </button>
         </div>
       </div>
