@@ -13,7 +13,6 @@ export interface MatrixTopicsAccordionProps {
   onToggleOpen: () => void;
   onSelectTopicId: (id: string) => void;
   language: Language;
-  query?: string;
 }
 
 export const MatrixTopicsAccordion: React.FC<MatrixTopicsAccordionProps> = ({
@@ -23,17 +22,9 @@ export const MatrixTopicsAccordion: React.FC<MatrixTopicsAccordionProps> = ({
   onToggleOpen,
   onSelectTopicId,
   language,
-  query = '',
 }) => {
   const isFa = language === 'fa';
-  const normalizedQuery = query.trim().toLowerCase();
-  const visibleTopics = topics.filter(
-    (topic) =>
-      topic.id === 'ALL' ||
-      !normalizedQuery ||
-      topic.searchText.toLowerCase().includes(normalizedQuery)
-  );
-  const activeTopic = visibleTopics.find((topic) => topic.id === selectedTopicId) || visibleTopics[0];
+  const activeTopic = topics.find((topic) => topic.id === selectedTopicId) || topics[0];
 
   return (
     <div className="space-y-3">
@@ -67,7 +58,7 @@ export const MatrixTopicsAccordion: React.FC<MatrixTopicsAccordionProps> = ({
         {isOpen && (
           <div className="p-3 sm:p-4 border-t app-border bg-black/5 dark:bg-slate-950/40 animate-fadeIn space-y-2.5">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              {visibleTopics.map((topic) => {
+              {topics.map((topic) => {
                 const isSelected = topic.id === selectedTopicId;
 
                 return (

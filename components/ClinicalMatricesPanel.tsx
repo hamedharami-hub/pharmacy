@@ -25,7 +25,12 @@ import {
   Layers,
   Search,
 } from 'lucide-react';
-import { MatrixSectionSelector, MatrixSection, MatrixSectionId } from '@/components/shelf/MatrixSectionSelector';
+import {
+  MatrixSectionSelector,
+  MatrixSection,
+  MatrixSectionId,
+  MatrixTopic,
+} from '@/components/shelf/MatrixSectionSelector';
 import { MatrixTopicsAccordion } from '@/components/shelf/MatrixTopicsAccordion';
 
 interface ClinicalMatricesPanelProps {
@@ -139,6 +144,22 @@ const VACCINE_SEARCH_TEXT: Record<string, string> = {
     'Shingrix زونا Zostavax NIP National Immunisation Program immunocompromised نقص ایمنی cold chain زنجیره سرد Strive for 5 temperature دما',
 };
 
+const pathogenToTopic = (item: PathogenCoverage): MatrixTopic => ({
+  id: item.pathogen,
+  titleFa: item.nameFa,
+  titleEn: item.pathogen,
+  searchText: [
+    item.pathogen,
+    item.nameFa,
+    item.gram,
+    item.mechanism,
+    ...item.activeDrugs,
+    ...item.resistantDrugs,
+    item.tgNotesFa,
+    item.tgNotesEn,
+  ].join(' '),
+});
+
 export const MATRIX_SECTIONS: MatrixSection[] = [
   {
     id: 'ANTIMICROBIAL',
@@ -146,21 +167,7 @@ export const MATRIX_SECTIONS: MatrixSection[] = [
     titleEn: 'Antimicrobial Resistance',
     icon: ShieldAlert,
     palette: 'sky',
-    topics: PATHOGEN_MATRIX.map((item) => ({
-      id: item.pathogen,
-      titleFa: item.nameFa,
-      titleEn: item.pathogen,
-      searchText: [
-        item.pathogen,
-        item.nameFa,
-        item.gram,
-        item.mechanism,
-        ...item.activeDrugs,
-        ...item.resistantDrugs,
-        item.tgNotesFa,
-        item.tgNotesEn,
-      ].join(' '),
-    })),
+    topics: PATHOGEN_MATRIX.map(pathogenToTopic),
   },
   {
     id: 'VACCINE',
@@ -309,9 +316,10 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
   const pregnancyMatches = tabMatchCounts.PREGNANCY_SAFETY > 0;
   const vaccineMatches = tabMatchCounts.VACCINE > 0;
   const activeSection = MATRIX_SECTIONS.find((section) => section.id === activeTab) || MATRIX_SECTIONS[0];
-  const visibleTopics = activeSection.topics.filter(
-    (topic) => topic.id === 'ALL' || !query || matches(topic.searchText)
-  );
+  const visibleTopics =
+    activeTab === 'ANTIMICROBIAL'
+      ? filteredPathogens.map(pathogenToTopic)
+      : activeSection.topics.filter((topic) => topic.id === 'ALL' || !query || matches(topic.searchText));
   const selectedTopicId =
     visibleTopics.find((topic) => topic.id === selectedTopics[activeTab])?.id ||
     visibleTopics.find((topic) => topic.id === 'ALL')?.id ||
@@ -331,20 +339,25 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
         <p>{isFa ? 'موردی برای این جستجو یافت نشد.' : 'No matching protocols found.'}</p>
         {matchingTabs.length > 0 && (
           <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
-            {matchingTabs.map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => {
-                  setActiveTab(tab);
-                  setIsBrowseOpen(true);
-                  setIsTopicsAccordionOpen(false);
-                }}
-                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 font-bold"
-              >
-                {isFa ? MATRIX_SECTIONS.find((section) => section.id === tab)?.titleFa : MATRIX_SECTIONS.find((section) => section.id === tab)?.titleEn} ({tabMatchCounts[tab]})
-              </button>
-            ))}
+            {matchingTabs.map((tab) => {
+              const matchingSection = MATRIX_SECTIONS.find((section) => section.id === tab);
+              if (!matchingSection) return null;
+
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => {
+                    setActiveTab(tab);
+                    setIsBrowseOpen(true);
+                    setIsTopicsAccordionOpen(false);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 font-bold"
+                >
+                  {isFa ? matchingSection.titleFa : matchingSection.titleEn} ({tabMatchCounts[tab]})
+                </button>
+              );
+            })}
           </div>
         )}
         {onSearchQueryChange && (
@@ -405,7 +418,7 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
               matchCounts={tabMatchCounts}
             />
             <MatrixTopicsAccordion
-              topics={activeSection.topics}
+              topics={visibleTopics}
               selectedTopicId={selectedTopicId}
               isOpen={isTopicsAccordionOpen}
               onToggleOpen={() => setIsTopicsAccordionOpen((prev) => !prev)}
@@ -413,7 +426,6 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
                 setSelectedTopics((previous) => ({ ...previous, [activeTab]: id }));
               }}
               language={language}
-              query={query}
             />
           </div>
 
@@ -461,11 +473,13 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
         </div>
       )}
 
+      {browseOpen && (
+        <>
       {/* TAB 1: ANTIMICROBIAL RESISTANCE & SPECTRUM MATRIX */}
       {activeTab === 'ANTIMICROBIAL' && (
         <div className="space-y-4">
           {/* Pathogen Detail Card */}
-          {filteredPathogens.length > 0 && selectedTopicId === currentPathogen.pathogen ? (
+          {filteredPathogens.length > 0 ? (
             <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-700 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
               <div>
@@ -1077,6 +1091,8 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
           </div>
           {query && !pregnancyMatches && renderEmptyState('PREGNANCY_SAFETY')}
         </div>
+      )}
+        </>
       )}
     </div>
   );
