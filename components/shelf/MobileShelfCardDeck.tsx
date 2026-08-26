@@ -75,7 +75,12 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
   const flags = isFa ? activeSubCat.redFlagsFa : activeSubCat.redFlagsEn;
 
   return (
-    <div className="space-y-3 pb-6">
+    <div
+      data-module="2"
+      data-category={activeDomain.titleEn}
+      data-topic={activeSubCat.titleEn}
+      className="space-y-3 pb-6"
+    >
       {/* 1. COMPACT TOP CONTROLLER BAR */}
       <div className="app-card border app-border rounded-2xl p-2.5 flex items-center justify-between gap-2 shadow-xs">
         {/* Active Title Pill */}

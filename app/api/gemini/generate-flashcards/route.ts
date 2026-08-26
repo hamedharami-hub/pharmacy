@@ -133,12 +133,22 @@ JSON STRUCTURE:
     const safeCustomPrompt = customPrompt ? String(customPrompt).slice(0, 1500).replace(/```/g, '') : '';
     const safeContextSnippet = contextSnippet ? String(contextSnippet).slice(0, 6000).replace(/```/g, '') : '';
 
-    const prompt = `Topic: ${topic || 'Clinical Pharmacology'}
-Category: ${category || 'Clinical Pharmacy'}
-Module: Module ${moduleNumber} (${moduleName})
-Target Flashcard Count: ${count}
-${safeCustomPrompt ? `Custom User Directive / Special Instructions:\n${safeCustomPrompt}\n` : ''}
-${safeContextSnippet ? `Clinical Source Reference / Selected Material:\n\`\`\`context\n${safeContextSnippet}\n\`\`\`` : ''}
+    const prompt = `PRIMARY CLINICAL DOMAIN:
+- Topic / Medicine / Disease: ${topic || 'Clinical Pharmacology'}
+- Therapeutic Category: ${category || 'Clinical Pharmacy'}
+- Active Practice Module: Module ${moduleNumber} (${moduleName})
+- Target Flashcard Count: ${count}
+
+${safeCustomPrompt ? `SPECIFIC USER DIRECTIVE:\n${safeCustomPrompt}\n` : ''}
+${safeContextSnippet ? `CLINICAL SOURCE CONTEXT (Selected Study Text / Clinical Guide):
+\`\`\`clinical-context
+${safeContextSnippet}
+\`\`\`
+CRITICAL INSTRUCTION FOR CONTEXT:
+1. Deeply analyze the provided Clinical Source Context above.
+2. Extract the high-yield therapeutic facts, clinical pearls, scheduling rules (SUSMP S2/S3/S4/S8), Cautionary Advisory Labels (CALs), and red flag symptoms directly described or implied in this context.
+3. Synthesize cards that test real-world clinical decision-making, patient consultation protocols, and pharmacology principles directly grounded in this specific topic (${topic}) and context.
+` : `Generate high-yield cards specifically on the clinical topic "${topic}" within category "${category}".`}
 
 Generate exactly ${count} high-yield, professionally formatted clinical flashcards in valid JSON matching the exact schema above.
 Start your response directly with { and end with }.`;

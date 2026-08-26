@@ -6,7 +6,7 @@ import { Language } from '@/types/pharmacy';
 
 interface TextSelectionLeitnerTriggerProps {
   language: Language;
-  onOpenLeitnerModal: (text: string, defaultModule?: 1 | 2 | 4, category?: string, topic?: string) => void;
+  onOpenLeitnerModal: (text: string, defaultModule?: 1 | 2 | 3 | 4, category?: string, topic?: string) => void;
 }
 
 export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerProps> = ({
@@ -23,6 +23,12 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
   const triggerRef = useRef<HTMLDivElement>(null);
   const isFa = language === 'fa';
 
+  const [detectedContext, setDetectedContext] = useState<{
+    module?: 1 | 2 | 3 | 4;
+    category?: string;
+    topic?: string;
+  }>({});
+
   const inspectSelection = useCallback(() => {
     if (typeof window === 'undefined') return;
 
@@ -37,17 +43,52 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
     if (text.length < 3 || text.length > 4000) {
       setCoords(null);
       setSelectedText('');
+      setDetectedContext({});
       return;
     }
 
     // Ignore if selection originates inside an input, textarea, or editable element
     const anchorNode = selection.anchorNode;
+    let foundModule: 1 | 2 | 3 | 4 | undefined = undefined;
+    let foundCategory: string | undefined = undefined;
+    let foundTopic: string | undefined = undefined;
+
     if (anchorNode) {
       const element = anchorNode.nodeType === Node.ELEMENT_NODE ? (anchorNode as Element) : anchorNode.parentElement;
       if (element?.closest('input, textarea, [contenteditable="true"], .no-leitner-trigger, .no-text-select-ai')) {
         setCoords(null);
         setSelectedText('');
+        setDetectedContext({});
         return;
+      }
+
+      // Automatically search closest container for context data attributes or headings
+      const contextualEl = element?.closest('[data-module], [data-topic], [data-category], [data-clinical-topic], article, .app-card');
+      if (contextualEl) {
+        const modAttr = contextualEl.getAttribute('data-module') || contextualEl.closest('[data-module]')?.getAttribute('data-module');
+        if (modAttr) {
+          const parsedMod = parseInt(modAttr, 10);
+          if (parsedMod >= 1 && parsedMod <= 4) foundModule = parsedMod as 1 | 2 | 3 | 4;
+        }
+
+        foundCategory =
+          contextualEl.getAttribute('data-category') ||
+          contextualEl.closest('[data-category]')?.getAttribute('data-category') ||
+          undefined;
+
+        foundTopic =
+          contextualEl.getAttribute('data-topic') ||
+          contextualEl.getAttribute('data-clinical-topic') ||
+          contextualEl.closest('[data-topic]')?.getAttribute('data-topic') ||
+          undefined;
+
+        // If topic not in data attribute, look for closest heading
+        if (!foundTopic) {
+          const heading = contextualEl.querySelector('h1, h2, h3, h4')?.textContent?.trim();
+          if (heading && heading.length < 80) {
+            foundTopic = heading;
+          }
+        }
       }
     }
 
@@ -57,6 +98,7 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
       if (rect.width === 0 && rect.height === 0) {
         setCoords(null);
         setSelectedText('');
+        setDetectedContext({});
         return;
       }
 
@@ -68,6 +110,11 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
       );
 
       setSelectedText(text);
+      setDetectedContext({
+        module: foundModule,
+        category: foundCategory,
+        topic: foundTopic,
+      });
       setCoords({ top, left });
     } catch {
       // Range might be invalid during DOM shifts
@@ -122,9 +169,15 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
     e.stopPropagation();
     if (!selectedText) return;
 
-    onOpenLeitnerModal(selectedText);
+    onOpenLeitnerModal(
+      selectedText,
+      detectedContext.module || 2,
+      detectedContext.category,
+      detectedContext.topic
+    );
     setCoords(null);
     setSelectedText('');
+    setDetectedContext({});
   };
 
   const handleCopyText = (e: React.MouseEvent) => {
