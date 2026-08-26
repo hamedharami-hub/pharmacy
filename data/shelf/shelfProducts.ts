@@ -2949,4 +2949,338 @@ export const SHELF_PRODUCTS: Product[] = [
       },
     ],
   },
+
+  // -------------------------------------------------------------
+  // CLINICAL GUIDELINE EXPANSIONS: FIRST-LINE & ESSENTIAL THERAPIES
+  // -------------------------------------------------------------
+
+  // Anal Fissure & Proctology (sub-1-4 Gastro / Rectal)
+  {
+    id: 'prod-rectogesic-gtn',
+    brandName: 'Rectogesic 0.2% Rectal Ointment',
+    genericName: 'Glyceryl Trinitrate (GTN) 0.2%',
+    activeIngredients: 'Glyceryl trinitrate 2mg/g (0.2% w/w) in paraffin base',
+    packSize: '30g Tube with measuring guide',
+    schedule: 'S3',
+    categoryId: 'cat-1',
+    subcategoryId: 'sub-1-4',
+    isNarrowTherapeuticIndex: false,
+    aFlagBioequivalent: false,
+    calLabels: ['CAL-A', 'CAL-1'],
+    indications: {
+      en: 'First-line non-surgical treatment for pain relief and healing of acute and chronic anal fissures.',
+      fa: 'خط اول درمان غیرجراحی جهت تسکین درد و ترمیم شقاق مقعدی حاد و مزمن.',
+    },
+    counselingPoints: [
+      {
+        en: 'Apply a 1cm to 1.5cm strip of ointment into the anal canal every 8 hours (3 times daily) using a finger covering or glove.',
+        fa: 'یک نوار ۱ تا ۱.۵ سانتی‌متری از پماد هر ۸ ساعت (۳ بار در روز) به داخل کانال مقعد مالیده شود.',
+      },
+      {
+        en: 'Throbbing headache and mild dizziness are common initial side effects due to vasodilation. Sitting down while applying helps prevent orthostasis.',
+        fa: 'سردرد ضربان‌دار و سرگیجه خفیف به دلیل اتساع عروقی شایع است؛ استعمال در حالت نشسته از افت فشار جلوگیری می‌کند.',
+      },
+      {
+        en: 'STRICTLY CONTRAINDICATED with PDE-5 inhibitors (sildenafil, tadalafil) within 24-48 hours due to risk of fatal hypotension.',
+        fa: 'مصرف همزمان با داروهای تقویت جنسی (سیلدنافیل، تادالافیل) تا ۲۴-۴۸ ساعت به دلیل افت شدید و مرگبار فشار خون اکیداً ممنوع است.',
+      },
+    ],
+  },
+  {
+    id: 'prod-proctosedyl-oint',
+    brandName: 'Proctosedyl Ointment / Suppositories',
+    genericName: 'Hydrocortisone 5mg/g + Cinchocaine HCl 5mg/g',
+    activeIngredients: 'Hydrocortisone 0.5% + Cinchocaine hydrochloride 0.5%',
+    packSize: '30g Tube / 12 Suppositories',
+    schedule: 'S2',
+    categoryId: 'cat-1',
+    subcategoryId: 'sub-1-4',
+    isNarrowTherapeuticIndex: false,
+    aFlagBioequivalent: true,
+    equivalentBrands: ['Proctosedyl Suppositories', 'Anusol Plus'],
+    calLabels: ['CAL-A'],
+    indications: {
+      en: 'Short-term relief of pain, inflammation, and pruritus associated with hemorrhoids, anal pruritus, and mild perianal irritation.',
+      fa: 'تسکین کوتاه‌مدت درد، التهاب و خارش ناشی از هموروئید، خارش مقعدی و تحریکات پره‌آنال.',
+    },
+    counselingPoints: [
+      {
+        en: 'Apply a small amount morning, night, and after each bowel motion (maximum 7 consecutive days).',
+        fa: 'مقدار کمی صبح، شب و پس از هر بار دفع مصرف شود (حداکثر به مدت ۷ روز متوالی).',
+      },
+      {
+        en: 'Do not use for longer than 7 days without medical review due to risk of perianal skin thinning (steroid atrophy).',
+        fa: 'به دلیل خطر نازک شدن پوست (آتروفی کورتونی) مصرف بیش از ۷ روز بدون نظر پزشک مجاز نیست.',
+      },
+    ],
+  },
+
+  // Dermatology: Acne, Rosacea & Psoriasis (sub-1-5 Dermatology)
+  {
+    id: 'prod-benzac-ac-wash',
+    brandName: 'Benzac AC 5% Wash / Gel',
+    genericName: 'Benzoyl Peroxide 5%',
+    activeIngredients: 'Benzoyl peroxide 50mg/g (5% w/w) in water-based gel/wash',
+    packSize: '200mL Wash / 50g Gel',
+    schedule: 'Unscheduled',
+    categoryId: 'cat-1',
+    subcategoryId: 'sub-1-5',
+    isNarrowTherapeuticIndex: false,
+    aFlagBioequivalent: true,
+    equivalentBrands: ['Benzac Daily Wash', 'Oxy 5', 'Curash Anti-Acne'],
+    calLabels: ['CAL-A', 'CAL-13'],
+    indications: {
+      en: 'First-line topical antibacterial and comedolytic treatment for mild to moderate acne vulgaris on face, chest, and back.',
+      fa: 'خط اول درمان آنتی‌باکتریال و کومدولیتیک موضعی برای آکنه ولگاریس خفیف تا متوسط در صورت، سینه و پشت.',
+    },
+    counselingPoints: [
+      {
+        en: 'Wash or apply once daily initially, increasing to twice daily if tolerated. Efficacy requires 6-8 weeks of consistent use.',
+        fa: 'در ابتدا روزی ۱ بار و پس از ۱ هفته به روزی ۲ بار افزایش یابد؛ دوره ارزیابی اثربخشی حداقل ۶ تا ۸ هفته است.',
+      },
+      {
+        en: 'Warning: Bleaches coloured fabrics, towels, bedding, and hair. Wash hands thoroughly after application.',
+        fa: 'هشدار: باعث سفید شدن و رنگ‌زدایی پارچه‌ها، حوله، ملحفه و مو می‌شود. پس از مصرف دست‌ها را کاملاً بشویید.',
+      },
+    ],
+  },
+  {
+    id: 'prod-azclear-lotion',
+    brandName: 'Azclear Action Medicated Lotion 20%',
+    genericName: 'Azelaic Acid 20%',
+    activeIngredients: 'Azelaic acid 200mg/g (20% w/w)',
+    packSize: '25g Tube',
+    schedule: 'S2',
+    categoryId: 'cat-1',
+    subcategoryId: 'sub-1-5',
+    isNarrowTherapeuticIndex: false,
+    aFlagBioequivalent: true,
+    equivalentBrands: ['Finacea 15% Gel'],
+    calLabels: ['CAL-A'],
+    indications: {
+      en: 'Topical antibacterial and anti-inflammatory treatment for acne vulgaris and post-inflammatory hyperpigmentation; suitable for sensitive skin.',
+      fa: 'درمان موضعی ضدالتهاب و ضدباکتری برای آکنه ولگاریس، روزاسه و لکه‌های تیره پس از جوش؛ مناسب برای پوست‌های حساس.',
+    },
+    counselingPoints: [
+      {
+        en: 'Apply thinly twice daily to affected areas after washing with soap-free cleanser. Slight transient tingling may occur initially.',
+        fa: 'روزی ۲ بار پس از شستشو با پاک‌کننده غیرصابونی روی موضع مالیده شود. سوزش خفیف و گذرا در ابتدای مصرف طبیعی است.',
+      },
+      {
+        en: 'Non-bleaching alternative to benzoyl peroxide that also helps fade dark post-acne marks (hyperpigmentation).',
+        fa: 'برخلاف بنزوئیل پروکساید لباس را رنگ‌زدایی نمی‌کند و به محو شدن لکه‌های تیره جای جوش کمک می‌نماید.',
+      },
+    ],
+  },
+  {
+    id: 'prod-daivobet-gel',
+    brandName: 'Daivobet 50/500 Gel / Ointment',
+    genericName: 'Calcipotriol 50mcg/g + Betamethasone Dipropionate 500mcg/g',
+    activeIngredients: 'Calcipotriol 50 micrograms/g (as monohydrate) + Betamethasone 0.5mg/g (as dipropionate)',
+    packSize: '30g Tube',
+    schedule: 'S4',
+    categoryId: 'cat-1',
+    subcategoryId: 'sub-1-5',
+    isNarrowTherapeuticIndex: false,
+    aFlagBioequivalent: false,
+    calLabels: ['CAL-A'],
+    indications: {
+      en: 'First-line topical combination therapy for stable plaque psoriasis vulgaris in adults.',
+      fa: 'خط اول درمان ترکیبی موضعی برای پسوریازیس پلاکی پایدار در بزرگسالان.',
+    },
+    counselingPoints: [
+      {
+        en: 'Apply once daily to affected plaques for up to 4 weeks. Maximum weekly dose is 100g to avoid hypercalcemia and steroid systemic absorption.',
+        fa: 'روزی ۱ بار تا حداکثر ۴ هفته روی پلاک‌های پسوریازیس مالیده شود. حداکثر مصرف هفتگی ۱۰۰ گرم است.',
+      },
+      {
+        en: 'Do not apply to face, flexures, or intertriginous areas. Wash hands after applying.',
+        fa: 'از مالیدن به پوست صورت و چین‌های پوستی خودداری شود. پس از مصرف دست‌ها شسته شود.',
+      },
+    ],
+  },
+
+  // Respiratory & ENT: Allergy, GORD & Asthma (sub-1-6 Respiratory)
+  {
+    id: 'prod-dymista-spray',
+    brandName: 'Dymista 125/50 Nasal Spray',
+    genericName: 'Azelastine HCl 137mcg + Fluticasone Propionate 50mcg per actuation',
+    activeIngredients: 'Azelastine hydrochloride 125 micrograms + Fluticasone propionate 50 micrograms per spray',
+    packSize: '120 Metered Sprays Bottle',
+    schedule: 'S4',
+    categoryId: 'cat-1',
+    subcategoryId: 'sub-1-6',
+    isNarrowTherapeuticIndex: false,
+    aFlagBioequivalent: false,
+    calLabels: ['CAL-A', 'CAL-1'],
+    indications: {
+      en: 'Rapid-onset first-line combination therapy for moderate to severe seasonal and perennial allergic rhinitis.',
+      fa: 'درمان ترکیبی خط اول با شروع اثر سریع (ظرف ۱۵ دقیقه) برای رینیت آلرژیک فصلی و دائمی متوسط تا شدید.',
+    },
+    counselingPoints: [
+      {
+        en: '1 spray in each nostril twice daily (morning and evening). Shake gently before use; blow nose prior to spraying.',
+        fa: '۱ پاف در هر سوراخ بینی ۲ بار در روز (صبح و شب). قبل از مصرف به آرامی تکان داده شود و سر کمی به جلو خم شود.',
+      },
+      {
+        en: 'Keep head tilted forward slightly during actuation to avoid bitter taste entering the throat.',
+        fa: 'هنگام اسپری کردن سر را کمی به جلو متمایل نگه دارید تا از ورود طعم تلخ به گلو جلوگیری شود.',
+      },
+    ],
+  },
+  {
+    id: 'prod-ventolin-inhaler',
+    brandName: 'Ventolin / Asmol 100mcg CFC-Free Inhaler',
+    genericName: 'Salbutamol Sulfate 100mcg/actuation',
+    activeIngredients: 'Salbutamol sulfate 100 micrograms per metered actuation',
+    packSize: '200 Metered Inhalations (MDI)',
+    schedule: 'S3',
+    categoryId: 'cat-1',
+    subcategoryId: 'sub-1-6',
+    isNarrowTherapeuticIndex: false,
+    aFlagBioequivalent: true,
+    equivalentBrands: ['Asmol 100 Inhaler', 'Zempreon 100'],
+    calLabels: ['CAL-A'],
+    indications: {
+      en: 'Short-acting beta-2 agonist (SABA) reliever for acute bronchospasm, asthma symptoms, and exercise-induced asthma prophylaxis.',
+      fa: 'داروی تسکین‌دهنده سریع‌الاثر (Reliever) برای حملات حاد تنگی نفس، علائم آسم و پیشگیری از آسم ناشی از ورزش.',
+    },
+    counselingPoints: [
+      {
+        en: 'Adult dose: 1-2 inhalations as required for acute relief (maximum 8 inhalations daily in routine care). Always recommend a spacer for optimal lung deposition.',
+        fa: 'دوز بزرگسالان: ۱ تا ۲ پاف در صورت بروز تنگی نفس؛ استفاده از دم‌یار (Spacer) جذب ریوی را تا ۲ برابر افزایش می‌دهد.',
+      },
+      {
+        en: 'If needing reliever inhaler >2 days per week, the patient has suboptimal asthma control and requires preventer therapy review.',
+        fa: 'نیاز به مصرف بیش از ۲ روز در هفته نشانه کنترل ضعیف آسم است و نیازمند بررسی درمان نگهدارنده (Preventer) می‌باشد.',
+      },
+    ],
+  },
+
+  // Pain & Gout (sub-1-1 Analgesics / Musculoskeletal)
+  {
+    id: 'prod-colgout-tablets',
+    brandName: 'Colgout 500mcg Tablets',
+    genericName: 'Colchicine 500mcg',
+    activeIngredients: 'Colchicine 500 micrograms per tablet',
+    packSize: '30 Tablets',
+    schedule: 'S4',
+    categoryId: 'cat-1',
+    subcategoryId: 'sub-1-1',
+    isNarrowTherapeuticIndex: true,
+    aFlagBioequivalent: true,
+    equivalentBrands: ['Lengout 500'],
+    calLabels: ['CAL-A', 'CAL-12'],
+    indications: {
+      en: 'First-line therapy for acute gout flares and prophylaxis during initiation of allopurinol urate-lowering therapy.',
+      fa: 'خط اول درمان حملات حاد نقرس و پیشگیری از عود حمله هنگام شروع آلوپورینول.',
+    },
+    counselingPoints: [
+      {
+        en: 'Acute gout regimen: 1mg (2 tablets) stat, followed by 500mcg (1 tablet) 1 hour later (maximum 1.5mg total per attack cycle). Do NOT exceed 1.5mg.',
+        fa: 'رژیم حمله حاد: ۲ قرص (۱ میلی‌گرم) در ابتدا، سپس ۱ قرص (۵۰۰ میکروگرم) یک ساعت بعد (حداکثر ۱.۵ میلی‌گرم در کل دوره حمله).',
+      },
+      {
+        en: 'Narrow Therapeutic Index: Toxicity risk. Stop immediately and seek medical attention if severe diarrhea, nausea, vomiting, or muscle weakness occurs.',
+        fa: 'پنجره درمانی باریک (NTI): در صورت بروز اسهال شدید، تهوع یا ضعف عضلانی فوراً مصرف قطع و به پزشک مراجعه شود.',
+      },
+      {
+        en: 'CYP3A4 & P-gp interactions: Strictly avoid grapefruit juice and check co-prescribed statins, macrolides, and diltiazem.',
+        fa: 'تداخلات شدید با آب گریپ‌فروت، کلاریترومایسین، دیلتیازم و استاتین‌ها که سطح دارویی را به شدت افزایش می‌دهند.',
+      },
+    ],
+  },
+  {
+    id: 'prod-allosig-tablets',
+    brandName: 'Allosig / Zyloprim (Allopurinol 100mg / 300mg)',
+    genericName: 'Allopurinol',
+    activeIngredients: 'Allopurinol 100mg or 300mg tablets',
+    packSize: '60 Tablets',
+    schedule: 'S4',
+    categoryId: 'cat-1',
+    subcategoryId: 'sub-1-1',
+    isNarrowTherapeuticIndex: false,
+    aFlagBioequivalent: true,
+    equivalentBrands: ['Progout 100/300', 'Zyloprim'],
+    calLabels: ['CAL-A'],
+    indications: {
+      en: 'Long-term urate-lowering therapy (xanthine oxidase inhibitor) for chronic gout, hyperuricemia, and prevention of recurrent uric acid nephrolithiasis.',
+      fa: 'مهارکننده گزانتین اکسیداز و درمان طولانی‌مدت کاهش اسید اوریک در نقرس مزمن و پیشگیری از سنگ کلیه اسید اوریکی.',
+    },
+    counselingPoints: [
+      {
+        en: 'Start low (100mg daily) and titrate monthly to target serum urate <0.36 mmol/L (<0.30 mmol/L if tophi present). Take with or immediately after food.',
+        fa: 'با دوز کم (۱۰۰ میلی‌گرم روزانه) شروع شده و تا رسیدن اسید اوریک سرم به زیر ۰.۳۶ میلی‌مول بر لیتر تنظیم می‌شود. همراه یا بعد از غذا میل شود.',
+      },
+      {
+        en: 'Co-prescribe colchicine 500mcg daily or low-dose NSAID for the first 3-6 months to prevent paradoxical gout flare precipitation.',
+        fa: 'در ۳ تا ۶ ماه اول شروع برای پیشگیری از شعله‌ور شدن حملات نقرس باید کلشی‌سین یا NSAID روزانه همزمان تجویز شود.',
+      },
+      {
+        en: 'WARNING: Discontinue immediately at first sign of skin rash or hypersensitivity (risk of Stevens-Johnson syndrome / DRESS).',
+        fa: 'هشدار مهم: در صورت بروز هرگونه راش پوستی مصرف فوراً قطع شود (خطر سندروم استیونز-جانسون).',
+      },
+    ],
+  },
+
+  // Gastrointestinal: GORD & Reflux (sub-1-4 Gastrointestinal)
+  {
+    id: 'prod-nexium-24hr',
+    brandName: 'Nexium 24HR 20mg Tablets',
+    genericName: 'Esomeprazole 20mg (as magnesium trihydrate)',
+    activeIngredients: 'Esomeprazole 20mg enteric-coated tablets',
+    packSize: '14 Tablets (S2) / 28 Tablets (S3)',
+    schedule: 'S3',
+    categoryId: 'cat-1',
+    subcategoryId: 'sub-1-4',
+    isNarrowTherapeuticIndex: false,
+    aFlagBioequivalent: true,
+    equivalentBrands: ['Somac Control 20', 'Pariet 20', 'Chemist Own Esomeprazole'],
+    calLabels: ['CAL-A', 'CAL-13'],
+    indications: {
+      en: 'Proton Pump Inhibitor (PPI) for short-term symptomatic relief of frequent heartburn and acid reflux in adults.',
+      fa: 'مهارکننده پمپ پروتون (PPI) جهت تسکین علامتی سوزش سردل مکرر و رفلاکس اسید معده به مری در بزرگسالان.',
+    },
+    counselingPoints: [
+      {
+        en: 'Swallow whole with a glass of water at least 30 to 60 minutes before breakfast. Do not crush or chew the tablets.',
+        fa: 'قرص حداقل ۳۰ تا ۶۰ دقیقه قبل از صبحانه با یک لیوان پر آب به صورت کامل بلعیده شود و جویده یا خرد نشود.',
+      },
+      {
+        en: 'May take 1 to 4 days for maximum acid suppression; antacids or alginates (Gaviscon) can be used concurrently for immediate breakthrough relief.',
+        fa: 'رسیدن به حداکثر اثر مهاری اسید ۱ تا ۴ روز زمان می‌برد؛ برای تسکین آنی در روزهای اول می‌توان گاویزکون همزمان مصرف کرد.',
+      },
+    ],
+  },
+
+  // Women's Health & Oral Care (sub-1-2 / sub-1-3)
+  {
+    id: 'prod-canesten-once',
+    brandName: 'Canesten Once 500mg Pessary + 1% Cream',
+    genericName: 'Clotrimazole 500mg Pessary',
+    activeIngredients: 'Clotrimazole 500mg vaginal pessary + Clotrimazole 10mg/g external cream',
+    packSize: '1 Pessary with applicator + 10g Cream',
+    schedule: 'S3',
+    categoryId: 'cat-1',
+    subcategoryId: 'sub-1-2',
+    isNarrowTherapeuticIndex: false,
+    aFlagBioequivalent: true,
+    equivalentBrands: ['Chemist Own Clotrimazole 500', 'Clocreme 500'],
+    calLabels: ['CAL-A'],
+    indications: {
+      en: 'Single-dose antifungal treatment for acute vulvovaginal candidiasis (thrush).',
+      fa: 'درمان تک‌دوز ضدقارچ برای برفک و کاندیدیازیس حاد واژینال همراه با کرم تسکین خارش خارجی.',
+    },
+    counselingPoints: [
+      {
+        en: 'Insert pessary high into the vagina at bedtime using the applicator (or manually without applicator if pregnant).',
+        fa: 'شیاف هنگام خواب با اپلیکاتور به داخل واژن گذاشته شود (در دوران بارداری بدون اپلیکاتور و با دست قرار داده شود).',
+      },
+      {
+        en: 'May damage latex condoms and diaphragms; avoid intercourse or use alternative non-latex contraception during treatment and for 3 days post-treatment.',
+        fa: 'کرم و شیاف ممکن است کاندوم لاتکس را تخریب کنند؛ تا ۳ روز پس از مصرف از کاندوم لاتکس استفاده نشود.',
+      },
+    ],
+  },
 ];
+
