@@ -9,8 +9,8 @@ interface ShelfGroupingAccordionProps {
   onToggleOpen: () => void;
   isGroupedByMechanism: boolean;
   onToggleGroupedByMechanism: () => void;
-  sortOrder: 'SUBCATEGORY' | 'ALPHABETICAL' | 'SCHEDULE';
-  setSortOrder: (order: 'SUBCATEGORY' | 'ALPHABETICAL' | 'SCHEDULE') => void;
+  sortOrder: 'SUBCATEGORY' | 'MECHANISM' | 'ALPHABETICAL' | 'SCHEDULE';
+  setSortOrder: (order: 'SUBCATEGORY' | 'MECHANISM' | 'ALPHABETICAL' | 'SCHEDULE') => void;
   selectedSchedule: string;
   setSelectedSchedule: (sched: any) => void;
   substitutionFilter: 'ALL' | 'A_FLAG' | 'NTI';
@@ -57,7 +57,7 @@ export const ShelfGroupingAccordion: React.FC<ShelfGroupingAccordionProps> = ({
               : 'Standard'}
           </span>
           <span className="text-[10px] text-slate-400 hidden sm:inline">
-            ({isFa ? (sortOrder === 'SUBCATEGORY' ? 'زیردسته‌ها' : sortOrder === 'ALPHABETICAL' ? 'الفبایی' : 'Schedule') : sortOrder}
+            ({isFa ? (sortOrder === 'MECHANISM' ? 'مکانیسم اثر' : sortOrder === 'SUBCATEGORY' ? 'زیردسته‌ها' : sortOrder === 'ALPHABETICAL' ? 'الفبایی' : 'Schedule') : sortOrder}
             {selectedSchedule !== 'ALL' ? ` | ${selectedSchedule}` : ''})
           </span>
         </div>
@@ -118,14 +118,17 @@ export const ShelfGroupingAccordion: React.FC<ShelfGroupingAccordionProps> = ({
                 onChange={(e) => setSortOrder(e.target.value as any)}
                 className="px-2.5 py-1 rounded-lg bg-black/60 border border-slate-700 text-xs text-sky-300 focus:outline-none cursor-pointer"
               >
+                <option value="MECHANISM">
+                  {isFa ? '🧬 بر اساس مکانیسم اثر (Mechanism)' : '🧬 By Mechanism of Action'}
+                </option>
                 <option value="SUBCATEGORY">
-                  {isFa ? 'بر اساس زیردسته‌های اصلی' : 'By Subcategories'}
+                  {isFa ? '🏷️ بر اساس زیردسته‌های اصلی' : '🏷️ By Subcategories'}
                 </option>
                 <option value="ALPHABETICAL">
-                  {isFa ? 'به ترتیب الفبا (A-Z)' : 'Alphabetical (A-Z)'}
+                  {isFa ? '🔤 به ترتیب الفبا (A-Z)' : '🔤 Alphabetical (A-Z)'}
                 </option>
                 <option value="SCHEDULE">
-                  {isFa ? 'بر اساس زمان‌بندی (S8->S2)' : 'By Schedule (S8->S2)'}
+                  {isFa ? '🛡️ بر اساس زمان‌بندی (S8->S2)' : '🛡️ By Schedule (S8->S2)'}
                 </option>
               </select>
             </div>

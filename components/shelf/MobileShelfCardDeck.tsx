@@ -6,7 +6,7 @@ import { SubCategory, ClinicalDomain, Product } from '@/types/shelf';
 import { Language, DiseaseInfo } from '@/types/pharmacy';
 import { FormattedClinicalText } from './FormattedClinicalText';
 import { getDiseasesForSubCategory, getConceptsForSubCategory } from '@/data/shelf/diseaseHelpers';
-import { getCategoryMechanism } from '@/data/mechanismsRegistry';
+import { getCategoryMechanism, getProductMechanism } from '@/data/mechanismsRegistry';
 import { ShelfDrugCard } from './ShelfDrugCard';
 import { haptic } from '@/lib/haptics';
 import {
@@ -46,6 +46,8 @@ interface MobileShelfCardDeckProps {
   onOpenProjectStop?: (prod: Product) => void;
   onNavigateToModule?: (moduleNumber: 1 | 2 | 3 | 4 | 5 | 6, contextId?: string) => void;
   onOpenAiLeitner?: (text: string, module: 1 | 2 | 4, category?: string, topic?: string) => void;
+  sortOrder?: 'SUBCATEGORY' | 'MECHANISM' | 'ALPHABETICAL' | 'SCHEDULE';
+  onSelectSortOrder?: (order: 'SUBCATEGORY' | 'MECHANISM' | 'ALPHABETICAL' | 'SCHEDULE') => void;
 }
 
 export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
@@ -63,6 +65,8 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
   onOpenProjectStop,
   onNavigateToModule,
   onOpenAiLeitner,
+  sortOrder: externalSortOrder,
+  onSelectSortOrder,
 }) => {
   const isFa = language === 'fa';
   const relatedDiseases = getDiseasesForSubCategory(activeSubCat.id);
@@ -76,6 +80,35 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
   const [verticalStep, setVerticalStep] = useState<0 | 1 | 2>(0);
   const [horizontalSpecTab, setHorizontalSpecTab] = useState<0 | 1 | 2 | 3>(0); // 0: Pearls, 1: Mechanism, 2: Rules, 3: Red Flags
   const [isQuickMechOpen, setIsQuickMechOpen] = useState<boolean>(false);
+  const [internalSortOrder, setInternalSortOrder] = useState<'SUBCATEGORY' | 'MECHANISM' | 'ALPHABETICAL' | 'SCHEDULE'>('SUBCATEGORY');
+
+  const currentSortOrder = externalSortOrder || internalSortOrder;
+  const handleSortChange = (order: 'SUBCATEGORY' | 'MECHANISM' | 'ALPHABETICAL' | 'SCHEDULE') => {
+    haptic.light();
+    setInternalSortOrder(order);
+    if (onSelectSortOrder) onSelectSortOrder(order);
+  };
+
+  const sortedProducts = React.useMemo(() => {
+    const list = [...products];
+    if (currentSortOrder === 'MECHANISM') {
+      return list.sort((a, b) => {
+        const mechA = getProductMechanism(a).classNameEn || '';
+        const mechB = getProductMechanism(b).classNameEn || '';
+        const comp = mechA.localeCompare(mechB);
+        if (comp !== 0) return comp;
+        return a.genericName.localeCompare(b.genericName);
+      });
+    }
+    if (currentSortOrder === 'ALPHABETICAL') {
+      return list.sort((a, b) => a.genericName.localeCompare(b.genericName));
+    }
+    if (currentSortOrder === 'SCHEDULE') {
+      const schedWeight: Record<string, number> = { S8: 4, S4: 3, S3: 2, S2: 1, Unscheduled: 0 };
+      return list.sort((a, b) => (schedWeight[b.schedule] || 0) - (schedWeight[a.schedule] || 0));
+    }
+    return list;
+  }, [products, currentSortOrder]);
 
   const pearls = isFa ? activeSubCat.clinicalPearlsFa : activeSubCat.clinicalPearlsEn;
   const rules = isFa ? activeSubCat.schedulingRulesFa : activeSubCat.schedulingRulesEn;
@@ -664,29 +697,87 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                 </div>
               )}
 
-              <div className="flex items-center justify-between text-xs font-bold app-text px-1">
-                <span className="flex items-center gap-1.5 text-teal-400">
-                  <Pill className="w-4 h-4" />
-                  <span>
-                    {isFa
-                      ? `لیست داروهای سرفصل (${products.length} دارو)`
-                      : `Medicines List (${products.length})`}
+              <div className="flex flex-col gap-2 p-1">
+                <div className="flex items-center justify-between text-xs font-bold app-text">
+                  <span className="flex items-center gap-1.5 text-teal-400">
+                    <Pill className="w-4 h-4" />
+                    <span>
+                      {isFa
+                        ? `لیست داروهای سرفصل (${sortedProducts.length} دارو)`
+                        : `Medicines List (${sortedProducts.length})`}
+                    </span>
                   </span>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    haptic.light();
-                    setVerticalStep(0);
-                  }}
-                  className="text-xs text-sky-400 hover:underline flex items-center gap-1 cursor-pointer font-bold"
-                >
-                  <ChevronUp className="w-3.5 h-3.5" />
-                  <span>{isFa ? 'مشخصات کامل' : 'Profile'}</span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      haptic.light();
+                      setVerticalStep(0);
+                    }}
+                    className="text-xs text-sky-400 hover:underline flex items-center gap-1 cursor-pointer font-bold"
+                  >
+                    <ChevronUp className="w-3.5 h-3.5" />
+                    <span>{isFa ? 'مشخصات کامل' : 'Profile'}</span>
+                  </button>
+                </div>
+
+                {/* Quick Sorting Pills */}
+                <div className="flex items-center gap-1 overflow-x-auto pb-1 no-scrollbar text-[10.5px]">
+                  <span className="text-slate-400 font-medium shrink-0 flex items-center gap-0.5">
+                    {isFa ? 'مرتب‌سازی:' : 'Sort:'}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSortChange('MECHANISM')}
+                    className={`px-2.5 py-1 rounded-lg border font-bold transition shrink-0 flex items-center gap-1 cursor-pointer ${
+                      currentSortOrder === 'MECHANISM'
+                        ? 'bg-teal-500 text-slate-950 border-teal-400 font-black shadow-xs'
+                        : 'bg-slate-900/80 hover:bg-slate-800 text-teal-300 border-teal-500/30'
+                    }`}
+                  >
+                    <Dna className="w-3 h-3 shrink-0" />
+                    <span>{isFa ? '🧬 مکانیسم اثر' : '🧬 Mechanism'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSortChange('ALPHABETICAL')}
+                    className={`px-2 py-1 rounded-lg border font-bold transition shrink-0 flex items-center gap-1 cursor-pointer ${
+                      currentSortOrder === 'ALPHABETICAL'
+                        ? 'bg-sky-500 text-slate-950 border-sky-400 font-black shadow-xs'
+                        : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-slate-700'
+                    }`}
+                  >
+                    <span>{isFa ? '🔤 الفبا (A-Z)' : '🔤 A-Z'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSortChange('SCHEDULE')}
+                    className={`px-2 py-1 rounded-lg border font-bold transition shrink-0 flex items-center gap-1 cursor-pointer ${
+                      currentSortOrder === 'SCHEDULE'
+                        ? 'bg-indigo-500 text-white border-indigo-400 font-black shadow-xs'
+                        : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-slate-700'
+                    }`}
+                  >
+                    <span>{isFa ? '🛡️ زمان‌بندی (S8->S2)' : '🛡️ Schedule'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSortChange('SUBCATEGORY')}
+                    className={`px-2 py-1 rounded-lg border font-bold transition shrink-0 flex items-center gap-1 cursor-pointer ${
+                      currentSortOrder === 'SUBCATEGORY'
+                        ? 'bg-slate-700 text-white border-slate-500 font-bold shadow-xs'
+                        : 'bg-slate-900/80 hover:bg-slate-800 text-slate-400 border-slate-800'
+                    }`}
+                  >
+                    <span>{isFa ? 'پیش‌فرض' : 'Default'}</span>
+                  </button>
+                </div>
               </div>
 
-              {products.length === 0 ? (
+              {sortedProducts.length === 0 ? (
                 <div className="app-card border app-border rounded-2xl p-8 text-center app-muted text-xs space-y-2">
                   <Pill className="w-8 h-8 mx-auto text-slate-600" />
                   <p>{isFa ? 'دارویی در این زیرمجموعه یافت نشد.' : 'No medicines in this subcategory.'}</p>
@@ -695,7 +786,7 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                 <div className="space-y-3">
                   {/* Clean List of All Drug Cards */}
                   <div className="space-y-3">
-                    {products.map((prod) => (
+                    {sortedProducts.map((prod) => (
                       <ShelfDrugCard
                         key={prod.id}
                         prod={prod}

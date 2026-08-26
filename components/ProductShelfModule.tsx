@@ -150,7 +150,7 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
   // Domain & SubCategory Tree State
   const [selectedDomainId, setSelectedDomainId] = useState<string>('cat-1');
   const [selectedSubCatId, setSelectedSubCatId] = useState<string>('sub-1-1');
-  const [sortOrder, setSortOrder] = useState<'SUBCATEGORY' | 'ALPHABETICAL' | 'SCHEDULE'>('SUBCATEGORY');
+  const [sortOrder, setSortOrder] = useState<'SUBCATEGORY' | 'MECHANISM' | 'ALPHABETICAL' | 'SCHEDULE'>('SUBCATEGORY');
 
   // Search Scope States
   const [searchDomainScope, setSearchDomainScope] = useState<string>('ALL');
@@ -340,6 +340,13 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
 
       return true;
     }).sort((a, b) => {
+      if (sortOrder === 'MECHANISM') {
+        const mechA = getProductMechanism(a).classNameEn || '';
+        const mechB = getProductMechanism(b).classNameEn || '';
+        const comp = mechA.localeCompare(mechB);
+        if (comp !== 0) return comp;
+        return a.genericName.localeCompare(b.genericName);
+      }
       if (sortOrder === 'ALPHABETICAL') {
         return a.genericName.localeCompare(b.genericName);
       }
@@ -357,7 +364,6 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
     activeScheduleTags,
     activeCalTags,
     activeSafetyTags,
-    searchQuery,
     searchDomainScope,
     searchSubCatScope,
     selectedDomainId,
@@ -631,6 +637,8 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
                     setActiveProduct(prod);
                     setIsProjectStopOpen(true);
                   }}
+                  sortOrder={sortOrder}
+                  onSelectSortOrder={setSortOrder}
                   onNavigateToModule={onNavigateToModule}
                   onOpenAiLeitner={onOpenAiLeitner}
                 />
