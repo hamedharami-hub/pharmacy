@@ -64,97 +64,18 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
   const relatedDiseases = getDiseasesForSubCategory(activeSubCat.id);
 
   // Deck State:
-  // Step 0: Clinical Specifications (Horizontal Swipe between Pearls=0, Rules=1, RedFlags=2)
+  // Step 0: Clinical Specifications (Tabs: Pearls=0, Rules=1, RedFlags=2)
   // Step 1: Related Diseases & Treatment Matrix
   // Step 2: Medicines / Drugs on the Shelf
   const [verticalStep, setVerticalStep] = useState<0 | 1 | 2>(0);
   const [horizontalSpecTab, setHorizontalSpecTab] = useState<0 | 1 | 2>(0); // 0: Pearls, 1: Rules, 2: Red Flags
-  const [currentDrugIndex, setCurrentDrugIndex] = useState(0);
-
-  // Drag tracking for touch gestures
-  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!touchStartRef.current) return;
-    const touch = e.changedTouches[0];
-    const deltaX = touch.clientX - touchStartRef.current.x;
-    const deltaY = touch.clientY - touchStartRef.current.y;
-    const elapsed = Date.now() - touchStartRef.current.time;
-    touchStartRef.current = null;
-
-    if (elapsed > 600) return; // ignore long presses
-
-    const threshold = 40;
-
-    // Horizontal Swipe (Left/Right)
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > threshold) {
-      if (verticalStep === 0) {
-        // Clinical Spec Step
-        if (deltaX < 0) {
-          // Swipe Left -> next spec
-          if (horizontalSpecTab < 2) {
-            haptic.light();
-            setHorizontalSpecTab((prev) => (prev + 1) as 0 | 1 | 2);
-          }
-        } else {
-          // Swipe Right -> previous spec
-          if (horizontalSpecTab > 0) {
-            haptic.light();
-            setHorizontalSpecTab((prev) => (prev - 1) as 0 | 1 | 2);
-          }
-        }
-      } else if (verticalStep === 2 && products.length > 1) {
-        // Medicines Step (Swipe between drugs)
-        if (deltaX < 0) {
-          if (currentDrugIndex < products.length - 1) {
-            haptic.light();
-            setCurrentDrugIndex((prev) => prev + 1);
-          }
-        } else {
-          if (currentDrugIndex > 0) {
-            haptic.light();
-            setCurrentDrugIndex((prev) => prev - 1);
-          }
-        }
-      }
-    }
-    // Vertical Swipe (Up/Down)
-    else if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > threshold) {
-      if (deltaY < 0) {
-        // Swipe Up -> Next Vertical Step
-        if (verticalStep < 2) {
-          haptic.light();
-          setVerticalStep((prev) => (prev + 1) as 0 | 1 | 2);
-        }
-      } else {
-        // Swipe Down -> Previous Vertical Step (or back to selector if on step 0)
-        if (verticalStep > 0) {
-          haptic.light();
-          setVerticalStep((prev) => (prev - 1) as 0 | 1 | 2);
-        } else {
-          // On step 0, swipe down opens selector
-          haptic.light();
-          onOpenSelector();
-        }
-      }
-    }
-  };
 
   const pearls = isFa ? activeSubCat.clinicalPearlsFa : activeSubCat.clinicalPearlsEn;
   const rules = isFa ? activeSubCat.schedulingRulesFa : activeSubCat.schedulingRulesEn;
   const flags = isFa ? activeSubCat.redFlagsFa : activeSubCat.redFlagsEn;
 
   return (
-    <div
-      className="space-y-3 select-none pb-6"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
+    <div className="space-y-3 pb-6">
       {/* 1. COMPACT TOP CONTROLLER BAR */}
       <div className="app-card border app-border rounded-2xl p-2.5 flex items-center justify-between gap-2 shadow-xs">
         {/* Active Title Pill */}
@@ -330,12 +251,19 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                     ))}
                   </div>
 
-                  {/* Horizontal Gesture Helper */}
-                  <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400 border-t app-border">
-                    <span className="flex items-center gap-1 text-indigo-300 font-medium">
-                      <span>{isFa ? '← کشیدن به چپ: قوانین SUSMP' : 'Swipe Left: SUSMP Rules →'}</span>
-                    </span>
-                    <span className="text-slate-500">1 / 3</span>
+                  {/* Tab Navigation Footer */}
+                  <div className="pt-2 flex items-center justify-between text-xs text-slate-400 border-t app-border">
+                    <span className="text-slate-500 font-mono text-[11px]">1 / 3</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        haptic.light();
+                        setHorizontalSpecTab(1);
+                      }}
+                      className="text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>{isFa ? 'مشاهده قوانین SUSMP ←' : 'SUSMP Rules →'}</span>
+                    </button>
                   </div>
                 </div>
               )}

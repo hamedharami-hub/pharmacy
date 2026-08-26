@@ -597,6 +597,7 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
                       onSelectSubCatId={(id) => setSelectedSubCatId(id)}
                       onSelectDisease={setSelectedDisease}
                       language={language}
+                      hideClinicalProfile={true}
                     />
                   </div>
 
@@ -675,6 +676,7 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
                       onSelectSubCatId={(id) => setSelectedSubCatId(id)}
                       onSelectDisease={setSelectedDisease}
                       language={language}
+                      hideClinicalProfile={true}
                     />
                   </div>
 
