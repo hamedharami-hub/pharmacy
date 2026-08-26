@@ -739,7 +739,7 @@ export default function Home() {
       />
 
       {/* 2. Main Container - Optimized for wider screen columns, responsive breathing room and full-width utilization */}
-      <main className="flex-grow max-w-[1700px] w-full mx-auto px-1.5 sm:px-2.5 md:px-3 lg:px-4 py-2 sm:py-3 space-y-3 sm:space-y-3.5 min-w-0">
+      <main className="flex-grow max-w-[1700px] w-full mx-auto px-1.5 sm:px-2.5 md:px-3 lg:px-4 py-2 sm:py-3 pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))] md:pb-6 space-y-3 sm:space-y-3.5 min-w-0">
         {/* Universal Interactive Resume Study Banner */}
         <ResumeStudyBanner
           language={language}
