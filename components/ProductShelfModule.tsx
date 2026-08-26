@@ -365,76 +365,52 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
   ]);
 
   return (
-    <div className="space-y-6">
-      {/* UNIFIED MODULE HEADER BAR */}
-      <div className="app-card border app-border rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
-        {/* 1. TOP ROW: Brand */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b app-border pb-2.5">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-teal-500/15 text-teal-600 dark:text-teal-300 flex items-center justify-center shadow-xs shrink-0 border border-teal-500/30">
-              <Boxes className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-sm sm:text-base font-black app-text tracking-tight">
-                  {isFa
-                    ? 'ماژول ۲: قفسه مجازی داروها، جدول‌بندی و اندیکاسیون‌ها'
-                    : 'Module 2: Virtual Product Shelf & Schedules'}
-                </h2>
-                <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/30">
-                  {isFa ? `${filteredProducts.length} محصول دارویی` : `${filteredProducts.length} Medicines`}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 2. SUB-NAVIGATION TABS ROW */}
-        <div className="flex items-center gap-1.5 app-bg p-1.5 rounded-xl border app-border text-xs overflow-x-auto no-scrollbar max-w-full">
+    <div className="space-y-4">
+      {/* UNIFIED MODULE 2 TOP NAVIGATION & SEARCH */}
+      <div className="space-y-3">
+        {/* 1. SUB-NAVIGATION TABS ROW */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar max-w-full text-xs">
           <button
             type="button"
             onClick={() => setActiveShelfView('shelf')}
-            className={`px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer border ${
               activeShelfView === 'shelf'
-                ? 'bg-teal-600 text-white shadow-xs'
-                : 'app-muted hover:app-text hover:bg-black/5 dark:hover:bg-slate-800/60'
+                ? 'bg-teal-600 text-white border-teal-500 shadow-xs'
+                : 'app-bg app-border app-muted hover:app-text hover:bg-black/5 dark:hover:bg-slate-800/60'
             }`}
           >
             <Boxes className="w-3.5 h-3.5" />
             <span>{isFa ? 'قفسه محصولات و داروها' : 'Shelf Medicines'}</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-black/10 dark:bg-black/30">
-              {filteredProducts.length}
-            </span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveShelfView('diseases')}
-            className={`px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer border ${
               activeShelfView === 'diseases'
-                ? 'bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-400/40'
-                : 'app-muted hover:app-text hover:bg-slate-800/60'
+                ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm ring-1 ring-emerald-400/40'
+                : 'app-bg app-border app-muted hover:app-text hover:bg-slate-800/60'
             }`}
           >
             <Stethoscope className="w-3.5 h-3.5 text-emerald-400" />
-            <span>{isFa ? 'راهنمای جامع بیماری‌ها (۴۳)' : 'Clinical Diseases (43)'}</span>
+            <span>{isFa ? 'راهنمای بیماری‌ها' : 'Clinical Diseases'}</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveShelfView('matrices')}
-            className={`px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
+            className={`px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer border ${
               activeShelfView === 'matrices'
-                ? 'bg-amber-500 text-slate-950 shadow-sm font-black'
-                : 'app-muted hover:app-text hover:bg-slate-800/60'
+                ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-sm font-black'
+                : 'app-bg app-border app-muted hover:app-text hover:bg-slate-800/60'
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>{isFa ? 'ماتریکس پروتکل بیماری‌ها' : 'Clinical Protocols & Matrices'}</span>
+            <span>{isFa ? 'ماتریکس پروتکل‌ها' : 'Clinical Protocols & Matrices'}</span>
           </button>
         </div>
 
-        {/* 3. REAL-TIME SEARCH BAR & ADVANCED FILTERS TRIGGER (Active in Shelf View) */}
+        {/* 2. REAL-TIME SEARCH BAR & ADVANCED FILTERS TRIGGER (Active in Shelf View) */}
         {activeShelfView === 'shelf' && (
           <div className="flex items-center gap-2">
             <div className="relative flex-1">

@@ -138,16 +138,10 @@ export const ShelfDomainSelector: React.FC<ShelfDomainSelectorProps> = ({
   const SelectedIcon = selectedStyle?.icon || FolderTree;
 
   return (
-    <div className="app-card border app-border rounded-2xl p-2.5 sm:p-3.5 shadow-sm space-y-2">
+    <div className="space-y-2">
       {/* 1. COLLAPSED VIEW: ONLY SHOW THE SELECTED DOMAIN WITH EXPAND TRIGGER */}
       {!isExpanded && selectedDomain && selectedStyle && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          {/* Header Label (Small) */}
-          <div className="flex items-center gap-1.5 text-xs font-bold app-muted">
-            <FolderTree className="w-3.5 h-3.5 text-teal-500" />
-            <span>{isFa ? 'دامنه بالینی فعال:' : 'Active Clinical Domain:'}</span>
-          </div>
-
+        <div className="app-card border app-border rounded-2xl overflow-hidden shadow-sm transition-all">
           {/* Clickable Selected Domain Card */}
           <button
             type="button"
@@ -155,7 +149,7 @@ export const ShelfDomainSelector: React.FC<ShelfDomainSelectorProps> = ({
               haptic.light();
               setIsExpanded(true);
             }}
-            className={`group w-full sm:w-auto text-start p-2.5 sm:p-3 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 select-none ${selectedStyle.activeBorder} ${selectedStyle.activeBg} font-bold shadow-xs hover:scale-[1.01]`}
+            className="w-full text-start p-3 sm:p-3.5 app-bg hover:bg-black/5 dark:hover:bg-slate-900 transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 select-none"
             title={isFa ? 'کلیک کنید تا تمام دامنه‌ها نمایش داده شوند' : 'Click to show all clinical domains'}
           >
             {/* Left Icon & Title */}
@@ -167,9 +161,9 @@ export const ShelfDomainSelector: React.FC<ShelfDomainSelectorProps> = ({
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-black leading-tight app-text truncate">
+                <h4 className="text-xs sm:text-sm font-black leading-tight app-text truncate">
                   {isFa ? selectedDomain.titleFa : selectedDomain.titleEn}
-                </p>
+                </h4>
                 <p className="text-[10px] app-muted truncate opacity-80 mt-0.5" dir="ltr">
                   {selectedDomain.titleEn}
                 </p>
@@ -178,14 +172,8 @@ export const ShelfDomainSelector: React.FC<ShelfDomainSelectorProps> = ({
 
             {/* Right: Badge, Active check and Expand Chevron */}
             <div className="flex items-center gap-2 shrink-0">
-              <span
-                className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${selectedStyle.badgeBg} ${selectedStyle.badgeText}`}
-              >
-                {selectedDomain.subcategories.length} {isFa ? 'سرفصل' : 'subcategories'}
-              </span>
-
-              <div className="px-2 py-1 rounded-lg bg-teal-500/15 text-teal-600 dark:text-teal-300 text-[11px] font-bold flex items-center gap-1 group-hover:bg-teal-500 group-hover:text-white transition">
-                <span>{isFa ? 'تغییر سرفصل' : 'Change Domain'}</span>
+              <div className="px-2 py-1 rounded-lg bg-teal-500/15 text-teal-600 dark:text-teal-400 text-[11px] font-bold flex items-center gap-1 transition">
+                <span>{isFa ? 'تغییر دامنه' : 'Change Domain'}</span>
                 <ChevronDown className="w-3.5 h-3.5 transition-transform group-hover:translate-y-0.5" />
               </div>
             </div>
