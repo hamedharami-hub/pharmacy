@@ -3,34 +3,19 @@
 import React, { useState } from 'react';
 import { DISEASE_CATEGORIES, DISEASES_REGISTRY, DiseaseInfo } from '@/data/diseasesRegistry';
 import { Language } from '@/types/pharmacy';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useStudyTrackerContext } from './study/StudyTrackerContext';
 import { StudyStatusBadge } from './study/StudyStatusBadge';
-import {
-  Search,
-  Stethoscope,
-  ChevronDown,
-  ChevronUp,
-  Sparkles,
-  Pill,
-  ShieldAlert,
-  ArrowRight,
-  Heart,
-  Brain,
-  Wind,
-  Activity,
-  Zap,
-  Eye,
-  User,
-  Layers,
-  FolderOpen,
-  X,
-} from 'lucide-react';
+import { DiseaseCategorySelector } from './shelf/DiseaseCategorySelector';
+import { ArrowRight, Search, Sparkles, Stethoscope } from 'lucide-react';
 
 interface DiseaseCategoryExplorerProps {
   language: Language;
   onSelectDisease: (disease: DiseaseInfo) => void;
   titleOverride?: string;
   subtitleOverride?: string;
+  searchQuery?: string;
+  onSearchQueryChange?: (query: string) => void;
   onNavigateToModule?: (moduleNumber: 1 | 2 | 3 | 4 | 5 | 6, contextId?: string) => void;
   onOpenAiLeitner?: (text: string, module: 1 | 2 | 4, category?: string, topic?: string) => void;
 }
@@ -40,293 +25,223 @@ export const DiseaseCategoryExplorer: React.FC<DiseaseCategoryExplorerProps> = (
   onSelectDisease,
   titleOverride,
   subtitleOverride,
+  searchQuery: controlledSearchQuery,
+  onSearchQueryChange,
 }) => {
   const isFa = language === 'fa';
+  const isMobile = useIsMobile();
   const { markItemViewed, toggleItemCompleted, isViewed, isCompleted } = useStudyTrackerContext();
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('ALL');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState<boolean>(false);
-
-  // Icon mapping helper
-  const renderCategoryIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'Wind':
-        return <Wind className="w-4 h-4 text-emerald-400 shrink-0" />;
-      case 'Activity':
-        return <Activity className="w-4 h-4 text-amber-400 shrink-0" />;
-      case 'Sparkles':
-        return <Sparkles className="w-4 h-4 text-rose-400 shrink-0" />;
-      case 'Zap':
-        return <Zap className="w-4 h-4 text-purple-400 shrink-0" />;
-      case 'Heart':
-        return <Heart className="w-4 h-4 text-sky-400 shrink-0" />;
-      case 'Brain':
-        return <Brain className="w-4 h-4 text-indigo-400 shrink-0" />;
-      case 'ShieldAlert':
-        return <ShieldAlert className="w-4 h-4 text-teal-400 shrink-0" />;
-      case 'Eye':
-        return <Eye className="w-4 h-4 text-cyan-400 shrink-0" />;
-      case 'User':
-        return <User className="w-4 h-4 text-pink-400 shrink-0" />;
-      default:
-        return <Stethoscope className="w-4 h-4 text-emerald-400 shrink-0" />;
-    }
-  };
+  const [selectedCategoryId, setSelectedCategoryId] = useState('ALL');
+  const [internalSearchQuery, setInternalSearchQuery] = useState('');
+  const [isBrowseOpen, setIsBrowseOpen] = useState(false);
+  const searchQuery = controlledSearchQuery ?? internalSearchQuery;
 
   const activeCategory =
     selectedCategoryId === 'ALL'
-      ? null
-      : DISEASE_CATEGORIES.find((c) => c.id === selectedCategoryId) || null;
+      ? { id: 'ALL', name: { fa: 'همه دسته‌بندی‌ها', en: 'All Categories' } }
+      : DISEASE_CATEGORIES.find((category) => category.id === selectedCategoryId) || DISEASE_CATEGORIES[0];
 
-  // Filter diseases based on selected category & search query
-  const filteredDiseases = DISEASES_REGISTRY.filter((d) => {
-    if (selectedCategoryId !== 'ALL' && d.categoryId !== selectedCategoryId) return false;
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      const faName = d.name.fa.toLowerCase();
-      const enName = d.name.en.toLowerCase();
-      const overviewFa = d.overview.fa.toLowerCase();
-      const overviewEn = d.overview.en.toLowerCase();
-      const syns = d.synonyms.join(' ').toLowerCase();
+  const updateSearchQuery = (query: string) => {
+    if (onSearchQueryChange) onSearchQueryChange(query);
+    else setInternalSearchQuery(query);
+    if (query.trim()) setIsBrowseOpen(true);
+  };
 
-      return (
-        faName.includes(q) ||
-        enName.includes(q) ||
-        overviewFa.includes(q) ||
-        overviewEn.includes(q) ||
-        syns.includes(q)
-      );
-    }
-    return true;
+  const filteredDiseases = DISEASES_REGISTRY.filter((disease) => {
+    if (selectedCategoryId !== 'ALL' && disease.categoryId !== selectedCategoryId) return false;
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      disease.name.fa.toLowerCase().includes(query) ||
+      disease.name.en.toLowerCase().includes(query) ||
+      disease.overview.fa.toLowerCase().includes(query) ||
+      disease.overview.en.toLowerCase().includes(query) ||
+      disease.synonyms.join(' ').toLowerCase().includes(query)
+    );
   });
+
+  const cardTitle = titleOverride || (isFa ? 'انتخاب دسته‌بندی بالینی بیماری‌ها' : 'Select Clinical Disease Category');
+  const cardSubtitle =
+    subtitleOverride ||
+    (isFa
+      ? 'برای مشاهده و مطالعه کارت‌های بیماری، دسته‌بندی مورد نظر را انتخاب کنید.'
+      : 'Choose a category to browse and study disease cards.');
 
   return (
     <div className="space-y-4 animate-fadeIn">
-      {/* 1. TOP SELECTOR CARD: Exactly like Shelf Domain Selector */}
-      <div className="app-card border border-emerald-500/40 rounded-2xl p-4 sm:p-5 space-y-4 shadow-lg bg-linear-to-b from-emerald-950/20 to-transparent">
-        <div className="border-b app-border pb-3 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shrink-0">
-              <Stethoscope className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-xs sm:text-sm font-black app-text">
-                {titleOverride || (isFa ? 'انتخاب دسته‌بندی بالینی بیماری‌ها' : 'Select Clinical Disease Category')}
-              </h3>
-              <p className="text-[11px] app-muted">
-                {subtitleOverride || (isFa ? 'برای مشاهده پروتکل‌های درمانی و داروها، دسته‌بندی مورد نظر را انتخاب کنید.' : 'Choose a category to browse conditions and protocols.')}
-              </p>
+      {!(isBrowseOpen || searchQuery.trim()) ? (
+        <div
+          className={
+            isMobile
+              ? 'app-card border border-teal-500/40 rounded-2xl p-4 space-y-4 shadow-lg bg-linear-to-b from-teal-950/20 to-transparent animate-fadeIn'
+              : 'app-card border border-teal-500/40 rounded-3xl p-5 space-y-4 shadow-xl bg-linear-to-b from-teal-950/25 via-slate-900/30 to-transparent animate-fadeIn'
+          }
+        >
+          <div className="border-b app-border pb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
+                <Stethoscope className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className={isMobile ? 'text-xs sm:text-sm font-black app-text' : 'text-base font-black app-text'}>
+                  {cardTitle}
+                </h3>
+                <p className={isMobile ? 'text-[11px] app-muted' : 'text-xs app-muted'}>{cardSubtitle}</p>
+              </div>
             </div>
           </div>
 
-          <span className="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-            {filteredDiseases.length} {isFa ? 'بیماری' : 'conditions'}
-          </span>
-        </div>
-
-        {/* Real-time Search Input */}
-        <div className="relative">
-          <Search className="w-4 h-4 absolute right-3.5 rtl:right-3.5 rtl:left-auto left-3.5 rtl:left-auto top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={
-              isFa
-                ? 'جستجوی نام بیماری، علائم یا نام‌های رایج (مثلاً آسم، ریفلاکس، اگزما، میگرن)...'
-                : 'Search conditions, symptoms or common names (e.g., Asthma, Reflux, Eczema)...'
-            }
-            className="w-full pr-10 pl-9 rtl:pr-10 rtl:pl-9 py-2.5 rounded-xl border app-border bg-black/40 text-xs app-text placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 shadow-inner transition"
+          <DiseaseCategorySelector
+            selectedCategoryId={selectedCategoryId}
+            onSelectCategory={setSelectedCategoryId}
+            language={language}
           />
-          {searchQuery.trim() && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery('')}
-              className="absolute left-3 rtl:left-3 rtl:right-auto right-3 rtl:right-auto top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white px-1.5 py-0.5 rounded bg-slate-800 cursor-pointer"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+
+          <button
+            type="button"
+            onClick={() => setIsBrowseOpen(true)}
+            className={
+              isMobile
+                ? 'w-full py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 to-indigo-600 hover:from-teal-500 hover:to-indigo-500 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-teal-950/40 cursor-pointer transition active:scale-98'
+                : 'w-full py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 via-sky-600 to-indigo-600 hover:from-teal-500 hover:to-indigo-500 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-teal-950/50 cursor-pointer transition hover:scale-[1.005] active:scale-99'
+            }
+          >
+            <Sparkles className="w-5 h-5 text-amber-300" />
+            <span>{isFa ? '✨ مشاهده و مطالعه کارت‌های بیماری' : '✨ View & Study Disease Cards'}</span>
+          </button>
         </div>
-
-        {/* Vertical Category Dropdown / Selector Button (Identical to ShelfDomainSelector) */}
-        <div className="space-y-1.5">
-          <label className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5 text-emerald-400" />
-            <span>{isFa ? 'سرفصل اصلی بالینی (Active Clinical Domain):' : 'Active Clinical Domain:'}</span>
-          </label>
-
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setIsCategoryDropdownOpen((prev) => !prev)}
-              className="w-full p-3 rounded-xl bg-slate-950/80 border app-border hover:border-emerald-500/50 flex items-center justify-between text-xs font-bold app-text transition cursor-pointer shadow-xs"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                {activeCategory ? (
-                  <>
-                    <div className="p-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30">
-                      {renderCategoryIcon(activeCategory.iconName)}
-                    </div>
-                    <span className="truncate">{activeCategory.name[language] || activeCategory.name.en}</span>
-                  </>
-                ) : (
-                  <>
-                    <div className="p-1 rounded-lg bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
-                      <FolderOpen className="w-4 h-4" />
-                    </div>
-                    <span className="text-emerald-400 font-bold">{isFa ? 'همه دسته‌بندی‌ها (نمایش کلیه بیماری‌ها)' : 'All Categories (View All Diseases)'}</span>
-                  </>
-                )}
+      ) : (
+        <div className="space-y-4 animate-fadeIn">
+          <div className="app-card border app-border rounded-2xl p-3.5 flex items-center justify-between gap-4 shadow-sm bg-linear-to-r from-slate-900/60 to-transparent">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="p-2.5 rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30 shrink-0">
+                <Stethoscope className="w-5 h-5" />
               </div>
-
-              <div className="flex items-center gap-2 text-slate-400">
-                {isCategoryDropdownOpen ? <ChevronUp className="w-4 h-4 text-emerald-400" /> : <ChevronDown className="w-4 h-4" />}
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base font-black app-text truncate">
+                    {isFa ? activeCategory.name.fa : activeCategory.name.en}
+                  </h2>
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-teal-500/15 text-teal-300 font-mono font-bold">
+                    {activeCategory.name.en}
+                  </span>
+                </div>
+                <p className="text-xs app-muted mt-0.5" dir="ltr">
+                  {activeCategory.name.en}
+                </p>
               </div>
-            </button>
-
-            {/* Dropdown Menu */}
-            {isCategoryDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 mt-1.5 p-1.5 rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl z-30 space-y-1 max-h-72 overflow-y-auto custom-scrollbar animate-fadeIn">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedCategoryId('ALL');
-                    setIsCategoryDropdownOpen(false);
-                  }}
-                  className={`w-full p-2.5 rounded-xl text-xs font-bold text-right rtl:text-right ltr:text-left transition flex items-center justify-between cursor-pointer ${
-                    selectedCategoryId === 'ALL'
-                      ? 'bg-emerald-600 text-white shadow-xs'
-                      : 'hover:bg-slate-800 text-slate-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <FolderOpen className="w-4 h-4" />
-                    <span>{isFa ? 'همه دسته‌بندی‌ها' : 'All Categories'}</span>
-                  </div>
-                  <span className="text-[10px] font-mono opacity-80">{DISEASES_REGISTRY.length}</span>
-                </button>
-
-                {DISEASE_CATEGORIES.map((cat) => {
-                  const isSel = selectedCategoryId === cat.id;
-                  const catCount = DISEASES_REGISTRY.filter((d) => d.categoryId === cat.id).length;
-
-                  return (
-                    <button
-                      key={cat.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedCategoryId(cat.id);
-                        setIsCategoryDropdownOpen(false);
-                      }}
-                      className={`w-full p-2.5 rounded-xl text-xs font-bold text-right rtl:text-right ltr:text-left transition flex items-center justify-between cursor-pointer ${
-                        isSel
-                          ? 'bg-emerald-600 text-white shadow-xs'
-                          : 'hover:bg-slate-800 text-slate-300'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        {renderCategoryIcon(cat.iconName)}
-                        <span className="truncate">{cat.name[language] || cat.name.en}</span>
-                      </div>
-                      <span className="text-[10px] font-mono opacity-80">{catCount}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsBrowseOpen(false);
+                  updateSearchQuery('');
+                }}
+                className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <Search className="w-4 h-4" />
+                <span>{isFa ? 'تغییر دسته و جستجو' : 'Change Topic'}</span>
+              </button>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* 2. DISEASES CARDS GRID (Directly clickable to study without nested traps) */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between px-1">
-          <div className="flex items-center gap-2">
-            <Pill className="w-4 h-4 text-emerald-400" />
-            <h4 className="text-xs sm:text-sm font-bold text-slate-200">
-              {isFa ? 'بیماری‌ها و پروتکل‌های بالینی:' : 'Clinical Conditions & Protocols:'}
-            </h4>
-          </div>
-          <span className="text-[11px] app-muted font-mono">
-            {filteredDiseases.length} {isFa ? 'مورد یافت شد' : 'items'}
-          </span>
-        </div>
+          <div className="space-y-3 pt-2 border-t border-slate-800">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Stethoscope className="w-5 h-5 text-emerald-400" />
+                <h3 className="text-base font-bold app-text">
+                  {isFa
+                    ? `لیست بیماری‌های این سرفصل (${filteredDiseases.length} مورد)`
+                    : `Diseases in this topic (${filteredDiseases.length} conditions)`}
+                </h3>
+              </div>
+            </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {filteredDiseases.length > 0 ? (
-            filteredDiseases.map((d) => {
-              const cat = DISEASE_CATEGORIES.find((c) => c.id === d.categoryId) || DISEASE_CATEGORIES[0];
-              const viewed = isViewed(d.id);
-              const completed = isCompleted(d.id);
-
-              return (
-                <div
-                  key={d.id}
-                  onClick={() => {
+            <div className="space-y-3">
+              {filteredDiseases.length > 0 ? (
+                filteredDiseases.map((disease) => {
+                  const category =
+                    DISEASE_CATEGORIES.find((candidate) => candidate.id === disease.categoryId) || DISEASE_CATEGORIES[0];
+                  const viewed = isViewed(disease.id);
+                  const completed = isCompleted(disease.id);
+                  const openDisease = () => {
                     markItemViewed(
                       4,
-                      d.id,
-                      { fa: d.name.fa || d.name.en, en: d.name.en || d.name.fa },
-                      { fa: cat.name.fa || cat.name.en, en: cat.name.en || cat.name.fa },
-                      { tabId: 'diseases', categoryId: d.categoryId }
+                      disease.id,
+                      { fa: disease.name.fa || disease.name.en, en: disease.name.en || disease.name.fa },
+                      { fa: category.name.fa || category.name.en, en: category.name.en || category.name.fa },
+                      { tabId: 'diseases', categoryId: disease.categoryId }
                     );
-                    onSelectDisease(d);
-                  }}
-                  className={`group p-4 rounded-2xl bg-slate-950/50 hover:bg-slate-900 border transition-all duration-150 cursor-pointer flex flex-col justify-between space-y-3 relative overflow-hidden shadow-sm hover:scale-[1.01] hover:border-emerald-500/60 ${
-                    completed ? 'border-emerald-500/40 ring-1 ring-emerald-500/20' : 'app-border'
-                  }`}
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between gap-1 text-[11px]">
-                      <span className="font-mono text-emerald-400 font-bold truncate text-[10px]">
-                        {cat.name[language] || cat.name.en}
-                      </span>
-                      <StudyStatusBadge
-                        language={language}
-                        viewed={viewed}
-                        completed={completed}
-                        size="sm"
-                        onToggleComplete={(e) => {
-                          e.stopPropagation();
-                          toggleItemCompleted(
-                            4,
-                            d.id,
-                            { fa: d.name.fa || d.name.en, en: d.name.en || d.name.fa },
-                            { fa: cat.name.fa || cat.name.en, en: cat.name.en || cat.name.fa }
-                          );
-                        }}
-                      />
+                    onSelectDisease(disease);
+                  };
+
+                  return (
+                    <div
+                      key={disease.id}
+                      onClick={openDisease}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          openDisease();
+                        }
+                      }}
+                      className={`group app-card border rounded-2xl p-3 sm:p-4 transition-all duration-200 bg-slate-900/90 text-white cursor-pointer shadow-sm hover:shadow-md app-border hover:border-sky-500/40 ${
+                        completed ? 'border-emerald-500/40 ring-1 ring-emerald-500/20' : ''
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="space-y-1 min-w-0 flex-1 text-left" dir="ltr">
+                          <h3 className="font-bold text-sm sm:text-base text-white group-hover:text-sky-300 transition leading-snug">
+                            {disease.name.en}
+                          </h3>
+                          <p className="text-xs sm:text-sm app-text text-right" dir="rtl">
+                            {disease.name.fa}
+                          </p>
+                          <span className="inline-flex text-[10px] px-2 py-0.5 rounded-md bg-teal-500/15 text-teal-300 border border-teal-500/30 font-mono">
+                            {category.name[language] || category.name.en}
+                          </span>
+                        </div>
+                        <StudyStatusBadge
+                          language={language}
+                          viewed={viewed}
+                          completed={completed}
+                          size="sm"
+                          onToggleComplete={(event) => {
+                            event.stopPropagation();
+                            toggleItemCompleted(
+                              4,
+                              disease.id,
+                              { fa: disease.name.fa || disease.name.en, en: disease.name.en || disease.name.fa },
+                              { fa: category.name.fa || category.name.en, en: category.name.en || category.name.fa }
+                            );
+                          }}
+                        />
+                      </div>
+                      <p className="text-[11px] app-muted line-clamp-2 leading-relaxed mt-2">
+                        {disease.overview[language] || disease.overview.en}
+                      </p>
+                      <div className="pt-2.5 border-t border-slate-800 flex items-center justify-between text-xs mt-3">
+                        <span className="text-emerald-400 font-bold flex items-center gap-1.5 text-[11px]">
+                          <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>{isFa ? 'مطالعه ۳ فازی بیماری' : 'Study Condition'}</span>
+                        </span>
+                        <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-white group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition" />
+                      </div>
                     </div>
-
-                    <div className="font-black text-xs sm:text-sm text-slate-100 group-hover:text-emerald-400 transition line-clamp-1">
-                      {isFa
-                        ? (d.name.fa.includes('(') ? d.name.fa : `${d.name.fa} (${d.name.en})`)
-                        : d.name.en}
-                    </div>
-
-                    <p className="text-[11px] app-muted line-clamp-2 leading-relaxed">
-                      {d.overview[language] || d.overview.en}
-                    </p>
-                  </div>
-
-                  <div className="pt-2.5 border-t border-slate-800 flex items-center justify-between text-xs">
-                    <span className="text-emerald-400 font-bold flex items-center gap-1.5 text-[11px]">
-                      <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>{isFa ? 'مطالعه ۳ فازی بیماری' : 'Study Condition'}</span>
-                    </span>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-white group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition" />
-                  </div>
+                  );
+                })
+              ) : (
+                <div className="p-8 text-center text-xs app-muted bg-slate-950/20 rounded-2xl border app-border">
+                  {isFa ? 'هیچ بیماری مطابق با عبارت جستجو یافت نشد.' : 'No matching diseases found.'}
                 </div>
-              );
-            })
-          ) : (
-            <div className="col-span-full p-8 text-center text-xs app-muted bg-slate-950/20 rounded-2xl border app-border">
-              {isFa ? 'هیچ بیماری مطابق با عبارت جستجو یافت نشد.' : 'No matching diseases found.'}
+              )}
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
