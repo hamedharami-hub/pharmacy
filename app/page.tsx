@@ -699,6 +699,9 @@ export default function Home() {
   return (
     <StudyTrackerProvider userUid={user?.uid}>
       <div className="min-h-screen flex flex-col justify-between w-full max-w-full overflow-x-clip">
+        {/* Notch / Status Bar Glass Shield for Mobile PWA */}
+        <div className="app-notch-glass-shield" aria-hidden="true" />
+
         {/* 1. Real Website Navigation Header ("حالت ویندوز") */}
       <Header
         language={language}

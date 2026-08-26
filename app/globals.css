@@ -151,6 +151,41 @@
     padding-bottom: var(--sab);
   }
 
+  /* Ultra-Modern Glassmorphic Sticky Header / Under-Notch Integration */
+  .app-glass-header {
+    background-color: color-mix(in srgb, var(--bg-main) 82%, transparent);
+    backdrop-filter: blur(20px) saturate(190%);
+    -webkit-backdrop-filter: blur(20px) saturate(190%);
+    border-bottom: 1px solid color-mix(in srgb, var(--border-color) 65%, transparent);
+  }
+
+  /* Fixed Top Notch Glass Shield for Seamless Edge-to-Edge */
+  .app-notch-glass-shield {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--sat);
+    z-index: 50;
+    pointer-events: none;
+    background-color: color-mix(in srgb, var(--bg-main) 85%, transparent);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+
+  /* Fullscreen & Immersive Mode Overrides */
+  :fullscreen .app-glass-header,
+  :-webkit-full-screen .app-glass-header,
+  .is-immersive-fullscreen .app-glass-header {
+    padding-top: 0.5rem !important;
+  }
+
+  :fullscreen,
+  :-webkit-full-screen,
+  .is-immersive-fullscreen {
+    --sat: 0px !important;
+  }
+
   /* =========================================================
      ROOT FONT SIZE SCALING
      ========================================================= */

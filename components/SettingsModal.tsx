@@ -39,6 +39,8 @@ import {
   Flame,
   Layers,
   Smartphone,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react';
 
 interface SettingsModalProps {
@@ -1310,6 +1312,76 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 >
                   <Columns className="w-4 h-4" />
                   <span>{isFa ? 'اسپلیت' : 'Split'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile Status Bar & Screen Experience */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-bold app-muted flex items-center gap-1">
+                  <Smartphone className="w-3.5 h-3.5 text-sky-400" />
+                  <span>{isFa ? 'حالت نمایش صفحه و نوار اعلان (Status Bar):' : 'Display & Mobile Status Bar:'}</span>
+                </label>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (document.fullscreenElement || (document as any).webkitFullscreenElement) {
+                      if (document.exitFullscreen) document.exitFullscreen();
+                      else if ((document as any).webkitExitFullscreen) (document as any).webkitExitFullscreen();
+                    }
+                  }}
+                  className={`p-2.5 rounded-xl border text-start flex items-center justify-between transition cursor-pointer ${
+                    typeof document !== 'undefined' && !document.fullscreenElement && !(document as any).webkitFullscreenElement
+                      ? 'bg-sky-600/20 border-sky-500 text-sky-300 ring-1 ring-sky-500'
+                      : 'bg-black/10 app-text border app-border hover:bg-black/20'
+                  }`}
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-bold flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                      {isFa ? 'بلور شیشه‌ای همرنگ تم' : 'Glassmorphic Top Bar'}
+                    </span>
+                    <span className="text-[10px] app-muted">
+                      {isFa ? 'کشیدگی تا زیر سلفی با افکت شیشه‌ای محو' : 'Edge-to-edge frosted glass under notch'}
+                    </span>
+                  </div>
+                  {typeof document !== 'undefined' && !document.fullscreenElement && !(document as any).webkitFullscreenElement && (
+                    <Check className="w-4 h-4 text-sky-400 shrink-0" />
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!document.fullscreenElement && !(document as any).webkitFullscreenElement) {
+                      if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen();
+                      } else if ((document.documentElement as any).webkitRequestFullscreen) {
+                        (document.documentElement as any).webkitRequestFullscreen();
+                      }
+                    }
+                  }}
+                  className={`p-2.5 rounded-xl border text-start flex items-center justify-between transition cursor-pointer ${
+                    typeof document !== 'undefined' && (!!document.fullscreenElement || !!(document as any).webkitFullscreenElement)
+                      ? 'bg-amber-600/20 border-amber-500 text-amber-300 ring-1 ring-amber-500'
+                      : 'bg-black/10 app-text border app-border hover:bg-black/20'
+                  }`}
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-bold flex items-center gap-1.5">
+                      <Maximize2 className="w-3.5 h-3.5 text-amber-400" />
+                      {isFa ? 'تمام‌صفحه غوطه‌وری کامل' : 'Immersive Fullscreen'}
+                    </span>
+                    <span className="text-[10px] app-muted">
+                      {isFa ? 'مخفی‌سازی کامل نوار وضعیت و ابزارها' : 'Hide notification bar for distraction-free study'}
+                    </span>
+                  </div>
+                  {typeof document !== 'undefined' && (!!document.fullscreenElement || !!(document as any).webkitFullscreenElement) && (
+                    <Check className="w-4 h-4 text-amber-400 shrink-0" />
+                  )}
                 </button>
               </div>
             </div>

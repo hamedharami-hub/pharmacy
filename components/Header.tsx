@@ -22,6 +22,8 @@ import {
   ChevronDown,
   ChevronUp,
   Search,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -62,6 +64,48 @@ export const Header: React.FC<HeaderProps> = ({
   leitnerDueCount = 0,
 }) => {
   const isFa = language === 'fa';
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Fullscreen state listener
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isFull = !!document.fullscreenElement || !!(document as any).webkitFullscreenElement;
+      setIsFullscreen(isFull);
+      if (isFull) {
+        document.documentElement.classList.add('is-immersive-fullscreen');
+      } else {
+        document.documentElement.classList.remove('is-immersive-fullscreen');
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  const handleToggleFullscreen = async () => {
+    haptic.medium();
+    try {
+      if (!document.fullscreenElement && !(document as any).webkitFullscreenElement) {
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        } else if ((document.documentElement as any).webkitRequestFullscreen) {
+          await (document.documentElement as any).webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if ((document as any).webkitExitFullscreen) {
+          await (document as any).webkitExitFullscreen();
+        }
+      }
+    } catch (err) {
+      console.warn('Fullscreen toggle failed:', err);
+    }
+  };
 
   const modulesList = [
     {
@@ -107,7 +151,7 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-40 app-card border-b app-border shadow-xs w-full max-w-full overflow-x-clip backdrop-blur-md pt-[env(safe-area-inset-top,0px)] transition-colors duration-300">
+    <header className="sticky top-0 z-40 app-glass-header shadow-xs w-full max-w-full overflow-x-clip pt-[env(safe-area-inset-top,0px)] transition-all duration-300">
       <div className="max-w-[1700px] mx-auto px-1.5 sm:px-2.5 md:px-3 lg:px-4 py-2">
         {/* Top Bar: Title & Settings */}
         <div className="flex items-center justify-between gap-3 mb-2.5">
@@ -126,8 +170,34 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          {/* Quick AI Assistant, Global Search & Settings Buttons */}
+          {/* Quick AI Assistant, Fullscreen, Global Search & Settings Buttons */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Immersive Fullscreen Toggle */}
+            <button
+              type="button"
+              onClick={handleToggleFullscreen}
+              className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border transition flex items-center gap-1.5 cursor-pointer text-xs font-semibold shadow-sm active:scale-95 duration-100 ${
+                isFullscreen
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 ring-1 ring-amber-500/30'
+                  : 'border app-border app-bg hover:bg-slate-800 app-text'
+              }`}
+              title={
+                isFullscreen
+                  ? isFa ? 'خروج از حالت تمام‌صفحه و غوطه‌وری' : 'Exit Immersive Fullscreen'
+                  : isFa ? 'حالت تمام‌صفحه و غوطه‌وری بدون نوار اعلان' : 'Immersive Fullscreen (Hide Top Bar)'
+              }
+              aria-label={isFa ? 'حالت تمام‌صفحه' : 'Fullscreen Toggle'}
+            >
+              {isFullscreen ? (
+                <Minimize2 className="w-3.5 h-3.5 text-amber-400" />
+              ) : (
+                <Maximize2 className="w-3.5 h-3.5 text-sky-400" />
+              )}
+              <span className="text-[11px] hidden md:inline">
+                {isFullscreen ? (isFa ? 'خروج تمام‌صفحه' : 'Exit Full') : (isFa ? 'تمام‌صفحه' : 'Fullscreen')}
+              </span>
+            </button>
+
             {/* Global Command Search (Ctrl+K) */}
             {onOpenCommandPalette && (
               <button

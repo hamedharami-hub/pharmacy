@@ -36,11 +36,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="manifest" href="/manifest.json" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" id="meta-apple-status-bar" />
+        <meta name="apple-touch-fullscreen" content="yes" />
         <meta name="apple-mobile-web-app-title" content="AU Pharmacy" />
         <meta name="theme-color" content="#09090B" id="meta-theme-color" />
         <meta name="msapplication-navbutton-color" content="#09090B" id="meta-ms-theme-color" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" id="meta-apple-status-bar" />
+        <meta name="format-detection" content="telephone=no" />
       </head>
       <body suppressHydrationWarning>{children}</body>
     </html>
