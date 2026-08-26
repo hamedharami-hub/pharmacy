@@ -943,23 +943,8 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
 
   return (
     <div className="space-y-3 min-w-0" dir={isFa ? 'rtl' : 'ltr'}>
-      {/* 1. TOP HEADER & SWITCH BAR */}
-      <div className="app-card border app-border rounded-2xl p-2.5 sm:p-3 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-2.5 bg-slate-900/60 backdrop-blur-md">
-        {/* Left Branding */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30 flex items-center justify-center shadow-xs shrink-0">
-            <Layers className="w-4 h-4" />
-          </div>
-          <div className="flex items-center gap-2 flex-wrap min-w-0">
-            <h2 className="text-xs sm:text-sm font-black app-text tracking-tight truncate">
-              {isFa ? 'مرور هوشمند و فلش‌کارت‌ها (Review)' : 'Smart Flashcard Review'}
-            </h2>
-            <span className="px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30 text-[10px] font-mono font-bold">
-              FSRS v5 + SM-2
-            </span>
-          </div>
-        </div>
-
+      {/* 1. TOP HEADER & SWITCH BAR (Minimal & Clean) */}
+      <div className="flex items-center justify-end gap-2 p-1 bg-slate-900/60 backdrop-blur-md rounded-2xl border app-border shadow-xs">
         {/* View Switcher: Single Unified Tab Row with Settings Gear Button */}
         <div className="flex items-center gap-1 app-bg p-1 rounded-xl border app-border overflow-x-auto no-scrollbar shrink-0">
           <button
@@ -1017,25 +1002,9 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
         /* ANKIDROID MINIMALIST STUDY CANVAS                                         */
         /* ========================================================================= */
         <div className="space-y-3">
-          {/* Top Bar for Study Mode: Clean Breadcrumb & Scope */}
-          <div className="flex items-center justify-between text-xs px-2 app-muted gap-2 flex-wrap">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-bold text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
-                <Folder className="w-3.5 h-3.5" />
-                <span>{studyScopeName}</span>
-              </span>
-              {activeStudyQueue.length > 0 && !sessionCompleted && (
-                <span className="px-2 py-0.5 rounded-md app-card border app-border app-text font-mono text-[11px] font-bold">
-                  {isFa ? `کارت ${studyQueueIndex + 1} از ${activeStudyQueue.length}` : `Card ${studyQueueIndex + 1} of ${activeStudyQueue.length}`}
-                </span>
-              )}
-              {/* Active Algorithm Badge */}
-              <span className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-300 border border-purple-500/20 font-mono text-[10px] font-bold">
-                {studySettings.algorithm === 'fsrs' ? 'FSRS v5' : studySettings.algorithm === 'classic_leitner' ? 'Classic 5-Box' : 'Cram'}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
+          {/* Top Controls for Study Mode (Ultra Minimal) */}
+          {(studySettings.countdownTimer > 0 || (activeStudyQueue.length > 0 && !sessionCompleted)) && (
+            <div className="flex items-center justify-end text-xs px-2 app-muted gap-2">
               {/* Countdown Timer Badge when enabled */}
               {studySettings.countdownTimer > 0 && !sessionCompleted && !isAnswerRevealed && (
                 <div
@@ -1053,30 +1022,20 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                 </div>
               )}
 
-              {/* Zen Mode Button */}
+              {/* Zen Focus Button */}
               {activeStudyQueue.length > 0 && !sessionCompleted && (
                 <button
                   type="button"
                   onClick={() => setIsZenMode(true)}
-                  className="px-2.5 py-1 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-800 dark:text-purple-300 border border-purple-500/30 text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  className="px-2.5 py-1 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-700 dark:text-purple-300 border border-purple-500/30 text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
                   title={isFa ? 'ورود به حالت تمرکز کامل بدون حواس‌پرتی (کلید Z)' : 'Enter Zen Deep Focus Mode (Z)'}
                 >
                   <Maximize2 className="w-3.5 h-3.5" />
-                  <span>{isFa ? 'تمرکز کامل (Zen)' : 'Zen Mode'}</span>
+                  <span>{isFa ? 'تمرکز کامل' : 'Zen'}</span>
                 </button>
               )}
-
-              <button
-                type="button"
-                onClick={() => setCurrentView('decks_manager')}
-                className="px-2.5 py-1 rounded-lg app-bg hover:bg-black/5 dark:hover:bg-slate-800 app-text border app-border text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
-                title={isFa ? 'مشاهده و مدیریت دسته‌ها و فیلترها' : 'Decks & Folders Manager'}
-              >
-                <FolderTree className="w-3 h-3 text-indigo-500 dark:text-indigo-400" />
-                <span>{isFa ? 'دسته‌ها' : 'Decks'}</span>
-              </button>
             </div>
-          </div>
+          )}
 
           {/* LIVE SESSION PROGRESS BAR */}
           {activeStudyQueue.length > 0 && !sessionCompleted && (
@@ -1285,121 +1244,66 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                         : 'bg-slate-900 border-slate-700 hover:border-purple-500/40'
                     }`}
                   >
-                    {/* CARD TOP INFO BAR */}
-                    <div className="flex items-center justify-between gap-2 text-xs text-slate-400 border-b border-slate-800 pb-3">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 text-[10.5px] font-bold">
-                          {getModuleName(currentStudyCard)}
-                        </span>
-                        {getTypeBadge(currentStudyCard.type)}
-                        <span className="text-slate-500">•</span>
-                        <span className="font-bold text-slate-300">{currentStudyCard.category}</span>
-                        <span className="text-slate-600">/</span>
-                        <span className="text-slate-400">{currentStudyCard.topic}</span>
-                      </div>
-
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {/* 🌐 Interactive Bilingual / FA / EN Switcher on Card */}
-                        <div className="flex items-center gap-1 bg-slate-950 p-0.5 rounded-lg border border-slate-700/80 text-[10.5px] font-bold">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSetCardLangMode('bilingual');
-                            }}
-                            className={`px-2 py-0.5 rounded transition flex items-center gap-1 cursor-pointer ${
-                              cardLanguageMode === 'bilingual' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
-                            }`}
-                            title={isFa ? 'نمایش همزمان هر دو زبان فارسی و انگلیسی' : 'Show both Persian & English'}
-                          >
-                            <span>🌐</span>
-                            <span>{isFa ? 'دوزبانه' : 'Bilingual'}</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSetCardLangMode('fa');
-                            }}
-                            className={`px-2 py-0.5 rounded transition flex items-center gap-1 cursor-pointer ${
-                              cardLanguageMode === 'fa' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
-                            }`}
-                            title="Persian only"
-                          >
-                            <span>🇮🇷</span>
-                            <span>FA</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSetCardLangMode('en');
-                            }}
-                            className={`px-2 py-0.5 rounded transition flex items-center gap-1 cursor-pointer ${
-                              cardLanguageMode === 'en' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
-                            }`}
-                            title="English only"
-                          >
-                            <span>🇬🇧</span>
-                            <span>EN</span>
-                          </button>
-                        </div>
-
-                        {/* FSRS Retention Recall Probability Pill */}
-                        <div
-                          className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold border shadow-xs transition-colors"
-                          style={{
-                            backgroundColor:
-                              recallProbability >= 80
-                                ? 'rgba(16, 185, 129, 0.15)'
-                                : recallProbability >= 60
-                                ? 'rgba(245, 158, 11, 0.15)'
-                                : 'rgba(244, 63, 94, 0.15)',
-                            borderColor:
-                              recallProbability >= 80
-                                ? 'rgba(16, 185, 129, 0.4)'
-                                : recallProbability >= 60
-                                ? 'rgba(245, 158, 11, 0.4)'
-                                : 'rgba(244, 63, 94, 0.4)',
-                            color:
-                              recallProbability >= 80
-                                ? '#34d399'
-                                : recallProbability >= 60
-                                ? '#fbbf24'
-                                : '#fb7185',
-                          }}
-                          title={
-                            isFa
-                              ? `احتمال یادآوری بر اساس مدل علمی FSRS: ${recallProbability}٪`
-                              : `FSRS Recall Probability: ${recallProbability}%`
-                          }
-                        >
-                          <Activity className="w-3 h-3 animate-pulse" />
-                          <span>{isFa ? `یادآوری: ${recallProbability}٪` : `Recall: ${recallProbability}%`}</span>
-                        </div>
-
-                        {/* Delete Card button */}
+                    {/* CARD TOP BAR: PURE LANGUAGE SWITCHER ONLY */}
+                    <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                      {/* 🌐 Interactive Bilingual / FA / EN Switcher on Card */}
+                      <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-700/80 text-xs font-bold">
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDeleteCard(currentStudyCard.id);
+                            handleSetCardLangMode('bilingual');
                           }}
-                          className="px-2 py-0.5 rounded-md text-[11px] font-bold border border-rose-500/40 bg-rose-500/10 text-rose-300 hover:bg-rose-500/25 hover:text-rose-200 transition flex items-center gap-1 cursor-pointer"
-                          title={isFa ? 'حذف این کارت از لایتنر' : 'Delete this flashcard'}
-                        >
-                          <Trash2 className="w-3 h-3 text-rose-400" />
-                          <span className="hidden sm:inline">{isFa ? 'حذف' : 'Delete'}</span>
-                        </button>
-
-                        <span
-                          className={`text-[10.5px] font-bold px-2 py-0.5 rounded-md border ${
-                            LEITNER_BOX_NAMES[currentStudyCard.box].color
+                          className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer ${
+                            cardLanguageMode === 'bilingual' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
                           }`}
+                          title={isFa ? 'نمایش همزمان هر دو زبان فارسی و انگلیسی' : 'Show both Persian & English'}
                         >
-                          {LEITNER_BOX_NAMES[currentStudyCard.box][isFa ? 'fa' : 'en']}
-                        </span>
+                          <span>🌐</span>
+                          <span>{isFa ? 'دوزبانه' : 'Bilingual'}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSetCardLangMode('fa');
+                          }}
+                          className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer ${
+                            cardLanguageMode === 'fa' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                          }`}
+                          title="Persian only"
+                        >
+                          <span>🇮🇷</span>
+                          <span>فارسی</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSetCardLangMode('en');
+                          }}
+                          className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer ${
+                            cardLanguageMode === 'en' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                          }`}
+                          title="English only"
+                        >
+                          <span>🇬🇧</span>
+                          <span>English</span>
+                        </button>
                       </div>
+
+                      {/* Optional minimal delete button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCard(currentStudyCard.id);
+                        }}
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
+                        title={isFa ? 'حذف این کارت' : 'Delete card'}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
 
                     {/* CARD FRONT: QUESTION */}
@@ -2515,83 +2419,48 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                       : 'bg-[#FCF9F2] border-[#D9CEBF] shadow-[#e0d3be]'
                   }`}
                 >
-                  {/* Top Card Info & FSRS Recall Badge */}
+                  {/* Top Card Info: Language Switcher Only */}
                   <div
-                    className="flex items-center justify-between text-xs pb-3 border-b border-opacity-30"
+                    className="flex items-center justify-center text-xs pb-2.5 border-b border-opacity-30"
                     style={{ borderColor: zenTheme === 'oled' ? '#27272a' : '#e0d3be' }}
                   >
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold opacity-80">{currentStudyCard.category}</span>
-                      <span>/</span>
-                      <span className="opacity-60">{currentStudyCard.topic}</span>
-                    </div>
-
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {/* 🌐 Zen Mode Bilingual Switcher */}
-                      <div
-                        className={`p-0.5 rounded-lg flex items-center gap-1 border text-[10.5px] font-bold ${
-                          zenTheme === 'oled' ? 'bg-slate-950 border-slate-800' : 'bg-[#e4d8c7] border-[#ccbea9]'
+                    {/* 🌐 Zen Mode Bilingual Switcher */}
+                    <div
+                      className={`p-1 rounded-xl flex items-center gap-1 border text-xs font-bold ${
+                        zenTheme === 'oled' ? 'bg-slate-950 border-slate-800' : 'bg-[#e4d8c7] border-[#ccbea9]'
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => handleSetCardLangMode('bilingual')}
+                        className={`px-3 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer ${
+                          cardLanguageMode === 'bilingual' ? 'bg-purple-600 text-white shadow-xs' : 'opacity-60 hover:opacity-100'
+                        }`}
+                        title="Bilingual"
+                      >
+                        <span>🌐</span>
+                        <span>{isFa ? 'دوزبانه' : 'Bilingual'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSetCardLangMode('fa')}
+                        className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer ${
+                          cardLanguageMode === 'fa' ? 'bg-purple-600 text-white shadow-xs' : 'opacity-60 hover:opacity-100'
                         }`}
                       >
-                        <button
-                          type="button"
-                          onClick={() => handleSetCardLangMode('bilingual')}
-                          className={`px-2 py-0.5 rounded transition flex items-center gap-1 cursor-pointer ${
-                            cardLanguageMode === 'bilingual' ? 'bg-purple-600 text-white shadow-xs' : 'opacity-60 hover:opacity-100'
-                          }`}
-                          title="Bilingual"
-                        >
-                          <span>🌐</span>
-                          <span>{isFa ? 'دوزبانه' : 'Dual'}</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleSetCardLangMode('fa')}
-                          className={`px-1.5 py-0.5 rounded transition flex items-center gap-1 cursor-pointer ${
-                            cardLanguageMode === 'fa' ? 'bg-purple-600 text-white shadow-xs' : 'opacity-60 hover:opacity-100'
-                          }`}
-                        >
-                          <span>🇮🇷</span>
-                          <span>FA</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleSetCardLangMode('en')}
-                          className={`px-1.5 py-0.5 rounded transition flex items-center gap-1 cursor-pointer ${
-                            cardLanguageMode === 'en' ? 'bg-purple-600 text-white shadow-xs' : 'opacity-60 hover:opacity-100'
-                          }`}
-                        >
-                          <span>🇬🇧</span>
-                          <span>EN</span>
-                        </button>
-                      </div>
-
-                      <div
-                        className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border shadow-xs"
-                        style={{
-                          backgroundColor:
-                            recallProbability >= 80
-                              ? 'rgba(16, 185, 129, 0.2)'
-                              : recallProbability >= 60
-                              ? 'rgba(245, 158, 11, 0.2)'
-                              : 'rgba(244, 63, 94, 0.2)',
-                          borderColor:
-                            recallProbability >= 80
-                              ? 'rgba(16, 185, 129, 0.5)'
-                              : recallProbability >= 60
-                              ? 'rgba(245, 158, 11, 0.5)'
-                              : 'rgba(244, 63, 94, 0.5)',
-                          color:
-                            recallProbability >= 80
-                              ? '#10b981'
-                              : recallProbability >= 60
-                              ? '#d97706'
-                              : '#e11d48',
-                        }}
+                        <span>🇮🇷</span>
+                        <span>فارسی</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSetCardLangMode('en')}
+                        className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer ${
+                          cardLanguageMode === 'en' ? 'bg-purple-600 text-white shadow-xs' : 'opacity-60 hover:opacity-100'
+                        }`}
                       >
-                        <Activity className="w-3.5 h-3.5 animate-pulse" />
-                        <span>{isFa ? `احتمال یادآوری: ${recallProbability}٪` : `Retention: ${recallProbability}%`}</span>
-                      </div>
+                        <span>🇬🇧</span>
+                        <span>English</span>
+                      </button>
                     </div>
                   </div>
 
