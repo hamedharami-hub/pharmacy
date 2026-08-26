@@ -237,14 +237,14 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                     </span>
                   </div>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-2.5 select-text">
                     {pearls.map((item, idx) => (
                       <div
                         key={idx}
-                        className="p-3 rounded-xl app-card border border-sky-500/20 flex items-start gap-2.5 leading-relaxed text-xs sm:text-sm app-text shadow-xs"
+                        className="p-3 rounded-xl app-card border border-sky-500/20 flex items-start gap-2.5 leading-relaxed text-xs sm:text-sm app-text shadow-xs select-text"
                       >
                         <span className="w-2 h-2 rounded-full bg-sky-400 mt-1.5 shrink-0" />
-                        <div className="flex-1 leading-relaxed">
+                        <div className="flex-1 leading-relaxed select-text">
                           <FormattedClinicalText text={item} />
                         </div>
                       </div>
@@ -270,7 +270,7 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
 
               {/* CARD 1: Scheduling Rules */}
               {horizontalSpecTab === 1 && (
-                <div className="app-card border border-indigo-500/30 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-md bg-linear-to-b from-indigo-950/20 to-transparent">
+                <div className="app-card border border-indigo-500/30 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-md bg-linear-to-b from-indigo-950/20 to-transparent select-text">
                   <div className="flex items-center justify-between border-b border-indigo-500/20 pb-2.5">
                     <div className="flex items-center gap-2 text-indigo-400 font-black text-sm">
                       <ShieldCheck className="w-4 h-4 text-indigo-400" />
@@ -281,26 +281,26 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                     </span>
                   </div>
 
-                  <div className="p-3.5 rounded-xl app-card border border-indigo-500/20 text-xs sm:text-sm app-text leading-relaxed shadow-xs">
+                  <div className="p-3.5 rounded-xl app-card border border-indigo-500/20 text-xs sm:text-sm app-text leading-relaxed shadow-xs select-text">
                     <FormattedClinicalText text={rules} />
                   </div>
 
-                  {/* Horizontal Gesture Helper */}
-                  <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400 border-t app-border">
+                  {/* Tab Navigation Footer */}
+                  <div className="pt-2 flex items-center justify-between text-xs text-slate-400 border-t app-border">
                     <button
                       type="button"
                       onClick={() => setHorizontalSpecTab(0)}
-                      className="text-sky-300 font-medium cursor-pointer"
+                      className="text-sky-400 hover:text-sky-300 font-bold cursor-pointer"
                     >
                       {isFa ? '→ نکات بالینی' : '← Pearls'}
                     </button>
-                    <span className="text-slate-500">2 / 3</span>
+                    <span className="text-slate-500 font-mono text-[11px]">2 / 3</span>
                     <button
                       type="button"
                       onClick={() => setHorizontalSpecTab(2)}
-                      className="text-rose-300 font-medium cursor-pointer"
+                      className="text-rose-400 hover:text-rose-300 font-bold cursor-pointer"
                     >
-                      {isFa ? '← علائم هشدار' : 'Red Flags →'}
+                      {isFa ? 'علائم هشدار ←' : 'Red Flags →'}
                     </button>
                   </div>
                 </div>
@@ -308,7 +308,7 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
 
               {/* CARD 2: Red Flags */}
               {horizontalSpecTab === 2 && (
-                <div className="app-card border border-rose-500/30 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-md bg-linear-to-b from-rose-950/20 to-transparent">
+                <div className="app-card border border-rose-500/30 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-md bg-linear-to-b from-rose-950/20 to-transparent select-text">
                   <div className="flex items-center justify-between border-b border-rose-500/20 pb-2.5">
                     <div className="flex items-center gap-2 text-rose-400 font-black text-sm">
                       <AlertTriangle className="w-4 h-4 text-rose-400" />
@@ -319,30 +319,30 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                     </span>
                   </div>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-2.5 select-text">
                     {flags.map((item, idx) => (
                       <div
                         key={idx}
-                        className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/25 flex items-start gap-2.5 leading-relaxed text-xs sm:text-sm text-rose-200 shadow-xs"
+                        className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/25 flex items-start gap-2.5 leading-relaxed text-xs sm:text-sm text-rose-200 shadow-xs select-text"
                       >
                         <span className="w-2 h-2 rounded-full bg-rose-400 mt-1.5 shrink-0" />
-                        <div className="flex-1 leading-relaxed">
+                        <div className="flex-1 leading-relaxed select-text">
                           <FormattedClinicalText text={item} />
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  {/* Horizontal Gesture Helper */}
-                  <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400 border-t app-border">
+                  {/* Tab Navigation Footer */}
+                  <div className="pt-2 flex items-center justify-between text-xs text-slate-400 border-t app-border">
                     <button
                       type="button"
                       onClick={() => setHorizontalSpecTab(1)}
-                      className="text-indigo-300 font-medium cursor-pointer"
+                      className="text-indigo-400 hover:text-indigo-300 font-bold cursor-pointer"
                     >
                       {isFa ? '→ قوانین SUSMP' : '← SUSMP Rules'}
                     </button>
-                    <span className="text-slate-500">3 / 3</span>
+                    <span className="text-slate-500 font-mono text-[11px]">3 / 3</span>
                   </div>
                 </div>
               )}
