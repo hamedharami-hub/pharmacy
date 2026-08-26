@@ -1099,15 +1099,12 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
             <span className="break-words whitespace-normal">{displayTitle}</span>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            {node.dueCount > 0 && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold">
-                {node.dueCount} Due
+          <div className="flex items-center gap-1.5 shrink-0">
+            {node.cardCount > 0 && (
+              <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 font-mono font-bold">
+                {node.cardCount}
               </span>
             )}
-            <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 font-mono font-bold">
-              {node.cardCount}
-            </span>
             <button
               type="button"
               onClick={(e) => {

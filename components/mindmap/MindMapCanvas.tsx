@@ -682,9 +682,9 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                 }`}
               >
                 {/* Header Row: Level Icon, Title, Expand/Collapse Indicator */}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-start gap-2 min-w-0 flex-1">
-                    <div className="mt-0.5">{getNodeLevelIcon(node.level)}</div>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div className="shrink-0">{getNodeLevelIcon(node.level)}</div>
                     <div className="flex-1 min-w-0">
                       {/* FULL TEXT DISPLAY - NO TRUNCATION */}
                       <div
@@ -698,38 +698,19 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                     </div>
                   </div>
 
-                  {/* Expand / Collapse Chevron */}
-                  {hasChildren && (
-                    <div className="p-1 rounded-lg bg-slate-800/80 text-slate-300 group-hover:text-white shrink-0 transition">
-                      {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                    </div>
-                  )}
-                </div>
-
-                {/* Bottom Row: Card Counts, Due Badge, Quick Study Trigger */}
-                <div className="flex items-center justify-between pt-1 border-t border-white/5 text-[10px] text-slate-300 font-mono">
-                  <div className="flex items-center gap-1.5">
-                    <span className="px-1.5 py-0.5 rounded bg-black/40 font-bold">
-                      {node.cardCount} {isFa ? 'کارت' : 'cards'}
-                    </span>
-                    {node.dueCount > 0 && (
-                      <span className="px-1.5 py-0.5 rounded bg-rose-500/30 text-rose-300 border border-rose-500/40 font-bold animate-pulse">
-                        {node.dueCount} {isFa ? 'موعد' : 'Due'}
+                  {/* Expand / Collapse Chevron & Card Badge */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {node.cardCount > 0 && (
+                      <span className="px-1.5 py-0.5 rounded-md bg-black/40 text-slate-300 text-[10px] font-mono font-bold">
+                        {node.cardCount}
                       </span>
                     )}
+                    {hasChildren && (
+                      <div className="p-1 rounded-lg bg-slate-800/80 text-slate-300 group-hover:text-white transition">
+                        {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                      </div>
+                    )}
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onStartStudyBranch(node);
-                    }}
-                    className="px-2 py-0.5 rounded-lg bg-purple-600/90 hover:bg-purple-500 text-white font-bold transition flex items-center gap-1 shadow-sm"
-                    title={isFa ? 'مرور ترتیبی شاخه' : 'Study branch'}
-                  >
-                    <span>{isFa ? 'مرور' : 'Study'}</span>
-                  </button>
                 </div>
               </div>
             );
