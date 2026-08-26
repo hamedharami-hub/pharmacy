@@ -1313,23 +1313,22 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                         : 'bg-slate-900 border-slate-700 hover:border-purple-500/40'
                     }`}
                   >
-                    {/* CARD TOP BAR: PURE LANGUAGE SWITCHER & STAR BUTTON */}
-                    <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                      {/* 🌐 Interactive Bilingual / FA / EN Switcher on Card */}
-                      <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-700/80 text-xs font-bold">
+                    {/* CARD TOP BAR: FLAGS-ONLY LANGUAGE SWITCHER & STAR BUTTON */}
+                    <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2">
+                      {/* 🌐 Flags-Only Language Switcher */}
+                      <div className="flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-xl border border-slate-700/80 text-sm">
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleSetCardLangMode('bilingual');
                           }}
-                          className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer ${
-                            cardLanguageMode === 'bilingual' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                          className={`w-7 h-7 rounded-lg transition flex items-center justify-center cursor-pointer ${
+                            cardLanguageMode === 'bilingual' ? 'bg-purple-600 shadow-xs ring-1 ring-purple-400/40' : 'opacity-50 hover:opacity-100'
                           }`}
-                          title={isFa ? 'نمایش همزمان هر دو زبان فارسی و انگلیسی' : 'Show both Persian & English'}
+                          title="Bilingual (🌐)"
                         >
-                          <span>🌐</span>
-                          <span>{isFa ? 'دوزبانه' : 'Bilingual'}</span>
+                          <span className="text-base leading-none">🌐</span>
                         </button>
                         <button
                           type="button"
@@ -1337,13 +1336,12 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                             e.stopPropagation();
                             handleSetCardLangMode('fa');
                           }}
-                          className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer ${
-                            cardLanguageMode === 'fa' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                          className={`w-7 h-7 rounded-lg transition flex items-center justify-center cursor-pointer ${
+                            cardLanguageMode === 'fa' ? 'bg-purple-600 shadow-xs ring-1 ring-purple-400/40' : 'opacity-50 hover:opacity-100'
                           }`}
-                          title="Persian only"
+                          title="Persian (🇮🇷)"
                         >
-                          <span>🇮🇷</span>
-                          <span>فارسی</span>
+                          <span className="text-base leading-none">🇮🇷</span>
                         </button>
                         <button
                           type="button"
@@ -1351,18 +1349,17 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                             e.stopPropagation();
                             handleSetCardLangMode('en');
                           }}
-                          className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer ${
-                            cardLanguageMode === 'en' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                          className={`w-7 h-7 rounded-lg transition flex items-center justify-center cursor-pointer ${
+                            cardLanguageMode === 'en' ? 'bg-purple-600 shadow-xs ring-1 ring-purple-400/40' : 'opacity-50 hover:opacity-100'
                           }`}
-                          title="English only"
+                          title="English (🇬🇧)"
                         >
-                          <span>🇬🇧</span>
-                          <span>English</span>
+                          <span className="text-base leading-none">🇬🇧</span>
                         </button>
                       </div>
 
                       {/* Right Action: Star Button & Delete Button */}
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1">
                         <button
                           type="button"
                           onClick={(e) => {
@@ -1393,7 +1390,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                       </div>
                     </div>
 
-                    {/* CARD FRONT: QUESTION */}
+                    {/* CARD FRONT: QUESTION (CLEAN WITHOUT HEADERS) */}
                     {(() => {
                       const qFa = typeof currentStudyCard.question === 'object' ? currentStudyCard.question.fa || currentStudyCard.question.en : currentStudyCard.question;
                       const qEn = typeof currentStudyCard.question === 'object' ? currentStudyCard.question.en || currentStudyCard.question.fa : currentStudyCard.question;
@@ -1404,37 +1401,16 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
 
                       return (
                         <div className="space-y-3 py-1 flex-1">
-                          <div className="text-xs font-bold text-amber-300 flex items-center justify-between gap-1.5">
-                            <span className="flex items-center gap-1.5">
-                              <HelpCircle className="w-4 h-4 text-amber-400" />
-                              <span>{isFa ? 'صورت سوال / سناریوی بالینی (Front):' : 'Question / Scenario (Front):'}</span>
-                            </span>
-                            {cardLanguageMode !== 'bilingual' && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleSetCardLangMode('bilingual');
-                                }}
-                                className="text-[10px] text-purple-400 hover:text-purple-300 underline font-normal cursor-pointer"
-                              >
-                                {isFa ? 'مشاهده نسخه انگلیسی' : 'Show Persian Translation'}
-                              </button>
-                            )}
-                          </div>
-
                           {/* Render Question based on cardLanguageMode */}
                           {cardLanguageMode === 'bilingual' ? (
                             <div className="space-y-2.5 bg-slate-950/60 p-3.5 sm:p-4 rounded-xl border border-slate-800">
                               {qFa && (
                                 <div className="text-base sm:text-lg text-white leading-relaxed font-bold" dir="rtl">
-                                  <span className="text-[10px] text-amber-400 font-mono font-bold ml-1.5 px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">FA</span>
                                   {qFa}
                                 </div>
                               )}
                               {qEn && (
                                 <div className="text-sm sm:text-base text-slate-300 font-medium leading-relaxed border-t border-slate-800/80 pt-2 font-sans" dir="ltr">
-                                  <span className="text-[10px] text-sky-400 font-mono font-bold mr-1.5 px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">EN</span>
                                   {qEn}
                                 </div>
                               )}
@@ -1571,22 +1547,15 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                           return (
                             <>
                               <div className="space-y-1.5">
-                                <div className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                                  <span>{isFa ? 'پاسخ صحیح و استدلال بالینی (Back):' : 'Correct Answer & Clinical Rationale (Back):'}</span>
-                                </div>
-                                
                                 {cardLanguageMode === 'bilingual' ? (
-                                  <div className="space-y-2 bg-emerald-950/30 border border-emerald-500/30 p-3.5 sm:p-4 rounded-xl text-sm sm:text-base leading-relaxed">
+                                  <div className="space-y-2.5 bg-emerald-950/30 border border-emerald-500/30 p-3.5 sm:p-4 rounded-xl text-sm sm:text-base leading-relaxed">
                                     {aFa && (
                                       <div dir="rtl" className="text-emerald-100 font-medium">
-                                        <span className="text-[10px] text-emerald-400 font-mono font-bold ml-1.5 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">FA</span>
                                         {aFa}
                                       </div>
                                     )}
                                     {aEn && (
                                       <div dir="ltr" className="text-slate-200 font-sans text-xs sm:text-sm border-t border-emerald-900/50 pt-2 opacity-95">
-                                        <span className="text-[10px] text-sky-400 font-mono font-bold mr-1.5 px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">EN</span>
                                         {aEn}
                                       </div>
                                     )}
@@ -2523,42 +2492,41 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                     className="flex items-center justify-center text-xs pb-2.5 border-b border-opacity-30"
                     style={{ borderColor: zenTheme === 'oled' ? '#27272a' : '#e0d3be' }}
                   >
-                    {/* 🌐 Zen Mode Bilingual Switcher */}
+                    {/* 🌐 Zen Mode Flags-Only Switcher */}
                     <div
-                      className={`p-1 rounded-xl flex items-center gap-1 border text-xs font-bold ${
+                      className={`p-0.5 rounded-xl flex items-center gap-1 border text-sm ${
                         zenTheme === 'oled' ? 'bg-slate-950 border-slate-800' : 'bg-[#e4d8c7] border-[#ccbea9]'
                       }`}
                     >
                       <button
                         type="button"
                         onClick={() => handleSetCardLangMode('bilingual')}
-                        className={`px-3 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer ${
-                          cardLanguageMode === 'bilingual' ? 'bg-purple-600 text-white shadow-xs' : 'opacity-60 hover:opacity-100'
+                        className={`w-7 h-7 rounded-lg transition flex items-center justify-center cursor-pointer ${
+                          cardLanguageMode === 'bilingual' ? 'bg-purple-600 shadow-xs ring-1 ring-purple-400/40' : 'opacity-50 hover:opacity-100'
                         }`}
-                        title="Bilingual"
+                        title="Bilingual (🌐)"
                       >
-                        <span>🌐</span>
-                        <span>{isFa ? 'دوزبانه' : 'Bilingual'}</span>
+                        <span className="text-base leading-none">🌐</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => handleSetCardLangMode('fa')}
-                        className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer ${
-                          cardLanguageMode === 'fa' ? 'bg-purple-600 text-white shadow-xs' : 'opacity-60 hover:opacity-100'
+                        className={`w-7 h-7 rounded-lg transition flex items-center justify-center cursor-pointer ${
+                          cardLanguageMode === 'fa' ? 'bg-purple-600 shadow-xs ring-1 ring-purple-400/40' : 'opacity-50 hover:opacity-100'
                         }`}
+                        title="Persian (🇮🇷)"
                       >
-                        <span>🇮🇷</span>
-                        <span>فارسی</span>
+                        <span className="text-base leading-none">🇮🇷</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => handleSetCardLangMode('en')}
-                        className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer ${
-                          cardLanguageMode === 'en' ? 'bg-purple-600 text-white shadow-xs' : 'opacity-60 hover:opacity-100'
+                        className={`w-7 h-7 rounded-lg transition flex items-center justify-center cursor-pointer ${
+                          cardLanguageMode === 'en' ? 'bg-purple-600 shadow-xs ring-1 ring-purple-400/40' : 'opacity-50 hover:opacity-100'
                         }`}
+                        title="English (🇬🇧)"
                       >
-                        <span>🇬🇧</span>
-                        <span>English</span>
+                        <span className="text-base leading-none">🇬🇧</span>
                       </button>
                     </div>
                   </div>
