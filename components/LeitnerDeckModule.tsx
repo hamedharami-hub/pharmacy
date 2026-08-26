@@ -170,8 +170,6 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
   const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const dragStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
-  const [showStarBurst, setShowStarBurst] = useState<boolean>(false);
-  const lastTapTimeRef = useRef<number>(0);
   const cardRef = useRef<HTMLDivElement>(null);
 
   // Manager state: search, folder expansion, filters
@@ -727,22 +725,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentView, isAnswerRevealed, sessionCompleted, currentStudyCard, handleRateCard, isZenMode]);
 
-  // Toggle Star / Bookmark status on the current card
-  const handleToggleStarCurrentCard = useCallback(() => {
-    if (!currentStudyCard) return;
-    const newStarred = !currentStudyCard.isStarred;
-    const updated = cards.map((c) => (c.id === currentStudyCard.id ? { ...c, isStarred: newStarred } : c));
-    onUpdateCards(updated);
-    if (typeof window !== 'undefined' && 'navigator' in window && navigator.vibrate) {
-      try { navigator.vibrate([20, 40, 20]); } catch {}
-    }
-    if (newStarred) {
-      setShowStarBurst(true);
-      setTimeout(() => setShowStarBurst(false), 1100);
-    }
-  }, [currentStudyCard, cards, onUpdateCards]);
-
-  // 4-Way Tinder Touch & Drag Gesture Handlers
+  // 4-Way Touch & Drag Gesture Handlers
   const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
     const target = e.target as HTMLElement;
     if (target.closest('button') || target.closest('a') || target.closest('input')) return;
@@ -767,16 +750,24 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
     const deltaX = dragOffset.x;
     const deltaY = dragOffset.y;
     const thresholdX = Math.min(100, window.innerWidth * 0.22);
-    const thresholdY = 55;
+    const thresholdY = 50;
 
     setIsDragging(false);
 
-    // 1. VERTICAL SWIPES: BOTH PULL DOWN AND PULL UP REVEAL ANSWER
+    // 1. VERTICAL SWIPES
     if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > thresholdY) {
       if (typeof window !== 'undefined' && 'navigator' in window && navigator.vibrate) {
         try { navigator.vibrate(20); } catch {}
       }
-      setIsAnswerRevealed(true);
+      if (!isAnswerRevealed) {
+        // When on Question face: Swiping Up or Down reveals the Answer
+        setIsAnswerRevealed(true);
+      } else {
+        // When on Answer face: Swiping Up (pulling bottom-to-top) shows Question again
+        if (deltaY < -thresholdY) {
+          setIsAnswerRevealed(false);
+        }
+      }
       setDragOffset({ x: 0, y: 0 });
     } else if (deltaX > thresholdX) {
       // SWIPED RIGHT -> SELECT BETWEEN EASY (TOP-RIGHT) & GOOD (BOTTOM-RIGHT / HORIZONTAL)
@@ -803,17 +794,6 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
         setDragOffset({ x: 0, y: 0 });
       }, 150);
     } else {
-      // Tap / Double Tap detection when movement is minimal
-      if (Math.abs(deltaX) < 12 && Math.abs(deltaY) < 12) {
-        const now = Date.now();
-        if (now - lastTapTimeRef.current < 320) {
-          // Double Tap -> Toggle Star Card
-          handleToggleStarCurrentCard();
-          lastTapTimeRef.current = 0;
-        } else {
-          lastTapTimeRef.current = now;
-        }
-      }
       // Snap back smoothly
       setDragOffset({ x: 0, y: 0 });
     }
@@ -1326,19 +1306,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                     </div>
                   )}
 
-                  {/* ⭐ STAR BURST CELEBRATION OVERLAY ⭐ */}
-                  {showStarBurst && (
-                    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center pointer-events-none animate-in zoom-in-50 fade-in duration-300">
-                      <div className="p-4 rounded-full bg-amber-500/20 border-2 border-amber-400/80 shadow-[0_0_60px_rgba(245,158,11,0.7)] backdrop-blur-md flex items-center justify-center animate-bounce">
-                        <Star className="w-14 h-14 text-amber-400 fill-amber-400 drop-shadow-[0_0_25px_rgba(245,158,11,0.9)]" />
-                      </div>
-                      <span className="mt-2 text-xs font-black text-amber-300 bg-slate-950/90 px-4 py-1.5 rounded-full border border-amber-400/50 shadow-xl">
-                        {isFa ? '⭐ کارت نشانه‌دار شد ⭐' : '⭐ Card Starred ⭐'}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* THE CARD (WITH TOUCH / DRAG PHYSICS & DOUBLE-CLICK TO STAR) */}
+                  {/* THE CARD (WITH TOUCH / DRAG PHYSICS) */}
                   <div
                     ref={cardRef}
                     onTouchStart={handleTouchStart}
@@ -1347,7 +1315,6 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                     onMouseDown={handleTouchStart}
                     onMouseMove={handleTouchMove}
                     onMouseUp={handleTouchEnd}
-                    onDoubleClick={handleToggleStarCurrentCard}
                     style={{
                       transform: `translateX(${dragOffset.x}px) translateY(${dragOffset.y * 0.12}px) rotate(${dragOffset.x * 0.04}deg)`,
                       transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
@@ -1360,7 +1327,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                         : 'bg-slate-900 border-slate-700 hover:border-purple-500/40'
                     }`}
                   >
-                    {/* CARD TOP BAR: FLAGS-ONLY LANGUAGE SWITCHER & STAR BUTTON */}
+                    {/* CARD TOP BAR: FLAGS-ONLY LANGUAGE SWITCHER & ACTIONS */}
                     <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2">
                       {/* 🌐 Flags-Only Language Switcher */}
                       <div className="flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-xl border border-slate-700/80 text-sm">
@@ -1405,7 +1372,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                         </button>
                       </div>
 
-                      {/* Right Action: Question/Answer Toggle, Star Button & Delete Button */}
+                      {/* Right Action: Question/Answer Toggle & Delete Button */}
                       <div className="flex items-center gap-1.5">
                         {isAnswerRevealed && (
                           <button
@@ -1421,22 +1388,6 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                             <span>{isFa ? 'سوال' : 'Question'}</span>
                           </button>
                         )}
-
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleToggleStarCurrentCard();
-                          }}
-                          className={`p-1.5 rounded-lg border transition cursor-pointer flex items-center gap-1 ${
-                            currentStudyCard.isStarred
-                              ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-xs'
-                              : 'text-slate-500 border-transparent hover:text-amber-300 hover:bg-white/5'
-                          }`}
-                          title={isFa ? (currentStudyCard.isStarred ? 'حذف ستاره' : 'ستاره‌دار کردن کارت (دبل کلیک)') : 'Toggle Star (Double Click)'}
-                        >
-                          <Star className={`w-4 h-4 ${currentStudyCard.isStarred ? 'fill-amber-400 text-amber-400' : ''}`} />
-                        </button>
 
                         <button
                           type="button"
@@ -1672,11 +1623,11 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                         <span>{isFa ? 'لمس برای پاسخ' : 'Tap for answer'}</span>
                       </div>
                       <div className="flex items-center gap-2 text-[10.5px] text-slate-400 font-normal flex-wrap">
+                        <span className="text-cyan-300 font-medium">{isFa ? '↕ بالا / پایین: پاسخ' : '↕ Up/Down: Answer'}</span>
+                        <span className="text-slate-600">•</span>
                         <span className="text-emerald-300 font-medium">{isFa ? '→ راست: خوب / آسان' : '→ Right: Good/Easy'}</span>
                         <span className="text-slate-600">•</span>
                         <span className="text-rose-300 font-medium">{isFa ? '← چپ: تکرار / سخت' : '← Left: Again/Hard'}</span>
-                        <span className="text-slate-600">•</span>
-                        <span className="text-amber-300 font-medium">{isFa ? '↑ ستاره ⭐' : '↑ Star ⭐'}</span>
                       </div>
                     </div>
                   ) : (
