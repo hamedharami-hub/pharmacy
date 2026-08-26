@@ -61,7 +61,13 @@ Generate a rich, balanced mix of therapeutic pearls, clinical scenarios, caution
 CORE CLINICAL DIRECTIVES:
 1. Ground all questions, answers, and clinical pearls strictly in modern Australian Clinical Pharmacy Practice (AMH, eTG, APF, PSA standards).
 2. Use professional, natural, high-yield language. Avoid trivial dictionary questions; construct realistic diagnostic, therapeutic, dosing, interaction, and counseling challenges.
-3. STRICT BILINGUAL REQUIREMENT: Every single flashcard MUST provide both fluent, natural Persian ('fa') and precise, medical English ('en') for questions, answers, pearls, and all options. Never leave either language blank.
+3. MANDATORY 100% BILINGUAL COMPLETION: Every single flashcard MUST have BOTH fluent, accurate Persian ('fa') and precise Australian clinical English ('en') for EVERY field:
+   - question: { fa: "...", en: "..." }
+   - answer: { fa: "...", en: "..." }
+   - pearl: { fa: "...", en: "..." }
+   - mcqOptions: array of items, each with text: { fa: "...", en: "..." } and explanation: { fa: "...", en: "..." }
+   - distractorRationale: { fa: "...", en: "..." }
+   Never leave 'fa' or 'en' empty, undefined, or copied untranslated. Both languages must be fully articulated.
 4. DO NOT use generic test filler or placeholders. Provide concrete clinical mechanisms, drug names (TGA approved), and clear rationales.
 5. STRICT JSON OUTPUT: Return ONLY a valid JSON object starting with { and ending with }.
 

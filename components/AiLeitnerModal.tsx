@@ -85,6 +85,7 @@ const AiLeitnerModalContent: React.FC<AiLeitnerModalInnerProps> = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [candidateCards, setCandidateCards] = useState<CandidateCard[]>([]);
   const [successSavedCount, setSuccessSavedCount] = useState<number | null>(null);
+  const [previewLang, setPreviewLang] = useState<'bilingual' | 'fa' | 'en'>('bilingual');
 
   const handleGenerateCards = useCallback(
     async (
@@ -604,7 +605,42 @@ const AiLeitnerModalContent: React.FC<AiLeitnerModalInnerProps> = ({
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Bilingual View Selector */}
+                  <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-700/80 text-[11px] font-bold">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewLang('bilingual')}
+                      className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer ${
+                        previewLang === 'bilingual' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                      }`}
+                      title={isFa ? 'نمایش همزمان هر دو زبان فارسی و انگلیسی' : 'Show both Persian & English simultaneously'}
+                    >
+                      <span>🌐</span>
+                      <span>{isFa ? 'هر دو زبان (Bilingual)' : 'Bilingual'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewLang('fa')}
+                      className={`px-2 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer ${
+                        previewLang === 'fa' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <span>🇮🇷</span>
+                      <span>فارسی</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewLang('en')}
+                      className={`px-2 py-1 rounded-lg transition flex items-center gap-1 cursor-pointer ${
+                        previewLang === 'en' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <span>🇬🇧</span>
+                      <span>English</span>
+                    </button>
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => handleToggleSelectAll(true)}
@@ -624,142 +660,208 @@ const AiLeitnerModalContent: React.FC<AiLeitnerModalInnerProps> = ({
 
               {/* Individual Question Cards */}
               <div className="space-y-4">
-                {candidateCards.map((card, idx) => (
-                  <div
-                    key={card.id}
-                    onClick={() => toggleCardSelection(idx)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        toggleCardSelection(idx);
-                      }
-                    }}
-                    className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer space-y-3.5 shadow-md ${
-                      card.selected
-                        ? 'bg-slate-800/95 border-purple-500/60 ring-1 ring-purple-500/30'
-                        : 'bg-slate-950/40 border-slate-800 opacity-60 hover:opacity-100'
-                    }`}
-                  >
-                    {/* Header Row */}
-                    <div className="flex items-center justify-between gap-2 flex-wrap border-b border-slate-700/60 pb-2.5">
-                      <div className="flex items-center gap-2.5">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleCardSelection(idx);
-                          }}
-                          className="text-purple-400 hover:text-purple-300 cursor-pointer"
-                          aria-label={isFa ? 'تغییر وضعیت انتخاب کارت' : 'Toggle card selection'}
-                        >
-                          {card.selected ? (
-                            <CheckSquare className="w-5 h-5 text-purple-400" />
-                          ) : (
-                            <Square className="w-5 h-5 text-slate-500" />
-                          )}
-                        </button>
-                        <span className="font-bold text-white text-xs sm:text-sm">
-                          {isFa ? `پرسش ${idx + 1}` : `Question ${idx + 1}`}
-                        </span>
-                        {getTypeBadge(card.type)}
-                      </div>
+                {candidateCards.map((card, idx) => {
+                  const qFa = card.question?.fa || card.question?.en || '';
+                  const qEn = card.question?.en || card.question?.fa || '';
+                  const aFa = card.answer?.fa || card.answer?.en || '';
+                  const aEn = card.answer?.en || card.answer?.fa || '';
+                  const pFa = card.pearl?.fa || card.pearl?.en || '';
+                  const pEn = card.pearl?.en || card.pearl?.fa || '';
 
-                      <div className="text-[11px] text-slate-400 font-mono">
-                        <span>{card.category}</span> • <span>{card.topic}</span>
-                      </div>
-                    </div>
-
-                    {/* Question (Front) */}
-                    <div className="space-y-1.5">
-                      <div className="text-[11.5px] font-bold text-amber-300 flex items-center gap-1.5">
-                        <HelpCircle className="w-4 h-4 text-amber-400" />
-                        <span>{isFa ? 'صورت سوال / سناریوی بالینی (Front):' : 'Clinical Scenario / Question (Front):'}</span>
-                      </div>
-                      <p className="text-sm sm:text-base text-slate-100 font-bold leading-relaxed bg-slate-900/90 p-3 sm:p-3.5 rounded-xl border border-slate-700/80 shadow-inner">
-                        {isFa ? card.question.fa || card.question.en : card.question.en || card.question.fa}
-                      </p>
-                    </div>
-
-                    {/* MCQ Options List (Full Width, No Truncate, Highly Readable) */}
-                    {card.mcqOptions && card.mcqOptions.length > 0 && (
-                      <div className="space-y-2 pt-1">
-                        <div className="text-[11px] font-bold text-purple-300">
-                          {isFa ? 'گزینه‌های پاسخ (MCQ Options):' : 'MCQ Options:'}
+                  return (
+                    <div
+                      key={card.id}
+                      onClick={() => toggleCardSelection(idx)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          toggleCardSelection(idx);
+                        }
+                      }}
+                      className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer space-y-3.5 shadow-md ${
+                        card.selected
+                          ? 'bg-slate-800/95 border-purple-500/60 ring-1 ring-purple-500/30'
+                          : 'bg-slate-950/40 border-slate-800 opacity-60 hover:opacity-100'
+                      }`}
+                    >
+                      {/* Header Row */}
+                      <div className="flex items-center justify-between gap-2 flex-wrap border-b border-slate-700/60 pb-2.5">
+                        <div className="flex items-center gap-2.5">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleCardSelection(idx);
+                            }}
+                            className="text-purple-400 hover:text-purple-300 cursor-pointer"
+                            aria-label={isFa ? 'تغییر وضعیت انتخاب کارت' : 'Toggle card selection'}
+                          >
+                            {card.selected ? (
+                              <CheckSquare className="w-5 h-5 text-purple-400" />
+                            ) : (
+                              <Square className="w-5 h-5 text-slate-500" />
+                            )}
+                          </button>
+                          <span className="font-bold text-white text-xs sm:text-sm">
+                            {isFa ? `پرسش ${idx + 1}` : `Question ${idx + 1}`}
+                          </span>
+                          {getTypeBadge(card.type)}
                         </div>
-                        <div className="grid grid-cols-1 gap-2 text-xs sm:text-sm">
-                          {card.mcqOptions.map((opt) => (
-                            <div
-                              key={opt.id}
-                              className={`p-3 rounded-xl border flex items-start gap-3 transition ${
-                                opt.isCorrect
-                                  ? 'bg-emerald-950/60 border-emerald-500/70 text-emerald-100 font-bold ring-1 ring-emerald-500/30'
-                                  : 'bg-slate-900/80 border-slate-800 text-slate-200'
-                              }`}
-                            >
-                              <span
-                                className={`w-6 h-6 rounded-full flex items-center justify-center font-mono font-bold text-xs shrink-0 mt-0.5 ${
-                                  opt.isCorrect
-                                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                                    : 'bg-slate-800 text-slate-300 border border-slate-700'
-                                }`}
-                              >
-                                {opt.id}
-                              </span>
-                              <div className="flex-1 min-w-0 leading-relaxed break-words">
-                                <span>{isFa ? opt.text.fa || opt.text.en : opt.text.en || opt.text.fa}</span>
+
+                        <div className="text-[11px] text-slate-400 font-mono">
+                          <span>{card.category}</span> • <span>{card.topic}</span>
+                        </div>
+                      </div>
+
+                      {/* Question (Front) */}
+                      <div className="space-y-1.5">
+                        <div className="text-[11.5px] font-bold text-amber-300 flex items-center gap-1.5">
+                          <HelpCircle className="w-4 h-4 text-amber-400" />
+                          <span>{isFa ? 'صورت سوال / سناریوی بالینی (Front):' : 'Clinical Scenario / Question (Front):'}</span>
+                        </div>
+                        
+                        {previewLang === 'bilingual' ? (
+                          <div className="space-y-2 bg-slate-900/90 p-3 sm:p-3.5 rounded-xl border border-slate-700/80 shadow-inner">
+                            {qFa && (
+                              <div className="text-sm sm:text-base text-white font-bold leading-relaxed" dir="rtl">
+                                <span className="text-[11px] text-amber-400 font-mono font-bold ml-1.5 px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">FA</span>
+                                {qFa}
                               </div>
-                              {opt.isCorrect && (
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">
-                                  {isFa ? '✓ گزینه صحیح' : '✓ Correct Answer'}
-                                </span>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Answer & Clinical Analysis (Back) */}
-                    <div className="space-y-1.5 border-t border-slate-700/60 pt-3">
-                      <div className="text-[11.5px] font-bold text-emerald-400 flex items-center gap-1.5">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                        <span>{isFa ? 'پاسخ تشریحی و تحلیل بالینی (Back):' : 'Detailed Clinical Rationale (Back):'}</span>
-                      </div>
-                      <div className="text-xs sm:text-sm text-slate-200 leading-relaxed bg-slate-950/80 p-3 sm:p-3.5 rounded-xl border border-slate-800 space-y-2">
-                        <p>{isFa ? card.answer.fa || card.answer.en : card.answer.en || card.answer.fa}</p>
-
-                        {/* Distractor Rationale (Exam Traps) */}
-                        {card.distractorRationale && (card.distractorRationale.fa || card.distractorRationale.en) && (
-                          <div className="p-2.5 rounded-lg bg-rose-950/30 border border-rose-500/30 text-rose-200 text-xs mt-2">
-                            <span className="font-bold text-rose-300 block mb-1">
-                              {isFa ? '⚠️ چرا سایر گزینه‌ها نادرست هستند (تله‌های آزمون):' : '⚠️ Distractor Analysis (Exam Traps):'}
-                            </span>
-                            <p className="leading-relaxed">
-                              {isFa
-                                ? card.distractorRationale.fa || card.distractorRationale.en
-                                : card.distractorRationale.en || card.distractorRationale.fa}
-                            </p>
+                            )}
+                            {qEn && (
+                              <div className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed border-t border-slate-800 pt-2 font-sans" dir="ltr">
+                                <span className="text-[10px] text-sky-400 font-mono font-bold mr-1.5 px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">EN</span>
+                                {qEn}
+                              </div>
+                            )}
                           </div>
+                        ) : (
+                          <p className="text-sm sm:text-base text-slate-100 font-bold leading-relaxed bg-slate-900/90 p-3 sm:p-3.5 rounded-xl border border-slate-700/80 shadow-inner">
+                            {previewLang === 'fa' ? qFa : qEn}
+                          </p>
                         )}
                       </div>
-                    </div>
 
-                    {/* High-Yield Clinical Pearl */}
-                    {card.pearl && (card.pearl.fa || card.pearl.en) && (
-                      <div className="p-2.5 sm:p-3 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-200 text-xs sm:text-sm flex items-start gap-2">
-                        <Sparkles className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                        <div className="leading-relaxed">
-                          <span className="font-bold text-amber-300">
-                            {isFa ? 'نکته طلایی فارماکولوژی: ' : 'High-Yield Pearl: '}
-                          </span>
-                          <span>{isFa ? card.pearl.fa || card.pearl.en : card.pearl.en || card.pearl.fa}</span>
+                      {/* MCQ Options List (Full Width, No Truncate, Highly Readable) */}
+                      {card.mcqOptions && card.mcqOptions.length > 0 && (
+                        <div className="space-y-2 pt-1">
+                          <div className="text-[11px] font-bold text-purple-300">
+                            {isFa ? 'گزینه‌های پاسخ (MCQ Options):' : 'MCQ Options:'}
+                          </div>
+                          <div className="grid grid-cols-1 gap-2 text-xs sm:text-sm">
+                            {card.mcqOptions.map((opt) => {
+                              const optFa = opt.text?.fa || opt.text?.en || '';
+                              const optEn = opt.text?.en || opt.text?.fa || '';
+
+                              return (
+                                <div
+                                  key={opt.id}
+                                  className={`p-3 rounded-xl border flex items-start gap-3 transition ${
+                                    opt.isCorrect
+                                      ? 'bg-emerald-950/60 border-emerald-500/70 text-emerald-100 font-bold ring-1 ring-emerald-500/30'
+                                      : 'bg-slate-900/80 border-slate-800 text-slate-200'
+                                  }`}
+                                >
+                                  <span
+                                    className={`w-6 h-6 rounded-full flex items-center justify-center font-mono font-bold text-xs shrink-0 mt-0.5 ${
+                                      opt.isCorrect
+                                        ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                                        : 'bg-slate-800 text-slate-300 border border-slate-700'
+                                    }`}
+                                  >
+                                    {opt.id}
+                                  </span>
+                                  <div className="flex-1 min-w-0 leading-relaxed break-words space-y-1">
+                                    {previewLang === 'bilingual' ? (
+                                      <>
+                                        {optFa && <div dir="rtl">{optFa}</div>}
+                                        {optEn && <div className="text-[11.5px] text-slate-300 font-sans opacity-90 border-t border-slate-800/80 pt-1" dir="ltr">{optEn}</div>}
+                                      </>
+                                    ) : (
+                                      <div>{previewLang === 'fa' ? optFa : optEn}</div>
+                                    )}
+                                  </div>
+                                  {opt.isCorrect && (
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">
+                                      {isFa ? '✓ گزینه صحیح' : '✓ Correct Answer'}
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Answer & Clinical Analysis (Back) */}
+                      <div className="space-y-1.5 border-t border-slate-700/60 pt-3">
+                        <div className="text-[11.5px] font-bold text-emerald-400 flex items-center gap-1.5">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                          <span>{isFa ? 'پاسخ تشریحی و تحلیل بالینی (Back):' : 'Detailed Clinical Rationale (Back):'}</span>
+                        </div>
+                        <div className="text-xs sm:text-sm text-slate-200 leading-relaxed bg-slate-950/80 p-3 sm:p-3.5 rounded-xl border border-slate-800 space-y-2">
+                          {previewLang === 'bilingual' ? (
+                            <div className="space-y-2">
+                              {aFa && (
+                                <div dir="rtl" className="text-slate-100 leading-relaxed">
+                                  <span className="text-[10px] text-emerald-400 font-mono font-bold ml-1.5 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">FA</span>
+                                  {aFa}
+                                </div>
+                              )}
+                              {aEn && (
+                                <div dir="ltr" className="text-slate-300 leading-relaxed border-t border-slate-800 pt-2 font-sans">
+                                  <span className="text-[10px] text-sky-400 font-mono font-bold mr-1.5 px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">EN</span>
+                                  {aEn}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <p>{previewLang === 'fa' ? aFa : aEn}</p>
+                          )}
+
+                          {/* Distractor Rationale (Exam Traps) */}
+                          {card.distractorRationale && (card.distractorRationale.fa || card.distractorRationale.en) && (
+                            <div className="p-2.5 rounded-lg bg-rose-950/30 border border-rose-500/30 text-rose-200 text-xs mt-2 space-y-1">
+                              <span className="font-bold text-rose-300 block mb-1">
+                                {isFa ? '⚠️ چرا سایر گزینه‌ها نادرست هستند (تله‌های آزمون):' : '⚠️ Distractor Analysis (Exam Traps):'}
+                              </span>
+                              {previewLang === 'bilingual' ? (
+                                <>
+                                  {card.distractorRationale.fa && <p dir="rtl">{card.distractorRationale.fa}</p>}
+                                  {card.distractorRationale.en && <p dir="ltr" className="text-slate-300 font-sans border-t border-rose-900/40 pt-1">{card.distractorRationale.en}</p>}
+                                </>
+                              ) : (
+                                <p>{previewLang === 'fa' ? card.distractorRationale.fa || card.distractorRationale.en : card.distractorRationale.en || card.distractorRationale.fa}</p>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
-                    )}
-                  </div>
-                ))}
+
+                      {/* High-Yield Clinical Pearl */}
+                      {(pFa || pEn) && (
+                        <div className="p-2.5 sm:p-3 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-200 text-xs sm:text-sm flex items-start gap-2">
+                          <Sparkles className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
+                          <div className="leading-relaxed flex-1 space-y-1">
+                            <span className="font-bold text-amber-300">
+                              {isFa ? 'نکته طلایی فارماکولوژی: ' : 'High-Yield Pearl: '}
+                            </span>
+                            {previewLang === 'bilingual' ? (
+                              <div className="space-y-1">
+                                {pFa && <div dir="rtl">{pFa}</div>}
+                                {pEn && <div dir="ltr" className="text-slate-300 font-sans text-xs border-t border-purple-900/40 pt-1">{pEn}</div>}
+                              </div>
+                            ) : (
+                              <span>{previewLang === 'fa' ? pFa : pEn}</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

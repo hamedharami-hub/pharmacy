@@ -51,6 +51,7 @@ export const BranchStudyRunnerModal: React.FC<BranchStudyRunnerModalProps> = ({
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const [selectedMcqOption, setSelectedMcqOption] = useState<string | null>(null);
   const [reviewedResults, setReviewedResults] = useState<Record<string, 'again' | 'hard' | 'good' | 'easy'>>({});
+  const [runnerLang, setRunnerLang] = useState<'bilingual' | 'fa' | 'en'>('bilingual');
 
   if (!isOpen || !node || cards.length === 0) return null;
 
@@ -146,22 +147,68 @@ export const BranchStudyRunnerModal: React.FC<BranchStudyRunnerModalProps> = ({
         <div className="space-y-4 flex-1">
           {/* Question Card Box */}
           <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3 shadow-inner">
-            <div className="flex items-center justify-between gap-2 text-xs font-bold text-slate-400">
-              <span>{isFa ? 'صورت مسئله و سوال بالینی:' : 'Clinical Scenario & Question:'}</span>
+            <div className="flex items-center justify-between gap-2 text-xs font-bold text-slate-400 flex-wrap">
+              <div className="flex items-center gap-2">
+                <span>{isFa ? 'صورت مسئله و سوال بالینی:' : 'Clinical Scenario & Question:'}</span>
+                {/* Bilingual Switcher */}
+                <div className="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-[10.5px]">
+                  <button
+                    type="button"
+                    onClick={() => setRunnerLang('bilingual')}
+                    className={`px-2 py-0.5 rounded transition flex items-center gap-1 cursor-pointer ${
+                      runnerLang === 'bilingual' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <span>🌐</span>
+                    <span>{isFa ? 'دوزبانه' : 'Dual'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRunnerLang('fa')}
+                    className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
+                      runnerLang === 'fa' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    FA
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRunnerLang('en')}
+                    className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
+                      runnerLang === 'en' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    EN
+                  </button>
+                </div>
+              </div>
+
               <span className="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono">
                 {isFa ? `جعبه ${currentCard.box}` : `Box ${currentCard.box}`}
               </span>
             </div>
 
-            {isFa ? (
+            {runnerLang === 'bilingual' ? (
+              <div className="space-y-2.5">
+                {qFa && (
+                  <div className="text-sm sm:text-base font-bold text-slate-100 leading-relaxed break-words whitespace-normal" dir="rtl">
+                    <span className="text-[10px] text-amber-400 font-mono font-bold ml-1.5 px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">FA</span>
+                    {qFa}
+                  </div>
+                )}
+                {qEn && (
+                  <div className="text-xs sm:text-sm font-medium text-slate-300 leading-relaxed font-sans border-t border-slate-800 pt-2 break-words whitespace-normal" dir="ltr">
+                    <span className="text-[10px] text-sky-400 font-mono font-bold mr-1.5 px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">EN</span>
+                    {qEn}
+                  </div>
+                )}
+              </div>
+            ) : runnerLang === 'fa' ? (
               <div className="text-sm sm:text-base font-bold text-slate-100 leading-relaxed break-words whitespace-normal" dir="rtl">
                 {qFa || qEn}
               </div>
             ) : (
-              <div
-                className="text-xs sm:text-sm font-semibold text-slate-100 leading-relaxed font-sans break-words whitespace-normal"
-                dir="ltr"
-              >
+              <div className="text-xs sm:text-sm font-semibold text-slate-100 leading-relaxed font-sans break-words whitespace-normal" dir="ltr">
                 {qEn || qFa}
               </div>
             )}
@@ -197,7 +244,8 @@ export const BranchStudyRunnerModal: React.FC<BranchStudyRunnerModalProps> = ({
               </div>
               <div className="space-y-2">
                 {currentCard.mcqOptions.map((opt, idx) => {
-                  const optText = isFa ? opt.text.fa || opt.text.en : opt.text.en || opt.text.fa;
+                  const optFa = opt.text?.fa || opt.text?.en || '';
+                  const optEn = opt.text?.en || opt.text?.fa || '';
                   const optId = opt.id || String.fromCharCode(65 + idx);
                   const isSelected = selectedMcqOption === optId;
                   const isCorrect = opt.isCorrect;
@@ -220,11 +268,20 @@ export const BranchStudyRunnerModal: React.FC<BranchStudyRunnerModalProps> = ({
                       onClick={() => handleSelectOption(optId)}
                       className={`w-full p-3 rounded-xl border text-start transition flex items-center justify-between gap-3 text-xs sm:text-sm cursor-pointer ${optStyle}`}
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
                         <span className="w-6 h-6 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs shrink-0 text-slate-300">
                           {optId.toUpperCase()}
                         </span>
-                        <span className="leading-relaxed break-words">{optText}</span>
+                        <div className="leading-relaxed break-words flex-1 space-y-1">
+                          {runnerLang === 'bilingual' ? (
+                            <>
+                              {optFa && <div dir="rtl">{optFa}</div>}
+                              {optEn && <div className="text-[11px] text-slate-300 font-sans opacity-90 border-t border-slate-700/60 pt-1" dir="ltr">{optEn}</div>}
+                            </>
+                          ) : (
+                            <div>{runnerLang === 'fa' ? optFa : optEn}</div>
+                          )}
+                        </div>
                       </div>
                       {isAnswerRevealed && isCorrect && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
                       {isAnswerRevealed && isSelected && !isCorrect && <XCircle className="w-4 h-4 text-rose-400 shrink-0" />}
@@ -240,37 +297,55 @@ export const BranchStudyRunnerModal: React.FC<BranchStudyRunnerModalProps> = ({
             <button
               type="button"
               onClick={() => setIsAnswerRevealed(true)}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 transition cursor-pointer"
+              className="w-full py-3.5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-purple-900/30"
             >
               <Eye className="w-4 h-4" />
-              <span>{isFa ? 'نمایش پاسخ بالینی و نکته کلیدی' : 'Reveal Target Clinical Answer'}</span>
+              <span>{isFa ? 'نمایش پاسخ و استدلال بالینی' : 'Show Answer & Clinical Rationale'}</span>
             </button>
           ) : (
-            <div className="p-5 rounded-2xl bg-purple-950/20 border border-purple-500/40 space-y-4 animate-in fade-in">
-              <div className="space-y-2">
-                <div className="text-xs font-bold text-purple-300 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>{isFa ? 'پاسخ صحیح بالینی و استدلال:' : 'Target Answer & Rationale:'}</span>
-                </div>
-                <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs sm:text-sm text-slate-200 leading-relaxed">
-                  {isFa ? (
-                    <div dir="rtl">{aFa || aEn}</div>
-                  ) : (
-                    <div dir="ltr" className="font-sans">
-                      {aEn || aFa}
+            <div className="p-4 sm:p-5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 space-y-3 animate-in fade-in">
+              <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>{isFa ? 'پاسخ و استدلال بالینی (Back):' : 'Answer & Rationale (Back):'}</span>
+              </div>
+              
+              {runnerLang === 'bilingual' ? (
+                <div className="space-y-2">
+                  {aFa && (
+                    <div className="text-xs sm:text-sm text-slate-100 leading-relaxed" dir="rtl">
+                      <span className="text-[10px] text-emerald-400 font-mono font-bold ml-1.5 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">FA</span>
+                      {aFa}
+                    </div>
+                  )}
+                  {aEn && (
+                    <div className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed border-t border-emerald-900/60 pt-2" dir="ltr">
+                      <span className="text-[10px] text-sky-400 font-mono font-bold mr-1.5 px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">EN</span>
+                      {aEn}
                     </div>
                   )}
                 </div>
-              </div>
+              ) : (
+                <div
+                  className="text-xs sm:text-sm text-slate-100 leading-relaxed"
+                  dir={runnerLang === 'fa' ? 'rtl' : 'ltr'}
+                >
+                  {runnerLang === 'fa' ? aFa || aEn : aEn || aFa}
+                </div>
+              )}
 
-              {(isFa ? pFa || pEn : pEn || pFa) && (
-                <div className="p-3.5 rounded-xl bg-amber-950/25 border border-amber-500/30 text-amber-200 space-y-1.5">
-                  <div className="font-bold flex items-center gap-1.5 text-xs text-amber-400">
-                    <Zap className="w-4 h-4" />
-                    <span>{isFa ? 'مروارید و نکته کلیدی آزمون (Pearl):' : 'Key Exam Pearl:'}</span>
-                  </div>
-                  <div dir={isFa ? 'rtl' : 'ltr'} className="text-xs leading-relaxed">
-                    {isFa ? pFa || pEn : pEn || pFa}
+              {(pFa || pEn) && (
+                <div className="p-3 rounded-xl bg-purple-950/50 border border-purple-500/30 text-purple-200 text-xs flex items-start gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
+                  <div className="space-y-1 flex-1">
+                    <span className="font-bold text-amber-300">{isFa ? 'نکته کلیدی: ' : 'Key Point: '}</span>
+                    {runnerLang === 'bilingual' ? (
+                      <div className="space-y-1">
+                        {pFa && <div dir="rtl">{pFa}</div>}
+                        {pEn && <div dir="ltr" className="text-slate-300 font-sans text-xs border-t border-purple-900/40 pt-1">{pEn}</div>}
+                      </div>
+                    ) : (
+                      <span>{runnerLang === 'fa' ? pFa : pEn}</span>
+                    )}
                   </div>
                 </div>
               )}

@@ -131,6 +131,22 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
   // Countdown timer for study
   const [timeLeft, setTimeLeft] = useState<number>(0);
 
+  // Card Language Display Mode (bilingual | fa | en)
+  const [cardLanguageMode, setCardLanguageMode] = useState<'bilingual' | 'fa' | 'en'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('leitner_card_lang_mode');
+      if (saved === 'bilingual' || saved === 'fa' || saved === 'en') return saved;
+    }
+    return 'bilingual';
+  });
+
+  const handleSetCardLangMode = (mode: 'bilingual' | 'fa' | 'en') => {
+    setCardLanguageMode(mode);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('leitner_card_lang_mode', mode);
+    }
+  };
+
   // Anki Study Session State
   const [studyQueueIndex, setStudyQueueIndex] = useState<number>(0);
   const [isAnswerRevealed, setIsAnswerRevealed] = useState<boolean>(false);
@@ -1283,6 +1299,52 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                       </div>
 
                       <div className="flex items-center gap-2 flex-wrap">
+                        {/* 🌐 Interactive Bilingual / FA / EN Switcher on Card */}
+                        <div className="flex items-center gap-1 bg-slate-950 p-0.5 rounded-lg border border-slate-700/80 text-[10.5px] font-bold">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSetCardLangMode('bilingual');
+                            }}
+                            className={`px-2 py-0.5 rounded transition flex items-center gap-1 cursor-pointer ${
+                              cardLanguageMode === 'bilingual' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                            }`}
+                            title={isFa ? 'نمایش همزمان هر دو زبان فارسی و انگلیسی' : 'Show both Persian & English'}
+                          >
+                            <span>🌐</span>
+                            <span>{isFa ? 'دوزبانه' : 'Bilingual'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSetCardLangMode('fa');
+                            }}
+                            className={`px-2 py-0.5 rounded transition flex items-center gap-1 cursor-pointer ${
+                              cardLanguageMode === 'fa' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                            }`}
+                            title="Persian only"
+                          >
+                            <span>🇮🇷</span>
+                            <span>FA</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSetCardLangMode('en');
+                            }}
+                            className={`px-2 py-0.5 rounded transition flex items-center gap-1 cursor-pointer ${
+                              cardLanguageMode === 'en' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                            }`}
+                            title="English only"
+                          >
+                            <span>🇬🇧</span>
+                            <span>EN</span>
+                          </button>
+                        </div>
+
                         {/* FSRS Retention Recall Probability Pill */}
                         <div
                           className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold border shadow-xs transition-colors"
@@ -1341,161 +1403,256 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                     </div>
 
                     {/* CARD FRONT: QUESTION */}
-                    <div className="space-y-3 py-1 flex-1">
-                      <div className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                        <HelpCircle className="w-4 h-4 text-amber-400" />
-                        <span>{isFa ? 'پرسش سناریو / سوال کارت (Front):' : 'Question / Scenario (Front):'}</span>
-                      </div>
-                      <p className="text-base sm:text-lg text-white leading-relaxed font-semibold">
-                        {getQuestionText(currentStudyCard)}
-                      </p>
+                    {(() => {
+                      const qFa = typeof currentStudyCard.question === 'object' ? currentStudyCard.question.fa || currentStudyCard.question.en : currentStudyCard.question;
+                      const qEn = typeof currentStudyCard.question === 'object' ? currentStudyCard.question.en || currentStudyCard.question.fa : currentStudyCard.question;
+                      const aFa = typeof currentStudyCard.answer === 'object' ? currentStudyCard.answer.fa || currentStudyCard.answer.en : currentStudyCard.answer;
+                      const aEn = typeof currentStudyCard.answer === 'object' ? currentStudyCard.answer.en || currentStudyCard.answer.fa : currentStudyCard.answer;
+                      const pFa = currentStudyCard.pearl ? (typeof currentStudyCard.pearl === 'object' ? currentStudyCard.pearl.fa : currentStudyCard.pearl) : '';
+                      const pEn = currentStudyCard.pearl ? (typeof currentStudyCard.pearl === 'object' ? currentStudyCard.pearl.en : currentStudyCard.pearl) : '';
 
-                      {/* SPECIALIZED RENDER: MCQ OPTIONS */}
-                      {currentStudyCard.type === 'mcq' && currentStudyCard.mcqOptions && currentStudyCard.mcqOptions.length > 0 && (
-                        <div className="space-y-2 pt-2">
-                          <span className="text-[11px] font-bold text-slate-400 block">
-                            {isFa ? 'گزینه‌ها (یک گزینه را انتخاب کنید):' : 'Choose an option:'}
-                          </span>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                            {currentStudyCard.mcqOptions.map((opt, oIdx) => {
-                              const optLetter = String.fromCharCode(65 + oIdx);
-                              const isSelected = selectedMcqOption === opt.id;
-                              let optStyle = 'bg-slate-800/80 border-slate-700 text-slate-200 hover:bg-slate-800';
-
-                              if (isAnswerRevealed) {
-                                if (opt.isCorrect) {
-                                  optStyle = 'bg-emerald-950/80 border-emerald-500 text-emerald-200 ring-1 ring-emerald-500 font-bold';
-                                } else if (isSelected && !opt.isCorrect) {
-                                  optStyle = 'bg-rose-950/80 border-rose-500 text-rose-200 ring-1 ring-rose-500 line-through';
-                                }
-                              } else if (isSelected) {
-                                optStyle = 'bg-purple-900/60 border-purple-500 text-purple-200 ring-1 ring-purple-500 font-bold';
-                              }
-
-                              return (
-                                <button
-                                  key={opt.id || oIdx}
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedMcqOption(opt.id);
-                                    if (!isAnswerRevealed) setIsAnswerRevealed(true);
-                                  }}
-                                  className={`p-3 rounded-xl border text-start transition cursor-pointer flex items-start gap-2.5 ${optStyle}`}
-                                >
-                                  <span className="w-5 h-5 rounded-full bg-black/50 border border-white/20 flex items-center justify-center font-bold text-[11px] shrink-0">
-                                    {optLetter}
-                                  </span>
-                                  <span className="leading-relaxed text-xs sm:text-[13px]">
-                                    {isFa ? opt.text.fa || opt.text.en : opt.text.en || opt.text.fa}
-                                  </span>
-                                </button>
-                              );
-                            })}
+                      return (
+                        <div className="space-y-3 py-1 flex-1">
+                          <div className="text-xs font-bold text-amber-300 flex items-center justify-between gap-1.5">
+                            <span className="flex items-center gap-1.5">
+                              <HelpCircle className="w-4 h-4 text-amber-400" />
+                              <span>{isFa ? 'صورت سوال / سناریوی بالینی (Front):' : 'Question / Scenario (Front):'}</span>
+                            </span>
+                            {cardLanguageMode !== 'bilingual' && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSetCardLangMode('bilingual');
+                                }}
+                                className="text-[10px] text-purple-400 hover:text-purple-300 underline font-normal cursor-pointer"
+                              >
+                                {isFa ? 'مشاهده نسخه انگلیسی' : 'Show Persian Translation'}
+                              </button>
+                            )}
                           </div>
-                        </div>
-                      )}
 
-                      {/* SPECIALIZED RENDER: CAL LABELS */}
-                      {currentStudyCard.type === 'cal_warning' && currentStudyCard.calLabels && currentStudyCard.calLabels.length > 0 && (
-                        <div className="flex items-center gap-1.5 flex-wrap pt-1">
-                          <span className="text-[11px] font-bold text-amber-300 flex items-center gap-1">
-                            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-                            <span>{isFa ? 'برچسب‌های استرالیایی CAL:' : 'Australian CAL Labels:'}</span>
-                          </span>
-                          {currentStudyCard.calLabels.map((lbl, lIdx) => (
-                            <span
-                              key={lIdx}
-                              className="px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-200 border border-amber-500/50 font-bold text-xs shadow-sm"
-                            >
-                              {lbl}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                          {/* Render Question based on cardLanguageMode */}
+                          {cardLanguageMode === 'bilingual' ? (
+                            <div className="space-y-2.5 bg-slate-950/60 p-3.5 sm:p-4 rounded-xl border border-slate-800">
+                              {qFa && (
+                                <div className="text-base sm:text-lg text-white leading-relaxed font-bold" dir="rtl">
+                                  <span className="text-[10px] text-amber-400 font-mono font-bold ml-1.5 px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">FA</span>
+                                  {qFa}
+                                </div>
+                              )}
+                              {qEn && (
+                                <div className="text-sm sm:text-base text-slate-300 font-medium leading-relaxed border-t border-slate-800/80 pt-2 font-sans" dir="ltr">
+                                  <span className="text-[10px] text-sky-400 font-mono font-bold mr-1.5 px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">EN</span>
+                                  {qEn}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-base sm:text-lg text-white leading-relaxed font-semibold">
+                              {cardLanguageMode === 'fa' ? qFa : qEn}
+                            </p>
+                          )}
 
-                      {/* SPECIALIZED RENDER: TRIAGE OUTCOME BADGE */}
-                      {currentStudyCard.type === 'triage_redflag' && currentStudyCard.triageOutcome && (
-                        <div className="pt-1">
-                          <span
-                            className={`text-xs font-bold px-2.5 py-1 rounded-lg border inline-flex items-center gap-1.5 ${
-                              currentStudyCard.triageOutcome === 'urgent_referral'
-                                ? 'bg-rose-500/20 text-rose-300 border-rose-500/50'
-                                : currentStudyCard.triageOutcome === 'gp_referral'
-                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/50'
-                                : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
-                            }`}
-                          >
-                            <ShieldAlert className="w-3.5 h-3.5" />
-                            <span>
-                              {currentStudyCard.triageOutcome === 'urgent_referral'
-                                ? isFa ? '🚨 ارجاع اورژانسی (ED / 000)' : '🚨 Urgent Referral (Emergency)'
-                                : currentStudyCard.triageOutcome === 'gp_referral'
-                                ? isFa ? '⚠️ ارجاع به پزشک عمومی (GP)' : '⚠️ GP Referral Required'
-                                : isFa ? '🟢 درمان در داروخانه (OTC Treatment)' : '🟢 Pharmacy OTC Supply'}
-                            </span>
-                          </span>
-                        </div>
-                      )}
+                          {/* SPECIALIZED RENDER: MCQ OPTIONS */}
+                          {currentStudyCard.type === 'mcq' && currentStudyCard.mcqOptions && currentStudyCard.mcqOptions.length > 0 && (
+                            <div className="space-y-2 pt-2">
+                              <span className="text-[11px] font-bold text-slate-400 block">
+                                {isFa ? 'گزینه‌ها (یک گزینه را انتخاب کنید):' : 'Choose an option:'}
+                              </span>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                {currentStudyCard.mcqOptions.map((opt, oIdx) => {
+                                  const optLetter = String.fromCharCode(65 + oIdx);
+                                  const isSelected = selectedMcqOption === opt.id;
+                                  const optFa = opt.text?.fa || opt.text?.en || '';
+                                  const optEn = opt.text?.en || opt.text?.fa || '';
+                                  let optStyle = 'bg-slate-800/80 border-slate-700 text-slate-200 hover:bg-slate-800';
 
-                      {/* SPECIALIZED RENDER: CALCULATION METHOD */}
-                      {currentStudyCard.type === 'calculation' && currentStudyCard.calculationFormula && (
-                        <div className="p-3 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-cyan-200 text-xs font-mono">
-                          <span className="font-bold text-cyan-300 block text-[11px] mb-1">
-                            {isFa ? '📐 فرمول و متغیرهای محاسبه:' : '📐 Formula & Variables:'}
-                          </span>
-                          <span>
-                            {isFa
-                              ? currentStudyCard.calculationFormula.fa || currentStudyCard.calculationFormula.en
-                              : currentStudyCard.calculationFormula.en || currentStudyCard.calculationFormula.fa}
-                          </span>
+                                  if (isAnswerRevealed) {
+                                    if (opt.isCorrect) {
+                                      optStyle = 'bg-emerald-950/80 border-emerald-500 text-emerald-200 ring-1 ring-emerald-500 font-bold';
+                                    } else if (isSelected && !opt.isCorrect) {
+                                      optStyle = 'bg-rose-950/80 border-rose-500 text-rose-200 ring-1 ring-rose-500 line-through';
+                                    }
+                                  } else if (isSelected) {
+                                    optStyle = 'bg-purple-900/60 border-purple-500 text-purple-200 ring-1 ring-purple-500 font-bold';
+                                  }
+
+                                  return (
+                                    <button
+                                      key={opt.id || oIdx}
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedMcqOption(opt.id);
+                                        if (!isAnswerRevealed) setIsAnswerRevealed(true);
+                                      }}
+                                      className={`p-3 rounded-xl border text-start transition cursor-pointer flex items-start gap-2.5 ${optStyle}`}
+                                    >
+                                      <span className="w-5 h-5 rounded-full bg-black/50 border border-white/20 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                                        {optLetter}
+                                      </span>
+                                      <div className="leading-relaxed text-xs sm:text-[13px] flex-1 space-y-1">
+                                        {cardLanguageMode === 'bilingual' ? (
+                                          <>
+                                            {optFa && <div dir="rtl">{optFa}</div>}
+                                            {optEn && <div className="text-[11.5px] text-slate-300 font-sans opacity-90 border-t border-slate-700/60 pt-1" dir="ltr">{optEn}</div>}
+                                          </>
+                                        ) : (
+                                          <div>{cardLanguageMode === 'fa' ? optFa : optEn}</div>
+                                        )}
+                                      </div>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* SPECIALIZED RENDER: CAL LABELS */}
+                          {currentStudyCard.type === 'cal_warning' && currentStudyCard.calLabels && currentStudyCard.calLabels.length > 0 && (
+                            <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                              <span className="text-[11px] font-bold text-amber-300 flex items-center gap-1">
+                                <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                                <span>{isFa ? 'برچسب‌های استرالیایی CAL:' : 'Australian CAL Labels:'}</span>
+                              </span>
+                              {currentStudyCard.calLabels.map((lbl, lIdx) => (
+                                <span
+                                  key={lIdx}
+                                  className="px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-200 border border-amber-500/50 font-bold text-xs shadow-sm"
+                                >
+                                  {lbl}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* SPECIALIZED RENDER: TRIAGE OUTCOME BADGE */}
+                          {currentStudyCard.type === 'triage_redflag' && currentStudyCard.triageOutcome && (
+                            <div className="pt-1">
+                              <span
+                                className={`text-xs font-bold px-2.5 py-1 rounded-lg border inline-flex items-center gap-1.5 ${
+                                  currentStudyCard.triageOutcome === 'urgent_referral'
+                                    ? 'bg-rose-500/20 text-rose-300 border-rose-500/50'
+                                    : currentStudyCard.triageOutcome === 'gp_referral'
+                                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/50'
+                                    : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
+                                }`}
+                              >
+                                <ShieldAlert className="w-3.5 h-3.5" />
+                                <span>
+                                  {currentStudyCard.triageOutcome === 'urgent_referral'
+                                    ? isFa ? '🚨 ارجاع اورژانسی (ED / 000)' : '🚨 Urgent Referral (Emergency)'
+                                    : currentStudyCard.triageOutcome === 'gp_referral'
+                                    ? isFa ? '⚠️ ارجاع به پزشک عمومی (GP)' : '⚠️ GP Referral Required'
+                                    : isFa ? '🟢 درمان در داروخانه (OTC Treatment)' : '🟢 Pharmacy OTC Supply'}
+                                </span>
+                              </span>
+                            </div>
+                          )}
+
+                          {/* SPECIALIZED RENDER: CALCULATION METHOD */}
+                          {currentStudyCard.type === 'calculation' && currentStudyCard.calculationFormula && (
+                            <div className="p-3 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-cyan-200 text-xs font-mono">
+                              <span className="font-bold text-cyan-300 block text-[11px] mb-1">
+                                {isFa ? '📐 فرمول و متغیرهای محاسبه:' : '📐 Formula & Variables:'}
+                              </span>
+                              <span>
+                                {isFa
+                                  ? currentStudyCard.calculationFormula.fa || currentStudyCard.calculationFormula.en
+                                  : currentStudyCard.calculationFormula.en || currentStudyCard.calculationFormula.fa}
+                              </span>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
+                      );
+                    })()}
 
                     {/* CARD BACK: REVEALED ANSWER & PEARL */}
                     {isAnswerRevealed && (
                       <div className="border-t border-purple-500/30 pt-4 space-y-3.5 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                        <div className="space-y-1.5">
-                          <div className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                            <span>{isFa ? 'پاسخ صحیح و استدلال بالینی (Back):' : 'Correct Answer & Clinical Rationale (Back):'}</span>
-                          </div>
-                          <p className="text-sm sm:text-base text-slate-100 leading-relaxed bg-emerald-950/30 border border-emerald-500/30 p-3.5 rounded-xl">
-                            {getAnswerText(currentStudyCard)}
-                          </p>
-                        </div>
+                        {(() => {
+                          const aFa = typeof currentStudyCard.answer === 'object' ? currentStudyCard.answer.fa || currentStudyCard.answer.en : currentStudyCard.answer;
+                          const aEn = typeof currentStudyCard.answer === 'object' ? currentStudyCard.answer.en || currentStudyCard.answer.fa : currentStudyCard.answer;
+                          const pFa = currentStudyCard.pearl ? (typeof currentStudyCard.pearl === 'object' ? currentStudyCard.pearl.fa : currentStudyCard.pearl) : '';
+                          const pEn = currentStudyCard.pearl ? (typeof currentStudyCard.pearl === 'object' ? currentStudyCard.pearl.en : currentStudyCard.pearl) : '';
 
-                        {/* Distractor rationale and clinical distinctions */}
-                        {currentStudyCard.distractorRationale && (
-                          <div className="text-xs p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-slate-300 space-y-1">
-                            <span className="font-bold text-amber-300 flex items-center gap-1">
-                              <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
-                              <span>{isFa ? 'نکات تمایز گزینه‌ها و تحلیل بالینی:' : 'Clinical Distinctions & Pitfalls:'}</span>
-                            </span>
-                            <p className="leading-relaxed">
-                              {isFa
-                                ? typeof currentStudyCard.distractorRationale === 'object'
-                                  ? currentStudyCard.distractorRationale.fa || currentStudyCard.distractorRationale.en
-                                  : String(currentStudyCard.distractorRationale)
-                                : typeof currentStudyCard.distractorRationale === 'object'
-                                ? currentStudyCard.distractorRationale.en || currentStudyCard.distractorRationale.fa
-                                : String(currentStudyCard.distractorRationale)}
-                            </p>
-                          </div>
-                        )}
+                          return (
+                            <>
+                              <div className="space-y-1.5">
+                                <div className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                                  <span>{isFa ? 'پاسخ صحیح و استدلال بالینی (Back):' : 'Correct Answer & Clinical Rationale (Back):'}</span>
+                                </div>
+                                
+                                {cardLanguageMode === 'bilingual' ? (
+                                  <div className="space-y-2 bg-emerald-950/30 border border-emerald-500/30 p-3.5 sm:p-4 rounded-xl text-sm sm:text-base leading-relaxed">
+                                    {aFa && (
+                                      <div dir="rtl" className="text-emerald-100 font-medium">
+                                        <span className="text-[10px] text-emerald-400 font-mono font-bold ml-1.5 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">FA</span>
+                                        {aFa}
+                                      </div>
+                                    )}
+                                    {aEn && (
+                                      <div dir="ltr" className="text-slate-200 font-sans text-xs sm:text-sm border-t border-emerald-900/50 pt-2 opacity-95">
+                                        <span className="text-[10px] text-sky-400 font-mono font-bold mr-1.5 px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">EN</span>
+                                        {aEn}
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <p className="text-sm sm:text-base text-slate-100 leading-relaxed bg-emerald-950/30 border border-emerald-500/30 p-3.5 rounded-xl">
+                                    {cardLanguageMode === 'fa' ? aFa : aEn}
+                                  </p>
+                                )}
+                              </div>
 
-                        {/* High Yield Clinical Pearl */}
-                        {getPearlText(currentStudyCard) && (
-                          <div className="p-3 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-200 text-xs flex items-start gap-2">
-                            <Sparkles className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                            <div>
-                              <span className="font-bold text-amber-300">{isFa ? 'نکته طلایی بالینی: ' : 'Key Clinical Point: '}</span>
-                              <span>{getPearlText(currentStudyCard)}</span>
-                            </div>
-                          </div>
-                        )}
+                              {/* Distractor rationale and clinical distinctions */}
+                              {currentStudyCard.distractorRationale && (
+                                <div className="text-xs p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-slate-300 space-y-1">
+                                  <span className="font-bold text-amber-300 flex items-center gap-1">
+                                    <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+                                    <span>{isFa ? 'نکات تمایز گزینه‌ها و تحلیل بالینی:' : 'Clinical Distinctions & Pitfalls:'}</span>
+                                  </span>
+                                  {cardLanguageMode === 'bilingual' ? (
+                                    <div className="space-y-1.5 pt-1">
+                                      {currentStudyCard.distractorRationale.fa && (
+                                        <p dir="rtl" className="text-slate-200">{currentStudyCard.distractorRationale.fa}</p>
+                                      )}
+                                      {currentStudyCard.distractorRationale.en && (
+                                        <p dir="ltr" className="text-slate-300 font-sans text-[11px] border-t border-slate-800 pt-1">{currentStudyCard.distractorRationale.en}</p>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <p className="leading-relaxed">
+                                      {cardLanguageMode === 'fa'
+                                        ? currentStudyCard.distractorRationale.fa || currentStudyCard.distractorRationale.en
+                                        : currentStudyCard.distractorRationale.en || currentStudyCard.distractorRationale.fa}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
 
+                              {/* High Yield Clinical Pearl */}
+                              {(pFa || pEn) && (
+                                <div className="p-3 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-200 text-xs flex items-start gap-2">
+                                  <Sparkles className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
+                                  <div className="space-y-1 flex-1">
+                                    <span className="font-bold text-amber-300">{isFa ? 'نکته طلایی بالینی: ' : 'Key Clinical Point: '}</span>
+                                    {cardLanguageMode === 'bilingual' ? (
+                                      <div className="space-y-1">
+                                        {pFa && <div dir="rtl" className="text-purple-100">{pFa}</div>}
+                                        {pEn && <div dir="ltr" className="text-slate-300 font-sans text-xs border-t border-purple-900/40 pt-1">{pEn}</div>}
+                                      </div>
+                                    ) : (
+                                      <span>{cardLanguageMode === 'fa' ? pFa : pEn}</span>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
                         {/* End of Answer Section */}
                       </div>
                     )}
@@ -2369,7 +2526,46 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                       <span className="opacity-60">{currentStudyCard.topic}</span>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {/* 🌐 Zen Mode Bilingual Switcher */}
+                      <div
+                        className={`p-0.5 rounded-lg flex items-center gap-1 border text-[10.5px] font-bold ${
+                          zenTheme === 'oled' ? 'bg-slate-950 border-slate-800' : 'bg-[#e4d8c7] border-[#ccbea9]'
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => handleSetCardLangMode('bilingual')}
+                          className={`px-2 py-0.5 rounded transition flex items-center gap-1 cursor-pointer ${
+                            cardLanguageMode === 'bilingual' ? 'bg-purple-600 text-white shadow-xs' : 'opacity-60 hover:opacity-100'
+                          }`}
+                          title="Bilingual"
+                        >
+                          <span>🌐</span>
+                          <span>{isFa ? 'دوزبانه' : 'Dual'}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSetCardLangMode('fa')}
+                          className={`px-1.5 py-0.5 rounded transition flex items-center gap-1 cursor-pointer ${
+                            cardLanguageMode === 'fa' ? 'bg-purple-600 text-white shadow-xs' : 'opacity-60 hover:opacity-100'
+                          }`}
+                        >
+                          <span>🇮🇷</span>
+                          <span>FA</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSetCardLangMode('en')}
+                          className={`px-1.5 py-0.5 rounded transition flex items-center gap-1 cursor-pointer ${
+                            cardLanguageMode === 'en' ? 'bg-purple-600 text-white shadow-xs' : 'opacity-60 hover:opacity-100'
+                          }`}
+                        >
+                          <span>🇬🇧</span>
+                          <span>EN</span>
+                        </button>
+                      </div>
+
                       <div
                         className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border shadow-xs"
                         style={{
@@ -2400,91 +2596,172 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                   </div>
 
                   {/* Question */}
-                  <div className="space-y-3">
-                    <p
-                      className={`text-lg sm:text-2xl font-bold leading-relaxed ${
-                        zenTheme === 'oled' ? 'text-white' : 'text-[#1A1412]'
-                      }`}
-                    >
-                      {getQuestionText(currentStudyCard)}
-                    </p>
+                  {(() => {
+                    const qFa = typeof currentStudyCard.question === 'object' ? currentStudyCard.question.fa || currentStudyCard.question.en : currentStudyCard.question;
+                    const qEn = typeof currentStudyCard.question === 'object' ? currentStudyCard.question.en || currentStudyCard.question.fa : currentStudyCard.question;
+                    const aFa = typeof currentStudyCard.answer === 'object' ? currentStudyCard.answer.fa || currentStudyCard.answer.en : currentStudyCard.answer;
+                    const aEn = typeof currentStudyCard.answer === 'object' ? currentStudyCard.answer.en || currentStudyCard.answer.fa : currentStudyCard.answer;
+                    const pFa = currentStudyCard.pearl ? (typeof currentStudyCard.pearl === 'object' ? currentStudyCard.pearl.fa : currentStudyCard.pearl) : '';
+                    const pEn = currentStudyCard.pearl ? (typeof currentStudyCard.pearl === 'object' ? currentStudyCard.pearl.en : currentStudyCard.pearl) : '';
 
-                    {/* MCQ Options if available */}
-                    {currentStudyCard.type === 'mcq' && currentStudyCard.mcqOptions && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 text-xs sm:text-sm">
-                        {currentStudyCard.mcqOptions.map((opt, oIdx) => {
-                          const optLetter = String.fromCharCode(65 + oIdx);
-                          const isSelected = selectedMcqOption === opt.id;
-                          return (
-                            <button
-                              key={opt.id || oIdx}
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedMcqOption(opt.id);
-                                if (!isAnswerRevealed) setIsAnswerRevealed(true);
-                              }}
-                              className={`p-3.5 rounded-2xl border text-start transition cursor-pointer flex items-start gap-2.5 ${
-                                isAnswerRevealed && opt.isCorrect
-                                  ? 'bg-emerald-950/60 border-emerald-500 text-emerald-300 font-bold'
-                                  : isAnswerRevealed && isSelected && !opt.isCorrect
-                                  ? 'bg-rose-950/60 border-rose-500 text-rose-300 line-through'
-                                  : isSelected
-                                  ? 'bg-purple-900/40 border-purple-500 text-purple-300 font-bold'
-                                  : zenTheme === 'oled'
-                                  ? 'bg-zinc-900/80 border-zinc-800 text-zinc-300 hover:bg-zinc-800'
-                                  : 'bg-[#F2E8D8] border-[#D9CEBF] text-[#2C241E] hover:bg-[#EBDDCA]'
+                    return (
+                      <>
+                        <div className="space-y-3">
+                          {cardLanguageMode === 'bilingual' ? (
+                            <div className="space-y-3">
+                              {qFa && (
+                                <p
+                                  dir="rtl"
+                                  className={`text-lg sm:text-2xl font-bold leading-relaxed ${
+                                    zenTheme === 'oled' ? 'text-white' : 'text-[#1A1412]'
+                                  }`}
+                                >
+                                  <span className="text-xs text-amber-400 font-mono font-bold ml-2 px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">FA</span>
+                                  {qFa}
+                                </p>
+                              )}
+                              {qEn && (
+                                <p
+                                  dir="ltr"
+                                  className={`text-base sm:text-xl font-medium leading-relaxed border-t pt-2.5 font-sans ${
+                                    zenTheme === 'oled' ? 'text-slate-300 border-zinc-800' : 'text-[#3E342B] border-[#dcd1c4]'
+                                  }`}
+                                >
+                                  <span className="text-xs text-sky-400 font-mono font-bold mr-2 px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">EN</span>
+                                  {qEn}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <p
+                              className={`text-lg sm:text-2xl font-bold leading-relaxed ${
+                                zenTheme === 'oled' ? 'text-white' : 'text-[#1A1412]'
                               }`}
                             >
-                              <span className="w-5 h-5 rounded-full bg-black/40 border border-white/20 flex items-center justify-center font-bold text-[11px] shrink-0">
-                                {optLetter}
-                              </span>
-                              <span className="leading-relaxed">
-                                {isFa ? opt.text.fa || opt.text.en : opt.text.en || opt.text.fa}
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
+                              {cardLanguageMode === 'fa' ? qFa : qEn}
+                            </p>
+                          )}
 
-                  {/* Revealed Answer in Zen Mode */}
-                  {isAnswerRevealed && (
-                    <div className="pt-4 border-t border-purple-500/30 space-y-4 animate-in fade-in duration-200">
-                      <div className="space-y-1">
-                        <div className="text-xs font-bold text-emerald-500 flex items-center gap-1.5">
-                          <CheckCircle2 className="w-4 h-4" />
-                          <span>{isFa ? 'پاسخ صحیح و تحلیل بالینی:' : 'Correct Rationale:'}</span>
+                          {/* MCQ Options if available */}
+                          {currentStudyCard.type === 'mcq' && currentStudyCard.mcqOptions && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 text-xs sm:text-sm">
+                              {currentStudyCard.mcqOptions.map((opt, oIdx) => {
+                                const optLetter = String.fromCharCode(65 + oIdx);
+                                const isSelected = selectedMcqOption === opt.id;
+                                const optFa = opt.text?.fa || opt.text?.en || '';
+                                const optEn = opt.text?.en || opt.text?.fa || '';
+
+                                return (
+                                  <button
+                                    key={opt.id || oIdx}
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedMcqOption(opt.id);
+                                      if (!isAnswerRevealed) setIsAnswerRevealed(true);
+                                    }}
+                                    className={`p-3.5 rounded-2xl border text-start transition cursor-pointer flex items-start gap-2.5 ${
+                                      isAnswerRevealed && opt.isCorrect
+                                        ? 'bg-emerald-950/60 border-emerald-500 text-emerald-300 font-bold'
+                                        : isAnswerRevealed && isSelected && !opt.isCorrect
+                                        ? 'bg-rose-950/60 border-rose-500 text-rose-300 line-through'
+                                        : isSelected
+                                        ? 'bg-purple-900/40 border-purple-500 text-purple-300 font-bold'
+                                        : zenTheme === 'oled'
+                                        ? 'bg-zinc-900/80 border-zinc-800 text-zinc-300 hover:bg-zinc-800'
+                                        : 'bg-[#F2E8D8] border-[#D9CEBF] text-[#2C241E] hover:bg-[#EBDDCA]'
+                                    }`}
+                                  >
+                                    <span className="w-5 h-5 rounded-full bg-black/40 border border-white/20 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                                      {optLetter}
+                                    </span>
+                                    <div className="leading-relaxed flex-1 space-y-1">
+                                      {cardLanguageMode === 'bilingual' ? (
+                                        <>
+                                          {optFa && <div dir="rtl">{optFa}</div>}
+                                          {optEn && <div className="text-[11.5px] opacity-80 border-t border-current/20 pt-1 font-sans" dir="ltr">{optEn}</div>}
+                                        </>
+                                      ) : (
+                                        <div>{cardLanguageMode === 'fa' ? optFa : optEn}</div>
+                                      )}
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
-                        <p
-                          className={`text-base sm:text-lg leading-relaxed p-4 rounded-2xl border ${
-                            zenTheme === 'oled'
-                              ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-100'
-                              : 'bg-[#EBF7EE] border-emerald-400 text-[#144723]'
-                          }`}
-                        >
-                          {getAnswerText(currentStudyCard)}
-                        </p>
-                      </div>
 
-                      {getPearlText(currentStudyCard) && (
-                        <div
-                          className={`p-3.5 rounded-2xl border text-xs flex items-start gap-2 ${
-                            zenTheme === 'oled'
-                              ? 'bg-purple-950/30 border-purple-500/30 text-purple-200'
-                              : 'bg-[#F5EFFB] border-purple-300 text-[#432360]'
-                          }`}
-                        >
-                          <Sparkles className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                          <div>
-                            <span className="font-bold text-amber-500">{isFa ? 'نکته کلیدی: ' : 'Key Point: '}</span>
-                            <span>{getPearlText(currentStudyCard)}</span>
+                        {/* Revealed Answer in Zen Mode */}
+                        {isAnswerRevealed && (
+                          <div className="pt-4 border-t border-purple-500/30 space-y-4 animate-in fade-in duration-200">
+                            <div className="space-y-1">
+                              <div className="text-xs font-bold text-emerald-500 flex items-center gap-1.5">
+                                <CheckCircle2 className="w-4 h-4" />
+                                <span>{isFa ? 'پاسخ صحیح و تحلیل بالینی:' : 'Correct Rationale:'}</span>
+                              </div>
+                              
+                              {cardLanguageMode === 'bilingual' ? (
+                                <div
+                                  className={`space-y-2 p-4 rounded-2xl border ${
+                                    zenTheme === 'oled'
+                                      ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-100'
+                                      : 'bg-[#EBF7EE] border-emerald-400 text-[#144723]'
+                                  }`}
+                                >
+                                  {aFa && (
+                                    <div dir="rtl" className="text-base sm:text-lg leading-relaxed">
+                                      <span className="text-xs text-emerald-400 font-mono font-bold ml-1.5 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">FA</span>
+                                      {aFa}
+                                    </div>
+                                  )}
+                                  {aEn && (
+                                    <div dir="ltr" className="text-sm sm:text-base leading-relaxed border-t border-emerald-500/20 pt-2 font-sans opacity-95">
+                                      <span className="text-xs text-sky-400 font-mono font-bold mr-1.5 px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">EN</span>
+                                      {aEn}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <p
+                                  className={`text-base sm:text-lg leading-relaxed p-4 rounded-2xl border ${
+                                    zenTheme === 'oled'
+                                      ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-100'
+                                      : 'bg-[#EBF7EE] border-emerald-400 text-[#144723]'
+                                  }`}
+                                >
+                                  {cardLanguageMode === 'fa' ? aFa : aEn}
+                                </p>
+                              )}
+                            </div>
+
+                            {(pFa || pEn) && (
+                              <div
+                                className={`p-3.5 rounded-2xl border text-xs flex items-start gap-2 ${
+                                  zenTheme === 'oled'
+                                    ? 'bg-purple-950/30 border-purple-500/30 text-purple-200'
+                                    : 'bg-[#F5EFFB] border-purple-300 text-[#432360]'
+                                }`}
+                              >
+                                <Sparkles className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                                <div className="flex-1 space-y-1">
+                                  <span className="font-bold text-amber-500">{isFa ? 'نکته کلیدی: ' : 'Key Point: '}</span>
+                                  {cardLanguageMode === 'bilingual' ? (
+                                    <div className="space-y-1">
+                                      {pFa && <div dir="rtl">{pFa}</div>}
+                                      {pEn && <div dir="ltr" className="font-sans opacity-90 border-t border-current/20 pt-1">{pEn}</div>}
+                                    </div>
+                                  ) : (
+                                    <span>{cardLanguageMode === 'fa' ? pFa : pEn}</span>
+                                  )}
+                                </div>
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             </div>

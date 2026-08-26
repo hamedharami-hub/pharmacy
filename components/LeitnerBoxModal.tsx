@@ -93,6 +93,7 @@ export const LeitnerBoxModal: React.FC<LeitnerBoxModalProps> = ({
   const [studyQueueIndex, setStudyQueueIndex] = useState(0);
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const [sessionCompleted, setSessionCompleted] = useState(false);
+  const [boxCardLang, setBoxCardLang] = useState<'bilingual' | 'fa' | 'en'>('bilingual');
   const [sessionStats, setSessionStats] = useState({
     again: 0,
     hard: 0,
@@ -770,35 +771,79 @@ export const LeitnerBoxModal: React.FC<LeitnerBoxModalProps> = ({
                   }`}
                 >
                   {/* CARD TOP INFO */}
-                  <div className="flex items-center justify-between gap-2 text-xs text-slate-400 border-b border-slate-800 pb-2.5">
+                  <div className="flex items-center justify-between gap-2 text-xs text-slate-400 border-b border-slate-800 pb-2.5 flex-wrap">
                     <div className="flex items-center gap-1.5 font-bold text-slate-300 truncate">
                       <span>{currentStudyCard.category}</span>
                       <span className="text-slate-500">/</span>
                       <span className="truncate">{currentStudyCard.topic}</span>
                     </div>
 
-                    {/* HIDDEN HIERARCHY TOGGLE PER CARD */}
-                    {currentStudyCard.knowledgeTree && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowHierarchyCard((prev) => ({
-                            ...prev,
-                            [currentStudyCard.id]: !prev[currentStudyCard.id],
-                          }));
-                        }}
-                        className="text-[11px] px-2 py-0.5 rounded-md bg-indigo-950/60 hover:bg-indigo-900/80 text-indigo-300 border border-indigo-500/30 flex items-center gap-1 transition cursor-pointer"
-                        title={isFa ? 'نمایش مسیر دسته‌بندی و درخت دانش' : 'Toggle Knowledge Tree'}
-                      >
-                        <FolderTree className="w-3 h-3 text-indigo-400" />
-                        <span>
-                          {showHierarchyGlobal || showHierarchyCard[currentStudyCard.id]
-                            ? isFa ? 'بستن فولدر' : 'Hide Tree'
-                            : isFa ? 'نمایش فولدر' : 'Folder Path'}
-                        </span>
-                      </button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {/* Bilingual Switcher */}
+                      <div className="flex items-center gap-1 bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[10.5px] font-bold">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setBoxCardLang('bilingual');
+                          }}
+                          className={`px-2 py-0.5 rounded transition flex items-center gap-1 cursor-pointer ${
+                            boxCardLang === 'bilingual' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                          }`}
+                          title={isFa ? 'نمایش همزمان هر دو زبان' : 'Show both Persian & English'}
+                        >
+                          <span>🌐</span>
+                          <span>{isFa ? 'دوزبانه' : 'Dual'}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setBoxCardLang('fa');
+                          }}
+                          className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
+                            boxCardLang === 'fa' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          FA
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setBoxCardLang('en');
+                          }}
+                          className={`px-1.5 py-0.5 rounded transition cursor-pointer ${
+                            boxCardLang === 'en' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          EN
+                        </button>
+                      </div>
+
+                      {/* HIDDEN HIERARCHY TOGGLE PER CARD */}
+                      {currentStudyCard.knowledgeTree && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowHierarchyCard((prev) => ({
+                              ...prev,
+                              [currentStudyCard.id]: !prev[currentStudyCard.id],
+                            }));
+                          }}
+                          className="text-[11px] px-2 py-0.5 rounded-md bg-indigo-950/60 hover:bg-indigo-900/80 text-indigo-300 border border-indigo-500/30 flex items-center gap-1 transition cursor-pointer"
+                          title={isFa ? 'نمایش مسیر دسته‌بندی و درخت دانش' : 'Toggle Knowledge Tree'}
+                        >
+                          <FolderTree className="w-3 h-3 text-indigo-400" />
+                          <span>
+                            {showHierarchyGlobal || showHierarchyCard[currentStudyCard.id]
+                              ? isFa ? 'بستن فولدر' : 'Hide Tree'
+                              : isFa ? 'نمایش فولدر' : 'Folder Path'}
+                          </span>
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {/* KNOWLEDGE TREE HIERARCHY (HIDDEN BY DEFAULT, SHOWN ON DEMAND) */}
@@ -839,15 +884,40 @@ export const LeitnerBoxModal: React.FC<LeitnerBoxModalProps> = ({
                   )}
 
                   {/* QUESTION (FRONT) */}
-                  <div className="space-y-2 py-1">
-                    <div className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                      <HelpCircle className="w-4 h-4 text-amber-400" />
-                      <span>{isFa ? 'پرسش بالینی / سناریوی آزمون:' : 'Clinical Question / Scenario:'}</span>
-                    </div>
-                    <p className="text-sm sm:text-base text-white leading-relaxed font-semibold">
-                      {getQuestionText(currentStudyCard)}
-                    </p>
-                  </div>
+                  {(() => {
+                    const qFa = typeof currentStudyCard.question === 'object' ? currentStudyCard.question.fa || currentStudyCard.question.en : currentStudyCard.question;
+                    const qEn = typeof currentStudyCard.question === 'object' ? currentStudyCard.question.en || currentStudyCard.question.fa : currentStudyCard.question;
+
+                    return (
+                      <div className="space-y-2 py-1">
+                        <div className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                          <HelpCircle className="w-4 h-4 text-amber-400" />
+                          <span>{isFa ? 'پرسش بالینی / سناریوی آزمون:' : 'Clinical Question / Scenario:'}</span>
+                        </div>
+                        
+                        {boxCardLang === 'bilingual' ? (
+                          <div className="space-y-2 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
+                            {qFa && (
+                              <div className="text-sm sm:text-base text-white leading-relaxed font-bold" dir="rtl">
+                                <span className="text-[10px] text-amber-400 font-mono font-bold ml-1.5 px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">FA</span>
+                                {qFa}
+                              </div>
+                            )}
+                            {qEn && (
+                              <div className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed border-t border-slate-800 pt-2 font-sans" dir="ltr">
+                                <span className="text-[10px] text-sky-400 font-mono font-bold mr-1.5 px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">EN</span>
+                                {qEn}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-sm sm:text-base text-white leading-relaxed font-semibold">
+                            {boxCardLang === 'fa' ? qFa : qEn}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   {/* SPECIALIZED RENDER: MCQ OPTIONS (IF MCQ TYPE) */}
                   {currentStudyCard.type === 'mcq' && currentStudyCard.mcqOptions && currentStudyCard.mcqOptions.length > 0 && (
@@ -859,6 +929,8 @@ export const LeitnerBoxModal: React.FC<LeitnerBoxModalProps> = ({
                         {currentStudyCard.mcqOptions.map((opt, oIdx) => {
                           const optLetter = String.fromCharCode(65 + oIdx);
                           const isSelected = selectedMcqOption === opt.id;
+                          const optFa = opt.text?.fa || opt.text?.en || '';
+                          const optEn = opt.text?.en || opt.text?.fa || '';
                           let optStyle = 'bg-slate-800/80 border-slate-700 text-slate-200 hover:bg-slate-800';
 
                           if (isAnswerRevealed) {
@@ -881,12 +953,19 @@ export const LeitnerBoxModal: React.FC<LeitnerBoxModalProps> = ({
                               }}
                               className={`p-2.5 rounded-xl border text-start transition cursor-pointer flex items-start gap-2 ${optStyle}`}
                             >
-                              <span className="w-5 h-5 rounded-full bg-black/40 border border-white/20 flex items-center justify-center font-bold text-[11px] shrink-0">
+                              <span className="w-5 h-5 rounded-full bg-black/40 border border-white/20 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
                                 {optLetter}
                               </span>
-                              <span className="leading-relaxed">
-                                {isFa ? opt.text.fa || opt.text.en : opt.text.en || opt.text.fa}
-                              </span>
+                              <div className="leading-relaxed flex-1 space-y-1">
+                                {boxCardLang === 'bilingual' ? (
+                                  <>
+                                    {optFa && <div dir="rtl">{optFa}</div>}
+                                    {optEn && <div className="text-[11px] text-slate-300 font-sans opacity-90 border-t border-slate-700/60 pt-1" dir="ltr">{optEn}</div>}
+                                  </>
+                                ) : (
+                                  <div>{boxCardLang === 'fa' ? optFa : optEn}</div>
+                                )}
+                              </div>
                             </button>
                           );
                         })}
@@ -953,15 +1032,38 @@ export const LeitnerBoxModal: React.FC<LeitnerBoxModalProps> = ({
                   {/* ANSWER (BACK) */}
                   {isAnswerRevealed ? (
                     <div className="space-y-3 pt-3 border-t border-slate-800 animate-in fade-in duration-150">
-                      <div className="bg-slate-950/80 p-3.5 rounded-xl border border-emerald-500/30 space-y-1.5">
-                        <div className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                          <span>{isFa ? 'پاسخ و تحلیل بالینی جامع:' : 'Clinical Rationale & Answer:'}</span>
-                        </div>
-                        <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-                          {getAnswerText(currentStudyCard)}
-                        </p>
-                      </div>
+                      {(() => {
+                        const aFa = typeof currentStudyCard.answer === 'object' ? currentStudyCard.answer.fa || currentStudyCard.answer.en : currentStudyCard.answer;
+                        const aEn = typeof currentStudyCard.answer === 'object' ? currentStudyCard.answer.en || currentStudyCard.answer.fa : currentStudyCard.answer;
+                        return (
+                          <div className="bg-slate-950/80 p-3.5 rounded-xl border border-emerald-500/30 space-y-1.5">
+                            <div className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                              <span>{isFa ? 'پاسخ و تحلیل بالینی جامع:' : 'Clinical Rationale & Answer:'}</span>
+                            </div>
+                            {boxCardLang === 'bilingual' ? (
+                              <div className="space-y-2">
+                                {aFa && (
+                                  <div className="text-xs sm:text-sm text-slate-100 leading-relaxed" dir="rtl">
+                                    <span className="text-[10px] text-emerald-400 font-mono font-bold ml-1.5 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">FA</span>
+                                    {aFa}
+                                  </div>
+                                )}
+                                {aEn && (
+                                  <div className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed border-t border-slate-800 pt-2" dir="ltr">
+                                    <span className="text-[10px] text-sky-400 font-mono font-bold mr-1.5 px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">EN</span>
+                                    {aEn}
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                                {boxCardLang === 'fa' ? aFa : aEn}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })()}
 
                       {/* DISTRACTOR RATIONALE FOR MCQ */}
                       {currentStudyCard.distractorRationale && (
@@ -969,23 +1071,41 @@ export const LeitnerBoxModal: React.FC<LeitnerBoxModalProps> = ({
                           <span className="font-bold text-rose-300 text-[11px] block">
                             {isFa ? 'چرا سایر گزینه‌ها نادرست هستند (دام‌های تستی):' : 'Distractor Analysis (Exam Traps):'}
                           </span>
-                          <p className="leading-relaxed text-[11.5px]">
-                            {isFa
-                              ? currentStudyCard.distractorRationale.fa || currentStudyCard.distractorRationale.en
-                              : currentStudyCard.distractorRationale.en || currentStudyCard.distractorRationale.fa}
-                          </p>
+                          {boxCardLang === 'bilingual' ? (
+                            <div className="space-y-1">
+                              {currentStudyCard.distractorRationale.fa && (
+                                <p dir="rtl" className="text-slate-200">{currentStudyCard.distractorRationale.fa}</p>
+                              )}
+                              {currentStudyCard.distractorRationale.en && (
+                                <p dir="ltr" className="text-slate-300 font-sans text-[11px] border-t border-rose-900/40 pt-1">{currentStudyCard.distractorRationale.en}</p>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="leading-relaxed text-[11.5px]">
+                              {boxCardLang === 'fa'
+                                ? currentStudyCard.distractorRationale.fa || currentStudyCard.distractorRationale.en
+                                : currentStudyCard.distractorRationale.en || currentStudyCard.distractorRationale.fa}
+                            </p>
+                          )}
                         </div>
                       )}
 
                       {/* HIGH-YIELD PEARL */}
-                      {getPearlText(currentStudyCard) && (
+                      {(currentStudyCard.pearl?.fa || currentStudyCard.pearl?.en || typeof currentStudyCard.pearl === 'string') && (
                         <div className="p-2.5 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-200 text-xs flex items-start gap-2">
                           <Sparkles className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                          <div className="leading-relaxed">
+                          <div className="leading-relaxed flex-1 space-y-1">
                             <span className="font-bold text-amber-300">
                               {isFa ? 'نکته طلایی فارماکولوژی: ' : 'High-Yield Pearl: '}
                             </span>
-                            <span>{getPearlText(currentStudyCard)}</span>
+                            {boxCardLang === 'bilingual' ? (
+                              <div className="space-y-1">
+                                {currentStudyCard.pearl?.fa && <div dir="rtl">{currentStudyCard.pearl.fa}</div>}
+                                {currentStudyCard.pearl?.en && <div dir="ltr" className="text-slate-300 font-sans text-xs border-t border-purple-900/40 pt-1">{currentStudyCard.pearl.en}</div>}
+                              </div>
+                            ) : (
+                              <span>{getPearlText(currentStudyCard)}</span>
+                            )}
                           </div>
                         </div>
                       )}
