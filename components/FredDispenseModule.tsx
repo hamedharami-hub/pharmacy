@@ -6,8 +6,6 @@ import {
   Monitor,
   CheckCircle2,
   AlertTriangle,
-  QrCode,
-  FileText,
   Clock,
   UserCheck,
   ShieldAlert,
@@ -26,7 +24,6 @@ import {
   Scan,
   Tag,
   Share2,
-  Pill,
   Archive,
   Lock,
   Box,
@@ -688,9 +685,11 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
                         <p className="text-xs font-bold leading-tight truncate">
                           {isFa ? step.labelFa : step.labelEn}
                         </p>
-                        <p className="text-[10px] opacity-75 truncate mt-0.5" dir="ltr">
-                          {step.labelEn}
-                        </p>
+                        {isFa && (
+                          <p className="text-[10px] opacity-75 truncate mt-0.5" dir="ltr">
+                            {step.labelEn}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
@@ -763,532 +762,532 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
       {isStepBrowseOpen && (
         <>
           {/* STEP 1: Script Visualizer Panel Section (Rendered in 'visualizer' or 'dual' view) */}
-      {(viewMode === 'visualizer' || viewMode === 'dual') && (
-        <div className="space-y-2">
-          {viewMode === 'dual' && (
-            <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-indigo-950/80 border border-indigo-500/30 text-xs font-bold text-indigo-300">
-              <span className="flex items-center gap-2 font-mono">
-                <span className="px-2 py-0.5 rounded bg-indigo-900 text-indigo-100 border border-indigo-700">STEP 01</span>
-                {isFa ? 'گام اول: دریافت و ارزیابی قانونی تصویر نسخه (Script Intake & Visualizer)' : 'Step 1: Script Intake & Visualizer'}
-              </span>
-              <span className="text-[10px] text-indigo-400 font-normal">{isFa ? 'چک کردن تاریخ، پزشک، مدیکر و قوانین S4/S8' : 'Verify prescription validity'}</span>
-            </div>
-          )}
-          <ScriptVisualizerPanel
-            language={language}
-            activeScriptType={activeVisualizerTab}
-            onSelectScriptType={(type) => {
-              const scenarioId = VISUALIZER_TAB_TO_SCENARIO[type];
-              if (scenarioId) {
-                handleSelectScenario(scenarioId);
-              }
-            }}
-          />
-        </div>
-      )}
-
-      {/* STEP 2: Fred Dispense Plus Screen Mockup (Rendered in 'terminal' or 'dual' view) */}
-      {(viewMode === 'terminal' || viewMode === 'dual') && (
-        <div className="space-y-2">
-          {viewMode === 'dual' && (
-            <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-teal-950/80 border border-teal-500/30 text-xs font-bold text-teal-300">
-              <span className="flex items-center gap-2 font-mono">
-                <span className="px-2 py-0.5 rounded bg-teal-900 text-teal-100 border border-teal-700">STEP 02</span>
-                {isFa ? 'گام دوم: ورود داده‌ها به ترمینال فرِد (Fred Dispense Plus Main Terminal)' : 'Step 2: Fred Dispense Plus Main Terminal'}
-              </span>
-              <span className="text-[10px] text-teal-400 font-normal">{isFa ? 'وارد کردن کد PBS، جایگزین ژنریک A-Flag و مقدار' : 'PBS item code & substitution'}</span>
-            </div>
-          )}
-          <div className="app-card border-2 border-teal-500/40 rounded-2xl overflow-hidden shadow-2xl bg-slate-950 text-white font-sans space-y-0">
-            {/* Fred Title Bar */}
-            <div className="bg-teal-900 border-b border-teal-700 px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono gap-2">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-teal-400 animate-pulse" />
-                <span className="font-bold text-teal-200">FRED DISPENSE PLUS v2.8 - COMMUNITY PHARMACY TERMINAL</span>
-              </div>
-              <div className="flex items-center gap-3 text-[11px]">
-                <button
-                  onClick={() => setIsFinalCheckModalOpen(true)}
-                  className="px-2.5 py-1 rounded bg-teal-800 hover:bg-teal-700 text-teal-100 border border-teal-600 transition flex items-center gap-1 font-bold shadow"
-                >
-                  <span>Final Check [F10]</span>
-                </button>
-                <span className="text-teal-300 hidden sm:inline">Station #01 | Pharmacist ID: PHAR-9812</span>
-              </div>
-            </div>
-
-            <div className="p-4 sm:p-6 space-y-5">
-              {/* 1. INTERACTIVE FRED COMMAND LINE INPUT BAR */}
-              <div className="p-3.5 rounded-xl bg-slate-900 border border-teal-500/40 space-y-2 shadow-inner">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-teal-300 font-mono flex items-center gap-1.5 uppercase">
-                    <Command className="w-4 h-4 text-teal-400" />
-                    {isFa ? 'خط فرمان اصلی فرِد (Fred Command Line Input):' : 'Fred Command Line Input:'}
+          {(viewMode === 'visualizer' || viewMode === 'dual') && (
+            <div className="space-y-2">
+              {viewMode === 'dual' && (
+                <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-indigo-950/80 border border-indigo-500/30 text-xs font-bold text-indigo-300">
+                  <span className="flex items-center gap-2 font-mono">
+                    <span className="px-2 py-0.5 rounded bg-indigo-900 text-indigo-100 border border-indigo-700">STEP 01</span>
+                    {isFa ? 'گام اول: دریافت و ارزیابی قانونی تصویر نسخه (Script Intake & Visualizer)' : 'Step 1: Script Intake & Visualizer'}
                   </span>
-                  <span className="text-[10px] text-slate-400 font-mono">Press Enter or click Execute</span>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="relative flex-1">
-                    <input
-                      type="text"
-                      value={commandInput}
-                      onChange={(e) => setCommandInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleApplyCommand(commandInput);
-                      }}
-                      placeholder="Type command syntax (e.g. 5/1, 5/3, 5D, 5R, Owing, Mark Off, GS, GB)..."
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-black border border-teal-500/60 text-teal-200 font-mono font-bold text-sm focus:outline-none focus:border-teal-400 shadow-inner"
-                    />
-                    <span className="absolute right-3 top-2.5 text-[10px] text-slate-500 font-mono">
-                      Fred CLI
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={() => handleApplyCommand(commandInput)}
-                    className="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold transition text-xs flex items-center justify-center gap-1.5 shadow-md shrink-0"
-                  >
-                    <CornerDownLeft className="w-4 h-4" />
-                    <span>{isFa ? 'اجرای فرمان' : 'Execute Command'}</span>
-                  </button>
-                </div>
-
-                {/* Quick Command Suggestion Tags */}
-                <div className="flex items-center gap-1.5 overflow-x-auto pt-1 no-scrollbar text-[11px] font-mono">
-                  <span className="text-slate-400 text-[10px] shrink-0">{isFa ? 'پیشنهاد سریع:' : 'Quick Syntax:'}</span>
-                  {['5/1', '5/3', '5D', '5R', 'Owing', 'Mark Off', 'GS', 'GB', 'CHART', 'MYSL', 'MYHR'].map((tag) => (
-                    <button
-                      key={tag}
-                      onClick={() => handleApplyCommand(tag)}
-                      className="px-2 py-0.5 rounded bg-slate-950 hover:bg-teal-900 border border-slate-800 hover:border-teal-600 text-teal-300 transition text-[10px] font-bold shrink-0"
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Active System Hotkey Badges Bar */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
-                {/* Brand Selection Toggle (F11) */}
-                <button
-                  onClick={() => handleToggleHotKey('brand')}
-                  className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-teal-500/50 flex items-center justify-between transition text-left"
-                >
-                  <div className="space-y-0.5">
-                    <span className="text-[10px] text-slate-400 block">Brand Priority [F11]:</span>
-                    <strong className="text-teal-300 font-bold">
-                      {brandPreference === 'GS' ? 'GS (Generic First)' : 'GB (Brand First)'}
-                    </strong>
-                  </div>
-                  <Tag className="w-4 h-4 text-teal-400" />
-                </button>
-
-                {/* MySL Active Script List Toggle (Ctrl+Shift+X) */}
-                <button
-                  onClick={() => handleToggleHotKey('mysl')}
-                  className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-indigo-500/50 flex items-center justify-between transition text-left"
-                >
-                  <div className="space-y-0.5">
-                    <span className="text-[10px] text-slate-400 block">MySL Script List [Ctrl+Shift+X]:</span>
-                    <strong className={isMySlExcluded ? 'text-amber-400 font-bold' : 'text-emerald-400 font-bold'}>
-                      {isMySlExcluded ? 'Excluded' : 'Included'}
-                    </strong>
-                  </div>
-                  <Share2 className="w-4 h-4 text-indigo-400" />
-                </button>
-
-                {/* MyHR Consent Toggle (Alt+E) */}
-                <button
-                  onClick={() => handleToggleHotKey('myhr')}
-                  className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-teal-500/50 flex items-center justify-between transition text-left"
-                >
-                  <div className="space-y-0.5">
-                    <span className="text-[10px] text-slate-400 block">MyHR Upload [Alt+E]:</span>
-                    <strong className={myHrConsent ? 'text-teal-400 font-bold' : 'text-rose-400 font-bold'}>
-                      {myHrConsent ? 'Consented' : 'Opted Out'}
-                    </strong>
-                  </div>
-                  <ShieldAlert className="w-4 h-4 text-teal-400" />
-                </button>
-
-                {/* Chart Mode Indicator (Ctrl+Shift+C) */}
-                <button
-                  onClick={() => handleToggleHotKey('chartMode')}
-                  className={`p-2.5 rounded-xl border flex items-center justify-between transition text-left ${
-                    isChartMode
-                      ? 'bg-purple-950/80 border-purple-500 text-purple-200'
-                      : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-purple-500/50'
-                  }`}
-                >
-                  <div className="space-y-0.5">
-                    <span className="text-[10px] text-slate-400 block">Chart Mode [Ctrl+Shift+C]:</span>
-                    <strong className={isChartMode ? 'text-purple-300 font-bold' : 'text-slate-400'}>
-                      {isChartMode ? 'Active (RACF)' : 'Standard Script'}
-                    </strong>
-                  </div>
-                  <Hospital className={`w-4 h-4 ${isChartMode ? 'text-purple-400 animate-pulse' : 'text-slate-500'}`} />
-                </button>
-              </div>
-
-              {/* OWING SCRIPT WORKFLOW BANNER (If Owing is triggered) */}
-              {isOwing && (
-                <div className="p-4 rounded-xl bg-rose-950/80 border-2 border-rose-500/60 text-white space-y-3 text-xs animate-in fade-in">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-rose-500/30 pb-2">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-rose-400 shrink-0" />
-                      <div>
-                        <span className="font-bold text-sm text-rose-300 block">
-                          {isFa ? 'فرآیند نسخه بدهکار فعال شد! (Owing Script Active)' : 'Owing Script Workflow Active'}
-                        </span>
-                        <p className="text-slate-300 text-[11px]">
-                          {isFa
-                            ? 'دارو تحویل داده شد. برگه بدهکار صادر شده و منتظر دریافت اصل نسخه از پزشک می‌باشد.'
-                            : 'Emergency supply dispensed. Paper script pending receipt from prescriber.'}
-                        </p>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => alert(isFa ? 'برگه بدهکار (Owing Notice) جهت الصاق به برچسب دارو چاپ شد.' : 'Owing Notice printed successfully!')}
-                      className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold transition flex items-center gap-1.5 shrink-0 shadow"
-                    >
-                      <Printer className="w-3.5 h-3.5" />
-                      <span>{isFa ? 'چاپ برچسب بدهکار (Print Owing Notice)' : 'Print Owing Notice'}</span>
-                    </button>
-                  </div>
-
-                  {/* Mark Off / eRx Reconciliation Input */}
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
-                    <span className="text-slate-300 text-[11px] font-bold">
-                      {isFa ? 'تسویه و خروج از بدهکاری (Reconciliation / Mark Off):' : 'Reconcile Owing via eRx Barcode Scan:'}
-                    </span>
-
-                    <div className="flex items-center gap-2 w-full sm:w-auto">
-                      <input
-                        type="text"
-                        value={erxBarcode}
-                        onChange={(e) => setErxBarcode(e.target.value)}
-                        placeholder="Scan eRx Barcode (e.g. ERX98124)"
-                        className="px-3 py-1 bg-black border border-rose-400/50 rounded-lg text-rose-300 font-mono text-xs w-full sm:w-48"
-                      />
-                      <button
-                        onClick={() => handleApplyCommand('Mark Off')}
-                        className={`px-3 py-1.5 rounded-lg font-bold transition text-xs shrink-0 flex items-center gap-1 ${
-                          isOwingReconciled
-                            ? 'bg-emerald-600 text-white border border-emerald-400'
-                            : 'bg-indigo-600 hover:bg-indigo-500 text-white'
-                        }`}
-                      >
-                        <Scan className="w-3.5 h-3.5" />
-                        <span>{isOwingReconciled ? (isFa ? 'تسویه شد ✅' : 'Reconciled ✅') : (isFa ? 'اسکن بارکد و تسویه' : 'Mark Off Owing')}</span>
-                      </button>
-                    </div>
-                  </div>
+                  <span className="text-[10px] text-indigo-400 font-normal">{isFa ? 'چک کردن تاریخ، پزشک، مدیکر و قوانین S4/S8' : 'Verify prescription validity'}</span>
                 </div>
               )}
+              <ScriptVisualizerPanel
+                language={language}
+                activeScriptType={activeVisualizerTab}
+                onSelectScriptType={(type) => {
+                  const scenarioId = VISUALIZER_TAB_TO_SCENARIO[type];
+                  if (scenarioId) {
+                    handleSelectScenario(scenarioId);
+                  }
+                }}
+              />
+            </div>
+          )}
 
-              {/* Top Patient & Prescriber Banner (Turns PURPLE in Medication Chart Mode) */}
-              <div
-                className={`grid grid-cols-1 md:grid-cols-2 gap-4 p-3.5 rounded-xl border text-xs transition-all ${
-                  isChartMode
-                    ? 'bg-purple-950/90 border-purple-500/60 text-purple-100 shadow-lg shadow-purple-900/30'
-                    : 'bg-slate-900/90 border-slate-800'
-                }`}
-              >
-                <div className="space-y-1">
-                  <span className={`text-[10px] font-bold uppercase font-mono ${isChartMode ? 'text-purple-300' : 'text-teal-400'}`}>
-                    {isChartMode ? 'RACF / HOSPITAL MEDICATION CHART PATIENT' : 'PATIENT DEMOGRAPHICS'}
+          {/* STEP 2: Fred Dispense Plus Screen Mockup (Rendered in 'terminal' or 'dual' view) */}
+          {(viewMode === 'terminal' || viewMode === 'dual') && (
+            <div className="space-y-2">
+              {viewMode === 'dual' && (
+                <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-teal-950/80 border border-teal-500/30 text-xs font-bold text-teal-300">
+                  <span className="flex items-center gap-2 font-mono">
+                    <span className="px-2 py-0.5 rounded bg-teal-900 text-teal-100 border border-teal-700">STEP 02</span>
+                    {isFa ? 'گام دوم: ورود داده‌ها به ترمینال فرِد (Fred Dispense Plus Main Terminal)' : 'Step 2: Fred Dispense Plus Main Terminal'}
                   </span>
-                  <p className="font-bold text-sm text-white">{scenario.patientName}</p>
-                  <p className={isChartMode ? 'text-purple-200' : 'text-slate-400'}>
-                    DOB: <span className="text-white font-mono">{scenario.patientDob}</span> | Medicare: <span className="text-white font-mono">{scenario.medicareNumber}</span>
-                  </p>
+                  <span className="text-[10px] text-teal-400 font-normal">{isFa ? 'وارد کردن کد PBS، جایگزین ژنریک A-Flag و مقدار' : 'PBS item code & substitution'}</span>
+                </div>
+              )}
+              <div className="app-card border-2 border-teal-500/40 rounded-2xl overflow-hidden shadow-2xl bg-slate-950 text-white font-sans space-y-0">
+                {/* Fred Title Bar */}
+                <div className="bg-teal-900 border-b border-teal-700 px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-teal-400 animate-pulse" />
+                    <span className="font-bold text-teal-200">FRED DISPENSE PLUS v2.8 - COMMUNITY PHARMACY TERMINAL</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-[11px]">
+                    <button
+                      onClick={() => setIsFinalCheckModalOpen(true)}
+                      className="px-2.5 py-1 rounded bg-teal-800 hover:bg-teal-700 text-teal-100 border border-teal-600 transition flex items-center gap-1 font-bold shadow"
+                    >
+                      <span>Final Check [F10]</span>
+                    </button>
+                    <span className="text-teal-300 hidden sm:inline">Station #01 | Pharmacist ID: PHAR-9812</span>
+                  </div>
                 </div>
 
-                <div className="space-y-1">
-                  <span className={`text-[10px] font-bold uppercase font-mono ${isChartMode ? 'text-purple-300' : 'text-teal-400'}`}>
-                    PRESCRIBER & CHART VALIDITY
-                  </span>
-                  <p className="font-bold text-sm text-white">{scenario.prescriberName}</p>
-                  <p className={isChartMode ? 'text-purple-200' : 'text-slate-400'}>
-                    Script Date: <span className={`font-mono font-bold ${scenario.isExpiredS8 ? 'text-rose-400' : 'text-emerald-400'}`}>{scenario.scriptDate}</span>
-                  </p>
-                </div>
-              </div>
-
-              {/* Script Processing Form */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                {/* Left Inputs */}
-                <div className="lg:col-span-2 space-y-4 text-xs">
-                  {/* Prescribed Item & A-Flag Substitute */}
-                  <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-slate-300">{isFa ? 'داروی تجویز شده روی نسخه:' : 'Prescribed Medication:'}</span>
-                      <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">
-                        Schedule {scenario.schedule}
+                <div className="p-4 sm:p-6 space-y-5">
+                  {/* 1. INTERACTIVE FRED COMMAND LINE INPUT BAR */}
+                  <div className="p-3.5 rounded-xl bg-slate-900 border border-teal-500/40 space-y-2 shadow-inner">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-teal-300 font-mono flex items-center gap-1.5 uppercase">
+                        <Command className="w-4 h-4 text-teal-400" />
+                        {isFa ? 'خط فرمان اصلی فرِد (Fred Command Line Input):' : 'Fred Command Line Input:'}
                       </span>
+                      <span className="text-[10px] text-slate-400 font-mono">Press Enter or click Execute</span>
                     </div>
-                    <p className="font-bold text-base text-teal-300 font-mono">{scenario.prescribedDrug}</p>
 
-                    {/* A-Flag Generic Substitution Toggle */}
-                    <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
-                      <span className="text-slate-400">{isFa ? 'جایگزینی برند ژنریک (A-Flag Brand Substitution):' : 'A-Flag Generic Substitution:'}</span>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type="text"
+                          value={commandInput}
+                          onChange={(e) => setCommandInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleApplyCommand(commandInput);
+                          }}
+                          placeholder="Type command syntax (e.g. 5/1, 5/3, 5D, 5R, Owing, Mark Off, GS, GB)..."
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-black border border-teal-500/60 text-teal-200 font-mono font-bold text-sm focus:outline-none focus:border-teal-400 shadow-inner"
+                        />
+                        <span className="absolute right-3 top-2.5 text-[10px] text-slate-500 font-mono">
+                          Fred CLI
+                        </span>
+                      </div>
+
                       <button
-                        onClick={() => setIsGenericSubstituted(!isGenericSubstituted)}
-                        className={`px-3 py-1 rounded-lg font-bold transition border ${
-                          isGenericSubstituted
-                            ? 'bg-emerald-600 text-white border-emerald-500'
-                            : 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white'
-                        }`}
+                        onClick={() => handleApplyCommand(commandInput)}
+                        className="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold transition text-xs flex items-center justify-center gap-1.5 shadow-md shrink-0"
                       >
-                        {isGenericSubstituted ? `✅ ${scenario.aFlagGenericSubstitute}` : isFa ? 'فعال‌سازی جایگزین ژنریک' : 'Enable Substitution'}
+                        <CornerDownLeft className="w-4 h-4" />
+                        <span>{isFa ? 'اجرای فرمان' : 'Execute Command'}</span>
+                      </button>
+                    </div>
+
+                    {/* Quick Command Suggestion Tags */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto pt-1 no-scrollbar text-[11px] font-mono">
+                      <span className="text-slate-400 text-[10px] shrink-0">{isFa ? 'پیشنهاد سریع:' : 'Quick Syntax:'}</span>
+                      {['5/1', '5/3', '5D', '5R', 'Owing', 'Mark Off', 'GS', 'GB', 'CHART', 'MYSL', 'MYHR'].map((tag) => (
+                        <button
+                          key={tag}
+                          onClick={() => handleApplyCommand(tag)}
+                          className="px-2 py-0.5 rounded bg-slate-950 hover:bg-teal-900 border border-slate-800 hover:border-teal-600 text-teal-300 transition text-[10px] font-bold shrink-0"
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Active System Hotkey Badges Bar */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
+                    {/* Brand Selection Toggle (F11) */}
+                    <button
+                      onClick={() => handleToggleHotKey('brand')}
+                      className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-teal-500/50 flex items-center justify-between transition text-left"
+                    >
+                      <div className="space-y-0.5">
+                        <span className="text-[10px] text-slate-400 block">Brand Priority [F11]:</span>
+                        <strong className="text-teal-300 font-bold">
+                          {brandPreference === 'GS' ? 'GS (Generic First)' : 'GB (Brand First)'}
+                        </strong>
+                      </div>
+                      <Tag className="w-4 h-4 text-teal-400" />
+                    </button>
+
+                    {/* MySL Active Script List Toggle (Ctrl+Shift+X) */}
+                    <button
+                      onClick={() => handleToggleHotKey('mysl')}
+                      className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-indigo-500/50 flex items-center justify-between transition text-left"
+                    >
+                      <div className="space-y-0.5">
+                        <span className="text-[10px] text-slate-400 block">MySL Script List [Ctrl+Shift+X]:</span>
+                        <strong className={isMySlExcluded ? 'text-amber-400 font-bold' : 'text-emerald-400 font-bold'}>
+                          {isMySlExcluded ? 'Excluded' : 'Included'}
+                        </strong>
+                      </div>
+                      <Share2 className="w-4 h-4 text-indigo-400" />
+                    </button>
+
+                    {/* MyHR Consent Toggle (Alt+E) */}
+                    <button
+                      onClick={() => handleToggleHotKey('myhr')}
+                      className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-teal-500/50 flex items-center justify-between transition text-left"
+                    >
+                      <div className="space-y-0.5">
+                        <span className="text-[10px] text-slate-400 block">MyHR Upload [Alt+E]:</span>
+                        <strong className={myHrConsent ? 'text-teal-400 font-bold' : 'text-rose-400 font-bold'}>
+                          {myHrConsent ? 'Consented' : 'Opted Out'}
+                        </strong>
+                      </div>
+                      <ShieldAlert className="w-4 h-4 text-teal-400" />
+                    </button>
+
+                    {/* Chart Mode Indicator (Ctrl+Shift+C) */}
+                    <button
+                      onClick={() => handleToggleHotKey('chartMode')}
+                      className={`p-2.5 rounded-xl border flex items-center justify-between transition text-left ${
+                        isChartMode
+                          ? 'bg-purple-950/80 border-purple-500 text-purple-200'
+                          : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-purple-500/50'
+                      }`}
+                    >
+                      <div className="space-y-0.5">
+                        <span className="text-[10px] text-slate-400 block">Chart Mode [Ctrl+Shift+C]:</span>
+                        <strong className={isChartMode ? 'text-purple-300 font-bold' : 'text-slate-400'}>
+                          {isChartMode ? 'Active (RACF)' : 'Standard Script'}
+                        </strong>
+                      </div>
+                      <Hospital className={`w-4 h-4 ${isChartMode ? 'text-purple-400 animate-pulse' : 'text-slate-500'}`} />
+                    </button>
+                  </div>
+
+                  {/* OWING SCRIPT WORKFLOW BANNER (If Owing is triggered) */}
+                  {isOwing && (
+                    <div className="p-4 rounded-xl bg-rose-950/80 border-2 border-rose-500/60 text-white space-y-3 text-xs animate-in fade-in">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-rose-500/30 pb-2">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-5 h-5 text-rose-400 shrink-0" />
+                          <div>
+                            <span className="font-bold text-sm text-rose-300 block">
+                              {isFa ? 'فرآیند نسخه بدهکار فعال شد! (Owing Script Active)' : 'Owing Script Workflow Active'}
+                            </span>
+                            <p className="text-slate-300 text-[11px]">
+                              {isFa
+                                ? 'دارو تحویل داده شد. برگه بدهکار صادر شده و منتظر دریافت اصل نسخه از پزشک می‌باشد.'
+                                : 'Emergency supply dispensed. Paper script pending receipt from prescriber.'}
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => alert(isFa ? 'برگه بدهکار (Owing Notice) جهت الصاق به برچسب دارو چاپ شد.' : 'Owing Notice printed successfully!')}
+                          className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold transition flex items-center gap-1.5 shrink-0 shadow"
+                        >
+                          <Printer className="w-3.5 h-3.5" />
+                          <span>{isFa ? 'چاپ برچسب بدهکار (Print Owing Notice)' : 'Print Owing Notice'}</span>
+                        </button>
+                      </div>
+
+                      {/* Mark Off / eRx Reconciliation Input */}
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+                        <span className="text-slate-300 text-[11px] font-bold">
+                          {isFa ? 'تسویه و خروج از بدهکاری (Reconciliation / Mark Off):' : 'Reconcile Owing via eRx Barcode Scan:'}
+                        </span>
+
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                          <input
+                            type="text"
+                            value={erxBarcode}
+                            onChange={(e) => setErxBarcode(e.target.value)}
+                            placeholder="Scan eRx Barcode (e.g. ERX98124)"
+                            className="px-3 py-1 bg-black border border-rose-400/50 rounded-lg text-rose-300 font-mono text-xs w-full sm:w-48"
+                          />
+                          <button
+                            onClick={() => handleApplyCommand('Mark Off')}
+                            className={`px-3 py-1.5 rounded-lg font-bold transition text-xs shrink-0 flex items-center gap-1 ${
+                              isOwingReconciled
+                                ? 'bg-emerald-600 text-white border border-emerald-400'
+                                : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+                            }`}
+                          >
+                            <Scan className="w-3.5 h-3.5" />
+                            <span>{isOwingReconciled ? (isFa ? 'تسویه شد ✅' : 'Reconciled ✅') : (isFa ? 'اسکن بارکد و تسویه' : 'Mark Off Owing')}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Top Patient & Prescriber Banner (Turns PURPLE in Medication Chart Mode) */}
+                  <div
+                    className={`grid grid-cols-1 md:grid-cols-2 gap-4 p-3.5 rounded-xl border text-xs transition-all ${
+                      isChartMode
+                        ? 'bg-purple-950/90 border-purple-500/60 text-purple-100 shadow-lg shadow-purple-900/30'
+                        : 'bg-slate-900/90 border-slate-800'
+                    }`}
+                  >
+                    <div className="space-y-1">
+                      <span className={`text-[10px] font-bold uppercase font-mono ${isChartMode ? 'text-purple-300' : 'text-teal-400'}`}>
+                        {isChartMode ? 'RACF / HOSPITAL MEDICATION CHART PATIENT' : 'PATIENT DEMOGRAPHICS'}
+                      </span>
+                      <p className="font-bold text-sm text-white">{scenario.patientName}</p>
+                      <p className={isChartMode ? 'text-purple-200' : 'text-slate-400'}>
+                        DOB: <span className="text-white font-mono">{scenario.patientDob}</span> | Medicare: <span className="text-white font-mono">{scenario.medicareNumber}</span>
+                      </p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <span className={`text-[10px] font-bold uppercase font-mono ${isChartMode ? 'text-purple-300' : 'text-teal-400'}`}>
+                        PRESCRIBER & CHART VALIDITY
+                      </span>
+                      <p className="font-bold text-sm text-white">{scenario.prescriberName}</p>
+                      <p className={isChartMode ? 'text-purple-200' : 'text-slate-400'}>
+                        Script Date: <span className={`font-mono font-bold ${scenario.isExpiredS8 ? 'text-rose-400' : 'text-emerald-400'}`}>{scenario.scriptDate}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Script Processing Form */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                    {/* Left Inputs */}
+                    <div className="lg:col-span-2 space-y-4 text-xs">
+                      {/* Prescribed Item & A-Flag Substitute */}
+                      <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-300">{isFa ? 'داروی تجویز شده روی نسخه:' : 'Prescribed Medication:'}</span>
+                          <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">
+                            Schedule {scenario.schedule}
+                          </span>
+                        </div>
+                        <p className="font-bold text-base text-teal-300 font-mono">{scenario.prescribedDrug}</p>
+
+                        {/* A-Flag Generic Substitution Toggle */}
+                        <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+                          <span className="text-slate-400">{isFa ? 'جایگزینی برند ژنریک (A-Flag Brand Substitution):' : 'A-Flag Generic Substitution:'}</span>
+                          <button
+                            onClick={() => setIsGenericSubstituted(!isGenericSubstituted)}
+                            className={`px-3 py-1 rounded-lg font-bold transition border ${
+                              isGenericSubstituted
+                                ? 'bg-emerald-600 text-white border-emerald-500'
+                                : 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white'
+                            }`}
+                          >
+                            {isGenericSubstituted ? `✅ ${scenario.aFlagGenericSubstitute}` : isFa ? 'فعال‌سازی جایگزین ژنریک' : 'Enable Substitution'}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* PBS Code & Fred Shortcut Keyboard Controls */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-slate-400 font-semibold mb-1">{isFa ? 'کد PBS (PBS Code):' : 'PBS Item Code:'}</label>
+                          <div className="relative">
+                            <input
+                              type="text"
+                              value={enteredPbsCode}
+                              onChange={(e) => setEnteredPbsCode(e.target.value.toUpperCase())}
+                              placeholder={`e.g. ${scenario.pbsCode}`}
+                              className="w-full px-3 py-2 rounded-xl bg-black border border-teal-600/50 text-teal-300 font-mono font-bold text-sm focus:outline-none focus:border-teal-400"
+                            />
+                            <button
+                              onClick={() => setEnteredPbsCode(scenario.pbsCode)}
+                              className="absolute right-2 top-2 text-[10px] px-1.5 py-0.5 rounded bg-teal-900 text-teal-200 border border-teal-700 hover:bg-teal-800"
+                            >
+                              Auto
+                            </button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-400 font-semibold mb-1">{isFa ? 'میانبرهای شبیه‌ساز Fred Shortcuts:' : 'Fred Shortcut Rules:'}</label>
+                          <div className="grid grid-cols-3 gap-1">
+                            <button
+                              onClick={() => handleExecuteShortcut('5/1')}
+                              className={`py-2 rounded-lg font-mono font-bold text-xs border transition ${
+                                repeatMode === 'standard'
+                                  ? 'bg-teal-600 text-white border-teal-400'
+                                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                              }`}
+                            >
+                              5/1 (Std)
+                            </button>
+                            <button
+                              onClick={() => handleExecuteShortcut('5D')}
+                              className={`py-2 rounded-lg font-mono font-bold text-xs border transition ${
+                                repeatMode === 'deferred'
+                                  ? 'bg-amber-600 text-white border-amber-400'
+                                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                              }`}
+                            >
+                              5D (Defer)
+                            </button>
+                            <button
+                              onClick={() => handleExecuteShortcut('5R')}
+                              className={`py-2 rounded-lg font-mono font-bold text-xs border transition ${
+                                repeatMode === 'reg24'
+                                  ? 'bg-purple-600 text-white border-purple-400'
+                                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                              }`}
+                            >
+                              5R (Reg24)
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Directions & Instructions */}
+                      <div>
+                        <label className="block text-slate-400 font-semibold mb-1">{isFa ? 'دستور مصرف روی لیبل (Directions):' : 'Directions on CAL Label:'}</label>
+                        <input
+                          type="text"
+                          readOnly
+                          value={scenario.directions}
+                          className="w-full px-3 py-2 rounded-xl bg-black border border-slate-800 text-white font-mono text-xs"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Right Summary Box & Action */}
+                    <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between space-y-4 text-xs">
+                      <div className="space-y-3">
+                        <span className="font-bold text-teal-400 text-xs font-mono uppercase">DISPENSE PREVIEW</span>
+
+                        <div className="space-y-1.5 text-slate-300">
+                          <div className="flex justify-between">
+                            <span>{isFa ? 'تعداد تجویز شده:' : 'Prescribed Qty:'}</span>
+                            <span className="font-mono text-white font-bold">{scenario.quantity}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>{isFa ? 'تعداد تکرارهای مجاز:' : 'Repeats Allowed:'}</span>
+                            <span className="font-mono text-white font-bold">
+                              {isChartMode ? '0 (Medication Chart)' : repeatAuthorized}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>{isFa ? 'حالت دیسپنس:' : 'Dispense Mode:'}</span>
+                            <span className="font-mono text-amber-300 font-bold uppercase">
+                              {repeatMode === 'standard' && 'Standard 1st Supply (5/1)'}
+                              {repeatMode === 'outside' && 'Outside Repeat (5/3)'}
+                              {repeatMode === 'deferred' && 'Deferred Supply (5D)'}
+                              {repeatMode === 'reg24' && 'Reg 24 Full Supply (5R)'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {scenario.isExpiredS8 && (
+                          <div className="p-2.5 rounded-lg bg-rose-950/80 border border-rose-500/50 text-rose-200 text-[11px] space-y-1">
+                            <p className="font-bold text-rose-400 flex items-center gap-1">
+                              <ShieldAlert className="w-3.5 h-3.5" />
+                              {isFa ? 'هشدار خطای قانونی انقضای S8!' : 'S8 Legal Expiry Violation!'}
+                            </p>
+                            <p>{isFa ? 'نسخه‌های S8 طبق قانون ایالتی پس از ۶ ماه فاقد اعتبار تحویل هستند.' : 'S8 prescriptions legally expire 6 months after the date of writing.'}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={handleProcessDispense}
+                        className="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-teal-600/30 text-sm"
+                      >
+                        <Zap className="w-4 h-4" />
+                        <span>{isFa ? 'پردازش نسخه و بررسی تحویل نهایی' : 'Process Dispense & Verify Handout'}</span>
                       </button>
                     </div>
                   </div>
-
-                  {/* PBS Code & Fred Shortcut Keyboard Controls */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-slate-400 font-semibold mb-1">{isFa ? 'کد PBS (PBS Code):' : 'PBS Item Code:'}</label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          value={enteredPbsCode}
-                          onChange={(e) => setEnteredPbsCode(e.target.value.toUpperCase())}
-                          placeholder={`e.g. ${scenario.pbsCode}`}
-                          className="w-full px-3 py-2 rounded-xl bg-black border border-teal-600/50 text-teal-300 font-mono font-bold text-sm focus:outline-none focus:border-teal-400"
-                        />
-                        <button
-                          onClick={() => setEnteredPbsCode(scenario.pbsCode)}
-                          className="absolute right-2 top-2 text-[10px] px-1.5 py-0.5 rounded bg-teal-900 text-teal-200 border border-teal-700 hover:bg-teal-800"
-                        >
-                          Auto
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-slate-400 font-semibold mb-1">{isFa ? 'میانبرهای شبیه‌ساز Fred Shortcuts:' : 'Fred Shortcut Rules:'}</label>
-                      <div className="grid grid-cols-3 gap-1">
-                        <button
-                          onClick={() => handleExecuteShortcut('5/1')}
-                          className={`py-2 rounded-lg font-mono font-bold text-xs border transition ${
-                            repeatMode === 'standard'
-                              ? 'bg-teal-600 text-white border-teal-400'
-                              : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          5/1 (Std)
-                        </button>
-                        <button
-                          onClick={() => handleExecuteShortcut('5D')}
-                          className={`py-2 rounded-lg font-mono font-bold text-xs border transition ${
-                            repeatMode === 'deferred'
-                              ? 'bg-amber-600 text-white border-amber-400'
-                              : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          5D (Defer)
-                        </button>
-                        <button
-                          onClick={() => handleExecuteShortcut('5R')}
-                          className={`py-2 rounded-lg font-mono font-bold text-xs border transition ${
-                            repeatMode === 'reg24'
-                              ? 'bg-purple-600 text-white border-purple-400'
-                              : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          5R (Reg24)
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Directions & Instructions */}
-                  <div>
-                    <label className="block text-slate-400 font-semibold mb-1">{isFa ? 'دستور مصرف روی لیبل (Directions):' : 'Directions on CAL Label:'}</label>
-                    <input
-                      type="text"
-                      readOnly
-                      value={scenario.directions}
-                      className="w-full px-3 py-2 rounded-xl bg-black border border-slate-800 text-white font-mono text-xs"
-                    />
-                  </div>
-                </div>
-
-                {/* Right Summary Box & Action */}
-                <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between space-y-4 text-xs">
-                  <div className="space-y-3">
-                    <span className="font-bold text-teal-400 text-xs font-mono uppercase">DISPENSE PREVIEW</span>
-
-                    <div className="space-y-1.5 text-slate-300">
-                      <div className="flex justify-between">
-                        <span>{isFa ? 'تعداد تجویز شده:' : 'Prescribed Qty:'}</span>
-                        <span className="font-mono text-white font-bold">{scenario.quantity}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>{isFa ? 'تعداد تکرارهای مجاز:' : 'Repeats Allowed:'}</span>
-                        <span className="font-mono text-white font-bold">
-                          {isChartMode ? '0 (Medication Chart)' : repeatAuthorized}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>{isFa ? 'حالت دیسپنس:' : 'Dispense Mode:'}</span>
-                        <span className="font-mono text-amber-300 font-bold uppercase">
-                          {repeatMode === 'standard' && 'Standard 1st Supply (5/1)'}
-                          {repeatMode === 'outside' && 'Outside Repeat (5/3)'}
-                          {repeatMode === 'deferred' && 'Deferred Supply (5D)'}
-                          {repeatMode === 'reg24' && 'Reg 24 Full Supply (5R)'}
-                        </span>
-                      </div>
-                    </div>
-
-                    {scenario.isExpiredS8 && (
-                      <div className="p-2.5 rounded-lg bg-rose-950/80 border border-rose-500/50 text-rose-200 text-[11px] space-y-1">
-                        <p className="font-bold text-rose-400 flex items-center gap-1">
-                          <ShieldAlert className="w-3.5 h-3.5" />
-                          {isFa ? 'هشدار خطای قانونی انقضای S8!' : 'S8 Legal Expiry Violation!'}
-                        </p>
-                        <p>{isFa ? 'نسخه‌های S8 طبق قانون ایالتی پس از ۶ ماه فاقد اعتبار تحویل هستند.' : 'S8 prescriptions legally expire 6 months after the date of writing.'}</p>
-                      </div>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={handleProcessDispense}
-                    className="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-teal-600/30 text-sm"
-                  >
-                    <Zap className="w-4 h-4" />
-                    <span>{isFa ? 'پردازش نسخه و بررسی تحویل نهایی' : 'Process Dispense & Verify Handout'}</span>
-                  </button>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* STEP 3: Fred Command Shortcut Cheat Sheet Panel (Rendered in 'shortcuts' or 'dual' view) */}
-      {(viewMode === 'shortcuts' || viewMode === 'dual') && (
-        <div className="space-y-2">
-          {viewMode === 'dual' && (
-            <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-amber-950/80 border border-amber-500/30 text-xs font-bold text-amber-300">
-              <span className="flex items-center gap-2 font-mono">
-                <span className="px-2 py-0.5 rounded bg-amber-900 text-amber-100 border border-amber-700">STEP 03</span>
-                {isFa ? 'گام سوم: راهنما و قوانین کلیدهای میانبر فرِد (Fred Shortcuts & Syntax)' : 'Step 3: Fred Shortcuts & Syntax'}
-              </span>
-              <span className="text-[10px] text-amber-400 font-normal">{isFa ? 'قوانین 5/1، 5D، 5R و کلیدهای میانبر' : 'CLI shortcut syntax'}</span>
+          {/* STEP 3: Fred Command Shortcut Cheat Sheet Panel (Rendered in 'shortcuts' or 'dual' view) */}
+          {(viewMode === 'shortcuts' || viewMode === 'dual') && (
+            <div className="space-y-2">
+              {viewMode === 'dual' && (
+                <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-amber-950/80 border border-amber-500/30 text-xs font-bold text-amber-300">
+                  <span className="flex items-center gap-2 font-mono">
+                    <span className="px-2 py-0.5 rounded bg-amber-900 text-amber-100 border border-amber-700">STEP 03</span>
+                    {isFa ? 'گام سوم: راهنما و قوانین کلیدهای میانبر فرِد (Fred Shortcuts & Syntax)' : 'Step 3: Fred Shortcuts & Syntax'}
+                  </span>
+                  <span className="text-[10px] text-amber-400 font-normal">{isFa ? 'قوانین 5/1، 5D، 5R و کلیدهای میانبر' : 'CLI shortcut syntax'}</span>
+                </div>
+              )}
+              <FredShortcutCheatSheet
+                language={language}
+                state={shortcutState}
+                onApplyCommand={handleApplyCommand}
+                onToggleHotKey={handleToggleHotKey}
+              />
             </div>
           )}
-          <FredShortcutCheatSheet
-            language={language}
-            state={shortcutState}
-            onApplyCommand={handleApplyCommand}
-            onToggleHotKey={handleToggleHotKey}
-          />
-        </div>
-      )}
 
-      {/* STEP 4: PBS Pricing & Safety Net Calculator Engine (Rendered in 'safetynet' or 'dual' view) */}
-      {(viewMode === 'safetynet' || viewMode === 'dual') && (
-        <div className="space-y-2">
-          {viewMode === 'dual' && (
-            <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-emerald-950/80 border border-emerald-500/30 text-xs font-bold text-emerald-300">
-              <span className="flex items-center gap-2 font-mono">
-                <span className="px-2 py-0.5 rounded bg-emerald-900 text-emerald-100 border border-emerald-700">STEP 04</span>
-                {isFa ? 'گام چهارم: محاسبه قیمت، پرداختی بیمار و سقف آستانه Safety Net' : 'Step 4: PBS Pricing & Safety Net Accumulator'}
-              </span>
-              <span className="text-[10px] text-emerald-400 font-normal">{isFa ? 'محاسبه فرانشیز $31.60 و $7.70' : 'Co-payment calculation'}</span>
+          {/* STEP 4: PBS Pricing & Safety Net Calculator Engine (Rendered in 'safetynet' or 'dual' view) */}
+          {(viewMode === 'safetynet' || viewMode === 'dual') && (
+            <div className="space-y-2">
+              {viewMode === 'dual' && (
+                <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-emerald-950/80 border border-emerald-500/30 text-xs font-bold text-emerald-300">
+                  <span className="flex items-center gap-2 font-mono">
+                    <span className="px-2 py-0.5 rounded bg-emerald-900 text-emerald-100 border border-emerald-700">STEP 04</span>
+                    {isFa ? 'گام چهارم: محاسبه قیمت، پرداختی بیمار و سقف آستانه Safety Net' : 'Step 4: PBS Pricing & Safety Net Accumulator'}
+                  </span>
+                  <span className="text-[10px] text-emerald-400 font-normal">{isFa ? 'محاسبه فرانشیز $31.60 و $7.70' : 'Co-payment calculation'}</span>
+                </div>
+              )}
+              <PbsSafetyNetCalculatorPanel
+                language={language}
+              />
             </div>
           )}
-          <PbsSafetyNetCalculatorPanel
-            language={language}
-          />
-        </div>
-      )}
 
-      {/* STEP 5: Interactive Dispensing & Labeling Desk Panel (Rendered in 'labelingDesk' or 'dual' view) */}
-      {(viewMode === 'labelingDesk' || viewMode === 'dual') && (
-        <div className="space-y-2">
-          {viewMode === 'dual' && (
-            <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-teal-950/80 border border-teal-500/30 text-xs font-bold text-teal-300">
-              <span className="flex items-center gap-2 font-mono">
-                <span className="px-2 py-0.5 rounded bg-teal-900 text-teal-100 border border-teal-700">STEP 05</span>
-                {isFa ? 'گام پنجم: میز برچسب‌گذاری، چاپ لیبل اصلی دارو و Store Copy نسخه' : 'Step 5: Dispensing Labeling & Store Copy Desk'}
-              </span>
-              <span className="text-[10px] text-teal-400 font-normal">{isFa ? 'الصاق لیبل به قوطی دارو و پشت نسخه' : 'Affix Main Label to bottle & Store Copy to script back'}</span>
+          {/* STEP 5: Interactive Dispensing & Labeling Desk Panel (Rendered in 'labelingDesk' or 'dual' view) */}
+          {(viewMode === 'labelingDesk' || viewMode === 'dual') && (
+            <div className="space-y-2">
+              {viewMode === 'dual' && (
+                <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-teal-950/80 border border-teal-500/30 text-xs font-bold text-teal-300">
+                  <span className="flex items-center gap-2 font-mono">
+                    <span className="px-2 py-0.5 rounded bg-teal-900 text-teal-100 border border-teal-700">STEP 05</span>
+                    {isFa ? 'گام پنجم: میز برچسب‌گذاری، چاپ لیبل اصلی دارو و Store Copy نسخه' : 'Step 5: Dispensing Labeling & Store Copy Desk'}
+                  </span>
+                  <span className="text-[10px] text-teal-400 font-normal">{isFa ? 'الصاق لیبل به قوطی دارو و پشت نسخه' : 'Affix Main Label to bottle & Store Copy to script back'}</span>
+                </div>
+              )}
+              <DispensingDeskLabelingPanel
+                key={scenario.id}
+                language={language}
+                scenario={scenario}
+                isGenericSubstituted={isGenericSubstituted}
+              />
             </div>
           )}
-          <DispensingDeskLabelingPanel
-            key={scenario.id}
-            language={language}
-            scenario={scenario}
-            isGenericSubstituted={isGenericSubstituted}
-          />
-        </div>
-      )}
 
-      {/* STEP 6: PB24 Stapling & Document Retention Sorting Desk (Rendered in 'retentionDesk' or 'dual' view) */}
-      {(viewMode === 'retentionDesk' || viewMode === 'dual') && (
-        <div className="space-y-2">
-          {viewMode === 'dual' && (
-            <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-indigo-950/80 border border-indigo-500/30 text-xs font-bold text-indigo-300">
-              <span className="flex items-center gap-2 font-mono">
-                <span className="px-2 py-0.5 rounded bg-indigo-900 text-indigo-100 border border-indigo-700">STEP 06</span>
-                {isFa ? 'گام ششم: منگنه برگه تکرار PB24 و بایگانی زونکن اسناد ۱۲ ماهه' : 'Step 6: Document Retention & PB24 Stapling Desk'}
-              </span>
-              <span className="text-[10px] text-indigo-400 font-normal">{isFa ? 'منگنه PB24 به اصل نسخه و بایگانی' : 'Staple repeat & file in trays'}</span>
+          {/* STEP 6: PB24 Stapling & Document Retention Sorting Desk (Rendered in 'retentionDesk' or 'dual' view) */}
+          {(viewMode === 'retentionDesk' || viewMode === 'dual') && (
+            <div className="space-y-2">
+              {viewMode === 'dual' && (
+                <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-indigo-950/80 border border-indigo-500/30 text-xs font-bold text-indigo-300">
+                  <span className="flex items-center gap-2 font-mono">
+                    <span className="px-2 py-0.5 rounded bg-indigo-900 text-indigo-100 border border-indigo-700">STEP 06</span>
+                    {isFa ? 'گام ششم: منگنه برگه تکرار PB24 و بایگانی زونکن اسناد ۱۲ ماهه' : 'Step 6: Document Retention & PB24 Stapling Desk'}
+                  </span>
+                  <span className="text-[10px] text-indigo-400 font-normal">{isFa ? 'منگنه PB24 به اصل نسخه و بایگانی' : 'Staple repeat & file in trays'}</span>
+                </div>
+              )}
+              <DocumentRetentionSortingPanel
+                language={language}
+                scenario={scenario}
+                isGenericSubstituted={isGenericSubstituted}
+              />
             </div>
           )}
-          <DocumentRetentionSortingPanel
-            language={language}
-            scenario={scenario}
-            isGenericSubstituted={isGenericSubstituted}
-          />
-        </div>
-      )}
 
-      {/* STEP 7: NSW ODT Daily Dosing Log & S8 Register Desk (Rendered in 'odtDosing' or 'dual' view) */}
-      {(viewMode === 'odtDosing' || viewMode === 'dual') && (
-        <div className="space-y-2">
-          {viewMode === 'dual' && (
-            <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-rose-950/80 border border-rose-500/30 text-xs font-bold text-rose-300">
-              <span className="flex items-center gap-2 font-mono">
-                <span className="px-2 py-0.5 rounded bg-rose-900 text-rose-100 border border-rose-700">STEP 07</span>
-                {isFa ? 'گام هفتم: دفترچه ثبت داروهای تحت کنترل S8 و ثبت دوز روزانه ODT' : 'Step 7: S8 Safe Register & NSW ODT Dosing Desk'}
-              </span>
-              <span className="text-[10px] text-rose-400 font-normal">{isFa ? 'ثبت دوز روزانه، خط قرمز و گاوصندوق S8' : 'Daily log & double strikethrough'}</span>
+          {/* STEP 7: NSW ODT Daily Dosing Log & S8 Register Desk (Rendered in 'odtDosing' or 'dual' view) */}
+          {(viewMode === 'odtDosing' || viewMode === 'dual') && (
+            <div className="space-y-2">
+              {viewMode === 'dual' && (
+                <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-rose-950/80 border border-rose-500/30 text-xs font-bold text-rose-300">
+                  <span className="flex items-center gap-2 font-mono">
+                    <span className="px-2 py-0.5 rounded bg-rose-900 text-rose-100 border border-rose-700">STEP 07</span>
+                    {isFa ? 'گام هفتم: دفترچه ثبت داروهای تحت کنترل S8 و ثبت دوز روزانه ODT' : 'Step 7: S8 Safe Register & NSW ODT Dosing Desk'}
+                  </span>
+                  <span className="text-[10px] text-rose-400 font-normal">{isFa ? 'ثبت دوز روزانه، خط قرمز و گاوصندوق S8' : 'Daily log & double strikethrough'}</span>
+                </div>
+              )}
+              <OdtDosingLogPanel
+                language={language}
+                scenario={scenario}
+                isGenericSubstituted={isGenericSubstituted}
+              />
             </div>
           )}
-          <OdtDosingLogPanel
-            language={language}
-            scenario={scenario}
-            isGenericSubstituted={isGenericSubstituted}
-          />
-        </div>
-      )}
 
-      {/* STEP 8: PBS Monthly Claiming Bins, Confidential Shredding & 5-Point POS Release Desk (Rendered in 'pbsArchive' or 'dual' view) */}
-      {(viewMode === 'pbsArchive' || viewMode === 'dual') && (
-        <div className="space-y-2">
-          {viewMode === 'dual' && (
-            <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-purple-950/80 border border-purple-500/30 text-xs font-bold text-purple-300">
-              <span className="flex items-center gap-2 font-mono">
-                <span className="px-2 py-0.5 rounded bg-purple-900 text-purple-100 border border-purple-700">STEP 08</span>
-                {isFa ? 'گام هشتم: دسته بندی ادعای PBS، امحای PII و تحویل نهایی به صندوق (POS Release)' : 'Step 8: PBS Claim Bins, PII Shredding & POS Release'}
-              </span>
-              <span className="text-[10px] text-purple-400 font-normal">{isFa ? 'تفکیک صندوق ادعا، سطل امحا و تحویل نهایی' : 'File claim duplicates & POS dispatch'}</span>
+          {/* STEP 8: PBS Monthly Claiming Bins, Confidential Shredding & 5-Point POS Release Desk (Rendered in 'pbsArchive' or 'dual' view) */}
+          {(viewMode === 'pbsArchive' || viewMode === 'dual') && (
+            <div className="space-y-2">
+              {viewMode === 'dual' && (
+                <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-purple-950/80 border border-purple-500/30 text-xs font-bold text-purple-300">
+                  <span className="flex items-center gap-2 font-mono">
+                    <span className="px-2 py-0.5 rounded bg-purple-900 text-purple-100 border border-purple-700">STEP 08</span>
+                    {isFa ? 'گام هشتم: دسته بندی ادعای PBS، امحای PII و تحویل نهایی به صندوق (POS Release)' : 'Step 8: PBS Claim Bins, PII Shredding & POS Release'}
+                  </span>
+                  <span className="text-[10px] text-purple-400 font-normal">{isFa ? 'تفکیک صندوق ادعا، سطل امحا و تحویل نهایی' : 'File claim duplicates & POS dispatch'}</span>
+                </div>
+              )}
+              <PbsClaimingArchivePanel
+                language={language}
+                scenario={scenario}
+                isGenericSubstituted={isGenericSubstituted}
+              />
             </div>
           )}
-          <PbsClaimingArchivePanel
-            language={language}
-            scenario={scenario}
-            isGenericSubstituted={isGenericSubstituted}
-          />
-        </div>
-      )}
 
         </>
       )}

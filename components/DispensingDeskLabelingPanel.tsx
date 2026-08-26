@@ -83,7 +83,7 @@ export const DispensingDeskLabelingPanel: React.FC<DispensingDeskLabelingPanelPr
 }) => {
   const isFa = language === 'fa';
 
-  const [isOdtMode, setIsOdtMode] = useState<boolean>(scenario.schedule === 'S8' || scenario.id === 'script-5');
+  const isOdtMode = scenario.schedule === 'S8' || scenario.id === 'script-5';
 
   // Currently picked up / selected sticker
   const [selectedSticker, setSelectedSticker] = useState<StickerType | null>(null);
@@ -173,8 +173,8 @@ export const DispensingDeskLabelingPanel: React.FC<DispensingDeskLabelingPanelPr
   };
 
   // Attempt Sticker Placement
-  const handlePlaceSticker = (target: TargetZone) => {
-    if (!selectedSticker) {
+  const handlePlaceSticker = (target: TargetZone, sticker = selectedSticker) => {
+    if (!sticker) {
       setFeedback({
         type: 'error',
         title: isFa ? 'برچسبی انتخاب نشده است!' : 'No Label Selected!',
@@ -185,11 +185,11 @@ export const DispensingDeskLabelingPanel: React.FC<DispensingDeskLabelingPanelPr
       return;
     }
 
-    const ruleExplanation = getRuleExplanation(selectedSticker, target);
+    const ruleExplanation = getRuleExplanation(sticker, target);
     const isValidMatch = !!ruleExplanation;
 
     if (isValidMatch) {
-      const updated = { ...placements, [selectedSticker]: target };
+      const updated = { ...placements, [sticker]: target };
       setPlacements(updated);
       setSelectedSticker(null);
 
@@ -199,7 +199,7 @@ export const DispensingDeskLabelingPanel: React.FC<DispensingDeskLabelingPanelPr
         message: isFa
           ? `برچسب با موفقیت در محل قانونی و استاندارد خود قرار گرفت.`
           : `Label successfully placed in its compliant target zone.`,
-          ruleTip: isFa ? ruleExplanation.fa : ruleExplanation.en,
+        ruleTip: isFa ? ruleExplanation.fa : ruleExplanation.en,
       });
 
       // Check if all placed
@@ -216,13 +216,13 @@ export const DispensingDeskLabelingPanel: React.FC<DispensingDeskLabelingPanelPr
       let mismatchMsgFa = '';
       let mismatchMsgEn = '';
 
-      if (selectedSticker === 'mainLabel') {
+      if (sticker === 'mainLabel') {
         mismatchMsgFa = '❌ خطا: برچسب اصلی دستور مصرف (Main Label) نباید روی نسخه کاغذی چسبانده شود! این برچسب باید مستقیماً روی قوطی یا بسته فیزیکی دارو (بدون پوشاندن Batch/EXP) قرار گیرد.';
         mismatchMsgEn = '❌ Misplaced: Main CAL dispensing label belongs directly on the physical medication container, NOT on the prescription paper!';
-      } else if (selectedSticker === 'storeCopy') {
+      } else if (sticker === 'storeCopy') {
         mismatchMsgFa = '❌ خطا: برچسب Store Copy (بایگانی و اسکن صندوق) باید پشت نسخه اصلی کاغذی (در مجاورت کادر امضای بیمار) قرار گیرد تا صندوق‌دار بتواند بارکد آن را اسکن کند و نسخه برای ممیزی قانونی بایگانی شود.';
         mismatchMsgEn = '❌ Misplaced: Store Copy label belongs on the BACK of the paper prescription (adjacent to Patient Declaration) for legal archiving and POS till scanning!';
-      } else if (selectedSticker === 'odtTakeaway') {
+      } else if (sticker === 'odtTakeaway') {
         mismatchMsgFa = '❌ خطا: برچسب دوز خانگی ODT باید روی بطری دوز خانگی چسبانده شود!';
         mismatchMsgEn = '❌ Misplaced: ODT Takeaway label belongs on the Takeaway Bottle/Pack!';
       }
@@ -1019,10 +1019,8 @@ export const DispensingDeskLabelingPanel: React.FC<DispensingDeskLabelingPanelPr
                 type="button"
                 disabled={previewIsPlaced}
                 onClick={() => {
-                  handlePlaceSticker(previewTarget);
-                  if (selectedSticker === previewSticker) {
-                    setPreviewTarget(null);
-                  }
+                  handlePlaceSticker(previewTarget, previewSticker);
+                  setPreviewTarget(null);
                 }}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
                   previewIsPlaced
