@@ -228,15 +228,28 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
   const fallbackGuide = findHandbookGuide(disease);
   const baseMedicines: OTCDrugInfo[] = disease.medicines || fallbackGuide?.medicines || [];
 
-  // Primary display name (Strictly pure single language matching current active language)
+  const [isSynonymsOpen, setIsSynonymsOpen] = useState<boolean>(false);
+
+  // Full Clean Primary Display Name (Complete name without truncated words or broken text)
   let diseaseTitle = '';
   if (isFa) {
-    const rawFa = clinicalTranslation?.cleanFaName || disease.name.fa || disease.name.en || '';
-    diseaseTitle = rawFa.replace(/\s*\([a-zA-Z0-9\s.,!?:;/&+\-]+\)/g, '').trim() || rawFa;
+    diseaseTitle = disease.name.fa || clinicalTranslation?.cleanFaName || disease.name.en || '';
   } else {
-    const rawEn = clinicalTranslation?.cleanEnName || disease.name.en || '';
-    diseaseTitle = rawEn.replace(/[\u0600-\u06FF].*$/g, '').trim() || disease.name.en || 'Clinical Condition';
+    diseaseTitle = disease.name.en || clinicalTranslation?.cleanEnName || disease.name.fa || 'Clinical Condition';
   }
+
+  // Layman terms, patient expressions and clinical synonyms
+  const laymanTerms: string[] = isFa
+    ? (clinicalTranslation?.commonSynonymsFa && clinicalTranslation.commonSynonymsFa.length > 0
+        ? clinicalTranslation.commonSynonymsFa
+        : (disease.synonyms || []))
+    : (clinicalTranslation?.commonSynonymsEn && clinicalTranslation.commonSynonymsEn.length > 0
+        ? clinicalTranslation.commonSynonymsEn
+        : (disease.synonyms ? disease.synonyms.filter(s => /^[a-zA-Z0-9\s.,!?:;()\-]+$/.test(s.trim())) : []));
+
+  const altLanguageTitle = isFa
+    ? (disease.name.en || clinicalTranslation?.cleanEnName || '')
+    : (disease.name.fa || clinicalTranslation?.cleanFaName || '');
 
   // Primary Common Name & Brand
   const primaryCommonName = isFa
@@ -500,10 +513,28 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
               <Stethoscope className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </div>
 
-            <div className="min-w-0 flex-1 flex items-center gap-2">
-              <h2 className="text-sm sm:text-base md:text-lg font-black text-slate-100 truncate leading-tight">
-                {diseaseTitle}
-              </h2>
+            <div className="min-w-0 flex-1 flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setIsSynonymsOpen((prev) => !prev)}
+                className="text-start rtl:text-right group flex items-center gap-1.5 cursor-pointer hover:opacity-90 transition min-w-0 max-w-full"
+                title={isFa ? 'کلیک برای مشاهده اصطلاحات عامیانه و سایر نام‌ها' : 'Click to view patient terms & synonyms'}
+              >
+                <h2 className="text-sm sm:text-base md:text-lg font-black text-slate-100 group-hover:text-emerald-400 transition leading-tight truncate">
+                  {diseaseTitle}
+                </h2>
+                {(laymanTerms.length > 0 || altLanguageTitle) && (
+                  <span className="text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold shrink-0 flex items-center gap-1">
+                    <Sparkles className="w-2.5 h-2.5 text-amber-400" />
+                    <span>
+                      {isSynonymsOpen
+                        ? (isFa ? 'بستن اصطلاحات' : 'Close Terms')
+                        : (isFa ? 'اصطلاحات بیماران' : 'Layman Terms')}
+                    </span>
+                    <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isSynonymsOpen ? 'rotate-180' : ''}`} />
+                  </span>
+                )}
+              </button>
 
               <StudyStatusBadge
                 language={language}
@@ -532,6 +563,66 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
             <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
+
+        {/* EXPANDING LAYMAN TERMS & SYNONYMS PANEL */}
+        {isSynonymsOpen && (
+          <div className="px-4 sm:px-6 py-3 bg-slate-950/95 border-b border-emerald-500/25 space-y-2.5 animate-fadeIn shrink-0 z-15 select-text shadow-lg">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>{isFa ? 'اصطلاحات عامیانه بیماران و نام‌های دیگر بیماری:' : 'Patient Layman Terms & Synonyms:'}</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsSynonymsOpen(false)}
+                className="text-[11px] text-slate-400 hover:text-white cursor-pointer"
+              >
+                {isFa ? 'بستن ×' : 'Close ×'}
+              </button>
+            </div>
+
+            {/* Alternative Title */}
+            {altLanguageTitle && (
+              <div className="text-xs text-slate-300 flex items-center gap-2">
+                <span className="text-slate-500 font-medium">{isFa ? 'نام علمی / انگلیسی:' : 'Scientific / Alternative Name:'}</span>
+                <span className="font-bold text-white font-mono bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800">
+                  {altLanguageTitle}
+                </span>
+              </div>
+            )}
+
+            {/* Layman terms chips */}
+            {laymanTerms.length > 0 && (
+              <div className="space-y-1">
+                <span className="text-[11px] text-slate-400 block font-medium">
+                  {isFa ? '🗣️ کلمات و اصطلاحاتی که بیماران در داروخانه به کار می‌برند:' : '🗣️ Terms and expressions used by patients:'}
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {laymanTerms.map((term, idx) => (
+                    <span
+                      key={idx}
+                      className="px-2.5 py-1 rounded-lg bg-emerald-950/60 border border-emerald-500/30 text-emerald-200 text-xs font-bold shadow-2xs"
+                    >
+                      {term}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Australian brands quick list */}
+            {australianBrands.length > 0 && (
+              <div className="pt-1.5 border-t border-slate-800/80 flex items-center gap-2 flex-wrap text-[11px]">
+                <span className="text-slate-500 font-medium">{isFa ? '📦 برندهای مطرح استرالیا:' : '📦 Key Brands:'}</span>
+                {australianBrands.slice(0, 4).map((b, idx) => (
+                  <span key={idx} className="px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-slate-300 font-mono">
+                    {b.brand}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 3-PHASE TAB BAR */}
         <div className="grid grid-cols-3 gap-1 p-1.5 sm:p-2 bg-slate-950/90 border-b border-slate-800 text-xs shrink-0">
