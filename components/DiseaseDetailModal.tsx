@@ -597,18 +597,7 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
           {/* ============================================================ */}
           {activePhaseTab === 'profile' && (
             <div className="space-y-4 animate-fadeIn">
-              {/* 1. Condition Overview */}
-              {cleanedOverview && (
-                <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl app-card border border-sky-500/25 bg-sky-500/5 space-y-1.5 shadow-xs">
-                  <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-sky-700 dark:text-sky-300">
-                    <FileText className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
-                    <span>{isFa ? 'نمای کلی و تعریف بالینی بیماری:' : 'Condition Overview:'}</span>
-                  </div>
-                  <p className="app-text opacity-95 text-xs sm:text-sm leading-relaxed">{cleanedOverview}</p>
-                </div>
-              )}
-
-              {/* 2. Pathophysiology & Clinical Presentations (Symptoms Grid) */}
+              {/* 1. Pathophysiology & Clinical Presentations (Symptoms Grid) */}
               {resolvedSymptoms.length > 0 && (
                 <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl app-card border app-border space-y-2.5 shadow-xs">
                   <div className="flex items-center justify-between">
