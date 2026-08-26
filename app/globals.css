@@ -450,13 +450,14 @@ body.theme-reader-night h4, body.theme-reader-night h5, body.theme-reader-night 
   color: var(--text-main) !important;
 }
 
-/* Headings inside gradient or dark-bg containers always white */
-[class*="bg-gradient-"] h1, [class*="bg-gradient-"] h2,
-[class*="bg-gradient-"] h3, [class*="bg-gradient-"] h4,
-[class*="bg-gradient-"] h5, [class*="bg-gradient-"] h6,
-[class*="bg-slate-9"] h1, [class*="bg-slate-9"] h2,
-[class*="bg-slate-9"] h3, [class*="bg-slate-8"] h1,
-[class*="bg-slate-8"] h2, [class*="bg-slate-8"] h3 {
+/* Headings inside gradient buttons or explicit dark theme containers */
+body.theme-night [class*="bg-gradient-"] h1, body.theme-night [class*="bg-gradient-"] h2,
+body.theme-night [class*="bg-gradient-"] h3, body.theme-night [class*="bg-gradient-"] h4,
+body.theme-night [class*="bg-slate-9"] h1, body.theme-night [class*="bg-slate-9"] h2,
+body.theme-night [class*="bg-slate-9"] h3, body.theme-night [class*="bg-slate-8"] h1,
+body.theme-night [class*="bg-slate-8"] h2, body.theme-night [class*="bg-slate-8"] h3,
+body.theme-reader-night [class*="bg-gradient-"] h1, body.theme-reader-night [class*="bg-gradient-"] h2,
+body.theme-reader-night [class*="bg-gradient-"] h3 {
   color: #ffffff !important;
 }
 

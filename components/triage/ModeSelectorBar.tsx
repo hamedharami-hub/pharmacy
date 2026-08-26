@@ -105,7 +105,7 @@ export const ModeSelectorBar: React.FC<ModeSelectorBarProps> = ({
   ];
 
   return (
-    <div className="app-card border app-border rounded-2xl p-4 sm:p-5 shadow-md bg-gradient-to-r from-slate-900/95 via-slate-900/90 to-slate-950/95 backdrop-blur-md space-y-4">
+    <div className="app-card border app-border rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
       {/* 1. TOP HEADER ROW: Module Brand */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b app-border pb-2.5">
         <div className="flex items-center gap-2.5">
@@ -114,7 +114,7 @@ export const ModeSelectorBar: React.FC<ModeSelectorBarProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-sm sm:text-base font-black text-white tracking-tight">
+              <h2 className="text-sm sm:text-base font-black app-text tracking-tight">
                 {isFa
                   ? 'ماژول ۱: تریاژ بالینی و سناریوهای مشاوره‌ای OTC'
                   : 'Module 1: Clinical OTC Triage & Consultations'}
