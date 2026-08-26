@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Scenario, WwhamQuestion, DialogueOption } from '@/data/otcScenarios';
 import { Language, DiseaseInfo } from '@/types/pharmacy';
 import { FormattedClinicalText } from './FormattedClinicalText';
+import { AussieContextCard } from './AussieContextCard';
 import { OutcomeFeedbackCard } from './OutcomeFeedbackCard';
 import { ChatMessage, StarredPhrase } from './types';
 import { haptic } from '@/lib/haptics';
@@ -777,6 +778,12 @@ export const TriageStepDeck: React.FC<TriageStepDeckProps> = ({
                   })}
                 </div>
               </div>
+
+              {/* 4. AUSTRALIAN PRACTICE CONTEXT, LOCAL SLANG & STATUTORY REGULATIONS */}
+              <AussieContextCard
+                language={language}
+                scenario={scenario}
+              />
 
               {/* Outcome Feedback Card */}
               {showOutcome && (
