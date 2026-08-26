@@ -249,44 +249,48 @@ export const TriageStepDeck: React.FC<TriageStepDeckProps> = ({
                   )}
                 </div>
 
-                {/* Demographics & Medical History Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
-                  <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                    <span className="text-slate-400 font-bold flex items-center gap-1">
-                      <HeartPulse className="w-3.5 h-3.5 text-rose-400" />
-                      <span>{isFa ? 'سوابق پزشکی (History):' : 'Medical History:'}</span>
-                    </span>
-                    <p className="text-slate-200 font-medium">
-                      {scenario.patientProfile.medicalHistory && scenario.patientProfile.medicalHistory.length > 0
-                        ? scenario.patientProfile.medicalHistory.join(' • ')
-                        : isFa ? 'سوابق خاصی گزارش نشده است' : 'Nil significant'}
-                    </p>
-                  </div>
+                {/* Demographics & Medical History Grid (Rendered only when patient has specific data) */}
+                {(scenario.patientProfile.medicalHistory?.length ||
+                  scenario.patientProfile.currentMedications?.length ||
+                  scenario.patientProfile.allergies?.length) ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                    {scenario.patientProfile.medicalHistory && scenario.patientProfile.medicalHistory.length > 0 && (
+                      <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                        <span className="text-slate-400 font-bold flex items-center gap-1">
+                          <HeartPulse className="w-3.5 h-3.5 text-rose-400" />
+                          <span>{isFa ? 'سوابق پزشکی (History):' : 'Medical History:'}</span>
+                        </span>
+                        <p className="text-slate-200 font-medium">
+                          {scenario.patientProfile.medicalHistory.join(' • ')}
+                        </p>
+                      </div>
+                    )}
 
-                  <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                    <span className="text-slate-400 font-bold flex items-center gap-1">
-                      <Pill className="w-3.5 h-3.5 text-teal-400" />
-                      <span>{isFa ? 'داروهای مصرفی فعلی:' : 'Current Medications:'}</span>
-                    </span>
-                    <p className="text-slate-200 font-medium">
-                      {scenario.patientProfile.currentMedications && scenario.patientProfile.currentMedications.length > 0
-                        ? scenario.patientProfile.currentMedications.join(' • ')
-                        : isFa ? 'داروی خاصی مصرف نمی‌کند' : 'None reported'}
-                    </p>
-                  </div>
+                    {scenario.patientProfile.currentMedications && scenario.patientProfile.currentMedications.length > 0 && (
+                      <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                        <span className="text-slate-400 font-bold flex items-center gap-1">
+                          <Pill className="w-3.5 h-3.5 text-teal-400" />
+                          <span>{isFa ? 'داروهای مصرفی فعلی:' : 'Current Medications:'}</span>
+                        </span>
+                        <p className="text-slate-200 font-medium">
+                          {scenario.patientProfile.currentMedications.join(' • ')}
+                        </p>
+                      </div>
+                    )}
 
-                  <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
-                    <span className="text-slate-400 font-bold flex items-center gap-1">
-                      <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
-                      <span>{isFa ? 'حساسیت‌های دارویی (Allergies):' : 'Allergies:'}</span>
-                    </span>
-                    <p className="text-slate-200 font-medium">
-                      {scenario.patientProfile.allergies && scenario.patientProfile.allergies.length > 0
-                        ? scenario.patientProfile.allergies.join(' • ')
-                        : isFa ? 'حساسیت دارویی شناخته‌شده ندارد (NKDA)' : 'No Known Drug Allergies (NKDA)'}
-                    </p>
+                    {scenario.patientProfile.allergies && scenario.patientProfile.allergies.length > 0 && (
+                      <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                        <span className="text-slate-400 font-bold flex items-center gap-1">
+                          <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+                          <span>{isFa ? 'حساسیت‌های دارویی (Allergies):' : 'Allergies:'}</span>
+                        </span>
+                        <p className="text-slate-200 font-medium">
+                          {scenario.patientProfile.allergies.join(' • ')}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                </div>
+                ) : null}
 
                 {/* Aussie Slang in this Presentation (if available) */}
                 {scenario.aussieContext && (
