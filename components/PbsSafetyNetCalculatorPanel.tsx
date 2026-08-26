@@ -225,11 +225,6 @@ export const PbsSafetyNetCalculatorPanel: React.FC<PbsSafetyNetCalculatorPanelPr
                   : 'PBS Pricing, Co-payment Rules & Safety Net Accumulator Engine'}
               </h3>
             </div>
-            <p className="text-xs text-slate-400 mt-1">
-              {isFa
-                ? 'محاسبه سهم بیمار (Co-payment)، تخفیف Closing the Gap (CTG)، قانون تحویل زودهنگام (۲ logic روز) و صدور کارت PB240'
-                : 'Co-payment calculator, CTG rules, Early Supply (<20 days) validation & Safety Net card issuance'}
-            </p>
           </div>
 
           <div className="flex items-center gap-2">

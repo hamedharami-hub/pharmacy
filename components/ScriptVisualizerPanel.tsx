@@ -36,7 +36,10 @@ export const ScriptVisualizerPanel: React.FC<ScriptVisualizerPanelProps> = ({
   onSelectScriptType,
 }) => {
   const isFa = language === 'fa';
-  const [activeTab, setActiveTab] = useState<'pb82' | 'repeat_pb24' | 'handwritten' | 'escript' | 's8_nsw' | 'odt_racf'>('pb82');
+  const initialActiveTab = REALISTIC_SCRIPTS_DATABASE.some((script) => script.tab_id === activeScriptType)
+    ? (activeScriptType as ScriptType)
+    : 'pb82';
+  const [activeTab, setActiveTab] = useState<ScriptType>(initialActiveTab);
   const [selectedHotspot, setSelectedHotspot] = useState<HotspotDetail | null>(null);
 
   const currentScript: RealisticScriptModel =
@@ -65,11 +68,6 @@ export const ScriptVisualizerPanel: React.FC<ScriptVisualizerPanelProps> = ({
                 <h2 className="font-extrabold text-base sm:text-lg app-text flex items-center gap-2">
                   {isFa ? 'شبیه‌ساز و بازرس بصری نسخه‌های استرالیا (۶ نوع نسخه)' : 'Australian 6-Prescription Realistic Inspector'}
                 </h2>
-                <p className="text-xs app-muted">
-                  {isFa
-                    ? 'روی هر کادر کلیک کنید تا الزامات قانونی، بایدها/نبایدها و نکات امتحانی باز شوند.'
-                    : 'Click any interactive section on the script to review legal rules, Dos & Don’ts, and exam tips.'}
-                </p>
               </div>
             </div>
           </div>
@@ -111,6 +109,7 @@ export const ScriptVisualizerPanel: React.FC<ScriptVisualizerPanelProps> = ({
                 id={`tab_script_${item.tab_id}`}
                 onClick={() => {
                   setActiveTab(item.tab_id);
+                  onSelectScriptType?.(item.tab_id);
                 }}
                 className={`p-2.5 rounded-xl border text-right sm:text-center transition flex flex-col justify-between gap-1.5 cursor-pointer ${
                   isActive

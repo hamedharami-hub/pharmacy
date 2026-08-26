@@ -179,13 +179,7 @@ export const PbsClaimingArchivePanel: React.FC<PbsClaimingArchivePanelProps> = (
     title: string;
     message: string;
     ruleTip?: string;
-  }>({
-    type: 'success',
-    title: isFa ? 'میز بایگانی ادعای PBS، سطل امحای محرمانه و چک‌لیست نهایی POS' : 'PBS Claiming Archive, Confidential Shredding Bin & POS Release Desk',
-    message: isFa
-      ? 'بایگانی نسخ کاغذی PBS بر اساس نوع فرانشیز بیمار، امحای مدارک حاوی اطلاعات خصوصی (PII) و چک‌لیست ۵ گانه نهایی تحویل به POS.'
-      : 'PBS paper claim categorization, Privacy Act confidential waste shredding simulation, and 5-point final POS release verification.',
-  });
+  } | null>(null);
 
   // Handle Add To Claim Batch
   const handleBatchAllPendingClaims = () => {
@@ -313,11 +307,6 @@ export const PbsClaimingArchivePanel: React.FC<PbsClaimingArchivePanelProps> = (
                   : 'PBS Claiming Bins, PII Confidential Shredding & 5-Point POS Audit Release'}
               </h3>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {isFa
-                ? 'مدیریت جعبه‌های بایگانی ادعای PBS، خردکردن اسناد محرمانه طبق Privacy Act 1988 و چک‌لیست نهایی تحویل نسخه به مشتری.'
-                : 'PBS monthly claim box filing, Privacy Act 1988 PII destruction simulation, and final 5-point dispensing check.'}
-            </p>
           </div>
         </div>
 
@@ -339,7 +328,7 @@ export const PbsClaimingArchivePanel: React.FC<PbsClaimingArchivePanelProps> = (
       </div>
 
       {/* FEEDBACK BANNER */}
-      {feedback.title && (
+      {feedback && (
         <div className={`p-4 rounded-xl border flex items-start gap-3 text-xs shadow-lg transition ${
           feedback.type === 'error'
             ? 'bg-rose-950/90 border-rose-500 text-rose-100'
