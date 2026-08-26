@@ -171,6 +171,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const dragStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const [showStarBurst, setShowStarBurst] = useState<boolean>(false);
+  const lastTapTimeRef = useRef<number>(0);
   const cardRef = useRef<HTMLDivElement>(null);
 
   // Manager state: search, folder expansion, filters
@@ -770,20 +771,13 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
 
     setIsDragging(false);
 
-    // 1. VERTICAL SWIPES (PULL DOWN TO REVEAL ANSWER, PULL UP TO STAR CARD)
+    // 1. VERTICAL SWIPES: BOTH PULL DOWN AND PULL UP REVEAL ANSWER
     if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > thresholdY) {
-      if (deltaY > thresholdY) {
-        // Swiped Down -> Reveal Answer
-        if (typeof window !== 'undefined' && 'navigator' in window && navigator.vibrate) {
-          try { navigator.vibrate(20); } catch {}
-        }
-        setIsAnswerRevealed(true);
-        setDragOffset({ x: 0, y: 0 });
-      } else if (deltaY < -thresholdY) {
-        // Swiped Up -> Star / Bookmark Card
-        handleToggleStarCurrentCard();
-        setDragOffset({ x: 0, y: 0 });
+      if (typeof window !== 'undefined' && 'navigator' in window && navigator.vibrate) {
+        try { navigator.vibrate(20); } catch {}
       }
+      setIsAnswerRevealed(true);
+      setDragOffset({ x: 0, y: 0 });
     } else if (deltaX > thresholdX) {
       // SWIPED RIGHT -> SELECT BETWEEN EASY (TOP-RIGHT) & GOOD (BOTTOM-RIGHT / HORIZONTAL)
       const isEasy = deltaY < -15; // Swiping towards top-right triggers EASY
@@ -809,6 +803,17 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
         setDragOffset({ x: 0, y: 0 });
       }, 150);
     } else {
+      // Tap / Double Tap detection when movement is minimal
+      if (Math.abs(deltaX) < 12 && Math.abs(deltaY) < 12) {
+        const now = Date.now();
+        if (now - lastTapTimeRef.current < 320) {
+          // Double Tap -> Toggle Star Card
+          handleToggleStarCurrentCard();
+          lastTapTimeRef.current = 0;
+        } else {
+          lastTapTimeRef.current = now;
+        }
+      }
       // Snap back smoothly
       setDragOffset({ x: 0, y: 0 });
     }
@@ -1310,25 +1315,14 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                     </div>
                   )}
 
-                  {/* 3. SWIPED DOWN -> REVEAL ANSWER (نمایش پاسخ) */}
-                  {dragOffset.y > 35 && Math.abs(dragOffset.y) > Math.abs(dragOffset.x) && !isAnswerRevealed && (
+                  {/* 3. VERTICAL SWIPES (BOTH PULL DOWN & PULL UP REVEAL ANSWER) */}
+                  {Math.abs(dragOffset.y) > 35 && Math.abs(dragOffset.y) > Math.abs(dragOffset.x) && !isAnswerRevealed && (
                     <div
                       className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 px-5 py-3 rounded-2xl border-2 border-cyan-400 bg-slate-950/95 text-cyan-200 font-black text-sm sm:text-base tracking-wider uppercase shadow-2xl flex items-center gap-2.5 pointer-events-none animate-in fade-in zoom-in-90 backdrop-blur-md"
-                      style={{ opacity: Math.min(1, dragOffset.y / 70) }}
+                      style={{ opacity: Math.min(1, Math.abs(dragOffset.y) / 70) }}
                     >
                       <Eye className="w-5 h-5 text-cyan-300 animate-pulse" />
                       <span>{isFa ? '✨ رها کنید: نمایش پاسخ ✨' : '✨ Release to Reveal Answer ✨'}</span>
-                    </div>
-                  )}
-
-                  {/* 4. SWIPED UP -> STAR / BOOKMARK (ستاره‌دار کردن) */}
-                  {dragOffset.y < -35 && Math.abs(dragOffset.y) > Math.abs(dragOffset.x) && (
-                    <div
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 px-5 py-3 rounded-2xl border-2 border-amber-400 bg-slate-950/95 text-amber-300 font-black text-sm sm:text-base tracking-wider uppercase shadow-2xl flex items-center gap-2.5 pointer-events-none animate-in fade-in zoom-in-90 backdrop-blur-md"
-                      style={{ opacity: Math.min(1, Math.abs(dragOffset.y) / 70) }}
-                    >
-                      <Star className="w-5 h-5 text-amber-400 fill-amber-400 animate-spin" />
-                      <span>{isFa ? '⭐ رها کنید: ستاره‌دار کردن ⭐' : '⭐ Release to Star Card ⭐'}</span>
                     </div>
                   )}
 
@@ -1344,7 +1338,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                     </div>
                   )}
 
-                  {/* THE CARD (WITH TOUCH / DRAG PHYSICS) */}
+                  {/* THE CARD (WITH TOUCH / DRAG PHYSICS & DOUBLE-CLICK TO STAR) */}
                   <div
                     ref={cardRef}
                     onTouchStart={handleTouchStart}
@@ -1353,6 +1347,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                     onMouseDown={handleTouchStart}
                     onMouseMove={handleTouchMove}
                     onMouseUp={handleTouchEnd}
+                    onDoubleClick={handleToggleStarCurrentCard}
                     style={{
                       transform: `translateX(${dragOffset.x}px) translateY(${dragOffset.y * 0.12}px) rotate(${dragOffset.x * 0.04}deg)`,
                       transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
@@ -1361,7 +1356,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                     }}
                     className={`app-card border rounded-2xl p-5 sm:p-7 space-y-5 shadow-2xl relative min-h-[340px] flex flex-col justify-between select-none ${
                       isAnswerRevealed
-                        ? 'bg-slate-900 border-purple-500/50 ring-1 ring-purple-500/30'
+                        ? 'bg-slate-900 border-emerald-500/50 ring-1 ring-emerald-500/30'
                         : 'bg-slate-900 border-slate-700 hover:border-purple-500/40'
                     }`}
                   >
@@ -1410,8 +1405,23 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                         </button>
                       </div>
 
-                      {/* Right Action: Star Button & Delete Button */}
-                      <div className="flex items-center gap-1">
+                      {/* Right Action: Question/Answer Toggle, Star Button & Delete Button */}
+                      <div className="flex items-center gap-1.5">
+                        {isAnswerRevealed && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsAnswerRevealed(false);
+                            }}
+                            className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-300 transition flex items-center gap-1 cursor-pointer"
+                            title={isFa ? 'مشاهده مجدد سوال' : 'Show Question'}
+                          >
+                            <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
+                            <span>{isFa ? 'سوال' : 'Question'}</span>
+                          </button>
+                        )}
+
                         <button
                           type="button"
                           onClick={(e) => {
@@ -1423,7 +1433,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                               ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-xs'
                               : 'text-slate-500 border-transparent hover:text-amber-300 hover:bg-white/5'
                           }`}
-                          title={isFa ? (currentStudyCard.isStarred ? 'حذف ستاره' : 'ستاره‌دار کردن کارت') : 'Toggle Star Card'}
+                          title={isFa ? (currentStudyCard.isStarred ? 'حذف ستاره' : 'ستاره‌دار کردن کارت (دبل کلیک)') : 'Toggle Star (Double Click)'}
                         >
                           <Star className={`w-4 h-4 ${currentStudyCard.isStarred ? 'fill-amber-400 text-amber-400' : ''}`} />
                         </button>
@@ -1442,7 +1452,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                       </div>
                     </div>
 
-                    {/* CARD FRONT: QUESTION (CLEAN WITHOUT HEADERS) */}
+                    {/* CARD BODY: EXCLUSIVE FRONT (QUESTION) OR BACK (ANSWER) */}
                     {(() => {
                       const qFa = typeof currentStudyCard.question === 'object' ? currentStudyCard.question.fa || currentStudyCard.question.en : currentStudyCard.question;
                       const qEn = typeof currentStudyCard.question === 'object' ? currentStudyCard.question.en || currentStudyCard.question.fa : currentStudyCard.question;
@@ -1451,8 +1461,9 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                       const pFa = currentStudyCard.pearl ? (typeof currentStudyCard.pearl === 'object' ? currentStudyCard.pearl.fa : currentStudyCard.pearl) : '';
                       const pEn = currentStudyCard.pearl ? (typeof currentStudyCard.pearl === 'object' ? currentStudyCard.pearl.en : currentStudyCard.pearl) : '';
 
-                      return (
-                        <div className="space-y-3 py-1 flex-1">
+                      return !isAnswerRevealed ? (
+                        /* ================= FRONT FACE: QUESTION ================= */
+                        <div className="space-y-3 py-1 flex-1 animate-in fade-in duration-200">
                           {/* Render Question based on cardLanguageMode */}
                           {cardLanguageMode === 'bilingual' ? (
                             <div className="space-y-2.5 bg-slate-950/60 p-3.5 sm:p-4 rounded-xl border border-slate-800">
@@ -1485,17 +1496,9 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                                   const isSelected = selectedMcqOption === opt.id;
                                   const optFa = opt.text?.fa || opt.text?.en || '';
                                   const optEn = opt.text?.en || opt.text?.fa || '';
-                                  let optStyle = 'bg-slate-800/80 border-slate-700 text-slate-200 hover:bg-slate-800';
-
-                                  if (isAnswerRevealed) {
-                                    if (opt.isCorrect) {
-                                      optStyle = 'bg-emerald-950/80 border-emerald-500 text-emerald-200 ring-1 ring-emerald-500 font-bold';
-                                    } else if (isSelected && !opt.isCorrect) {
-                                      optStyle = 'bg-rose-950/80 border-rose-500 text-rose-200 ring-1 ring-rose-500 line-through';
-                                    }
-                                  } else if (isSelected) {
-                                    optStyle = 'bg-purple-900/60 border-purple-500 text-purple-200 ring-1 ring-purple-500 font-bold';
-                                  }
+                                  const optStyle = isSelected
+                                    ? 'bg-purple-900/60 border-purple-500 text-purple-200 ring-1 ring-purple-500 font-bold'
+                                    : 'bg-slate-800/80 border-slate-700 text-slate-200 hover:bg-slate-800';
 
                                   return (
                                     <button
@@ -1584,90 +1587,77 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                             </div>
                           )}
                         </div>
-                      );
-                    })()}
-
-                    {/* CARD BACK: REVEALED ANSWER & PEARL */}
-                    {isAnswerRevealed && (
-                      <div className="border-t border-purple-500/30 pt-4 space-y-3.5 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                        {(() => {
-                          const aFa = typeof currentStudyCard.answer === 'object' ? currentStudyCard.answer.fa || currentStudyCard.answer.en : currentStudyCard.answer;
-                          const aEn = typeof currentStudyCard.answer === 'object' ? currentStudyCard.answer.en || currentStudyCard.answer.fa : currentStudyCard.answer;
-                          const pFa = currentStudyCard.pearl ? (typeof currentStudyCard.pearl === 'object' ? currentStudyCard.pearl.fa : currentStudyCard.pearl) : '';
-                          const pEn = currentStudyCard.pearl ? (typeof currentStudyCard.pearl === 'object' ? currentStudyCard.pearl.en : currentStudyCard.pearl) : '';
-
-                          return (
-                            <>
-                              <div className="space-y-1.5">
-                                {cardLanguageMode === 'bilingual' ? (
-                                  <div className="space-y-2.5 bg-emerald-950/30 border border-emerald-500/30 p-3.5 sm:p-4 rounded-xl text-sm sm:text-base leading-relaxed">
-                                    {aFa && (
-                                      <div dir="rtl" className="text-emerald-100 font-medium">
-                                        {aFa}
-                                      </div>
-                                    )}
-                                    {aEn && (
-                                      <div dir="ltr" className="text-slate-200 font-sans text-xs sm:text-sm border-t border-emerald-900/50 pt-2 opacity-95">
-                                        {aEn}
-                                      </div>
-                                    )}
+                      ) : (
+                        /* ================= BACK FACE: EXCLUSIVE ANSWER ================= */
+                        <div className="space-y-3.5 py-1 flex-1 animate-in fade-in zoom-in-95 duration-200">
+                          {/* Answer Section */}
+                          <div className="space-y-1.5">
+                            {cardLanguageMode === 'bilingual' ? (
+                              <div className="space-y-2.5 bg-emerald-950/30 border border-emerald-500/30 p-3.5 sm:p-4 rounded-xl text-sm sm:text-base leading-relaxed">
+                                {aFa && (
+                                  <div dir="rtl" className="text-emerald-100 font-medium">
+                                    {aFa}
                                   </div>
-                                ) : (
-                                  <p className="text-sm sm:text-base text-slate-100 leading-relaxed bg-emerald-950/30 border border-emerald-500/30 p-3.5 rounded-xl">
-                                    {cardLanguageMode === 'fa' ? aFa : aEn}
-                                  </p>
+                                )}
+                                {aEn && (
+                                  <div dir="ltr" className="text-slate-200 font-sans text-xs sm:text-sm border-t border-emerald-900/50 pt-2 opacity-95">
+                                    {aEn}
+                                  </div>
                                 )}
                               </div>
+                            ) : (
+                              <p className="text-sm sm:text-base text-slate-100 leading-relaxed bg-emerald-950/30 border border-emerald-500/30 p-3.5 rounded-xl">
+                                {cardLanguageMode === 'fa' ? aFa : aEn}
+                              </p>
+                            )}
+                          </div>
 
-                              {/* Distractor rationale and clinical distinctions */}
-                              {currentStudyCard.distractorRationale && (
-                                <div className="text-xs p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-slate-300 space-y-1">
-                                  <span className="font-bold text-amber-300 flex items-center gap-1">
-                                    <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
-                                    <span>{isFa ? 'نکات تمایز گزینه‌ها و تحلیل بالینی:' : 'Clinical Distinctions & Pitfalls:'}</span>
-                                  </span>
-                                  {cardLanguageMode === 'bilingual' ? (
-                                    <div className="space-y-1.5 pt-1">
-                                      {currentStudyCard.distractorRationale.fa && (
-                                        <p dir="rtl" className="text-slate-200">{currentStudyCard.distractorRationale.fa}</p>
-                                      )}
-                                      {currentStudyCard.distractorRationale.en && (
-                                        <p dir="ltr" className="text-slate-300 font-sans text-[11px] border-t border-slate-800 pt-1">{currentStudyCard.distractorRationale.en}</p>
-                                      )}
-                                    </div>
-                                  ) : (
-                                    <p className="leading-relaxed">
-                                      {cardLanguageMode === 'fa'
-                                        ? currentStudyCard.distractorRationale.fa || currentStudyCard.distractorRationale.en
-                                        : currentStudyCard.distractorRationale.en || currentStudyCard.distractorRationale.fa}
-                                    </p>
+                          {/* Distractor rationale and clinical distinctions */}
+                          {currentStudyCard.distractorRationale && (
+                            <div className="text-xs p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-slate-300 space-y-1">
+                              <span className="font-bold text-amber-300 flex items-center gap-1">
+                                <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+                                <span>{isFa ? 'نکات تمایز گزینه‌ها و تحلیل بالینی:' : 'Clinical Distinctions & Pitfalls:'}</span>
+                              </span>
+                              {cardLanguageMode === 'bilingual' ? (
+                                <div className="space-y-1.5 pt-1">
+                                  {currentStudyCard.distractorRationale.fa && (
+                                    <p dir="rtl" className="text-slate-200">{currentStudyCard.distractorRationale.fa}</p>
+                                  )}
+                                  {currentStudyCard.distractorRationale.en && (
+                                    <p dir="ltr" className="text-slate-300 font-sans text-[11px] border-t border-slate-800 pt-1">{currentStudyCard.distractorRationale.en}</p>
                                   )}
                                 </div>
+                              ) : (
+                                <p className="leading-relaxed">
+                                  {cardLanguageMode === 'fa'
+                                    ? currentStudyCard.distractorRationale.fa || currentStudyCard.distractorRationale.en
+                                    : currentStudyCard.distractorRationale.en || currentStudyCard.distractorRationale.fa}
+                                </p>
                               )}
+                            </div>
+                          )}
 
-                              {/* High Yield Clinical Pearl */}
-                              {(pFa || pEn) && (
-                                <div className="p-3 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-200 text-xs flex items-start gap-2">
-                                  <Sparkles className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                                  <div className="space-y-1 flex-1">
-                                    <span className="font-bold text-amber-300">{isFa ? 'نکته طلایی بالینی: ' : 'Key Clinical Point: '}</span>
-                                    {cardLanguageMode === 'bilingual' ? (
-                                      <div className="space-y-1">
-                                        {pFa && <div dir="rtl" className="text-purple-100">{pFa}</div>}
-                                        {pEn && <div dir="ltr" className="text-slate-300 font-sans text-xs border-t border-purple-900/40 pt-1">{pEn}</div>}
-                                      </div>
-                                    ) : (
-                                      <span>{cardLanguageMode === 'fa' ? pFa : pEn}</span>
-                                    )}
+                          {/* High Yield Clinical Pearl */}
+                          {(pFa || pEn) && (
+                            <div className="p-3 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-200 text-xs flex items-start gap-2">
+                              <Sparkles className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
+                              <div className="space-y-1 flex-1">
+                                <span className="font-bold text-amber-300">{isFa ? 'نکته طلایی بالینی: ' : 'Key Clinical Point: '}</span>
+                                {cardLanguageMode === 'bilingual' ? (
+                                  <div className="space-y-1">
+                                    {pFa && <div dir="rtl" className="text-purple-100">{pFa}</div>}
+                                    {pEn && <div dir="ltr" className="text-slate-300 font-sans text-xs border-t border-purple-900/40 pt-1">{pEn}</div>}
                                   </div>
-                                </div>
-                              )}
-                            </>
-                          );
-                        })()}
-                        {/* End of Answer Section */}
-                      </div>
-                    )}
+                                ) : (
+                                  <span>{cardLanguageMode === 'fa' ? pFa : pEn}</span>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {/* ANKIDROID BOTTOM CONTROLS & GESTURE BAR */}
