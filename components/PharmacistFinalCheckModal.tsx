@@ -657,7 +657,7 @@ export const PharmacistFinalCheckModal: React.FC<PharmacistFinalCheckModalProps>
                 className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-rose-800 hover:bg-rose-700 text-rose-100 border border-rose-500/50 font-bold transition flex items-center justify-center gap-1.5 shadow"
               >
                 <Lock className="w-4 h-4 text-amber-300" />
-                <span>{isFa ? 'دفتر ثبت ODT Dosing' : 'Open ODT Dosing Desk'}</span>
+                <span>{isFa ? 'دفتر ثبت دوز ODT' : 'Open ODT Dosing Desk'}</span>
               </button>
             )}
 
@@ -670,7 +670,7 @@ export const PharmacistFinalCheckModal: React.FC<PharmacistFinalCheckModalProps>
                 className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-indigo-900 hover:bg-indigo-800 text-indigo-100 border border-indigo-500/50 font-bold transition flex items-center justify-center gap-1.5 shadow"
               >
                 <Box className="w-4 h-4 text-amber-300" />
-                <span>{isFa ? 'بایگانی PBS & POS Release' : 'PBS Archive & POS Desk'}</span>
+                <span>{isFa ? 'بایگانی نسخه‌های PBS و تحویل' : 'PBS Archive & POS Desk'}</span>
               </button>
             )}
 

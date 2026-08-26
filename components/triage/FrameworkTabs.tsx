@@ -75,7 +75,7 @@ export const FrameworkTabs: React.FC<FrameworkTabsProps> = ({
             {isFa ? '۱. پروتکل WWHAM' : '1. WWHAM Protocol'}
           </div>
           <div className="text-[10px] opacity-85 font-mono mt-0.5">
-            ({wwhamCount}/4) • ۴۰٪
+            ({wwhamCount}/4) • {isFa ? '۴۰٪' : '40%'}
           </div>
         </button>
 
@@ -92,7 +92,7 @@ export const FrameworkTabs: React.FC<FrameworkTabsProps> = ({
             {isFa ? '۲. پرچم‌های قرمز بالینی 🚩' : '2. Clinical Red Flags'}
           </div>
           <div className="text-[10px] opacity-85 font-mono mt-0.5">
-            {askedRedFlagChecks['rf-check'] ? (isFa ? 'بررسی شد' : 'Done') : (isFa ? 'نشده' : 'Pending')} • ۲۰٪
+            {askedRedFlagChecks['rf-check'] ? (isFa ? 'بررسی شد' : 'Done') : (isFa ? 'نشده' : 'Pending')} • {isFa ? '۲۰٪' : '20%'}
           </div>
         </button>
 
@@ -109,7 +109,7 @@ export const FrameworkTabs: React.FC<FrameworkTabsProps> = ({
             {isFa ? '۳. تصمیم و توصیه داروساز 🎯' : '3. Pharmacist Decision'}
           </div>
           <div className="text-[10px] opacity-85 font-mono mt-0.5">
-            {selectedOption ? (isFa ? 'انتخاب شد' : 'Selected') : (isFa ? 'اقدام' : 'Action')} • ۴۰٪
+            {selectedOption ? (isFa ? 'انتخاب شد' : 'Selected') : (isFa ? 'اقدام' : 'Action')} • {isFa ? '۴۰٪' : '40%'}
           </div>
         </button>
       </div>

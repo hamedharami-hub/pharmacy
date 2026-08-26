@@ -252,7 +252,7 @@ export const ShelfDrugCard: React.FC<ShelfDrugCardProps> = ({
         <div className="space-y-3 pt-1 border-t border-slate-800 animate-fadeIn">
           {/* Active Ingredients in LTR */}
           <div className="text-left text-xs text-slate-300 font-mono bg-black/40 p-2 rounded-lg border border-slate-800" dir="ltr">
-            <span className="text-slate-400 font-semibold">{isFa ? 'Active Substance:' : 'Active Substance:'} </span>
+            <span className="text-slate-400 font-semibold">{isFa ? 'ماده موثره:' : 'Active Substance:'} </span>
             <span>{prod.activeIngredients}</span>
           </div>
 

@@ -293,10 +293,10 @@ export const LeitnerStudySettingsModal: React.FC<LeitnerStudySettingsModalProps>
                 </label>
                 <div className="flex flex-wrap gap-1.5">
                   {[
-                    { id: 10, label: '۱۰ کارت' },
-                    { id: 20, label: '۲۰ کارت' },
-                    { id: 30, label: '۳۰ کارت' },
-                    { id: 50, label: '۵۰ کارت' },
+                    { id: 10, label: isFa ? '۱۰ کارت' : '10 Cards' },
+                    { id: 20, label: isFa ? '۲۰ کارت' : '20 Cards' },
+                    { id: 30, label: isFa ? '۳۰ کارت' : '30 Cards' },
+                    { id: 50, label: isFa ? '۵۰ کارت' : '50 Cards' },
                     { id: 'unlimited', label: isFa ? 'همه کارت‌های موعددار (نامحدود)' : 'All Due (Unlimited)' },
                   ].map((lim) => (
                     <button

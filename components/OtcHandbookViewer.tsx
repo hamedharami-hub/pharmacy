@@ -169,7 +169,7 @@ export const OtcHandbookViewer: React.FC<OtcHandbookViewerProps> = ({
                 onClick={() => setSearchQuery('')}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
               >
-                پاک کردن
+                {isFa ? 'پاک کردن' : 'Clear'}
               </button>
             )}
           </div>

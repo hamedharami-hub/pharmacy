@@ -478,7 +478,7 @@ export const MindMapSettingsModal: React.FC<MindMapSettingsModalProps> = ({
           <div className="text-[11px] app-muted">
             {isFa
               ? `نوع چیدمان: ${viewMode === 'interactive_canvas' ? 'گراف افقی' : viewMode === 'radial_circle' ? 'شعاعی ۳۶۰°' : viewMode === 'vertical_tree' ? 'سازمانی عمودی' : viewMode === 'outliner_tree' ? 'درختی متنی' : 'ماتریس'}`
-              : `Layout: ${viewMode}`}
+              : `Active Layout: ${viewMode === 'interactive_canvas' ? 'Horizontal Canvas' : viewMode === 'radial_circle' ? '360° Radial Map' : viewMode === 'vertical_tree' ? 'Org Chart' : viewMode === 'outliner_tree' ? 'Outliner Tree' : 'Matrix Grid'}`}
           </div>
 
           <button
