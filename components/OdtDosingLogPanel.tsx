@@ -330,11 +330,6 @@ export const OdtDosingLogPanel: React.FC<OdtDosingLogPanelProps> = ({
                   : 'NSW ODT Daily Dosing Log, Strikethrough Tool, Signature & S8 Register Audit'}
               </h3>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {isFa
-                ? 'مدیریت برنامه درمان وابستگی به اپیوئیدها (NSW OTP)، ثبت دوزهای Supervised/Takeaway، امضای بیمار و کسر از دفتر کل S8.'
-                : 'NSW Opioid Treatment Program (OTP) daily dosing console, takeaway labeling, strikethrough tool & S8 safe register auditing.'}
-            </p>
           </div>
         </div>
 

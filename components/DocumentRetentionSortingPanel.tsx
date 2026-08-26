@@ -319,11 +319,6 @@ export const DocumentRetentionSortingPanel: React.FC<DocumentRetentionSortingPan
                   : 'PB24 Yellow Repeat Stapling & Document Retention Sorting Desk'}
               </h3>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {isFa
-                ? 'برگه زرد رنگ PB24 را روی نسخه منگنه کنید، توکن‌های eScript را ارسال کنید و اسناد را در زون‌های قانونی تفکیک نمایید.'
-                : 'Staple PB24 Yellow Repeat forms, dispatch digital eScript tokens, and sort duplicate papers into statutory retention zones.'}
-            </p>
           </div>
         </div>
 
