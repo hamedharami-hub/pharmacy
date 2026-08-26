@@ -123,7 +123,7 @@ export const DiseaseCategoryExplorer: React.FC<DiseaseCategoryExplorerProps> = (
                     {isFa ? activeCategory.name.fa : activeCategory.name.en}
                   </h2>
                   <span className="text-xs px-2.5 py-0.5 rounded-full bg-teal-500/15 text-teal-300 font-mono font-bold">
-                    {activeCategory.name.en}
+                    {filteredDiseases.length} {isFa ? 'بیماری' : 'conditions'}
                   </span>
                 </div>
                 <p className="text-xs app-muted mt-0.5" dir="ltr">

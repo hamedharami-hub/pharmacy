@@ -191,7 +191,7 @@ export const DiseaseCategorySelector: React.FC<DiseaseCategorySelectorProps> = (
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <div className="px-2 py-1 rounded-lg bg-teal-500/15 text-teal-600 dark:text-teal-400 text-[11px] font-bold flex items-center gap-1 transition">
-                <span>{isFa ? 'تغییر دامنه' : 'Change Domain'}</span>
+                <span>{isFa ? 'تغییر دسته‌بندی' : 'Change Category'}</span>
                 <ChevronDown className="w-3.5 h-3.5 transition-transform group-hover:translate-y-0.5" />
               </div>
             </div>
