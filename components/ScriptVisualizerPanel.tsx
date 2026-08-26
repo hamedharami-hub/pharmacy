@@ -91,6 +91,20 @@ export const ScriptVisualizerPanel: React.FC<ScriptVisualizerPanelProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
           {REALISTIC_SCRIPTS_DATABASE.map((item) => {
             const isActive = activeTab === item.tab_id;
+            const badgeText = isFa
+              ? item.badge
+              : item.tab_id === 'pb82'
+              ? 'Dual PBS'
+              : item.tab_id === 'repeat_pb24'
+              ? 'PB 24 Repeat'
+              : item.tab_id === 'handwritten'
+              ? 'Handwritten'
+              : item.tab_id === 'escript'
+              ? 'eScript Token'
+              : item.tab_id === 's8_nsw'
+              ? 'S8 Controlled'
+              : 'ODT Chart';
+
             return (
               <button
                 key={item.tab_id}
@@ -106,7 +120,7 @@ export const ScriptVisualizerPanel: React.FC<ScriptVisualizerPanelProps> = ({
               >
                 <div className="flex items-center justify-between gap-1 w-full">
                   <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${item.badge_color}`}>
-                    {item.badge}
+                    {badgeText}
                   </span>
                   {isActive && <Sparkles className="w-3 h-3 text-amber-300 shrink-0" />}
                 </div>
@@ -124,13 +138,9 @@ export const ScriptVisualizerPanel: React.FC<ScriptVisualizerPanelProps> = ({
         {/* Left: The Realistic Visual Script Canvas (8 Cols) */}
         <div className="lg:col-span-8 space-y-3">
           <div className="flex items-center justify-between text-xs px-1 text-slate-300">
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 font-bold text-indigo-300">
               <Eye className="w-3.5 h-3.5 text-indigo-400" />
-              {isFa ? 'نمای تعاملی نسخه:' : 'Interactive Script Canvas:'}{' '}
-              <strong className="text-indigo-300">{isFa ? currentScript.title_fa : currentScript.title_en}</strong>
-            </span>
-            <span className="text-[11px] text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-500/40">
-              {isFa ? '🖱️ روی کادرهای هایلایت کلیک کنید' : '🖱️ Click highlighted boxes for legal audit'}
+              <span>{isFa ? currentScript.title_fa : currentScript.title_en}</span>
             </span>
           </div>
 
