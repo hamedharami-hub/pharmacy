@@ -1069,33 +1069,6 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
             </div>
           )}
         </div>
-
-        {/* FIXED BOTTOM FOOTER */}
-        <div className="px-4 sm:px-6 py-3 border-t app-border bg-slate-950/90 backdrop-blur-md flex items-center justify-between shrink-0 gap-3">
-          <div className="text-[11px] text-slate-400 font-mono hidden sm:block">
-            Australian Pharmacy Formulary (APF) & PBA Monograph
-          </div>
-          <div className="flex items-center gap-2 justify-end w-full sm:w-auto">
-            {onNavigateToModule && (
-              <button
-                onClick={() => {
-                  onClose();
-                  onNavigateToModule(2);
-                }}
-                className="px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-sky-600/30 hover:bg-sky-600 text-sky-300 hover:text-white border border-sky-500/40 text-xs sm:text-sm font-bold transition flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>{isFa ? 'مشاهده در قفسه محصولات (ماژول ۲)' : 'View in Product Shelf (Module 2)'}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            )}
-            <button
-              onClick={onClose}
-              className="px-4 sm:px-5 py-1.5 sm:py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs sm:text-sm font-bold transition border border-slate-700 cursor-pointer shadow-xs"
-            >
-              {isFa ? 'بستن' : 'Close'}
-            </button>
-          </div>
-        </div>
       </div>
     </div>,
     document.body
