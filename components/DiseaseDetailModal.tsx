@@ -228,7 +228,7 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
 
   // Resolve medicines & monograph data (from disease object or fallback helper)
   const fallbackGuide = findHandbookGuide(disease);
-  const medicines: OTCDrugInfo[] = disease.medicines || fallbackGuide?.medicines || [];
+  const baseMedicines: OTCDrugInfo[] = disease.medicines || fallbackGuide?.medicines || [];
 
   // Primary display names
   const diseaseTitle = isFa
@@ -240,10 +240,10 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
     ? (clinicalTranslation?.primaryCommonNameFa || disease.synonyms?.[0] || disease.name.fa)
     : (clinicalTranslation?.primaryCommonNameEn || disease.synonyms?.[0] || disease.name.en);
 
-  const primaryBrand = clinicalTranslation?.primaryBrand || (medicines[0]?.brandExamples || disease.synonyms?.[1] || 'Standard OTC');
+  const primaryBrand = clinicalTranslation?.primaryBrand || (baseMedicines[0]?.brandExamples || disease.synonyms?.[1] || 'Standard OTC');
 
   // Full Brand List & Synonyms for Popup
-  const australianBrands = clinicalTranslation?.australianBrands || medicines.map(m => ({
+  const australianBrands = clinicalTranslation?.australianBrands || baseMedicines.map(m => ({
     brand: m.brandExamples,
     generic: m.name,
     form: m.dosing || 'Standard formulation',
@@ -282,6 +282,72 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
   const firstLineClass = isFa
     ? (firstLineData?.drugClassFa || 'داروی استاندارد خط اول (First-Line Pharmacotherapy)')
     : (firstLineData?.drugClassEn || 'Standard First-Line Pharmacotherapy');
+
+  // Build Comprehensive Medicines Deck (First-Line + Handbook OTCs + Australian Brands + Alternatives)
+  const medicines: (OTCDrugInfo & { isFirstLine?: boolean; isAlternative?: boolean; drugClass?: string })[] = [];
+  const addedNames = new Set<string>();
+
+  // 1. Add First-Line Pharmacotherapy as primary card
+  if (firstLineDrug) {
+    medicines.push({
+      name: firstLineDrug,
+      brandExamples: firstLineData?.keyBrands?.join(', ') || primaryBrand,
+      dosing: rawDosing || (isFa ? 'مطابق با پروتکل استاندارد دوزینگ بالینی استرالیا.' : 'Follow Australian standard clinical dosing protocol.'),
+      minAge: baseMedicines[0]?.minAge || 'Adults & Children >12y',
+      pregnancySafety: baseMedicines[0]?.pregnancySafety || 'Check Category',
+      breastfeedingSafety: baseMedicines[0]?.breastfeedingSafety || 'Compatible',
+      extraInfo: firstLineData?.keyWarningsFa || firstLineData?.keyWarningsEn || '',
+      isFirstLine: true,
+      drugClass: firstLineClass,
+    });
+    addedNames.add(firstLineDrug.toLowerCase());
+  }
+
+  // 2. Add Existing Base Medicines (from Handbook / Registry)
+  for (const m of baseMedicines) {
+    const normName = m.name.toLowerCase();
+    const isDup = Array.from(addedNames).some(name => normName.includes(name) || name.includes(normName));
+    if (!isDup) {
+      medicines.push({
+        ...m,
+        isFirstLine: false,
+      });
+      addedNames.add(normName);
+    }
+  }
+
+  // 3. Add Clinical Alternatives if present
+  const altText = isFa ? firstLineData?.alternativesFa : firstLineData?.alternativesEn;
+  if (altText && altText.length > 5) {
+    medicines.push({
+      name: isFa ? 'درمان جایگزین / خط دوم (Alternative)' : 'Second-Line / Alternative Therapy',
+      brandExamples: isFa ? 'برندهای تجاری معادل در داروخانه استرالیا' : 'Australian Equivalent Pharmacy Brands',
+      dosing: altText,
+      minAge: 'Check individual product',
+      pregnancySafety: 'Consult Pharmacist',
+      breastfeedingSafety: 'Consult Pharmacist',
+      extraInfo: isFa ? 'در صورت عدم پاسخ به خط اول یا منع مصرف به کار می‌رود.' : 'Used if first-line therapy is contraindicated or ineffective.',
+      isAlternative: true,
+    });
+  }
+
+  // 4. Add additional unique Australian commercial brands
+  for (const b of australianBrands) {
+    const normGeneric = (b.generic || '').toLowerCase();
+    if (normGeneric && !Array.from(addedNames).some(name => normGeneric.includes(name) || name.includes(normGeneric))) {
+      medicines.push({
+        name: b.generic,
+        brandExamples: b.brand,
+        dosing: b.form || (isFa ? 'طبق فرمولاسیون دارویی و برچسب بسته‌بندی استرالیا.' : 'As per Australian TGA approved product pack.'),
+        minAge: 'Standard clinical age range',
+        pregnancySafety: 'Refer to product monograph',
+        breastfeedingSafety: 'Compatible with monitoring',
+        extraInfo: isFa ? `فرم دارویی رایج در استرالیا: ${b.form || 'استاندارد'}` : `Australian formulation: ${b.form || 'Standard'}`,
+        isFirstLine: false,
+      });
+      addedNames.add(normGeneric);
+    }
+  }
 
   const firstLineDosingSegments = parseDosingToSegments(rawDosing, isFa);
 
@@ -756,7 +822,7 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                   </div>
 
                   <div className="grid grid-cols-1 gap-2.5 sm:gap-3">
-                    {medicines.map((med: OTCDrugInfo, idx: number) => {
+                    {medicines.map((med: any, idx: number) => {
                       const isExpanded = !!expandedMedIds[idx];
                       const medDosingSegments = parseDosingToSegments(med.dosing, isFa);
                       const medNotes = parseExtraInfoToNotes(med.extraInfo);
@@ -776,12 +842,30 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                             className="p-3 sm:p-3.5 flex items-center justify-between gap-3 cursor-pointer select-none"
                           >
                             <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                              <span className="w-6 h-6 rounded-lg bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 font-bold text-xs border border-indigo-500/30 flex items-center justify-center font-mono shrink-0">
+                              <span className={`w-6 h-6 rounded-lg font-bold text-xs border flex items-center justify-center font-mono shrink-0 ${
+                                med.isFirstLine
+                                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                                  : med.isAlternative
+                                  ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+                                  : 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30'
+                              }`}>
                                 {idx + 1}
                               </span>
                               <div className="min-w-0 flex-1">
-                                <div className="font-black text-xs sm:text-sm text-sky-700 dark:text-sky-400 truncate">
-                                  {med.name}
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <div className="font-black text-xs sm:text-sm text-sky-700 dark:text-sky-400 truncate">
+                                    {med.name}
+                                  </div>
+                                  {med.isFirstLine && (
+                                    <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
+                                      {isFa ? '✨ داروی خط اول' : '✨ First-Line'}
+                                    </span>
+                                  )}
+                                  {med.isAlternative && (
+                                    <span className="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-bold">
+                                      {isFa ? '🔄 خط دوم / جایگزین' : '🔄 Alternative'}
+                                    </span>
+                                  )}
                                 </div>
                                 {!isExpanded && (
                                   <div className="text-[10px] sm:text-[11px] app-muted truncate mt-0.5 flex items-center gap-1.5">
