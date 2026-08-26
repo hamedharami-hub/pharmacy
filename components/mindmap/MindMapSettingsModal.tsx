@@ -92,26 +92,21 @@ export const MindMapSettingsModal: React.FC<MindMapSettingsModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 border-b app-border flex items-center justify-between gap-3 bg-slate-900/40">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-cyan-600/20 text-cyan-400 border border-cyan-500/40 flex items-center justify-center shadow-inner">
-              <Settings className="w-5 h-5" />
+        <div className="px-4 py-3 sm:px-5 sm:py-3.5 border-b app-border flex items-center justify-between gap-3 bg-slate-900/40">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/40 flex items-center justify-center shadow-inner shrink-0">
+              <Settings className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-black app-text">
-                {isFa ? 'تنظیمات چیدمان و ساختار نقشه ذهنی' : 'Mind Map Layout & Display Settings'}
+              <h3 className="text-sm sm:text-base font-black app-text">
+                {isFa ? 'تنظیمات نقشه ذهنی' : 'Mind Map Settings'}
               </h3>
-              <p className="text-xs app-muted">
-                {isFa
-                  ? 'انتخاب انواع ساختار چیدمان، خطوط اتصال، فیلترها و ابزارها'
-                  : 'Customize tree layout format, line connectors, and filters'}
-              </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl app-bg hover:bg-black/10 dark:hover:bg-slate-800 app-text border app-border transition cursor-pointer"
+            className="p-1.5 rounded-xl app-bg hover:bg-black/10 dark:hover:bg-slate-800 app-text border app-border transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
