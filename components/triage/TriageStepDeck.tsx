@@ -307,18 +307,55 @@ export const TriageStepDeck: React.FC<TriageStepDeckProps> = ({
                   </div>
                 )}
 
-                {/* Non-Pharmacological & Self-Care Advice */}
-                <div className="p-3.5 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 space-y-2">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-300">
-                    <Sparkles className="w-4 h-4 text-emerald-400" />
-                    <span>{isFa ? 'توصیه‌های غیردارویی و خودمراقبتی برای این بیمار:' : 'Non-Pharmacological & Supportive Care:'}</span>
-                  </div>
-                  <p className="text-xs sm:text-[12.5px] text-slate-300 leading-relaxed bg-black/30 p-2.5 rounded-xl border border-emerald-500/20">
-                    {isFa
-                      ? (linkedHandbookDisease?.nonPharmAdvice?.join('\n') || scenario.clinicalOutcome?.explanation?.fa || scenario.clinicalOutcome?.recommendation?.fa)
-                      : (linkedHandbookDisease?.nonPharmAdvice?.join('\n') || scenario.clinicalOutcome?.explanation?.en || scenario.clinicalOutcome?.recommendation?.en)}
-                  </p>
-                </div>
+                {/* Non-Pharmacological & Self-Care Advice (Categorized & Structured Items) */}
+                {(() => {
+                  let items: string[] = [];
+                  if (Array.isArray(linkedHandbookDisease?.nonPharmAdvice) && linkedHandbookDisease.nonPharmAdvice.length > 0) {
+                    items = linkedHandbookDisease.nonPharmAdvice;
+                  } else {
+                    const raw = isFa
+                      ? (scenario.clinicalOutcome?.explanation?.fa || scenario.clinicalOutcome?.recommendation?.fa || '')
+                      : (scenario.clinicalOutcome?.explanation?.en || scenario.clinicalOutcome?.recommendation?.en || '');
+                    if (raw) {
+                      items = raw
+                        .split(/(?:\r?\n|[.;]\s+)/)
+                        .map((s) => s.trim())
+                        .filter((s) => s.length > 3);
+                    }
+                  }
+
+                  if (items.length === 0) return null;
+
+                  return (
+                    <div className="p-4 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 space-y-3">
+                      <div className="flex items-center justify-between text-xs font-bold text-emerald-300 border-b border-emerald-500/20 pb-2">
+                        <span className="flex items-center gap-1.5">
+                          <Sparkles className="w-4 h-4 text-emerald-400" />
+                          <span>{isFa ? 'توصیه‌های خودمراقبتی و اقدامات غیردارویی (دسته‌بندی‌شده):' : 'Non-Pharmacological & Supportive Care:'}</span>
+                        </span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-bold">
+                          {items.length} {isFa ? 'راهکار' : 'Points'}
+                        </span>
+                      </div>
+
+                      <div className="space-y-2">
+                        {items.map((item, idx) => (
+                          <div
+                            key={idx}
+                            className="p-2.5 sm:p-3 rounded-xl bg-black/40 border border-emerald-500/20 flex items-start gap-2.5 text-xs sm:text-[12.5px] text-slate-200 shadow-xs"
+                          >
+                            <span className="w-5 h-5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center font-mono font-bold text-[10px] shrink-0 mt-0.5">
+                              {idx + 1}
+                            </span>
+                            <p className="leading-relaxed flex-1 text-slate-200">
+                              {item.endsWith('.') ? item : `${item}.`}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Bottom Quick Navigation to OTC Medicines */}
