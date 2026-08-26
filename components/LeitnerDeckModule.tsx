@@ -785,23 +785,27 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
         setDragOffset({ x: 0, y: 0 });
       }
     } else if (deltaX > thresholdX) {
-      // Swiped Right -> GOOD (بلدم)
+      // SWIPED RIGHT -> SELECT BETWEEN EASY (TOP-RIGHT) & GOOD (BOTTOM-RIGHT / HORIZONTAL)
+      const isEasy = deltaY < -15; // Swiping towards top-right triggers EASY
+      const rating = isEasy ? 'easy' : 'good';
       if (typeof window !== 'undefined' && 'navigator' in window && navigator.vibrate) {
-        try { navigator.vibrate(15); } catch {}
+        try { navigator.vibrate(isEasy ? [10, 20, 10] : 15); } catch {}
       }
-      setDragOffset({ x: window.innerWidth, y: dragOffset.y });
+      setDragOffset({ x: window.innerWidth, y: isEasy ? -window.innerHeight * 0.3 : dragOffset.y });
       setTimeout(() => {
-        handleRateCard('good');
+        handleRateCard(rating);
         setDragOffset({ x: 0, y: 0 });
       }, 150);
     } else if (deltaX < -thresholdX) {
-      // Swiped Left -> AGAIN (مرور مجدد)
+      // SWIPED LEFT -> SELECT BETWEEN HARD (TOP-LEFT) & AGAIN (BOTTOM-LEFT / HORIZONTAL)
+      const isHard = deltaY < -15; // Swiping towards top-left triggers HARD
+      const rating = isHard ? 'hard' : 'again';
       if (typeof window !== 'undefined' && 'navigator' in window && navigator.vibrate) {
-        try { navigator.vibrate(25); } catch {}
+        try { navigator.vibrate(isHard ? 20 : 30); } catch {}
       }
-      setDragOffset({ x: -window.innerWidth, y: dragOffset.y });
+      setDragOffset({ x: -window.innerWidth, y: isHard ? -window.innerHeight * 0.3 : dragOffset.y });
       setTimeout(() => {
-        handleRateCard('again');
+        handleRateCard(rating);
         setDragOffset({ x: 0, y: 0 });
       }, 150);
     } else {
@@ -1236,25 +1240,73 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                 {/* ACTIVE CARD & CONTROLS */}
                 <div className="space-y-3 w-full relative">
                   {/* TINDER & GESTURE SWIPE STAMP OVERLAYS */}
-                  {/* 1. SWIPED RIGHT -> GOOD (بلدم) */}
+                  {/* 1. SWIPED RIGHT -> EASY (TOP-RIGHT) vs GOOD (BOTTOM-RIGHT) */}
                   {dragOffset.x > 35 && Math.abs(dragOffset.x) > Math.abs(dragOffset.y) && (
-                    <div
-                      className="absolute top-6 end-6 z-30 px-4 py-2 rounded-2xl border-4 border-emerald-400 bg-emerald-950/90 text-emerald-300 font-black text-sm sm:text-base tracking-wider uppercase shadow-2xl rotate-12 flex items-center gap-2 pointer-events-none animate-in fade-in zoom-in-95"
-                      style={{ opacity: Math.min(1, dragOffset.x / 90) }}
-                    >
-                      <ThumbsUp className="w-5 h-5 text-emerald-400" />
-                      <span>{isFa ? 'بلدم (GOOD)' : 'GOOD'}</span>
+                    <div className="absolute top-4 end-4 z-30 flex flex-col gap-2 pointer-events-none">
+                      {/* EASY STAMP (ACTIVE WHEN DRAGGING TOWARDS TOP-RIGHT) */}
+                      <div
+                        className={`px-3.5 py-1.5 rounded-2xl border-3 transition-all flex items-center gap-1.5 shadow-2xl ${
+                          dragOffset.y < -15
+                            ? 'scale-110 border-sky-400 bg-sky-950/95 text-sky-200 ring-4 ring-sky-400/40 shadow-sky-500/40'
+                            : 'opacity-50 border-sky-600/60 bg-sky-950/70 text-sky-400'
+                        }`}
+                        style={{ opacity: Math.max(0.4, Math.min(1, dragOffset.x / 90)) }}
+                      >
+                        <Zap className="w-4 h-4 text-sky-300 animate-pulse" />
+                        <span className="font-black text-xs sm:text-sm tracking-wide">
+                          {isFa ? '⚡ آسان (EASY)' : '⚡ EASY'}
+                        </span>
+                      </div>
+
+                      {/* GOOD STAMP (ACTIVE WHEN DRAGGING HORIZONTALLY / BOTTOM-RIGHT) */}
+                      <div
+                        className={`px-3.5 py-1.5 rounded-2xl border-3 transition-all flex items-center gap-1.5 shadow-2xl ${
+                          dragOffset.y >= -15
+                            ? 'scale-110 border-emerald-400 bg-emerald-950/95 text-emerald-200 ring-4 ring-emerald-400/40 shadow-emerald-500/40'
+                            : 'opacity-50 border-emerald-600/60 bg-emerald-950/70 text-emerald-400'
+                        }`}
+                        style={{ opacity: Math.max(0.4, Math.min(1, dragOffset.x / 90)) }}
+                      >
+                        <ThumbsUp className="w-4 h-4 text-emerald-300" />
+                        <span className="font-black text-xs sm:text-sm tracking-wide">
+                          {isFa ? '👍 خوب (GOOD)' : '👍 GOOD'}
+                        </span>
+                      </div>
                     </div>
                   )}
 
-                  {/* 2. SWIPED LEFT -> AGAIN (مرور مجدد) */}
+                  {/* 2. SWIPED LEFT -> HARD (TOP-LEFT) vs AGAIN (BOTTOM-LEFT) */}
                   {dragOffset.x < -35 && Math.abs(dragOffset.x) > Math.abs(dragOffset.y) && (
-                    <div
-                      className="absolute top-6 start-6 z-30 px-4 py-2 rounded-2xl border-4 border-rose-500 bg-rose-950/90 text-rose-300 font-black text-sm sm:text-base tracking-wider uppercase shadow-2xl -rotate-12 flex items-center gap-2 pointer-events-none animate-in fade-in zoom-in-95"
-                      style={{ opacity: Math.min(1, Math.abs(dragOffset.x) / 90) }}
-                    >
-                      <RotateCcw className="w-5 h-5 text-rose-400" />
-                      <span>{isFa ? 'مرور مجدد (AGAIN)' : 'AGAIN'}</span>
+                    <div className="absolute top-4 start-4 z-30 flex flex-col gap-2 pointer-events-none">
+                      {/* HARD STAMP (ACTIVE WHEN DRAGGING TOWARDS TOP-LEFT) */}
+                      <div
+                        className={`px-3.5 py-1.5 rounded-2xl border-3 transition-all flex items-center gap-1.5 shadow-2xl ${
+                          dragOffset.y < -15
+                            ? 'scale-110 border-amber-400 bg-amber-950/95 text-amber-200 ring-4 ring-amber-400/40 shadow-amber-500/40'
+                            : 'opacity-50 border-amber-600/60 bg-amber-950/70 text-amber-400'
+                        }`}
+                        style={{ opacity: Math.max(0.4, Math.min(1, Math.abs(dragOffset.x) / 90)) }}
+                      >
+                        <AlertCircle className="w-4 h-4 text-amber-300 animate-pulse" />
+                        <span className="font-black text-xs sm:text-sm tracking-wide">
+                          {isFa ? '⚠️ سخت (HARD)' : '⚠️ HARD'}
+                        </span>
+                      </div>
+
+                      {/* AGAIN STAMP (ACTIVE WHEN DRAGGING HORIZONTALLY / BOTTOM-LEFT) */}
+                      <div
+                        className={`px-3.5 py-1.5 rounded-2xl border-3 transition-all flex items-center gap-1.5 shadow-2xl ${
+                          dragOffset.y >= -15
+                            ? 'scale-110 border-rose-500 bg-rose-950/95 text-rose-200 ring-4 ring-rose-500/40 shadow-rose-500/40'
+                            : 'opacity-50 border-rose-600/60 bg-rose-950/70 text-rose-400'
+                        }`}
+                        style={{ opacity: Math.max(0.4, Math.min(1, Math.abs(dragOffset.x) / 90)) }}
+                      >
+                        <RotateCcw className="w-4 h-4 text-rose-300" />
+                        <span className="font-black text-xs sm:text-sm tracking-wide">
+                          {isFa ? '🔄 تکرار (AGAIN)' : '🔄 AGAIN'}
+                        </span>
+                      </div>
                     </div>
                   )}
 
@@ -1627,18 +1679,14 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                     >
                       <div className="flex items-center gap-2 text-purple-300">
                         <Eye className="w-4 h-4 text-purple-400 group-hover:scale-110 transition" />
-                        <span>{isFa ? 'لمس یا کلیک برای نمایش پاسخ' : 'Tap to reveal answer'}</span>
+                        <span>{isFa ? 'لمس برای پاسخ' : 'Tap for answer'}</span>
                       </div>
-                      <div className="flex items-center gap-2.5 text-[11px] text-slate-400 font-normal">
-                        <span className="flex items-center gap-1 text-cyan-300 font-medium">
-                          <span>↓</span>
-                          <span>{isFa ? 'سوایپ به پایین: پاسخ' : 'Swipe Down: Answer'}</span>
-                        </span>
+                      <div className="flex items-center gap-2 text-[10.5px] text-slate-400 font-normal flex-wrap">
+                        <span className="text-emerald-300 font-medium">{isFa ? '→ راست: خوب / آسان' : '→ Right: Good/Easy'}</span>
                         <span className="text-slate-600">•</span>
-                        <span className="flex items-center gap-1 text-amber-300 font-medium">
-                          <span>↑</span>
-                          <span>{isFa ? 'سوایپ به بالا: ستاره ⭐' : 'Swipe Up: Star ⭐'}</span>
-                        </span>
+                        <span className="text-rose-300 font-medium">{isFa ? '← چپ: تکرار / سخت' : '← Left: Again/Hard'}</span>
+                        <span className="text-slate-600">•</span>
+                        <span className="text-amber-300 font-medium">{isFa ? '↑ ستاره ⭐' : '↑ Star ⭐'}</span>
                       </div>
                     </div>
                   ) : (
