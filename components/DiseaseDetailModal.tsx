@@ -286,7 +286,7 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
     ? (firstLineData?.drugClassFa || 'داروی استاندارد خط اول (First-Line Pharmacotherapy)')
     : (firstLineData?.drugClassEn || 'Standard First-Line Pharmacotherapy');
 
-  // Build Comprehensive Medicines Deck (First-Line + Second-Line Alternatives + Approved OTCs)
+  // Build Comprehensive Medicines Deck (First-Line + Second-Line Alternatives + Approved Options)
   const medicines: (OTCDrugInfo & {
     tier: 'first-line' | 'second-line' | 'adjunctive';
     roleExplanation?: { fa: string; en: string };
@@ -294,76 +294,88 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
   })[] = [];
   const addedNames = new Set<string>();
 
-  // 1. Add First-Line Standard Pharmacotherapy as primary card
-  if (firstLineDrug) {
-    medicines.push({
-      name: firstLineDrug,
-      brandExamples: firstLineData?.keyBrands?.join(', ') || primaryBrand,
-      dosing: rawDosing || (isFa ? 'مطابق با پروتکل استاندارد دوزینگ بالینی استرالیا.' : 'Follow Australian standard clinical dosing protocol.'),
-      minAge: baseMedicines[0]?.minAge || 'Adults & Children >12y',
-      pregnancySafety: baseMedicines[0]?.pregnancySafety || 'Check Category',
-      breastfeedingSafety: baseMedicines[0]?.breastfeedingSafety || 'Compatible',
-      extraInfo: firstLineData?.keyWarningsFa || firstLineData?.keyWarningsEn || '',
-      tier: 'first-line',
-      drugClass: firstLineClass,
-      roleExplanation: {
-        fa: '🥇 خط اول درمان استاندارد طلایی (Gold Standard) بر اساس فارماکوپه داروسازی استرالیا (APF) و انجمن داروسازان (PSA).',
-        en: '🥇 First-Line Gold Standard Pharmacotherapy according to Australian Pharmacy Formulary (APF) & PSA guidelines.',
-      },
+  // 1. If baseMedicines has rich structured monographs, use them with full priority
+  if (baseMedicines.length > 0) {
+    baseMedicines.forEach((m, idx) => {
+      const norm = m.name.toLowerCase();
+      if (!addedNames.has(norm)) {
+        const tier = idx === 0 ? 'first-line' : (idx === 1 ? 'second-line' : 'adjunctive');
+        const roleExp = tier === 'first-line'
+          ? {
+              fa: '🥇 خط اول درمان استاندارد طلایی (Gold Standard) بر اساس فارماکوپه داروسازی استرالیا (APF) و گایدلاین‌های بالینی PSA/AMH.',
+              en: '🥇 First-Line Gold Standard Pharmacotherapy per Australian Pharmacy Formulary (APF) & PSA/AMH clinical guidelines.',
+            }
+          : tier === 'second-line'
+          ? {
+              fa: '🥈 خط دوم / درمان جایگزین بالینی در صورت عدم پاسخ به خط اول یا وجود کنترااندیکاسیون.',
+              en: '🥈 Second-Line / Alternative clinical therapy for inadequate response or contraindications.',
+            }
+          : {
+              fa: '💊 داروی کمکی / گزینه درمانی تکمیلی تأییدشده در پروتکل‌های درمانی استرالیا.',
+              en: '💊 Adjunctive / Approved supplementary therapy in Australian clinical protocols.',
+            };
+
+        medicines.push({
+          ...m,
+          tier,
+          roleExplanation: roleExp,
+        });
+        addedNames.add(norm);
+      }
     });
-    addedNames.add(firstLineDrug.toLowerCase());
-  }
-
-  // 2. Add Second-Line / Clinical Alternative Therapy with precise parsed drug name
-  const altDrugParsed = extractSpecificAlternativeDrug(
-    firstLineData?.alternativesFa,
-    firstLineData?.alternativesEn,
-    australianBrands
-  );
-
-  if (altDrugParsed) {
-    const altDrugName = isFa ? altDrugParsed.nameFa : altDrugParsed.nameEn;
-    const normAltName = altDrugName.toLowerCase();
-    
-    // Check if not already added
-    const isDup = Array.from(addedNames).some(name => normAltName.includes(name) || name.includes(normAltName));
-    if (!isDup) {
+  } else {
+    // Fallback: If no baseMedicines defined, synthesize from firstLineData & translations
+    if (firstLineDrug) {
       medicines.push({
-        name: altDrugName,
-        brandExamples: altDrugParsed.brandExamples,
-        dosing: isFa ? altDrugParsed.dosingFa : altDrugParsed.dosingEn,
-        minAge: baseMedicines[1]?.minAge || baseMedicines[0]?.minAge || 'Standard age range',
-        pregnancySafety: baseMedicines[1]?.pregnancySafety || 'Consult Pharmacist',
-        breastfeedingSafety: baseMedicines[1]?.breastfeedingSafety || 'Compatible with monitoring',
-        extraInfo: isFa ? altDrugParsed.reasonFa : altDrugParsed.reasonEn,
-        tier: 'second-line',
+        name: firstLineDrug,
+        brandExamples: firstLineData?.keyBrands?.join(', ') || primaryBrand,
+        dosing: rawDosing || (isFa ? 'مطابق با پروتکل استاندارد دوزینگ بالینی استرالیا.' : 'Follow Australian standard clinical dosing protocol.'),
+        minAge: 'Adults & Children >12y',
+        pregnancySafety: 'Check Category',
+        breastfeedingSafety: 'Compatible',
+        extraInfo: firstLineData?.keyWarningsFa || firstLineData?.keyWarningsEn || '',
+        tier: 'first-line',
+        drugClass: firstLineClass,
         roleExplanation: {
-          fa: `🥈 خط دوم / درمان جایگزین بالینی: ${altDrugParsed.reasonFa}`,
-          en: `🥈 Second-Line / Clinical Alternative: ${altDrugParsed.reasonEn}`,
+          fa: '🥇 خط اول درمان استاندارد طلایی (Gold Standard) بر اساس فارماکوپه داروسازی استرالیا (APF) و انجمن داروسازان (PSA).',
+          en: '🥇 First-Line Gold Standard Pharmacotherapy according to Australian Pharmacy Formulary (APF) & PSA guidelines.',
         },
       });
-      addedNames.add(normAltName);
+      addedNames.add(firstLineDrug.toLowerCase());
+    }
+
+    const altDrugParsed = extractSpecificAlternativeDrug(
+      firstLineData?.alternativesFa,
+      firstLineData?.alternativesEn,
+      australianBrands
+    );
+
+    if (altDrugParsed) {
+      const altDrugName = isFa ? altDrugParsed.nameFa : altDrugParsed.nameEn;
+      const normAltName = altDrugName.toLowerCase();
+      
+      const isDup = Array.from(addedNames).some(name => normAltName.includes(name) || name.includes(normAltName));
+      if (!isDup) {
+        medicines.push({
+          name: altDrugName,
+          brandExamples: altDrugParsed.brandExamples,
+          dosing: isFa ? altDrugParsed.dosingFa : altDrugParsed.dosingEn,
+          minAge: 'Standard age range',
+          pregnancySafety: 'Consult Pharmacist',
+          breastfeedingSafety: 'Compatible with monitoring',
+          extraInfo: isFa ? altDrugParsed.reasonFa : altDrugParsed.reasonEn,
+          tier: 'second-line',
+          roleExplanation: {
+            fa: `🥈 خط دوم / درمان جایگزین بالینی: ${altDrugParsed.reasonFa}`,
+            en: `🥈 Second-Line / Clinical Alternative: ${altDrugParsed.reasonEn}`,
+          },
+        });
+        addedNames.add(normAltName);
+      }
     }
   }
 
-  // 3. Add Existing Base Medicines (from Handbook / Registry)
-  for (const m of baseMedicines) {
-    const normName = m.name.toLowerCase();
-    const isDup = Array.from(addedNames).some(name => normName.includes(name) || name.includes(normName));
-    if (!isDup) {
-      medicines.push({
-        ...m,
-        tier: 'adjunctive',
-        roleExplanation: {
-          fa: '💊 داروی کمکی / گزینه درمانی بدون نسخه (OTC) مجاز.',
-          en: '💊 Adjunctive therapy / Approved OTC option.',
-        },
-      });
-      addedNames.add(normName);
-    }
-  }
-
-  // 4. Add additional unique Australian commercial brands
+  // 2. Add any additional unique commercial brands that are not yet covered
   for (const b of australianBrands) {
     const normGeneric = (b.generic || '').toLowerCase();
     if (normGeneric && !Array.from(addedNames).some(name => normGeneric.includes(name) || name.includes(normGeneric))) {
@@ -788,17 +800,38 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
             <div className="space-y-4 animate-fadeIn">
               {medicines.length > 0 ? (
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-bold text-xs sm:text-sm app-text flex items-center gap-1.5 text-indigo-300">
-                      <Pill className="w-4 h-4 text-indigo-400 shrink-0" />
-                      <span>{isFa ? 'داروهای بدون نسخه، برندهای استرالیایی و دوزینگ:' : 'Approved OTC Medicines, Brands & Dosing:'}</span>
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b app-border pb-2">
+                    <h4 className="font-bold text-xs sm:text-sm app-text flex items-center gap-1.5 text-indigo-700 dark:text-indigo-300">
+                      <Pill className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                      <span>{isFa ? 'داروهای درمانی، برندهای استرالیایی و مونوگراف بالینی:' : 'Clinical Pharmacotherapies, Australian Brands & Dosing:'}</span>
                     </h4>
-                    <span className="text-[10px] sm:text-[11px] app-muted font-mono">{medicines.length} {isFa ? 'دارو' : 'options'}</span>
+                    
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const allOpen = medicines.every((_, i) => expandedMedIds[i]);
+                          const nextState: Record<number, boolean> = {};
+                          medicines.forEach((_, i) => {
+                            nextState[i] = !allOpen;
+                          });
+                          setExpandedMedIds(nextState);
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 text-[11px] font-bold transition cursor-pointer"
+                      >
+                        {medicines.every((_, i) => expandedMedIds[i]) 
+                          ? (isFa ? 'بستن همه' : 'Collapse All') 
+                          : (isFa ? 'باز کردن همه' : 'Expand All')}
+                      </button>
+                      <span className="text-[11px] app-muted font-mono font-bold bg-slate-500/10 px-2 py-0.5 rounded-md">
+                        {medicines.length} {isFa ? 'دارو' : 'options'}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 gap-2.5 sm:gap-3">
                     {medicines.map((med: any, idx: number) => {
-                      const isExpanded = !!expandedMedIds[idx];
+                      const isExpanded = expandedMedIds[idx] ?? true;
                       const enriched = resolveDrugMonographDetails(med.name, med.brandExamples, med.dosing, med.extraInfo, med.tier);
                       const medDosingSegments = parseDosingToSegments(med.dosing, isFa);
                       const medNotes = parseExtraInfoToNotes(med.extraInfo);

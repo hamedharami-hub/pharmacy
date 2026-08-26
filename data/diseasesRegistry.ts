@@ -337,7 +337,44 @@ const CORE_CLINICAL_DISEASES: DiseaseInfo[] = [
       fa: ['تشدید حاد تنفسی با ترشحات چرکی سبز/قهوه‌ای', 'افت اشباع اکسیژن خون کمتر از ۸۸٪', 'سیانوز، خواب‌آلودگی یا هیپرکاپنی'],
       en: ['Acute exacerbation with increased sputum volume and purulence', 'Oxygen saturation falling below 88%', 'Drowsiness, cyanosis, or acute respiratory failure'],
     },
-    medicines: [],
+    medicines: [
+      {
+        name: 'Tiotropium Bromide 18mcg Inhalation Powder',
+        brandExamples: 'Spiriva HandiHaler, Spiriva Respimat',
+        dosing: 'Inhale contents of 1 capsule (18mcg) once daily at the same time each day using HandiHaler device.',
+        pregnancySafety: 'Category B1.',
+        breastfeedingSafety: 'Compatible with monitoring.',
+        minAge: 'Adults',
+        extraInfo: 'LAMA bronchodilator. Capsules must never be swallowed; rinse mouth after use.'
+      },
+      {
+        name: 'Fluticasone Furoate / Umeclidinium / Vilanterol',
+        brandExamples: 'Trelegy Ellipta 100/62.5/25mcg',
+        dosing: 'Inhale 1 blister once daily in the morning using Ellipta inhaler.',
+        pregnancySafety: 'Category B3.',
+        breastfeedingSafety: 'Caution advised.',
+        minAge: 'Adults',
+        extraInfo: 'Single-inhaler triple therapy (ICS/LAMA/LABA) for frequent exacerbators.'
+      },
+      {
+        name: 'Salmeterol / Fluticasone 50/250mcg',
+        brandExamples: 'Seretide Accuhaler',
+        dosing: 'Inhale 1 inhalation twice daily (morning and evening).',
+        pregnancySafety: 'Category B3.',
+        breastfeedingSafety: 'Compatible.',
+        minAge: 'Adults',
+        extraInfo: 'Combination LABA/ICS. Rinse and spit after every dose to avoid candidiasis.'
+      },
+      {
+        name: 'Ipratropium Bromide 21mcg MDI',
+        brandExamples: 'Atrovent MDI',
+        dosing: '2 puffs 3-4 times daily as required (max 12 puffs/day).',
+        pregnancySafety: 'Category B1.',
+        breastfeedingSafety: 'Compatible.',
+        minAge: 'All ages',
+        extraInfo: 'Short-acting muscarinic antagonist (SAMA). Use with spacer.'
+      }
+    ],
     nonPharmAdvice: [
       'Enroll in Pulmonary Rehabilitation programs.',
       'Practice pursed-lip breathing to relieve exertional breathlessness.',
@@ -384,7 +421,44 @@ const CORE_CLINICAL_DISEASES: DiseaseInfo[] = [
       fa: ['بحران فشار خون (فشار سیستولی >۱۸۰ یا دیاستولی >۱۲۰) همراه با درد قفسه سینه، تاری دید یا سردرد شدید', 'علائم سکته مغزی (FAST: افتادگی صورت، ضعف دست، اختلال تکلم)'],
       en: ['Hypertensive Crisis (SBP >180 or DBP >120) with chest pain, vision changes, or severe headache', 'Acute stroke symptoms (FAST protocol: Facial droop, Arm weakness, Speech difficulty)'],
     },
-    medicines: [],
+    medicines: [
+      {
+        name: 'Perindopril Arginine 5mg - 10mg Tablets',
+        brandExamples: 'Coversyl',
+        dosing: '5mg once daily in the morning; increase to 10mg once daily after 4 weeks if needed.',
+        pregnancySafety: 'Category D (Strictly contraindicated in pregnancy - fetal toxicity).',
+        breastfeedingSafety: 'Caution advised; Enalapril preferred in lactation.',
+        minAge: 'Adults',
+        extraInfo: 'ACE inhibitor. Monitor for persistent dry cough and hyperkalemia. Avoid potassium supplements.'
+      },
+      {
+        name: 'Telmisartan 40mg - 80mg Tablets',
+        brandExamples: 'Micardis',
+        dosing: '40mg once daily; may increase to 80mg once daily for resistant hypertension.',
+        pregnancySafety: 'Category D (Contraindicated in pregnancy).',
+        breastfeedingSafety: 'Not recommended.',
+        minAge: 'Adults',
+        extraInfo: 'Angiotensin II Receptor Blocker (ARB). Ideal first-line alternative if ACEi dry cough occurs.'
+      },
+      {
+        name: 'Amlodipine Besylate 5mg - 10mg Tablets',
+        brandExamples: 'Norvasc',
+        dosing: '5mg once daily; may increase to 10mg once daily after 1-2 weeks.',
+        pregnancySafety: 'Category C (Avoid unless essential).',
+        breastfeedingSafety: 'Compatible.',
+        minAge: 'Adults',
+        extraInfo: 'Dihydropyridine Calcium Channel Blocker (CCB). Monitor for dose-dependent peripheral ankle edema.'
+      },
+      {
+        name: 'Indapamide 1.5mg SR Tablets',
+        brandExamples: 'Natrilix SR',
+        dosing: '1 tablet (1.5mg) once daily in the morning with food.',
+        pregnancySafety: 'Category C.',
+        breastfeedingSafety: 'Avoid (may suppress lactation).',
+        minAge: 'Adults',
+        extraInfo: 'Thiazide-like diuretic. Monitor serum electrolytes (potassium, sodium) and uric acid.'
+      }
+    ],
     nonPharmAdvice: [
       'Reduce dietary sodium intake (<2000mg/day).',
       'Engage in regular aerobic exercise (30 minutes most days).',
@@ -432,7 +506,53 @@ const CORE_CLINICAL_DISEASES: DiseaseInfo[] = [
       fa: ['تنگی نفس حاد استراحتی یا حمله‌ای شبانه (PND)', 'ادم شدید بالا رونده پاها تا بالای زانو', 'سبکی سر، سرگیجه وضعیتی شدید یا سنکوپ'],
       en: ['Acute pulmonary edema, orthopnea, or Paroxysmal Nocturnal Dyspnea', 'Rapidly worsening peripheral edema to thighs', 'Syncope, acute confusion, or profound hypotension'],
     },
-    medicines: [],
+    medicines: [
+      {
+        name: 'Sacubitril / Valsartan 24/26mg, 49/51mg, 97/103mg',
+        brandExamples: 'Entresto',
+        dosing: 'Start 49/51mg twice daily (or 24/26mg if low baseline BP); target dose 97/103mg twice daily.',
+        pregnancySafety: 'Category D (Strictly contraindicated).',
+        breastfeedingSafety: 'Not recommended.',
+        minAge: 'Adults',
+        extraInfo: 'ARNI (Angiotensin Receptor-Neprilysin Inhibitor). Requires mandatory 36-hour washout when switching from ACE inhibitors to avoid angioedema.'
+      },
+      {
+        name: 'Bisoprolol Fumarate 1.25mg - 10mg Tablets',
+        brandExamples: 'Cardicor, Bisoprolol Sandoz',
+        dosing: 'Start 1.25mg once daily morning; titrate slowly every 2-4 weeks to target 10mg daily.',
+        pregnancySafety: 'Category C.',
+        breastfeedingSafety: 'Monitor infant for bradycardia.',
+        minAge: 'Adults',
+        extraInfo: 'Cardioselective beta-1 blocker with proven mortality reduction in HFrEF. Do not stop abruptly.'
+      },
+      {
+        name: 'Spironolactone 25mg - 50mg Tablets',
+        brandExamples: 'Aldactone',
+        dosing: '25mg once daily with morning meal; titrate to 50mg daily based on potassium/eGFR.',
+        pregnancySafety: 'Category B3.',
+        breastfeedingSafety: 'Compatible.',
+        minAge: 'Adults',
+        extraInfo: 'Mineralocorticoid receptor antagonist (MRA). Monitor serum potassium and creatinine at 1, 4, and 12 weeks.'
+      },
+      {
+        name: 'Dapagliflozin 10mg Tablets',
+        brandExamples: 'Forxiga',
+        dosing: '10mg once daily in the morning with or without food.',
+        pregnancySafety: 'Category D.',
+        breastfeedingSafety: 'Not recommended.',
+        minAge: 'Adults',
+        extraInfo: 'SGLT2 inhibitor for HFrEF and HFpEF. Counsel on genital perineal hygiene and hydration.'
+      },
+      {
+        name: 'Frusemide 40mg Tablets',
+        brandExamples: 'Lasix, Urex',
+        dosing: '20-40mg once or twice daily (morning/midday to avoid nocturia); adjust per weight changes.',
+        pregnancySafety: 'Category C.',
+        breastfeedingSafety: 'Compatible with monitoring.',
+        minAge: 'All ages',
+        extraInfo: 'Loop diuretic for symptomatic congestion relief. Flexible self-dosing based on daily weight.'
+      }
+    ],
     nonPharmAdvice: [
       'Fluid restriction (typically 1.5-2L daily) in symptomatic fluid overload.',
       'Low sodium diet (<2g daily).',
@@ -479,7 +599,53 @@ const CORE_CLINICAL_DISEASES: DiseaseInfo[] = [
       fa: ['علائم سکته مغزی ایسکمیک (فلج نیمی از بدن، تاری دید، تکلم نامفهوم)', 'خونریزی ماژور گوارشی یا استفراغ خونی', 'سردرد شدید ناگهانی (شک به خونریزی مغزی)'],
       en: ['FAST stroke signs: facial drooping, arm weakness, slurred speech', 'Major hemorrhage or coffee-ground hematemesis', 'Sudden severe thunderclap headache'],
     },
-    medicines: [],
+    medicines: [
+      {
+        name: 'Apixaban 2.5mg / 5mg Tablets',
+        brandExamples: 'Eliquis',
+        dosing: '5mg twice daily with or without food. Reduce to 2.5mg twice daily if ≥2 criteria: age ≥80y, weight ≤60kg, serum creatinine ≥133µmol/L.',
+        pregnancySafety: 'Category C (Avoid).',
+        breastfeedingSafety: 'Not recommended.',
+        minAge: 'Adults',
+        extraInfo: 'Direct Factor Xa inhibitor (DOAC). High adherence critical due to short 12h half-life. No routine INR required.'
+      },
+      {
+        name: 'Rivaroxaban 15mg / 20mg Tablets',
+        brandExamples: 'Xarelto',
+        dosing: '20mg once daily with the evening meal (15mg once daily if CrCl 30-49 mL/min).',
+        pregnancySafety: 'Category C (Avoid).',
+        breastfeedingSafety: 'Not recommended.',
+        minAge: 'Adults',
+        extraInfo: 'Factor Xa inhibitor. Must be taken WITH FOOD to ensure adequate bioavailability for 15mg and 20mg tablets.'
+      },
+      {
+        name: 'Warfarin Sodium 1mg, 2mg, 3mg, 5mg Tablets',
+        brandExamples: 'Coumadin, Marevan (Do not interchange brands)',
+        dosing: 'Individualised based on INR monitoring (target INR 2.0 - 3.0 for non-valvular AF). Taken at 6:00 PM daily.',
+        pregnancySafety: 'Category D (Teratogenic - strictly contraindicated).',
+        breastfeedingSafety: 'Compatible with infant monitoring.',
+        minAge: 'All ages',
+        extraInfo: 'Vitamin K antagonist. Brands Coumadin and Marevan are NOT bioequivalent and must NOT be substituted. Maintain stable dietary vitamin K.'
+      },
+      {
+        name: 'Metoprolol Succinate 23.75mg - 190mg Tablets',
+        brandExamples: 'Betaloc CR, Minax',
+        dosing: '50-100mg once daily morning for ventricular rate control in AF.',
+        pregnancySafety: 'Category C.',
+        breastfeedingSafety: 'Compatible.',
+        minAge: 'Adults',
+        extraInfo: 'Cardioselective beta-blocker for ventricular rate control. Swallow whole, do not chew.'
+      },
+      {
+        name: 'Digoxin 62.5mcg - 250mcg Tablets',
+        brandExamples: 'Lanoxin PG (62.5mcg), Lanoxin (250mcg)',
+        dosing: '125-250mcg once daily (62.5mcg in renal impairment / elderly).',
+        pregnancySafety: 'Category A.',
+        breastfeedingSafety: 'Compatible.',
+        minAge: 'All ages',
+        extraInfo: 'Cardiac glycoside for rate control in sedentary AF patients. Narrow therapeutic index (target level 0.5-0.9 ng/mL).'
+      }
+    ],
     nonPharmAdvice: [
       'Carry an Anticoagulant Alert Card or Medical Alert bracelet.',
       'Limit alcohol consumption.',
@@ -526,7 +692,44 @@ const CORE_CLINICAL_DISEASES: DiseaseInfo[] = [
       fa: ['میوپاتی شدید و رابدوومیولیز با ادرار چای‌مانند و نارسایی حاد کلیه', 'زردی پوست و چشم‌ها و تهوع شدید ناشی از سمیت کبدی'],
       en: ['Rhabdomyolysis presenting with severe proximal muscle weakness and dark tea-colored urine', 'Jaundice and markedly elevated hepatic transaminases (>3x ULN)'],
     },
-    medicines: [],
+    medicines: [
+      {
+        name: 'Atorvastatin 10mg, 20mg, 40mg, 80mg Tablets',
+        brandExamples: 'Lipitor, Lorstat, Atorvachol',
+        dosing: '20-80mg once daily at any time of day with or without food. Titrate after 4 weeks.',
+        pregnancySafety: 'Category D (Strictly contraindicated in pregnancy and breastfeeding).',
+        breastfeedingSafety: 'Contraindicated.',
+        minAge: 'Adults & Children >10y',
+        extraInfo: 'HMG-CoA reductase inhibitor. Potent LDL-C reduction (>50% with 40-80mg). Report unexplained muscle aches or dark urine.'
+      },
+      {
+        name: 'Rosuvastatin 5mg, 10mg, 20mg, 40mg Tablets',
+        brandExamples: 'Crestor, Rosumed',
+        dosing: '10-20mg once daily; max 40mg daily (max 20mg in Asian patients or severe renal impairment).',
+        pregnancySafety: 'Category D (Contraindicated).',
+        breastfeedingSafety: 'Contraindicated.',
+        minAge: 'Adults & Children >10y',
+        extraInfo: 'Hydrophilic high-intensity statin with lower risk of CYP-mediated drug interactions.'
+      },
+      {
+        name: 'Ezetimibe 10mg Tablets',
+        brandExamples: 'Ezetrol',
+        dosing: '10mg once daily with or without food, alone or combined with a statin.',
+        pregnancySafety: 'Category B3 (Avoid with statins).',
+        breastfeedingSafety: 'Not recommended.',
+        minAge: 'Adults & Children >10y',
+        extraInfo: 'Niemann-Pick C1-Like 1 (NPC1L1) inhibitor. Blocks intestinal cholesterol absorption; provides extra 15-20% LDL reduction when added to statin.'
+      },
+      {
+        name: 'Fenofibrate 145mg Tablets',
+        brandExamples: 'Lipanthyl 145mg',
+        dosing: '145mg once daily with or without food.',
+        pregnancySafety: 'Category B3.',
+        breastfeedingSafety: 'Avoid.',
+        minAge: 'Adults',
+        extraInfo: 'PPAR-alpha agonist. First-line for severe hypertriglyceridemia (TG >10 mmol/L) to prevent acute pancreatitis.'
+      }
+    ],
     nonPharmAdvice: [
       'Adopt a Mediterranean-style diet rich in vegetables, legumes, whole grains, and healthy fats.',
       'Reduce saturated and trans fat intake.',
@@ -573,7 +776,53 @@ const CORE_CLINICAL_DISEASES: DiseaseInfo[] = [
       fa: ['کتواسیدوز دیابتی (DKA) همراه با بوی تنفس میوه‌ای (استون)، تهوع، استفراغ و تنفس کوسمال', 'افت شدید قند خون و از دست رفتن هوشیاری', 'زخم‌های پوستی بهبودنیابنده در پاها'],
       en: ['Diabetic Ketoacidosis (DKA) with fruity breath, Kussmaul breathing, and confusion', 'Severe hypoglycemia causing loss of consciousness or seizures', 'Non-healing foot ulcers or signs of gangrene'],
     },
-    medicines: [],
+    medicines: [
+      {
+        name: 'Metformin Hydrochloride 500mg, 850mg, 1000mg / XR 500mg, 1000mg',
+        brandExamples: 'Diabex, Diaformin, Diabex XR',
+        dosing: 'Start 500mg once daily with dinner; titrate weekly by 500mg to target 2000mg daily in divided doses (with meals).',
+        pregnancySafety: 'Category C (Commonly used under specialist guidance).',
+        breastfeedingSafety: 'Compatible.',
+        minAge: 'Adults & Children >10y',
+        extraInfo: 'Biguanide. First-line gold standard for T2DM. Must be taken WITH MEALS to minimize GI distress. Temporarily withhold before IV iodinated contrast.'
+      },
+      {
+        name: 'Empagliflozin 10mg, 25mg Tablets',
+        brandExamples: 'Jardiance',
+        dosing: '10mg once daily in the morning; may increase to 25mg daily for additional glycemic control.',
+        pregnancySafety: 'Category D (Contraindicated).',
+        breastfeedingSafety: 'Not recommended.',
+        minAge: 'Adults',
+        extraInfo: 'SGLT2 inhibitor. Proven cardiovascular and renal risk reduction. Counsel on mycotic genital infections and holding during fasting/surgery.'
+      },
+      {
+        name: 'Semaglutide 0.25mg, 0.5mg, 1mg Subcutaneous Pen',
+        brandExamples: 'Ozempic',
+        dosing: 'Start 0.25mg SC once weekly for 4 weeks, then increase to 0.5mg weekly. May increase to 1mg weekly after ≥4 weeks if needed.',
+        pregnancySafety: 'Category D (Discontinue at least 2 months prior to planned pregnancy).',
+        breastfeedingSafety: 'Not recommended.',
+        minAge: 'Adults',
+        extraInfo: 'GLP-1 Receptor Agonist. Delays gastric emptying and promotes satiety. Robust HbA1c and weight reduction. Store unused pens in refrigerator (2°C-8°C).'
+      },
+      {
+        name: 'Sitagliptin 100mg Tablets',
+        brandExamples: 'Januvia',
+        dosing: '100mg once daily with or without food (reduce dose if CrCl <50 mL/min).',
+        pregnancySafety: 'Category B3.',
+        breastfeedingSafety: 'Not recommended.',
+        minAge: 'Adults',
+        extraInfo: 'DPP-4 inhibitor. Weight-neutral, low intrinsic hypoglycemia risk. Do not combine with GLP-1 agonists.'
+      },
+      {
+        name: 'Gliclazide 30mg, 60mg Modified Release Tablets',
+        brandExamples: 'Diamicron 60mg MR',
+        dosing: '30-120mg once daily with breakfast.',
+        pregnancySafety: 'Category C (Avoid - insulin preferred in pregnancy).',
+        breastfeedingSafety: 'Avoid (risk of infant hypoglycemia).',
+        minAge: 'Adults',
+        extraInfo: 'Sulfonylurea insulin secretagogue. Educate patient on hypoglycemia symptoms and management (Rule of 15).'
+      }
+    ],
     nonPharmAdvice: [
       'Daily foot inspections for cuts, blisters, redness, or swelling.',
       'Annual dilated eye examinations for diabetic retinopathy.',
@@ -620,7 +869,17 @@ const CORE_CLINICAL_DISEASES: DiseaseInfo[] = [
       fa: ['کومای میکزدم (افت شدید دمای بدن، برادی‌کاردی شدید و کاهش سطح هوشیاری)', 'درد قفسه سینه یا تاکی‌آریتمی حاد پس از شروع یا افزایش دوز لووتیروکسین'],
       en: ['Myxedema coma (severe hypothermia, hypoventilation, altered mental state)', 'New onset angina or tachyarrhythmias after initiating thyroxine'],
     },
-    medicines: [],
+    medicines: [
+      {
+        name: 'Levothyroxine Sodium 25mcg, 50mcg, 75mcg, 100mcg, 125mcg, 200mcg',
+        brandExamples: 'Eutroxsig, Oroxine (Store refrigerated 2°C - 8°C in Australia)',
+        dosing: 'Adults: 50-100mcg daily; elderly/cardiac: 25mcg daily. Take once daily upon waking, 30-60 min before food with water.',
+        pregnancySafety: 'Category A (Essential in pregnancy - doses often increase by 30-50%).',
+        breastfeedingSafety: 'Compatible.',
+        minAge: 'All ages (neonatal drops/liquid available)',
+        extraInfo: 'Synthetic T4. Narrow therapeutic index. Store in refrigerator (2°C-8°C). Separate by ≥4h from calcium, iron, and antacids.'
+      }
+    ],
     nonPharmAdvice: [
       'Maintain consistent brand of levothyroxine to prevent bioavailability fluctuations.',
       'Check thyroid function tests (TSH) every 6-12 months once stabilized.'
@@ -666,7 +925,35 @@ const CORE_CLINICAL_DISEASES: DiseaseInfo[] = [
       fa: ['سردرد صاعقه‌ای ناگهانی بسیار شدید (Thunderclap Headache)', 'سردرد همراه با تب، سفتی گردن، راش یا نقص عصبی کانونی', 'تغییر ناگهانی در الگوی همیشگی سردرد در افراد بالای ۵۰ سال'],
       en: ['Sudden explosive thunderclap headache reaching maximum intensity within seconds', 'Headache with fever, meningism, or focal neurological deficits', 'New onset headache in individuals >50 years (suspect Giant Cell Arteritis)'],
     },
-    medicines: [],
+    medicines: [
+      {
+        name: 'Sumatriptan 50mg, 100mg Tablets',
+        brandExamples: 'Imigran, Sumagran',
+        dosing: '50-100mg at onset of headache; may repeat after 2 hours if headache recurs (max 300mg in 24 hours).',
+        pregnancySafety: 'Category B3.',
+        breastfeedingSafety: 'Withhold breastfeeding for 12 hours after dose.',
+        minAge: '18 - 65 years',
+        extraInfo: '5-HT1B/1D receptor agonist (Triptan). Take at earliest onset of headache (not aura). Contraindicated in ischemic heart disease and uncontrolled hypertension.'
+      },
+      {
+        name: 'Naproxen Sodium 275mg, 550mg Tablets',
+        brandExamples: 'Naprogesic, Naprosyn',
+        dosing: '550-825mg at onset of headache, followed by 275mg every 6-8 hours as needed (max 1375mg/day).',
+        pregnancySafety: 'Category C (Avoid in 3rd trimester).',
+        breastfeedingSafety: 'Compatible for short-term use.',
+        minAge: '>12 years',
+        extraInfo: 'Potent long-acting NSAID for acute migraine attacks. Take with food.'
+      },
+      {
+        name: 'Propranolol Hydrochloride 40mg, 100mg Tablets',
+        brandExamples: 'Inderal, Deralin',
+        dosing: '40mg 2-3 times daily; titrate up to 160-240mg daily in divided doses for migraine prophylaxis.',
+        pregnancySafety: 'Category C.',
+        breastfeedingSafety: 'Compatible with infant monitoring.',
+        minAge: 'Adults',
+        extraInfo: 'Non-cardioselective beta-blocker for migraine prophylaxis. Contraindicated in asthma and severe peripheral vascular disease.'
+      }
+    ],
     nonPharmAdvice: [
       'Keep a migraine trigger diary (sleep irregularity, stress, aged cheeses, nitrates, dehydration).',
       'Maintain regular sleep schedules and hydration.'
@@ -712,7 +999,35 @@ const CORE_CLINICAL_DISEASES: DiseaseInfo[] = [
       fa: ['مفصل گرم، متورم با تب بالا و لرز (نیاز به آسپیراسیون جهت رد آرتریت سپتیک چرکی)', 'توفوس‌های پوستی زخمی شده و عفونی'],
       en: ['Hot swollen joint with systemic fever/chills (must exclude septic arthritis via joint aspiration)', 'Ulcerated or infected gouty tophi'],
     },
-    medicines: [],
+    medicines: [
+      {
+        name: 'Colchicine 500mcg Tablets',
+        brandExamples: 'Colgout, Lengout',
+        dosing: 'Acute attack: 1000mcg (1mg) stat, then 500mcg 1 hour later (max 1.5mg per course). Prophylaxis: 500mcg once or twice daily.',
+        pregnancySafety: 'Category D (Contraindicated in pregnancy).',
+        breastfeedingSafety: 'Caution advised.',
+        minAge: 'Adults',
+        extraInfo: 'Tubulin inhibitor. High-dose regimens are toxic and abandoned. Stop immediately if severe diarrhea or vomiting occurs. Major CYP3A4 / P-gp interactions.'
+      },
+      {
+        name: 'Allopurinol 100mg, 300mg Tablets',
+        brandExamples: 'Zyloprim, Progout',
+        dosing: 'Start 100mg once daily (50mg in renal impairment); titrate every 2-4 weeks by 100mg to achieve serum urate <0.30 mmol/L (max 900mg/day).',
+        pregnancySafety: 'Category C.',
+        breastfeedingSafety: 'Compatible with monitoring.',
+        minAge: 'Adults',
+        extraInfo: 'Xanthine oxidase inhibitor for long-term urate-lowering therapy. Co-prescribe Colchicine 500mcg daily prophylaxis for first 3-6 months. Screen for HLA-B*5801 in high-risk Asian ancestry.'
+      },
+      {
+        name: 'Febuxostat 80mg, 120mg Tablets',
+        brandExamples: 'Adenuric',
+        dosing: '80mg once daily; may increase to 120mg daily if serum urate remains >0.35 mmol/L after 2-4 weeks.',
+        pregnancySafety: 'Category B3.',
+        breastfeedingSafety: 'Avoid.',
+        minAge: 'Adults',
+        extraInfo: 'Non-purine selective xanthine oxidase inhibitor. Potent alternative for patients intolerant or allergic to Allopurinol.'
+      }
+    ],
     nonPharmAdvice: [
       'Apply ice packs wrapped in a towel for 20 minutes to reduce local inflammation.',
       'Maintain vigorous hydration (>2-3L water daily) to facilitate renal urate clearance.'
@@ -823,7 +1138,44 @@ const CORE_CLINICAL_DISEASES: DiseaseInfo[] = [
       fa: ['درد ناگهانی و شدید ستون فقرات پس از خم شدن یا سرفه (شک به شکستگی فشاری مهره)', 'درد مبهم و مداوم در ران یا کشاله ران (شک به شکستگی غیرمعمول فمور AFF)', 'استخوان فک اکسپوز شده و غیرقابل ترمیم پس از کشیدن دندان'],
       en: ['Sudden severe thoracic/lumbar back pain indicating acute vertebral compression fracture', 'Dull aching groin or thigh pain (atypical femoral fracture warning)', 'Exposed necrotic jaw bone following dental extraction (ONJ)'],
     },
-    medicines: [],
+    medicines: [
+      {
+        name: 'Alendronate Sodium 70mg Once-Weekly Tablets',
+        brandExamples: 'Fosamax 70mg, Alendro 70mg',
+        dosing: '70mg once weekly in the morning upon waking with a full glass of plain tap water (>200mL). Remain upright for ≥30 min.',
+        pregnancySafety: 'Category B3.',
+        breastfeedingSafety: 'Not recommended.',
+        minAge: 'Adults',
+        extraInfo: 'Oral bisphosphonate antiresorptive. Strict dosing: swallow whole with water on empty stomach, stay upright ≥30 min to prevent esophageal ulceration.'
+      },
+      {
+        name: 'Denosumab 60mg / 1mL Solution in Pre-filled Syringe',
+        brandExamples: 'Prolia',
+        dosing: '60mg administered as a single subcutaneous injection into thigh, abdomen, or upper arm once every 6 months.',
+        pregnancySafety: 'Category D (Contraindicated).',
+        breastfeedingSafety: 'Avoid.',
+        minAge: 'Adults',
+        extraInfo: 'RANKL monoclonal antibody inhibitor. Must receive dose strictly every 6 months (rebound rapid bone loss occurs if delayed). Ensure adequate calcium & Vit D.'
+      },
+      {
+        name: 'Zoledronic Acid 5mg / 100mL IV Infusion',
+        brandExamples: 'Aclasta',
+        dosing: '5mg administered as a single intravenous infusion over ≥15 minutes once every 12 months.',
+        pregnancySafety: 'Category D.',
+        breastfeedingSafety: 'Avoid.',
+        minAge: 'Adults',
+        extraInfo: 'Potent annual IV bisphosphonate. Ensure hydration before infusion to reduce acute phase reaction (flu-like symptoms).'
+      },
+      {
+        name: 'Calcium Carbonate 600mg + Colecalciferol 500 IU Tablets',
+        brandExamples: 'Caltrate + Vitamin D',
+        dosing: '1-2 tablets daily with food.',
+        pregnancySafety: 'Category A.',
+        breastfeedingSafety: 'Compatible.',
+        minAge: 'All ages',
+        extraInfo: 'Essential mineral and vitamin co-therapy for all patients receiving antiresorptive treatments.'
+      }
+    ],
     nonPharmAdvice: [
       'Engage in regular weight-bearing exercises and resistance training.',
       'Implement fall-prevention measures in the home (remove loose rugs, install bathroom rails).',
@@ -870,7 +1222,44 @@ const CORE_CLINICAL_DISEASES: DiseaseInfo[] = [
       fa: ['افکار خودکشی فعال یا اقدام به خودآسیبی (ارجاع اورژانسی به Lifeline 13 11 14 یا بیمارستان)', 'سندرم سروتونین: تب بالا، کلونوس عضلانی، لرزش و هذیان', 'سندرم مانیا و پرحرفی/کم‌خوابی شدید ناشی از سوئیچ دوقطبی'],
       en: ['Active suicidal ideation or intent (immediate crisis intervention: Lifeline 13 11 14 or 000)', 'Serotonin Syndrome triad: neuromuscular excitability, autonomic storms, altered mental state', 'Manic switch with grandiosity, racing thoughts, and sleep reduction'],
     },
-    medicines: [],
+    medicines: [
+      {
+        name: 'Escitalopram Oxalate 10mg, 20mg Tablets',
+        brandExamples: 'Lexapro, Esipram',
+        dosing: 'Start 10mg once daily (morning or evening); may increase to 20mg once daily after 2-4 weeks.',
+        pregnancySafety: 'Category C.',
+        breastfeedingSafety: 'Compatible with infant monitoring.',
+        minAge: 'Adults',
+        extraInfo: 'Highly selective SSRI. Fastest onset among SSRIs. Do not discontinue abruptly; taper gradually. Low risk of CYP interactions.'
+      },
+      {
+        name: 'Sertraline Hydrochloride 50mg, 100mg Tablets',
+        brandExamples: 'Zoloft, Setrona',
+        dosing: 'Start 50mg once daily with breakfast; titrate by 50mg increments every 2-4 weeks (max 200mg/day).',
+        pregnancySafety: 'Category C (Preferred first-line SSRI in pregnancy and breastfeeding).',
+        breastfeedingSafety: 'Preferred first-line antidepressant in lactation.',
+        minAge: 'Adults & Children >6y (for OCD)',
+        extraInfo: 'SSRI of choice for post-myocardial infarction and in postpartum depression/breastfeeding.'
+      },
+      {
+        name: 'Venlafaxine XR 75mg, 150mg Extended-Release Capsules',
+        brandExamples: 'Efexor-XR',
+        dosing: 'Start 75mg once daily with food; titrate to 150-225mg daily for dual 5-HT/NA inhibition.',
+        pregnancySafety: 'Category B3.',
+        breastfeedingSafety: 'Compatible with monitoring.',
+        minAge: 'Adults',
+        extraInfo: 'Serotonin and Noradrenaline Reuptake Inhibitor (SNRI). Monitor blood pressure periodically at higher doses (>150mg).'
+      },
+      {
+        name: 'Mirtazapine 15mg, 30mg, 45mg Orally Disintegrating Tablets',
+        brandExamples: 'Avanza SolTab, Mirtazon',
+        dosing: 'Start 15mg once daily at bedtime; titrate to 30-45mg at bedtime.',
+        pregnancySafety: 'Category B3.',
+        breastfeedingSafety: 'Compatible with monitoring.',
+        minAge: 'Adults',
+        extraInfo: 'Noradrenergic and specific serotonergic antidepressant (NaSSA). Promotes appetite and sleep (sedative H1 antagonism at lower doses).'
+      }
+    ],
     nonPharmAdvice: [
       'Maintain regular physical activity (walking, jogging) which elevates brain BDNF levels.',
       'Practice mindfulness meditation and good sleep hygiene.',
@@ -917,7 +1306,35 @@ const CORE_CLINICAL_DISEASES: DiseaseInfo[] = [
       fa: ['آپنه انسدادی خواب (خروپف شدید همراه با وقفه‌های تنفسی و خواب‌آلودگی مفرط روزانه)', 'سوء مصرف یا وابستگی شدید به بنزودیازپین‌ها'],
       en: ['Obstructive Sleep Apnea (OSA) with witnessed apneas and daytime somnolence', 'Severe dependence or escalation of hypnotic dosages'],
     },
-    medicines: [],
+    medicines: [
+      {
+        name: 'Melatonin 2mg Prolonged-Release Tablets',
+        brandExamples: 'Circadin',
+        dosing: '1 tablet (2mg) once daily 1-2 hours before bedtime after food for up to 13 weeks.',
+        pregnancySafety: 'Category B3.',
+        breastfeedingSafety: 'Avoid.',
+        minAge: '≥55 years (S3 Pharmacist Only without prescription)',
+        extraInfo: 'Mimics endogenous melatonin secretion. Non-addictive, preserves sleep architecture. Available as S3 Pharmacist Only for adults ≥55y.'
+      },
+      {
+        name: 'Doxylamine Succinate 25mg Tablets',
+        brandExamples: 'Restavit, Dozile',
+        dosing: '1-2 tablets (25-50mg) 20-30 minutes before bedtime with water for a maximum of 3-7 consecutive days.',
+        pregnancySafety: 'Category A.',
+        breastfeedingSafety: 'Caution (may cause infant drowsiness and suppress lactation).',
+        minAge: '>12 years',
+        extraInfo: 'First-generation sedating H1 antihistamine (S3). For short-term temporary insomnia only; anticholinergic side effects (dry mouth, morning drowsiness).'
+      },
+      {
+        name: 'Temazepam 10mg Tablets',
+        brandExamples: 'Normison, Temaze',
+        dosing: '10-20mg once daily 30 minutes before bedtime for max 1-2 weeks.',
+        pregnancySafety: 'Category C (Avoid in pregnancy).',
+        breastfeedingSafety: 'Avoid.',
+        minAge: 'Adults',
+        extraInfo: 'Schedule 4 Benzodiazepine hypnotic. High risk of tolerance, dependence, and next-day residual hangover. Restrict to short courses.'
+      }
+    ],
     nonPharmAdvice: [
       'Maintain fixed wake-up times 7 days a week, regardless of sleep duration.',
       'Ensure morning sunlight exposure to anchor circadian rhythm.',
@@ -964,7 +1381,44 @@ const CORE_CLINICAL_DISEASES: DiseaseInfo[] = [
       fa: ['سندرم دم اسب (Cauda Equina: بی‌اختیاری ادرار یا مدفوع، بی‌حسی زین‌مانند مقعد)', 'ضعف حرکتی حاد و افتادگی مچ پا (Foot drop)', 'نوروپاتی سریع‌پیشرونده با علائم سیستمیک'],
       en: ['Cauda Equina Syndrome: saddle anesthesia, acute urinary retention or fecal incontinence', 'Acute motor weakness or progressive foot drop', 'Rapidly ascending peripheral weakness (Guillain-Barré warning)'],
     },
-    medicines: [],
+    medicines: [
+      {
+        name: 'Pregabalin 25mg, 75mg, 150mg, 300mg Capsules',
+        brandExamples: 'Lyrica',
+        dosing: 'Start 75mg twice daily; titrate after 3-7 days to 150mg twice daily (max 600mg/day).',
+        pregnancySafety: 'Category B3.',
+        breastfeedingSafety: 'Not recommended.',
+        minAge: 'Adults',
+        extraInfo: 'Alpha-2-delta calcium channel subunit ligand. First-line for diabetic peripheral neuropathy and post-herpetic neuralgia. Counsel on dizziness, weight gain, and peripheral edema.'
+      },
+      {
+        name: 'Amitriptyline Hydrochloride 10mg, 25mg, 50mg Tablets',
+        brandExamples: 'Endep',
+        dosing: 'Start 10-25mg once daily at bedtime; increase by 10-25mg weekly to 50-75mg at bedtime.',
+        pregnancySafety: 'Category C.',
+        breastfeedingSafety: 'Compatible with monitoring.',
+        minAge: 'Adults',
+        extraInfo: 'Tricyclic antidepressant for chronic neuropathic pain. High anticholinergic effects (dry mouth, blurred vision, urinary retention). Avoid in cardiac conduction block.'
+      },
+      {
+        name: 'Duloxetine Hydrochloride 30mg, 60mg Capsules',
+        brandExamples: 'Cymbalta',
+        dosing: '30mg once daily with food for 1 week, then increase to 60mg once daily.',
+        pregnancySafety: 'Category B3.',
+        breastfeedingSafety: 'Avoid.',
+        minAge: 'Adults',
+        extraInfo: 'SNRI indicated for painful diabetic peripheral neuropathy. Swallow whole with food to avoid nausea.'
+      },
+      {
+        name: 'Capsaicin 0.075% Cream',
+        brandExamples: 'Zostrix HP',
+        dosing: 'Apply a small amount to painful area 3-4 times daily. Wash hands thoroughly after application.',
+        pregnancySafety: 'Category B3.',
+        breastfeedingSafety: 'Compatible.',
+        minAge: '>18 years',
+        extraInfo: 'Depletes Substance P in peripheral nociceptors. Transient burning sensation upon initial applications (declines with regular use).'
+      }
+    ],
     nonPharmAdvice: [
       'Inspect feet daily in diabetic peripheral neuropathy.',
       'Wear protective, well-cushioned footwear.',
