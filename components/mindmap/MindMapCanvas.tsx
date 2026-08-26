@@ -681,36 +681,25 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                     : `${theme.bg} ${theme.border} ${theme.glow}`
                 }`}
               >
-                {/* Header Row: Level Icon, Title, Expand/Collapse Indicator */}
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <div className="shrink-0">{getNodeLevelIcon(node.level)}</div>
-                    <div className="flex-1 min-w-0">
-                      {/* FULL TEXT DISPLAY - NO TRUNCATION */}
-                      <div
-                        className={`font-extrabold text-xs sm:text-sm leading-snug break-words whitespace-normal ${
-                          node.level === 0 ? 'text-purple-200' : theme.text
-                        }`}
-                        dir={isFa ? 'rtl' : 'ltr'}
-                      >
-                        {displayTitle}
-                      </div>
+                {/* Title Content Only (Clean Minimal Cell) */}
+                <div className="flex items-center justify-between gap-2 min-w-0 w-full">
+                  <div className="flex-1 min-w-0">
+                    {/* FULL TEXT DISPLAY - NO TRUNCATION */}
+                    <div
+                      className={`font-extrabold text-xs sm:text-sm leading-snug break-words whitespace-normal ${
+                        node.level === 0 ? 'text-purple-200' : theme.text
+                      }`}
+                      dir={isFa ? 'rtl' : 'ltr'}
+                    >
+                      {displayTitle}
                     </div>
                   </div>
 
-                  {/* Expand / Collapse Chevron & Card Badge */}
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {node.cardCount > 0 && (
-                      <span className="px-1.5 py-0.5 rounded-md bg-black/40 text-slate-300 text-[10px] font-mono font-bold">
-                        {node.cardCount}
-                      </span>
-                    )}
-                    {hasChildren && (
-                      <div className="p-1 rounded-lg bg-slate-800/80 text-slate-300 group-hover:text-white transition">
-                        {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                      </div>
-                    )}
-                  </div>
+                  {node.cardCount > 0 && (
+                    <span className="px-1.5 py-0.5 rounded-md bg-black/40 text-slate-300 text-[10px] font-mono font-bold shrink-0">
+                      {node.cardCount}
+                    </span>
+                  )}
                 </div>
               </div>
             );
