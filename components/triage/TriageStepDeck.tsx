@@ -107,6 +107,7 @@ export const TriageStepDeck: React.FC<TriageStepDeckProps> = ({
   // 1: داروهای قفسه OTC و پاپ‌آپ دارو (OTC Shelf Medicines & In-Page Modal)
   // 2: مشاوره، عبارات پرکاربرد انگلیسی و سوالات بالینی (Consultation, Phrases & Clinical Framework)
   const [verticalStep, setVerticalStep] = useState<0 | 1 | 2>(0);
+  const [consultSubTab, setConsultSubTab] = useState<0 | 1 | 2 | 3>(0);
 
   // In-Page Drug Monograph Modal State (allows viewing drug and closing without leaving page)
   const [selectedMedicineModal, setSelectedMedicineModal] = useState<any | null>(null);
@@ -583,7 +584,7 @@ export const TriageStepDeck: React.FC<TriageStepDeckProps> = ({
           )}
 
           {/* ========================================================================= */}
-          {/* STEP 2: CONSULTATION, KEY ENGLISH PHRASES & STREAMLINED ACTIONS */}
+          {/* STEP 2: CONSULTATION (WITH 4 HORIZONTAL SUB-TABS) */}
           {/* ========================================================================= */}
           {verticalStep === 2 && (
             <motion.div
@@ -592,247 +593,353 @@ export const TriageStepDeck: React.FC<TriageStepDeckProps> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="space-y-4 select-text"
+              className="space-y-3.5 select-text"
             >
-              {/* 1. KEY ENGLISH WWHAM CONSULTATION PHRASES (EXACTLY AS USER REQUESTED) */}
-              <div className="app-card border border-purple-500/30 rounded-2xl p-4 sm:p-5 shadow-lg bg-gradient-to-b from-purple-950/20 via-slate-900/90 to-slate-950/90 space-y-3.5">
-                <div className="flex items-center justify-between border-b border-purple-500/20 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30">
-                      <MessagesSquare className="w-4 h-4" />
+              {/* 4 HORIZONTAL SUB-TABS NAVIGATION BAR */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-1.5 rounded-2xl bg-slate-950/80 border border-purple-500/25 shadow-inner text-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    haptic.light();
+                    setConsultSubTab(0);
+                  }}
+                  className={`py-2 px-2 rounded-xl font-bold transition flex items-center justify-center gap-1.5 cursor-pointer text-[11px] sm:text-xs ${
+                    consultSubTab === 0
+                      ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30 font-black'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                  }`}
+                >
+                  <MessagesSquare className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{isFa ? '۱. سوالات WWHAM' : '1. WWHAM'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    haptic.light();
+                    setConsultSubTab(1);
+                  }}
+                  className={`py-2 px-2 rounded-xl font-bold transition flex items-center justify-center gap-1.5 cursor-pointer text-[11px] sm:text-xs ${
+                    consultSubTab === 1
+                      ? 'bg-rose-600 text-white shadow-md shadow-rose-600/30 font-black'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                  }`}
+                >
+                  <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{isFa ? '۲. پرچم‌های قرمز 🚩' : '2. Red Flags 🚩'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    haptic.light();
+                    setConsultSubTab(2);
+                  }}
+                  className={`py-2 px-2 rounded-xl font-bold transition flex items-center justify-center gap-1.5 cursor-pointer text-[11px] sm:text-xs ${
+                    consultSubTab === 2
+                      ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30 font-black'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                  }`}
+                >
+                  <Stethoscope className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{isFa ? '۳. تصمیم داروساز 🎯' : '3. Decision 🎯'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    haptic.light();
+                    setConsultSubTab(3);
+                  }}
+                  className={`py-2 px-2 rounded-xl font-bold transition flex items-center justify-center gap-1.5 cursor-pointer text-[11px] sm:text-xs ${
+                    consultSubTab === 3
+                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30 font-black'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                  }`}
+                >
+                  <span>🦘</span>
+                  <span className="truncate">{isFa ? '۴. بافت استرالیایی' : '4. Aussie Slang'}</span>
+                </button>
+              </div>
+
+              {/* SUB-TAB 0: WWHAM QUESTIONS & KEY ENGLISH PHRASES */}
+              {consultSubTab === 0 && (
+                <motion.div
+                  key="consult-subtab-0"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="space-y-3"
+                >
+                  <div className="app-card border border-purple-500/30 rounded-2xl p-4 sm:p-5 shadow-lg bg-gradient-to-b from-purple-950/20 via-slate-900/90 to-slate-950/90 space-y-3.5">
+                    <div className="flex items-center justify-between border-b border-purple-500/20 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                          <MessagesSquare className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm sm:text-base font-black text-white">
+                            {isFa ? 'کلمات و عبارات پرکاربرد انگلیسی در این باره (WWHAM)' : 'Key English Consultation Phrases'}
+                          </h3>
+                          <p className="text-[11px] text-purple-300">
+                            {isFa ? 'جملات طلایی و سوالات کلیدی داروساز (کلیک روی کارت: مشاهده پاسخ بیمار | دکمه کپی: کپی متن):' : 'Essential pharmacist consultation phrases (click to view answer):'}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300">
+                        High Yield
+                      </span>
                     </div>
-                    <div>
-                      <h3 className="text-sm sm:text-base font-black text-white">
-                        {isFa ? 'کلمات و عبارات پرکاربرد انگلیسی در این باره (WWHAM)' : 'Key English Consultation Phrases'}
-                      </h3>
-                      <p className="text-[11px] text-purple-300">
-                        {isFa ? 'جملات طلایی و سوالات کلیدی داروساز (کلیک روی کارت: مشاهده پاسخ بیمار | دکمه کپی: کپی متن):' : 'Essential pharmacist consultation phrases (click to view answer):'}
-                      </p>
+
+                    <div className="space-y-2.5 text-xs">
+                      {scenario.whatQuestions.map((q) => {
+                        const isAsked = !!askedQuestions[q.key];
+                        const isStarred = isQnaStarred(q.question.en);
+                        return (
+                          <div
+                            key={q.key}
+                            onClick={() => onAskWwhamQuestion(q)}
+                            className={`p-3.5 rounded-2xl border transition cursor-pointer space-y-2 shadow-xs group ${
+                              isAsked
+                                ? 'bg-purple-950/40 border-purple-500/50 hover:border-purple-400'
+                                : 'bg-slate-900/90 hover:bg-slate-800/90 border-purple-500/20 hover:border-purple-400/50'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-purple-300 font-bold text-xs px-2 py-0.5 rounded-md bg-purple-500/20 border border-purple-500/30">
+                                  [{q.key}]
+                                </span>
+                                <span className="text-[11.5px] text-slate-300 font-semibold">
+                                  {q.label[language] || q.label.en}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                {isStarred && <span className="text-amber-400 text-xs">⭐</span>}
+                                {isAsked && (
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30 flex items-center gap-1">
+                                    <Check className="w-3 h-3" /> {isFa ? 'پاسخ داده شد' : 'Answered'}
+                                  </span>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCopyPhrase(q.question.en);
+                                  }}
+                                  className="text-[11px] text-slate-400 hover:text-white px-2.5 py-1 rounded-lg bg-black/40 hover:bg-purple-600/40 border border-slate-700 hover:border-purple-400 transition flex items-center gap-1 cursor-pointer"
+                                >
+                                  {copiedPhraseText === q.question.en ? (
+                                    <span className="text-emerald-400 font-bold flex items-center gap-0.5">
+                                      <Check className="w-3 h-3" /> {isFa ? 'کپی شد' : 'Copied'}
+                                    </span>
+                                  ) : (
+                                    <span className="flex items-center gap-0.5">
+                                      <Copy className="w-3 h-3" /> Copy
+                                    </span>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+
+                            <p className="font-medium text-white text-xs sm:text-sm leading-relaxed" dir="ltr">
+                              &ldquo;{q.question.en}&rdquo;
+                            </p>
+
+                            {isFa && (
+                              <p className="text-[12px] text-purple-200/90 leading-relaxed border-t border-purple-500/15 pt-1.5">
+                                {q.question.fa}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300">
-                    High Yield
-                  </span>
-                </div>
+                </motion.div>
+              )}
 
-                <div className="space-y-2.5 text-xs">
-                  {/* WWHAM Question Cards */}
-                  {scenario.whatQuestions.map((q) => {
-                    const isAsked = !!askedQuestions[q.key];
-                    const isStarred = isQnaStarred(q.question.en);
-                    return (
-                      <div
-                        key={q.key}
-                        onClick={() => onAskWwhamQuestion(q)}
-                        className={`p-3.5 rounded-2xl border transition cursor-pointer space-y-2 shadow-xs group ${
-                          isAsked
-                            ? 'bg-purple-950/40 border-purple-500/50 hover:border-purple-400'
-                            : 'bg-slate-900/90 hover:bg-slate-800/90 border-purple-500/20 hover:border-purple-400/50'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-purple-300 font-bold text-xs px-2 py-0.5 rounded-md bg-purple-500/20 border border-purple-500/30">
-                              [{q.key}]
-                            </span>
-                            <span className="text-[11.5px] text-slate-300 font-semibold">
-                              {q.label[language] || q.label.en}
-                            </span>
-                          </div>
+              {/* SUB-TAB 1: RED FLAGS & GP REFERRAL */}
+              {consultSubTab === 1 && (
+                <motion.div
+                  key="consult-subtab-1"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="space-y-3"
+                >
+                  <div className="app-card border border-rose-500/30 rounded-2xl p-4 sm:p-5 shadow-lg bg-gradient-to-b from-rose-950/20 via-slate-900/90 to-slate-950/90 space-y-3">
+                    <div className="flex items-center justify-between border-b border-rose-500/20 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                          <ShieldAlert className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm sm:text-base font-black text-white">
+                            {isFa ? 'پرچم‌های قرمز بالینی و علائم هشدار (Red Flags)' : 'Clinical Red Flags & Safety Screening'}
+                          </h3>
+                          <p className="text-[11px] text-rose-300">
+                            {isFa ? 'علائمی که در صورت مشاهده، ارجاع به پزشک (GP) الزامی است:' : 'Symptoms requiring immediate medical referral:'}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300">
+                        {scenario.redFlags.length} Flags
+                      </span>
+                    </div>
 
-                          <div className="flex items-center gap-2">
-                            {isStarred && <span className="text-amber-400 text-xs">⭐</span>}
-                            {isAsked && (
-                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30 flex items-center gap-1">
-                                <Check className="w-3 h-3" /> {isFa ? 'پاسخ داده شد' : 'Answered'}
-                              </span>
+                    <div className="space-y-2">
+                      {scenario.redFlags.map((rf, idx) => (
+                        <div
+                          key={idx}
+                          className="p-3 rounded-xl bg-black/40 border border-rose-500/30 text-xs text-rose-100 flex items-start gap-2.5"
+                        >
+                          <span className="text-rose-400 font-bold shrink-0 mt-0.5">🚩</span>
+                          <div className="flex-1 space-y-0.5">
+                            <p className="font-bold text-rose-200 text-xs sm:text-[12.5px]">
+                              {isFa ? rf.fa : rf.en}
+                            </p>
+                            {isFa && rf.en && (
+                              <p className="text-[11px] text-slate-400 font-mono" dir="ltr">
+                                {rf.en}
+                              </p>
                             )}
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleCopyPhrase(q.question.en);
-                              }}
-                              className="text-[11px] text-slate-400 hover:text-white px-2.5 py-1 rounded-lg bg-black/40 hover:bg-purple-600/40 border border-slate-700 hover:border-purple-400 transition flex items-center gap-1 cursor-pointer"
-                            >
-                              {copiedPhraseText === q.question.en ? (
-                                <span className="text-emerald-400 font-bold flex items-center gap-0.5">
-                                  <Check className="w-3 h-3" /> {isFa ? 'کپی شد' : 'Copied'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="pt-2 border-t border-rose-500/20 flex flex-col sm:flex-row gap-2">
+                      <button
+                        type="button"
+                        onClick={onCheckRedFlags}
+                        className="flex-1 py-2.5 px-3 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer bg-rose-600 hover:bg-rose-500 text-white border-rose-400 shadow-md shadow-rose-600/30"
+                      >
+                        <ShieldAlert className="w-4 h-4" />
+                        <span>
+                          {askedRedFlagChecks['rf-check']
+                            ? (isFa ? 'مشاهده مجدد پاپ‌آپ پرچم‌های قرمز 🚩' : 'Re-open Red Flags Modal 🚩')
+                            : (isFa ? 'پاپ‌آپ تفصیلی پرچم‌های قرمز' : 'Detailed Red Flags Modal')}
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={onOpenReferralModal}
+                        className="py-2.5 px-4 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer bg-slate-900 hover:bg-slate-800 text-rose-300 border-rose-500/40"
+                      >
+                        <BookOpen className="w-4 h-4 text-rose-400" />
+                        <span>{isFa ? '📄 صدور برگه ارجاع به GP' : '📄 Generate GP Referral'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* SUB-TAB 2: PHARMACIST CLINICAL DECISION */}
+              {consultSubTab === 2 && (
+                <motion.div
+                  key="consult-subtab-2"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="space-y-3"
+                >
+                  <div className="app-card border border-teal-500/30 rounded-2xl p-4 sm:p-5 shadow-lg bg-gradient-to-b from-teal-950/20 via-slate-900/90 to-slate-950/90 space-y-3.5">
+                    <div className="flex items-center justify-between border-b border-teal-500/20 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30">
+                          <Stethoscope className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm sm:text-base font-black text-white">
+                            {isFa ? 'تصمیم‌گیری بالینی و اقدام نهایی داروساز' : 'Pharmacist Clinical Decision & Action'}
+                          </h3>
+                          <p className="text-[11px] text-teal-300">
+                            {isFa ? 'کدام توصیه بالینی یا اقدام داروساز برای این بیمار صحیح است؟' : 'Select the appropriate pharmacist action:'}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300">
+                        {scenario.dialogueOptions.length} Actions
+                      </span>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      {scenario.dialogueOptions.map((opt, optIdx) => {
+                        const isSelected = selectedDialogueId === opt.id;
+                        const optText = opt.text[language] || opt.text.en;
+                        return (
+                          <div
+                            key={opt.id}
+                            onClick={() => onSelectDialogueOption(opt)}
+                            className={`p-3.5 rounded-2xl border text-xs transition cursor-pointer space-y-2 shadow-xs ${
+                              isSelected
+                                ? opt.isCorrectAdvice
+                                  ? 'bg-emerald-950/70 border-emerald-500 ring-1 ring-emerald-500/40 text-emerald-100'
+                                  : 'bg-rose-950/70 border-rose-500 ring-1 ring-rose-500/40 text-rose-100'
+                                : 'bg-slate-950/80 border-slate-800 hover:border-teal-500/60 hover:bg-slate-900 text-slate-200'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-1.5">
+                              <span className="font-bold text-[11px] text-teal-300 flex items-center gap-1.5">
+                                <span className="w-5 h-5 rounded-full bg-teal-500/20 border border-teal-500/30 inline-flex items-center justify-center font-mono text-[10px]">
+                                  {optIdx + 1}
                                 </span>
-                              ) : (
-                                <span className="flex items-center gap-0.5">
-                                  <Copy className="w-3 h-3" /> Copy
+                                <span>{isFa ? `گزینه اقدام ${optIdx + 1}` : `Decision Option ${optIdx + 1}`}</span>
+                              </span>
+                              {isSelected && (
+                                <span
+                                  className={`text-[10px] px-2.5 py-0.5 rounded-full font-mono font-bold border ${
+                                    opt.isCorrectAdvice
+                                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                                      : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                                  }`}
+                                >
+                                  {opt.isCorrectAdvice
+                                    ? isFa ? '✅ پاسخ صحیح و منطبق با گایدلاین' : '✅ Correct Practice Guideline'
+                                    : isFa ? '❌ هشدار اقدام نامناسب' : '❌ Inappropriate Action'}
                                 </span>
                               )}
-                            </button>
+                            </div>
+
+                            <FormattedClinicalText text={optText} language={language} />
                           </div>
-                        </div>
-
-                        <p className="font-medium text-white text-xs sm:text-sm leading-relaxed" dir="ltr">
-                          &ldquo;{q.question.en}&rdquo;
-                        </p>
-
-                        {isFa && (
-                          <p className="text-[12px] text-purple-200/90 leading-relaxed border-t border-purple-500/15 pt-1.5">
-                            {q.question.fa}
-                          </p>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* 2. RED FLAGS & GP REFERRAL CARD */}
-              <div className="app-card border border-rose-500/30 rounded-2xl p-4 sm:p-5 shadow-lg bg-gradient-to-b from-rose-950/20 via-slate-900/90 to-slate-950/90 space-y-3">
-                <div className="flex items-center justify-between border-b border-rose-500/20 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30">
-                      <ShieldAlert className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm sm:text-base font-black text-white">
-                        {isFa ? 'پرچم‌های قرمز بالینی و علائم هشدار (Red Flags)' : 'Clinical Red Flags & Safety Screening'}
-                      </h3>
-                      <p className="text-[11px] text-rose-300">
-                        {isFa ? 'علائمی که در صورت مشاهده، ارجاع به پزشک (GP) الزامی است:' : 'Symptoms requiring immediate medical referral:'}
-                      </p>
+                        );
+                      })}
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300">
-                    {scenario.redFlags.length} Flags
-                  </span>
-                </div>
 
-                <div className="space-y-2">
-                  {scenario.redFlags.map((rf, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 rounded-xl bg-black/40 border border-rose-500/30 text-xs text-rose-100 flex items-start gap-2.5"
-                    >
-                      <span className="text-rose-400 font-bold shrink-0 mt-0.5">🚩</span>
-                      <div className="flex-1 space-y-0.5">
-                        <p className="font-bold text-rose-200 text-xs sm:text-[12.5px]">
-                          {isFa ? rf.fa : rf.en}
-                        </p>
-                        {isFa && rf.en && (
-                          <p className="text-[11px] text-slate-400 font-mono" dir="ltr">
-                            {rf.en}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                  {/* Outcome Feedback Card */}
+                  {showOutcome && (
+                    <OutcomeFeedbackCard
+                      language={language}
+                      scenario={scenario}
+                      selectedOption={selectedOption || undefined}
+                      onOpenReferralModal={onOpenReferralModal}
+                      onNavigateToFred={onNavigateToFred}
+                      onNavigateToModule={onNavigateToModule}
+                      onOpenAiLeitner={onOpenAiLeitner}
+                    />
+                  )}
+                </motion.div>
+              )}
 
-                <div className="pt-2 border-t border-rose-500/20 flex flex-col sm:flex-row gap-2">
-                  <button
-                    type="button"
-                    onClick={onCheckRedFlags}
-                    className="flex-1 py-2.5 px-3 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer bg-rose-600 hover:bg-rose-500 text-white border-rose-400 shadow-md shadow-rose-600/30"
-                  >
-                    <ShieldAlert className="w-4 h-4" />
-                    <span>
-                      {askedRedFlagChecks['rf-check']
-                        ? (isFa ? 'مشاهده مجدد پاپ‌آپ پرچم‌های قرمز 🚩' : 'Re-open Red Flags Modal 🚩')
-                        : (isFa ? 'پاپ‌آپ تفصیلی پرچم‌های قرمز' : 'Detailed Red Flags Modal')}
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={onOpenReferralModal}
-                    className="py-2.5 px-4 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer bg-slate-900 hover:bg-slate-800 text-rose-300 border-rose-500/40"
-                  >
-                    <BookOpen className="w-4 h-4 text-rose-400" />
-                    <span>{isFa ? '📄 صدور برگه ارجاع به GP' : '📄 Generate GP Referral'}</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* 3. PHARMACIST CLINICAL DECISION OPTIONS */}
-              <div className="app-card border border-teal-500/30 rounded-2xl p-4 sm:p-5 shadow-lg bg-gradient-to-b from-teal-950/20 via-slate-900/90 to-slate-950/90 space-y-3.5">
-                <div className="flex items-center justify-between border-b border-teal-500/20 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30">
-                      <Stethoscope className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm sm:text-base font-black text-white">
-                        {isFa ? 'تصمیم‌گیری بالینی و اقدام نهایی داروساز' : 'Pharmacist Clinical Decision & Action'}
-                      </h3>
-                      <p className="text-[11px] text-teal-300">
-                        {isFa ? 'کدام توصیه بالینی یا اقدام داروساز برای این بیمار صحیح است؟' : 'Select the appropriate pharmacist action:'}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300">
-                    {scenario.dialogueOptions.length} Actions
-                  </span>
-                </div>
-
-                <div className="space-y-2.5">
-                  {scenario.dialogueOptions.map((opt, optIdx) => {
-                    const isSelected = selectedDialogueId === opt.id;
-                    const optText = opt.text[language] || opt.text.en;
-                    return (
-                      <div
-                        key={opt.id}
-                        onClick={() => onSelectDialogueOption(opt)}
-                        className={`p-3.5 rounded-2xl border text-xs transition cursor-pointer space-y-2 shadow-xs ${
-                          isSelected
-                            ? opt.isCorrectAdvice
-                              ? 'bg-emerald-950/70 border-emerald-500 ring-1 ring-emerald-500/40 text-emerald-100'
-                              : 'bg-rose-950/70 border-rose-500 ring-1 ring-rose-500/40 text-rose-100'
-                            : 'bg-slate-950/80 border-slate-800 hover:border-teal-500/60 hover:bg-slate-900 text-slate-200'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-1.5">
-                          <span className="font-bold text-[11px] text-teal-300 flex items-center gap-1.5">
-                            <span className="w-5 h-5 rounded-full bg-teal-500/20 border border-teal-500/30 inline-flex items-center justify-center font-mono text-[10px]">
-                              {optIdx + 1}
-                            </span>
-                            <span>{isFa ? `گزینه اقدام ${optIdx + 1}` : `Decision Option ${optIdx + 1}`}</span>
-                          </span>
-                          {isSelected && (
-                            <span
-                              className={`text-[10px] px-2.5 py-0.5 rounded-full font-mono font-bold border ${
-                                opt.isCorrectAdvice
-                                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                                  : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
-                              }`}
-                            >
-                              {opt.isCorrectAdvice
-                                ? isFa ? '✅ پاسخ صحیح و منطبق با گایدلاین' : '✅ Correct Practice Guideline'
-                                : isFa ? '❌ هشدار اقدام نامناسب' : '❌ Inappropriate Action'}
-                            </span>
-                          )}
-                        </div>
-
-                        <FormattedClinicalText text={optText} language={language} />
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* 4. AUSTRALIAN PRACTICE CONTEXT, LOCAL SLANG & STATUTORY REGULATIONS */}
-              <AussieContextCard
-                language={language}
-                scenario={scenario}
-              />
-
-              {/* Outcome Feedback Card */}
-              {showOutcome && (
-                <OutcomeFeedbackCard
-                  language={language}
-                  scenario={scenario}
-                  selectedOption={selectedOption || undefined}
-                  onOpenReferralModal={onOpenReferralModal}
-                  onNavigateToFred={onNavigateToFred}
-                  onNavigateToModule={onNavigateToModule}
-                  onOpenAiLeitner={onOpenAiLeitner}
-                />
+              {/* SUB-TAB 3: AUSSIE PRACTICE CONTEXT, LOCAL SLANG & REGULATIONS */}
+              {consultSubTab === 3 && (
+                <motion.div
+                  key="consult-subtab-3"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="space-y-3"
+                >
+                  <AussieContextCard
+                    language={language}
+                    scenario={scenario}
+                  />
+                </motion.div>
               )}
             </motion.div>
           )}
