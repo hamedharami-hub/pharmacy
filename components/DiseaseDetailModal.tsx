@@ -228,15 +228,15 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
   const fallbackGuide = findHandbookGuide(disease);
   const baseMedicines: OTCDrugInfo[] = disease.medicines || fallbackGuide?.medicines || [];
 
-  // Primary display names (Strictly pure English in English mode, bilingual in Persian mode)
-  const rawFa = clinicalTranslation?.cleanFaName || disease.name.fa || '';
-  const rawEn = clinicalTranslation?.cleanEnName || disease.name.en || '';
-  const cleanEn = (rawEn.replace(/[آ-ی].*$/g, '').replace(/^[^\w\d(]+/g, '').trim()) || disease.name.en || 'Clinical Condition';
-  const cleanFaOnly = (rawFa.replace(/\([^)]+\)/g, '').trim()) || disease.name.fa || rawFa;
-
-  const diseaseTitle = isFa
-    ? (cleanFaOnly.includes(cleanEn) ? cleanFaOnly : `${cleanFaOnly} (${cleanEn})`)
-    : cleanEn;
+  // Primary display name (Strictly pure single language matching current active language)
+  let diseaseTitle = '';
+  if (isFa) {
+    const rawFa = clinicalTranslation?.cleanFaName || disease.name.fa || disease.name.en || '';
+    diseaseTitle = rawFa.replace(/\s*\([a-zA-Z0-9\s.,!?:;/&+\-]+\)/g, '').trim() || rawFa;
+  } else {
+    const rawEn = clinicalTranslation?.cleanEnName || disease.name.en || '';
+    diseaseTitle = rawEn.replace(/[\u0600-\u06FF].*$/g, '').trim() || disease.name.en || 'Clinical Condition';
+  }
 
   // Primary Common Name & Brand
   const primaryCommonName = isFa
@@ -481,62 +481,39 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
         className="relative w-full h-[100dvh] sm:h-[94vh] sm:max-h-[880px] max-w-5xl lg:max-w-6xl xl:max-w-7xl rounded-none sm:rounded-3xl app-card border-0 sm:border app-border shadow-2xl app-text overflow-hidden flex flex-col bg-slate-900 select-text"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* FIXED TOP HEADER */}
-        <div className="flex items-center justify-between px-3.5 sm:px-6 py-2.5 sm:py-3.5 border-b app-border bg-slate-950/95 backdrop-blur-md shrink-0 z-20 gap-2">
+        {/* FIXED COMPACT TOP HEADER */}
+        <div className="flex items-center justify-between px-3.5 sm:px-6 py-2.5 sm:py-3 border-b app-border bg-slate-950/95 backdrop-blur-md shrink-0 z-20 gap-3">
           <div className="flex items-center gap-2.5 sm:gap-3 overflow-hidden min-w-0 flex-1">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
-              <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5" />
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+              <Stethoscope className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                <span className="px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                  {category.name[language] || category.name.en}
-                </span>
-                <span className="text-[10px] sm:text-[11px] app-muted font-mono bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/60">
-                  {disease.id}
-                </span>
-                <StudyStatusBadge
-                  language={language}
-                  viewed={viewed}
-                  completed={completed}
-                  size="sm"
-                  onToggleComplete={(e) => {
-                    e.stopPropagation();
-                    toggleItemCompleted(
-                      4,
-                      disease.id,
-                      { fa: disease.name.fa || disease.name.en, en: disease.name.en || disease.name.fa },
-                      { fa: category.name.fa || category.name.en, en: category.name.en || category.name.fa }
-                    );
-                  }}
-                />
-              </div>
-              <h2 className="text-sm sm:text-base md:text-lg lg:text-xl font-black text-slate-100 truncate leading-tight pt-1">
+
+            <div className="min-w-0 flex-1 flex items-center gap-2">
+              <h2 className="text-sm sm:text-base md:text-lg font-black text-slate-100 truncate leading-tight">
                 {diseaseTitle}
               </h2>
 
-              {/* Other Names / Synonyms directly under title */}
-              {allSynonyms.length > 0 && (
-                <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
-                  <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 shrink-0">
-                    {isFa ? 'سایر نام‌ها و مترادف‌ها:' : 'Other Names & Synonyms:'}
-                  </span>
-                  {allSynonyms.map((syn, synIdx) => (
-                    <span
-                      key={synIdx}
-                      className="px-2 py-0.5 rounded-md bg-slate-800/90 text-sky-300 border border-slate-700/60 text-[10px] sm:text-[11px] font-medium"
-                    >
-                      {syn}
-                    </span>
-                  ))}
-                </div>
-              )}
+              <StudyStatusBadge
+                language={language}
+                viewed={viewed}
+                completed={completed}
+                size="sm"
+                onToggleComplete={(e) => {
+                  e.stopPropagation();
+                  toggleItemCompleted(
+                    4,
+                    disease.id,
+                    { fa: disease.name.fa || disease.name.en, en: disease.name.en || disease.name.fa },
+                    { fa: category.name.fa || category.name.en, en: category.name.en || category.name.fa }
+                  );
+                }}
+              />
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 sm:p-2.5 rounded-xl bg-slate-800/90 hover:bg-rose-900/90 text-slate-300 hover:text-white border border-slate-700 shadow-md backdrop-blur-md transition cursor-pointer flex items-center justify-center shrink-0"
+            className="p-1.5 sm:p-2 rounded-xl bg-slate-800/90 hover:bg-rose-900/90 text-slate-300 hover:text-white border border-slate-700 shadow-md backdrop-blur-md transition cursor-pointer flex items-center justify-center shrink-0"
             title={isFa ? 'بستن (Esc)' : 'Close (Esc)'}
             aria-label={isFa ? 'بستن' : 'Close'}
           >
