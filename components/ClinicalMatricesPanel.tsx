@@ -374,21 +374,7 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
   };
 
   return (
-    <div className="app-card border border-sky-500/30 rounded-2xl p-4 sm:p-6 space-y-5 bg-slate-950/80 shadow-2xl text-slate-200">
-      {/* Header */}
-      <div className="flex items-center gap-2 border-b border-sky-500/20 pb-3.5">
-        <div>
-          <div className="flex items-center gap-2 text-sky-400 font-bold text-base sm:text-lg">
-            <Sparkles className="w-5 h-5 text-amber-400" />
-            <span>
-              {isFa
-                ? 'ماتریکس پروتکل بیماری‌ها و تصمیم‌گیری بالینی'
-                : 'Clinical Decision Protocols & Matrices'}
-            </span>
-          </div>
-        </div>
-      </div>
-
+    <div className="space-y-4 text-slate-200 animate-fadeIn">
       {!browseOpen ? (
         <div className="app-card border border-teal-500/40 rounded-2xl p-4 sm:p-5 space-y-4 shadow-lg bg-linear-to-b from-teal-950/20 to-transparent animate-fadeIn">
           <div className="border-b app-border pb-3 flex items-center gap-2">
@@ -397,11 +383,8 @@ export const ClinicalMatricesPanel: React.FC<ClinicalMatricesPanelProps> = ({
             </div>
             <div>
               <h3 className="text-sm sm:text-base font-black app-text">
-                {isFa ? 'انتخاب سرفصل و زیرفصل پروتکل‌های بالینی' : 'Select Protocol Section & Topic'}
+                {isFa ? 'سرفصل و زیرفصل پروتکل‌های بالینی' : 'Protocol Sections & Topics'}
               </h3>
-              <p className="text-[11px] app-muted mt-0.5">
-                {isFa ? 'سرفصل و زیرفصل مورد نظر را برای مطالعه انتخاب کنید.' : 'Choose a clinical protocol section and topic to study.'}
-              </p>
             </div>
           </div>
 
