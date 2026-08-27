@@ -60,12 +60,7 @@ export const DiseaseCategoryExplorer: React.FC<DiseaseCategoryExplorerProps> = (
     );
   });
 
-  const cardTitle = titleOverride || (isFa ? 'انتخاب دسته‌بندی بالینی بیماری‌ها' : 'Select Clinical Disease Category');
-  const cardSubtitle =
-    subtitleOverride ||
-    (isFa
-      ? 'برای مشاهده و مطالعه کارت‌های بیماری، دسته‌بندی مورد نظر را انتخاب کنید.'
-      : 'Choose a category to browse and study disease cards.');
+  const cardTitle = titleOverride || (isFa ? 'دسته‌بندی بالینی بیماری‌ها' : 'Clinical Disease Categories');
 
   return (
     <div className="space-y-4 animate-fadeIn">
@@ -86,7 +81,6 @@ export const DiseaseCategoryExplorer: React.FC<DiseaseCategoryExplorerProps> = (
                 <h3 className={isMobile ? 'text-xs sm:text-sm font-black app-text' : 'text-base font-black app-text'}>
                   {cardTitle}
                 </h3>
-                <p className={isMobile ? 'text-[11px] app-muted' : 'text-xs app-muted'}>{cardSubtitle}</p>
               </div>
             </div>
           </div>
