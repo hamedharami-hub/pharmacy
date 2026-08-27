@@ -1915,36 +1915,6 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Theme Switcher: OLED vs Paper */}
-              <div
-                className={`p-1 rounded-xl flex items-center gap-1 border ${
-                  zenTheme === 'oled' ? 'bg-slate-950 border-slate-800' : 'bg-[#e4d8c7] border-[#ccbea9]'
-                }`}
-              >
-                <button
-                  type="button"
-                  onClick={() => setZenTheme('oled')}
-                  className={`px-2 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 cursor-pointer ${
-                    zenTheme === 'oled' ? 'bg-slate-800 text-white shadow-xs' : 'opacity-60 hover:opacity-100'
-                  }`}
-                  title={isFa ? 'تم تاریک مطلق OLED' : 'OLED Pitch Black'}
-                >
-                  <Moon className="w-3 h-3 text-indigo-400" />
-                  <span>OLED</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setZenTheme('paper')}
-                  className={`px-2 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 cursor-pointer ${
-                    zenTheme === 'paper' ? 'bg-[#fcf9f2] text-[#1F1B18] shadow-xs' : 'opacity-60 hover:opacity-100'
-                  }`}
-                  title={isFa ? 'تم کاغذ گرم مطالعه' : 'Warm Paper'}
-                >
-                  <Sun className="w-3 h-3 text-amber-600" />
-                  <span>Paper</span>
-                </button>
-              </div>
-
               {/* Exit Zen Mode */}
               <button
                 type="button"
