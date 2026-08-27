@@ -169,12 +169,12 @@ export const LeitnerStudySettingsModal: React.FC<LeitnerStudySettingsModalProps>
       onClick={onClose}
     >
       <div
-        className="app-card border app-border rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col"
+        className="app-card border app-border rounded-3xl w-full max-w-2xl h-[640px] max-h-[88vh] overflow-hidden shadow-2xl flex flex-col"
         dir={isFa ? 'rtl' : 'ltr'}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 border-b app-border flex items-center justify-between gap-3 bg-slate-900/40">
+        <div className="p-4 sm:p-5 border-b app-border flex items-center justify-between gap-3 bg-slate-900/40 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-purple-600/20 text-purple-400 border border-purple-500/40 flex items-center justify-center shadow-inner">
               <Settings className="w-5 h-5" />
@@ -200,7 +200,7 @@ export const LeitnerStudySettingsModal: React.FC<LeitnerStudySettingsModalProps>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b app-border app-bg p-1.5 gap-1 overflow-x-auto no-scrollbar text-xs font-bold">
+        <div className="flex border-b app-border app-bg p-1.5 gap-1 overflow-x-auto no-scrollbar text-xs font-bold shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab('study')}
@@ -267,8 +267,8 @@ export const LeitnerStudySettingsModal: React.FC<LeitnerStudySettingsModalProps>
           </button>
         </div>
 
-        {/* Modal Body */}
-        <div className="p-4 sm:p-6 overflow-y-auto space-y-5 text-xs">
+        {/* Modal Body with fixed flex-1 scrolling */}
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-5 text-xs">
           {/* TAB 1: ALGORITHM & QUEUE */}
           {activeTab === 'study' && (
             <div className="space-y-4">
