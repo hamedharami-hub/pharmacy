@@ -525,6 +525,16 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
           </button>
         </div>
 
+{/* Fullscreen toggle for all devices */}
+<button
+  type="button"
+  onClick={toggleFullscreen}
+  className={`p-2 rounded-xl transition shadow-sm cursor-pointer ${isFullscreen ? 'bg-purple-600 text-white ring-2 ring-purple-400/50' : 'bg-slate-800/90 hover:bg-purple-600 text-slate-200 hover:text-white'}`}
+  title={isFullscreen ? (isFa ? 'خروج از تمام‌صفحه (ESC)' : 'Exit Fullscreen (ESC)') : (isFa ? 'تمام‌صفحه واقعی نقشه ذهنی' : 'True Fullscreen')}
+>
+  {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4 text-purple-400" />}
+</button>
+
         {/* Divider */}
         <div className="w-px h-5 bg-slate-700/80 mx-0.5 hidden sm:block" />
 
