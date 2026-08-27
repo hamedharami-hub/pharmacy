@@ -1966,24 +1966,84 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
           {currentStudyCard && !sessionCompleted ? (
             <div className="max-w-3xl w-full mx-auto flex-1 flex flex-col justify-center py-2 sm:py-6">
               <div className="relative w-full">
-                {/* Tinder Swipe Stamp Overlays */}
-                {dragOffset.x > 35 && (
-                  <div
-                    className="absolute top-6 end-6 z-30 px-4 py-2 rounded-2xl border-4 border-emerald-400 bg-emerald-950/95 text-emerald-300 font-black text-sm sm:text-base tracking-wider uppercase shadow-2xl rotate-12 flex items-center gap-2 pointer-events-none"
-                    style={{ opacity: Math.min(1, dragOffset.x / 100) }}
-                  >
-                    <ThumbsUp className="w-5 h-5 text-emerald-400" />
-                    <span>{isFa ? 'بلدم (GOOD)' : 'GOOD'}</span>
+                {/* 1. RIGHT SWIPES: EASY (TOP-RIGHT) VS GOOD (BOTTOM-RIGHT / HORIZONTAL) */}
+                {dragOffset.x > 25 && (
+                  <div className="absolute top-6 end-6 z-30 flex flex-col gap-2 pointer-events-none rotate-6 transition-all duration-150">
+                    {/* EASY STAMP (ACTIVE WHEN DRAGGING TOWARDS TOP-RIGHT) */}
+                    <div
+                      className={`px-4 py-2 rounded-2xl border-3 transition-all flex items-center gap-2 shadow-2xl ${
+                        dragOffset.y < -15
+                          ? 'scale-110 border-cyan-400 bg-cyan-950/95 text-cyan-200 ring-4 ring-cyan-400/40 shadow-cyan-500/40'
+                          : 'opacity-40 border-cyan-600/60 bg-cyan-950/70 text-cyan-400'
+                      }`}
+                      style={{ opacity: Math.max(0.3, Math.min(1, dragOffset.x / 90)) }}
+                    >
+                      <Zap className="w-5 h-5 text-cyan-300 animate-bounce" />
+                      <span className="font-black text-sm sm:text-base tracking-wide">
+                        {isFa ? '✨ آسان (EASY)' : '✨ EASY'}
+                      </span>
+                    </div>
+
+                    {/* GOOD STAMP (ACTIVE WHEN DRAGGING HORIZONTALLY / BOTTOM-RIGHT) */}
+                    <div
+                      className={`px-4 py-2 rounded-2xl border-3 transition-all flex items-center gap-2 shadow-2xl ${
+                        dragOffset.y >= -15
+                          ? 'scale-110 border-emerald-400 bg-emerald-950/95 text-emerald-200 ring-4 ring-emerald-400/40 shadow-emerald-500/40'
+                          : 'opacity-40 border-emerald-600/60 bg-emerald-950/70 text-emerald-400'
+                      }`}
+                      style={{ opacity: Math.max(0.3, Math.min(1, dragOffset.x / 90)) }}
+                    >
+                      <ThumbsUp className="w-5 h-5 text-emerald-300" />
+                      <span className="font-black text-sm sm:text-base tracking-wide">
+                        {isFa ? '👍 بلدم (GOOD)' : '👍 GOOD'}
+                      </span>
+                    </div>
                   </div>
                 )}
 
-                {dragOffset.x < -35 && (
+                {/* 2. LEFT SWIPES: HARD (TOP-LEFT) VS AGAIN (BOTTOM-LEFT / HORIZONTAL) */}
+                {dragOffset.x < -25 && (
+                  <div className="absolute top-6 start-6 z-30 flex flex-col gap-2 pointer-events-none -rotate-6 transition-all duration-150">
+                    {/* HARD STAMP (ACTIVE WHEN DRAGGING TOWARDS TOP-LEFT) */}
+                    <div
+                      className={`px-4 py-2 rounded-2xl border-3 transition-all flex items-center gap-2 shadow-2xl ${
+                        dragOffset.y < -15
+                          ? 'scale-110 border-amber-400 bg-amber-950/95 text-amber-200 ring-4 ring-amber-400/40 shadow-amber-500/40'
+                          : 'opacity-40 border-amber-600/60 bg-amber-950/70 text-amber-400'
+                      }`}
+                      style={{ opacity: Math.max(0.3, Math.min(1, Math.abs(dragOffset.x) / 90)) }}
+                    >
+                      <AlertCircle className="w-5 h-5 text-amber-300 animate-pulse" />
+                      <span className="font-black text-sm sm:text-base tracking-wide">
+                        {isFa ? '⚠️ سخت (HARD)' : '⚠️ HARD'}
+                      </span>
+                    </div>
+
+                    {/* AGAIN STAMP (ACTIVE WHEN DRAGGING HORIZONTALLY / BOTTOM-LEFT) */}
+                    <div
+                      className={`px-4 py-2 rounded-2xl border-3 transition-all flex items-center gap-2 shadow-2xl ${
+                        dragOffset.y >= -15
+                          ? 'scale-110 border-rose-500 bg-rose-950/95 text-rose-200 ring-4 ring-rose-500/40 shadow-rose-500/40'
+                          : 'opacity-40 border-rose-600/60 bg-rose-950/70 text-rose-400'
+                      }`}
+                      style={{ opacity: Math.max(0.3, Math.min(1, Math.abs(dragOffset.x) / 90)) }}
+                    >
+                      <RotateCcw className="w-5 h-5 text-rose-300" />
+                      <span className="font-black text-sm sm:text-base tracking-wide">
+                        {isFa ? '🔄 تکرار (AGAIN)' : '🔄 AGAIN'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* 3. VERTICAL SWIPES (BOTH PULL DOWN & PULL UP REVEAL ANSWER) */}
+                {Math.abs(dragOffset.y) > 35 && Math.abs(dragOffset.y) > Math.abs(dragOffset.x) && !isAnswerRevealed && (
                   <div
-                    className="absolute top-6 start-6 z-30 px-4 py-2 rounded-2xl border-4 border-rose-500 bg-rose-950/95 text-rose-300 font-black text-sm sm:text-base tracking-wider uppercase shadow-2xl -rotate-12 flex items-center gap-2 pointer-events-none"
-                    style={{ opacity: Math.min(1, Math.abs(dragOffset.x) / 100) }}
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 px-5 py-3 rounded-2xl border-2 border-cyan-400 bg-slate-950/95 text-cyan-200 font-black text-sm sm:text-base tracking-wider uppercase shadow-2xl flex items-center gap-2.5 pointer-events-none animate-in fade-in zoom-in-90 backdrop-blur-md"
+                    style={{ opacity: Math.min(1, Math.abs(dragOffset.y) / 70) }}
                   >
-                    <RotateCcw className="w-5 h-5 text-rose-400" />
-                    <span>{isFa ? 'مرور مجدد (AGAIN)' : 'AGAIN'}</span>
+                    <Eye className="w-5 h-5 text-cyan-300 animate-pulse" />
+                    <span>{isFa ? '✨ رها کنید: نمایش پاسخ ✨' : '✨ Release to Reveal Answer ✨'}</span>
                   </div>
                 )}
 
@@ -2286,6 +2346,17 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                 </button>
               </div>
             )}
+
+            {/* Gesture Hints in Zen Mode */}
+            <div className="flex items-center justify-center gap-3 pt-2 text-[10.5px] opacity-60 flex-wrap select-none font-mono">
+              <span className="text-amber-400 font-bold">{isFa ? '↖️ بالا-چپ: سخت (Hard)' : '↖️ Top-Left: Hard'}</span>
+              <span>•</span>
+              <span className="text-rose-400 font-bold">{isFa ? '⬅️ چپ: تکرار (Again)' : '⬅️ Left: Again'}</span>
+              <span>•</span>
+              <span className="text-cyan-400 font-bold">{isFa ? '↗️ بالا-راست: آسان (Easy)' : '↗️ Top-Right: Easy'}</span>
+              <span>•</span>
+              <span className="text-emerald-400 font-bold">{isFa ? '➡️ راست: خوب (Good)' : '➡️ Right: Good'}</span>
+            </div>
           </div>
         </div>,
         document.body
