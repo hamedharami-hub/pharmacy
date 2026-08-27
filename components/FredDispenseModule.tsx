@@ -213,7 +213,8 @@ type FredViewMode =
   | 'retentionDesk'
   | 'odtDosing'
   | 'pbsArchive'
-  | 'dual';
+  | 'dual'
+  | null;
 
 const VISUALIZER_TAB_TO_SCENARIO: Record<string, string> = {
   pb82: 'script-2',
@@ -336,8 +337,8 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
 }) => {
   const isFa = language === 'fa';
   const [selectedScenarioId, setSelectedScenarioId] = useState<string>('script-1');
-  const [viewMode, setViewMode] = useState<FredViewMode>('dual');
-  const [isStepAccordionOpen, setIsStepAccordionOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<FredViewMode>(null);
+  const [isStepAccordionOpen, setIsStepAccordionOpen] = useState(true);
 
   // Fred Screen Inputs
   const [enteredPbsCode, setEnteredPbsCode] = useState('');
@@ -412,7 +413,7 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
         en: `Script Dispensing [${scenario.type} - ${scenario.schedule}]`,
       },
       {
-        tabId: viewMode,
+        tabId: viewMode || undefined,
       }
     );
   }, [scenario.id, scenario.patientName, scenario.prescribedDrug, scenario.type, scenario.schedule, viewMode, markItemViewed]);
@@ -664,13 +665,23 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="text-xs sm:text-sm font-black app-text truncate">
-                    {isFa
-                      ? FRED_STEP_OPTIONS.find((step) => step.id === viewMode)?.labelFa
-                      : FRED_STEP_OPTIONS.find((step) => step.id === viewMode)?.labelEn}
+                    {viewMode
+                      ? isFa
+                        ? FRED_STEP_OPTIONS.find((step) => step.id === viewMode)?.labelFa
+                        : FRED_STEP_OPTIONS.find((step) => step.id === viewMode)?.labelEn
+                      : isFa
+                      ? 'انتخاب مرحله نسخه پیچی'
+                      : 'Select Dispensing Step'}
                   </h2>
-                  <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-mono font-bold border border-teal-500/30">
-                    {FRED_STEP_OPTIONS.find((step) => step.id === viewMode)?.stepNumber}
-                  </span>
+                  {viewMode ? (
+                    <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-mono font-bold border border-teal-500/30">
+                      {FRED_STEP_OPTIONS.find((step) => step.id === viewMode)?.stepNumber}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30 animate-pulse">
+                      {isFa ? 'یک مرحله را از بالا انتخاب کنید' : 'Choose a step above'}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -683,7 +694,19 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
               }}
               className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
             >
-              <span>{isFa ? (isStepAccordionOpen ? 'بستن منو' : 'تغییر گام ▾') : (isStepAccordionOpen ? 'Close Menu' : 'Change Step ▾')}</span>
+              <span>
+                {isStepAccordionOpen
+                  ? isFa
+                    ? 'بستن منو'
+                    : 'Close Menu'
+                  : viewMode
+                  ? isFa
+                    ? 'تغییر گام ▾'
+                    : 'Change Step ▾'
+                  : isFa
+                  ? 'انتخاب گام ▾'
+                  : 'Select Step ▾'}
+              </span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isStepAccordionOpen ? 'rotate-180 text-teal-400' : ''}`} />
             </button>
           </div>
@@ -745,8 +768,9 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
         </div>
       </div>
 
-      <>
-        {/* STEP 1: Script Visualizer Panel Section (Rendered in 'visualizer' or 'dual' view) */}
+      {viewMode ? (
+        <>
+          {/* STEP 1: Script Visualizer Panel Section (Rendered in 'visualizer' or 'dual' view) */}
           {(viewMode === 'visualizer' || viewMode === 'dual') && (
             <div className="space-y-2">
               {viewMode === 'dual' && (
@@ -1273,8 +1297,24 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
               />
             </div>
           )}
-
         </>
+      ) : (
+        <div className="p-8 sm:p-12 text-center rounded-3xl border border-dashed border-teal-500/30 bg-slate-900/30 space-y-3 animate-fadeIn">
+          <div className="w-14 h-14 rounded-2xl bg-teal-500/15 text-teal-400 border border-teal-500/30 flex items-center justify-center mx-auto shadow-inner">
+            <Monitor className="w-7 h-7" />
+          </div>
+          <div className="space-y-1 max-w-md mx-auto">
+            <h3 className="text-sm sm:text-base font-black app-text">
+              {isFa ? 'هیچ مرحله‌ای انتخاب نشده است' : 'No Dispensing Step Selected'}
+            </h3>
+            <p className="text-xs app-muted leading-relaxed">
+              {isFa
+                ? 'برای شروع و مشاهده جزئیات، لطفاً از منوی بالای صفحه یکی از گام‌های نسخه‌پیچی (بررسی نسخه، ترمینال Fred، شورت‌کات‌ها، برچسب‌گذاری و...) را انتخاب نمایید.'
+                : 'Please choose one of the dispensing pipeline steps from the menu above to begin workflow and view its interface.'}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Pharmacist Final Check Audit Screen (F10 Hotkey) */}
       {isFinalCheckModalOpen && (
