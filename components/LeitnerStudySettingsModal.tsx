@@ -169,31 +169,24 @@ export const LeitnerStudySettingsModal: React.FC<LeitnerStudySettingsModalProps>
       onClick={onClose}
     >
       <div
-        className="app-card border app-border rounded-3xl w-full max-w-2xl h-[640px] max-h-[88vh] overflow-hidden shadow-2xl flex flex-col"
+        className="app-card border app-border rounded-3xl w-full max-w-2xl h-[780px] max-h-[92vh] overflow-hidden shadow-2xl flex flex-col"
         dir={isFa ? 'rtl' : 'ltr'}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 border-b app-border flex items-center justify-between gap-3 bg-slate-900/40 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-purple-600/20 text-purple-400 border border-purple-500/40 flex items-center justify-center shadow-inner">
-              <Settings className="w-5 h-5" />
+        <div className="p-3.5 sm:p-4 border-b app-border flex items-center justify-between gap-3 bg-slate-900/40 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/40 flex items-center justify-center shadow-inner">
+              <Settings className="w-4 h-4" />
             </div>
-            <div>
-              <h3 className="text-base sm:text-lg font-black app-text">
-                {isFa ? 'تنظیمات پیشرفته مطالعه و الگوریتم FSRS' : 'Leitner & FSRS Spaced Repetition Settings'}
-              </h3>
-              <p className="text-xs app-muted">
-                {isFa
-                  ? 'سفارشی‌سازی دقیق پارامترهای پایداری حافظه FSRS v5، فواصل مرور و ترتیب صف'
-                  : 'Fine-tune FSRS v5 memory stability, desired retention & queue'}
-              </p>
-            </div>
+            <h3 className="text-sm sm:text-base font-black app-text">
+              {isFa ? 'تنظیمات مطالعه لایتنر و الگوریتم FSRS' : 'Leitner & FSRS Settings'}
+            </h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl app-bg hover:bg-black/10 dark:hover:bg-slate-800 app-text border app-border transition cursor-pointer"
+            className="p-1.5 rounded-xl app-bg hover:bg-black/10 dark:hover:bg-slate-800 app-text border app-border transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
