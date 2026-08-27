@@ -23,6 +23,7 @@ import {
   ColorPickerModal,
 } from '@/components/mindmap/MindMapModals';
 import { MindMapSettingsModal } from '@/components/mindmap/MindMapSettingsModal';
+import { getClientAiConfig, saveClientAiConfig } from '@/lib/aiConfigStorage';
 import {
   Sparkles,
   Search,
@@ -157,7 +158,18 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
   const [textDisplayMode, setTextDisplayMode] = useState<MindMapTextDisplay>('full_detailed');
   const [lineStyle, setLineStyle] = useState<MindMapLineStyle>('smooth_bezier');
   const [isZenMode, setIsZenMode] = useState(false);
-  const cardLangMode = language;
+  const [cardLangMode, setCardLangMode] = useState<'fa' | 'en' | 'bilingual'>('bilingual');
+
+  // AI Config & Selected Model for Mind Map
+  const [currentAiModel, setCurrentAiModel] = useState<string>(() => {
+    return getClientAiConfig().flashcardModel || 'gemini-2.5-flash';
+  });
+
+  const handleSetAiModel = useCallback((modelId: string) => {
+    setCurrentAiModel(modelId);
+    const existing = getClientAiConfig();
+    saveClientAiConfig({ ...existing, flashcardModel: modelId });
+  }, []);
 
   // Settings Modal State
   const [isMindMapSettingsOpen, setIsMindMapSettingsOpen] = useState(false);
@@ -347,9 +359,15 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
       if (node.canonicalKey && customAliases[node.canonicalKey]) {
         return customAliases[node.canonicalKey];
       }
+      if (cardLangMode === 'en') {
+        return node.title.en || node.title.fa;
+      }
+      if (cardLangMode === 'fa') {
+        return node.title.fa || node.title.en;
+      }
       return isFa ? node.title.fa || node.title.en : node.title.en || node.title.fa;
     },
-    [isFa, customAliases]
+    [isFa, customAliases, cardLangMode]
   );
 
   const getNodeColorTheme = useCallback(
@@ -1253,8 +1271,15 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
           getNodeDisplayTitle={getNodeDisplayTitle}
           cardFlags={cardFlags}
           cardLangMode={cardLangMode}
+          onSetCardLangMode={setCardLangMode}
           textDisplayMode={textDisplayMode}
           lineStyle={lineStyle}
+          onSetLineStyle={setLineStyle}
+          onExpandAll={expandAll}
+          onCollapseAll={collapseAll}
+          aiModel={currentAiModel}
+          onSetAiModel={handleSetAiModel}
+          onTriggerAiMindMap={() => onOpenAiGenerator?.()}
           isDarkTheme={true}
           onOpenSettings={() => setIsMindMapSettingsOpen(true)}
         >

@@ -20,11 +20,13 @@ import {
   Move,
   ChevronRight,
   ChevronDown,
+  ChevronUp,
   HelpCircle,
   Flag,
   Sparkles,
   BookOpen,
   Folder,
+  FolderTree,
   Stethoscope,
   Pill,
   Zap,
@@ -33,6 +35,14 @@ import {
   Sliders,
   CheckCircle2,
   ExternalLink,
+  Globe,
+  Activity,
+  Brain,
+  Bot,
+  Workflow,
+  Check,
+  Layers,
+  ChevronsUpDown,
 } from 'lucide-react';
 
 export interface MindMapCanvasProps {
@@ -48,8 +58,15 @@ export interface MindMapCanvasProps {
   getNodeDisplayTitle: (node: MindMapNode) => string;
   cardFlags: Record<string, FlagColor>;
   cardLangMode: 'fa' | 'en' | 'bilingual';
+  onSetCardLangMode?: (mode: 'fa' | 'en' | 'bilingual') => void;
   textDisplayMode: MindMapTextDisplay;
   lineStyle: MindMapLineStyle;
+  onSetLineStyle?: (style: MindMapLineStyle) => void;
+  onExpandAll?: () => void;
+  onCollapseAll?: () => void;
+  aiModel?: string;
+  onSetAiModel?: (model: string) => void;
+  onTriggerAiMindMap?: () => void;
   isDarkTheme?: boolean;
   onOpenSettings?: () => void;
   children?: React.ReactNode;
@@ -68,8 +85,15 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
   getNodeDisplayTitle,
   cardFlags,
   cardLangMode,
+  onSetCardLangMode,
   textDisplayMode,
   lineStyle,
+  onSetLineStyle,
+  onExpandAll,
+  onCollapseAll,
+  aiModel,
+  onSetAiModel,
+  onTriggerAiMindMap,
   isDarkTheme = true,
   onOpenSettings,
   children,
@@ -77,11 +101,36 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
   const isFa = language === 'fa';
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const popoverContainerRef = useRef<HTMLDivElement>(null);
   const [zoomLevel, setZoomLevel] = useState<number>(0.9);
   const [panOffset, setPanOffset] = useState<{ x: number; y: number }>({ x: 50, y: 50 });
   const [isDragging, setIsDragging] = useState(false);
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [openPopover, setOpenPopover] = useState<'lang' | 'lines' | 'ai' | null>(null);
+
+  // Close popover when clicking outside or pressing Escape
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+      if (popoverContainerRef.current && !popoverContainerRef.current.contains(e.target as Node)) {
+        setOpenPopover(null);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpenPopover(null);
+    };
+
+    if (openPopover) {
+      document.addEventListener('mousedown', handleOutsideClick);
+      document.addEventListener('touchstart', handleOutsideClick);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [openPopover]);
 
   const dragStartPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const hasInitializedViewRef = useRef(false);
@@ -406,64 +455,368 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
         touchAction: 'none',
       }}
     >
-      {/* Floating Canvas Controls Panel */}
-      <div className="absolute top-4 start-4 z-20 flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 shadow-2xl backdrop-blur-md">
-        <button
-          type="button"
-          onClick={handleZoomIn}
-          className="p-2 rounded-xl bg-slate-800/90 hover:bg-purple-600 text-slate-200 hover:text-white transition shadow-sm cursor-pointer"
-          title={isFa ? 'بزرگ‌نمایی (+)' : 'Zoom In (+)'}
-        >
-          <ZoomIn className="w-4 h-4" />
-        </button>
+      {/* Floating Canvas Controls & Settings Multi-Toolbar */}
+      <div
+        ref={popoverContainerRef}
+        className="absolute top-4 start-4 z-30 flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 shadow-2xl backdrop-blur-md max-w-[calc(100vw-2rem)] overflow-visible flex-wrap sm:flex-nowrap"
+      >
+        {/* 1. Zoom Controls */}
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={handleZoomIn}
+            className="p-2 rounded-xl bg-slate-800/90 hover:bg-purple-600 text-slate-200 hover:text-white transition shadow-sm cursor-pointer"
+            title={isFa ? 'بزرگ‌نمایی (+)' : 'Zoom In (+)'}
+          >
+            <ZoomIn className="w-4 h-4" />
+          </button>
 
-        <button
-          type="button"
-          onClick={handleZoomOut}
-          className="p-2 rounded-xl bg-slate-800/90 hover:bg-purple-600 text-slate-200 hover:text-white transition shadow-sm cursor-pointer"
-          title={isFa ? 'کوچک‌نمایی (-)' : 'Zoom Out (-)'}
-        >
-          <ZoomOut className="w-4 h-4" />
-        </button>
+          <button
+            type="button"
+            onClick={handleZoomOut}
+            className="p-2 rounded-xl bg-slate-800/90 hover:bg-purple-600 text-slate-200 hover:text-white transition shadow-sm cursor-pointer"
+            title={isFa ? 'کوچک‌نمایی (-)' : 'Zoom Out (-)'}
+          >
+            <ZoomOut className="w-4 h-4" />
+          </button>
 
-        <button
-          type="button"
-          onClick={handleResetZoom}
-          className="px-2.5 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-mono font-bold transition cursor-pointer"
-          title={isFa ? 'بزرگ‌نمایی ۱۰۰٪' : 'Reset to 100%'}
-        >
-          {Math.round(zoomLevel * 100)}%
-        </button>
+          <button
+            type="button"
+            onClick={handleResetZoom}
+            className="px-2.5 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-mono font-bold transition cursor-pointer"
+            title={isFa ? 'بزرگ‌نمایی ۱۰۰٪' : 'Reset to 100%'}
+          >
+            {Math.round(zoomLevel * 100)}%
+          </button>
 
-        <button
-          type="button"
-          onClick={handleFitView}
-          className="p-2 rounded-xl bg-slate-800/90 hover:bg-purple-600 text-slate-200 hover:text-white transition shadow-sm cursor-pointer"
-          title={isFa ? 'تراز و چیدمان کامل در صفحه' : 'Fit Entire Mind Map to Screen'}
-        >
-          <Maximize2 className="w-4 h-4" />
-        </button>
+          <button
+            type="button"
+            onClick={handleFitView}
+            className="p-2 rounded-xl bg-slate-800/90 hover:bg-purple-600 text-slate-200 hover:text-white transition shadow-sm cursor-pointer"
+            title={isFa ? 'تراز و چیدمان کامل در صفحه' : 'Fit Entire Mind Map to Screen'}
+          >
+            <Maximize2 className="w-4 h-4" />
+          </button>
 
-        <button
-          type="button"
-          onClick={toggleFullscreen}
-          className={`p-2 rounded-xl transition shadow-sm cursor-pointer ${
-            isFullscreen
-              ? 'bg-purple-600 text-white ring-2 ring-purple-400/50'
-              : 'bg-slate-800/90 hover:bg-purple-600 text-slate-200 hover:text-white'
-          }`}
-          title={
-            isFullscreen
-              ? isFa
-                ? 'خروج از تمام‌صفحه (ESC)'
-                : 'Exit Fullscreen (ESC)'
-              : isFa
-              ? 'تمام‌صفحه واقعی نقشه ذهنی'
-              : 'True Fullscreen'
-          }
-        >
-          {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4 text-purple-400" />}
-        </button>
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            className={`p-2 rounded-xl transition shadow-sm cursor-pointer ${
+              isFullscreen
+                ? 'bg-purple-600 text-white ring-2 ring-purple-400/50'
+                : 'bg-slate-800/90 hover:bg-purple-600 text-slate-200 hover:text-white'
+            }`}
+            title={
+              isFullscreen
+                ? isFa
+                  ? 'خروج از تمام‌صفحه (ESC)'
+                  : 'Exit Fullscreen (ESC)'
+                : isFa
+                ? 'تمام‌صفحه واقعی نقشه ذهنی'
+                : 'True Fullscreen'
+            }
+          >
+            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4 text-purple-400" />}
+          </button>
+        </div>
+
+        {/* Divider */}
+        <div className="w-px h-5 bg-slate-700/80 mx-0.5 hidden sm:block" />
+
+        {/* 2. Expand / Collapse All Branches Toggle */}
+        {(onExpandAll || onCollapseAll) && (
+          <button
+            type="button"
+            onClick={() => {
+              const totalExpanded = Object.values(expandedNodeIds).filter(Boolean).length;
+              if (totalExpanded > 3) {
+                onCollapseAll?.();
+              } else {
+                onExpandAll?.();
+              }
+            }}
+            className="px-2.5 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap"
+            title={isFa ? 'باز کردن / بستن همه شاخه‌های نقشه ذهنی' : 'Expand / Collapse All Branches'}
+          >
+            <FolderTree className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden sm:inline">
+              {Object.values(expandedNodeIds).filter(Boolean).length > 3
+                ? isFa
+                  ? 'بستن همه'
+                  : 'Collapse'
+                : isFa
+                ? 'باز کردن همه'
+                : 'Expand All'}
+            </span>
+          </button>
+        )}
+
+        {/* 3. 🌐 Language Switcher Popover (3 Modes: Farsi, English, Bilingual) */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setOpenPopover(openPopover === 'lang' ? null : 'lang')}
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap ${
+              openPopover === 'lang'
+                ? 'bg-purple-600 text-white ring-1 ring-purple-400/50'
+                : 'bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white'
+            }`}
+            title={isFa ? 'تغییر زبان گره‌های نقشه ذهنی (فارسی / انگلیسی / دوزبانه)' : 'Change Language Mode'}
+          >
+            <Globe className="w-3.5 h-3.5 text-cyan-400" />
+            <span>
+              {cardLangMode === 'bilingual'
+                ? isFa ? 'دوزبانه' : 'Bilingual'
+                : cardLangMode === 'fa'
+                ? 'فارسی'
+                : 'English'}
+            </span>
+            <ChevronDown className={`w-3 h-3 transition-transform ${openPopover === 'lang' ? 'rotate-180' : ''}`} />
+          </button>
+
+          {openPopover === 'lang' && (
+            <div
+              className="absolute top-full start-0 mt-2 z-50 w-52 p-1.5 rounded-2xl bg-slate-900/95 border border-slate-700/80 shadow-2xl backdrop-blur-xl space-y-1 animate-in fade-in zoom-in-95 text-xs"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                {isFa ? 'زبان نمایش گره‌ها' : 'Language Mode'}
+              </div>
+              {[
+                {
+                  id: 'bilingual',
+                  label: isFa ? '🌐 دوزبانه (Fa + En)' : '🌐 Bilingual (Fa + En)',
+                  desc: isFa ? 'فارسی به همراه متن انگلیسی' : 'Both languages shown',
+                },
+                {
+                  id: 'fa',
+                  label: isFa ? '🇮🇷 فقط فارسی' : '🇮🇷 Farsi Only',
+                  desc: isFa ? 'تمرکز روی ترجمه فارسی' : 'Farsi focused text',
+                },
+                {
+                  id: 'en',
+                  label: isFa ? '🇬🇧 فقط انگلیسی' : '🇬🇧 English Only',
+                  desc: isFa ? 'اصطلاحات تخصصی آزمون KAPS' : 'Medical English focus',
+                },
+              ].map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => {
+                    onSetCardLangMode?.(opt.id as any);
+                    setOpenPopover(null);
+                  }}
+                  className={`w-full p-2 rounded-xl text-start transition cursor-pointer flex items-center justify-between text-xs font-bold ${
+                    cardLangMode === opt.id
+                      ? 'bg-purple-600 text-white'
+                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  }`}
+                >
+                  <div>
+                    <div>{opt.label}</div>
+                    <div className={`text-[10px] ${cardLangMode === opt.id ? 'text-purple-200' : 'text-slate-500'}`}>
+                      {opt.desc}
+                    </div>
+                  </div>
+                  {cardLangMode === opt.id && <Check className="w-3.5 h-3.5" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 4. 〰️ Connector Line Style Popover */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setOpenPopover(openPopover === 'lines' ? null : 'lines')}
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap ${
+              openPopover === 'lines'
+                ? 'bg-purple-600 text-white ring-1 ring-purple-400/50'
+                : 'bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white'
+            }`}
+            title={isFa ? 'سبک و انحنای خطوط اتصال بین گره‌ها' : 'Connector Line Style'}
+          >
+            <Workflow className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="hidden sm:inline">
+              {lineStyle === 'smooth_bezier'
+                ? isFa ? 'منحنی' : 'Smooth'
+                : lineStyle === 'straight'
+                ? isFa ? 'مستقیم' : 'Straight'
+                : lineStyle === 'orthogonal_step'
+                ? isFa ? 'پله‌ای' : 'Stepped'
+                : isFa ? 'شعاعی' : 'Radial'}
+            </span>
+            <ChevronDown className={`w-3 h-3 transition-transform ${openPopover === 'lines' ? 'rotate-180' : ''}`} />
+          </button>
+
+          {openPopover === 'lines' && (
+            <div
+              className="absolute top-full start-0 mt-2 z-50 w-56 p-1.5 rounded-2xl bg-slate-900/95 border border-slate-700/80 shadow-2xl backdrop-blur-xl space-y-1 animate-in fade-in zoom-in-95 text-xs"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                {isFa ? 'سبک خطوط اتصال بین گره‌ها' : 'Line Connector Style'}
+              </div>
+              {[
+                {
+                  id: 'smooth_bezier' as MindMapLineStyle,
+                  label: isFa ? '🌊 منحنی روان (Bezier)' : '🌊 Smooth Bezier',
+                  desc: isFa ? 'طبیعی و ارگانیک ترین حالت' : 'Natural curved connections',
+                },
+                {
+                  id: 'straight' as MindMapLineStyle,
+                  label: isFa ? '📏 خطوط مستقیم' : '📏 Straight Direct',
+                  desc: isFa ? 'مستقیم، تمیز و سریع' : 'Clean direct lines',
+                },
+                {
+                  id: 'orthogonal_step' as MindMapLineStyle,
+                  label: isFa ? '📐 مستطیلی پله‌ای' : '📐 Orthogonal Stepped',
+                  desc: isFa ? 'چارت‌های سازمانی و مهندسی' : 'Right-angle stepped branches',
+                },
+                {
+                  id: 'polar_radial' as MindMapLineStyle,
+                  label: isFa ? '🌐 اتصالات شعاعی (Radial)' : '🌐 Polar Radial',
+                  desc: isFa ? 'پخش مدور و شعاعی' : 'Radial curved projection',
+                },
+              ].map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => {
+                    onSetLineStyle?.(opt.id);
+                    setOpenPopover(null);
+                  }}
+                  className={`w-full p-2 rounded-xl text-start transition cursor-pointer flex items-center justify-between text-xs font-bold ${
+                    lineStyle === opt.id
+                      ? 'bg-purple-600 text-white'
+                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  }`}
+                >
+                  <div>
+                    <div>{opt.label}</div>
+                    <div className={`text-[10px] ${lineStyle === opt.id ? 'text-purple-200' : 'text-slate-500'}`}>
+                      {opt.desc}
+                    </div>
+                  </div>
+                  {lineStyle === opt.id && <Check className="w-3.5 h-3.5" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 5. 🧠 AI Model Selector Popover */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setOpenPopover(openPopover === 'ai' ? null : 'ai')}
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap ${
+              openPopover === 'ai'
+                ? 'bg-linear-to-r from-purple-600 to-indigo-600 text-white ring-1 ring-purple-400/50'
+                : 'bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white'
+            }`}
+            title={isFa ? 'انتخاب مدل هوش مصنوعی برای تولید و گسترش نقشه ذهنی' : 'Select AI Model for Mind Map'}
+          >
+            <Brain className="w-3.5 h-3.5 text-purple-400" />
+            <span className="hidden sm:inline">
+              {aiModel
+                ? aiModel.includes('flash')
+                  ? 'Gemini Flash'
+                  : aiModel.includes('pro')
+                  ? 'Gemini Pro'
+                  : aiModel.includes('llama')
+                  ? 'Llama 3.3'
+                  : 'AI Model'
+                : 'AI Model'}
+            </span>
+            <ChevronDown className={`w-3 h-3 transition-transform ${openPopover === 'ai' ? 'rotate-180' : ''}`} />
+          </button>
+
+          {openPopover === 'ai' && (
+            <div
+              className="absolute top-full start-0 sm:start-auto sm:end-0 mt-2 z-50 w-64 p-2 rounded-2xl bg-slate-900/95 border border-slate-700/80 shadow-2xl backdrop-blur-xl space-y-1.5 animate-in fade-in zoom-in-95 text-xs"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                <span>{isFa ? 'موتور هوش مصنوعی (AI Engine)' : 'AI Model Selection'}</span>
+                <span className="text-amber-400 font-mono">v4.0</span>
+              </div>
+
+              {[
+                {
+                  id: 'gemini-2.5-flash',
+                  name: 'Gemini 2.5 Flash',
+                  badge: 'Google',
+                  desc: isFa ? 'فوق‌سریع و دقیق (پیش‌فرض پیشنهادی)' : 'Fast & accurate (Recommended)',
+                },
+                {
+                  id: 'gemini-2.5-pro',
+                  name: 'Gemini 2.5 Pro',
+                  badge: 'Google',
+                  desc: isFa ? 'استدلال عمیق سناریوهای داروسازی' : 'Deep clinical reasoning',
+                },
+                {
+                  id: 'llama-3.3-70b-versatile',
+                  name: 'Groq Llama 3.3 70B',
+                  badge: 'Groq',
+                  desc: isFa ? 'پاسخ‌دهی آنی با نهایت سرعت' : 'Ultra fast inference',
+                },
+                {
+                  id: 'deepseek-chat',
+                  name: 'DeepSeek / Custom',
+                  badge: 'xAI/API',
+                  desc: isFa ? 'مدل‌های اختصاصی و کاستوم' : 'Custom user model',
+                },
+              ].map((m) => {
+                const isSelected = (aiModel || 'gemini-2.5-flash')
+                  .toLowerCase()
+                  .includes(m.id.toLowerCase().split('-')[0]);
+                return (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => {
+                      onSetAiModel?.(m.id);
+                      setOpenPopover(null);
+                    }}
+                    className={`w-full p-2.5 rounded-xl text-start transition cursor-pointer flex items-center justify-between text-xs ${
+                      isSelected
+                        ? 'bg-purple-600/20 border border-purple-500/50 text-white font-bold'
+                        : 'bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-white border border-transparent'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold">{m.name}</span>
+                        <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-md bg-slate-700/80 text-slate-300">
+                          {m.badge}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">{m.desc}</div>
+                    </div>
+                    {isSelected && <Check className="w-3.5 h-3.5 text-purple-400" />}
+                  </button>
+                );
+              })}
+
+              {/* Action Button: Generate Mind Map Flashcards */}
+              {onTriggerAiMindMap && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpenPopover(null);
+                    onTriggerAiMindMap();
+                  }}
+                  className="w-full mt-1 py-2 px-3 rounded-xl bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <span>{isFa ? 'تولید شاخه و کارت جدید با AI ✨' : 'Generate with AI ✨'}</span>
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Canvas Status & Touch Guidance Helper Bar */}
