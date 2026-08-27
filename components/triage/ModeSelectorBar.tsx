@@ -102,22 +102,8 @@ export const ModeSelectorBar: React.FC<ModeSelectorBarProps> = ({
       </div>
 
       {!browseOpen ? (
-        <div className="app-card border border-teal-500/40 rounded-2xl p-4 sm:p-5 space-y-4 shadow-lg bg-linear-to-b from-teal-950/20 to-transparent animate-fadeIn">
-          <div className="flex items-center gap-2.5 border-b app-border pb-3">
-            <div className="p-2 rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30">
-              <Layers className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-black app-text">
-                {isFa ? 'انتخاب دسته و سناریوی مکالمه' : 'Select Conversation Mode & Scenario'}
-              </h3>
-              <p className="text-[11px] app-muted mt-0.5">
-                {isFa ? 'دسته و سناریوی مورد نظر را برای شروع تریاژ انتخاب کنید.' : 'Choose a conversation mode and scenario to begin triage.'}
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-3">
+        <div className="app-card border border-teal-500/40 rounded-2xl p-3 sm:p-4 space-y-3 shadow-lg bg-linear-to-b from-teal-950/20 to-transparent animate-fadeIn">
+          <div className="space-y-2.5">
             <ScenarioModeSelector
               selectedMode={selectedConversationMode}
               onSelectMode={onSelectMode}

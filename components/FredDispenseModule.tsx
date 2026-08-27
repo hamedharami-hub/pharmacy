@@ -643,21 +643,7 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
         </div>
 
         {!isStepBrowseOpen ? (
-          <div className="app-card border border-teal-500/40 rounded-2xl p-4 sm:p-5 space-y-4 shadow-lg bg-linear-to-b from-teal-950/20 to-transparent animate-fadeIn">
-            <div className="flex items-center gap-2.5 border-b app-border pb-3">
-              <div className="p-2 rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30">
-                <Layers className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-sm sm:text-base font-black app-text">
-                  {isFa ? 'انتخاب گام زنجیره نسخه‌پیچی' : 'Select Dispensing Pipeline Step'}
-                </h3>
-                <p className="text-[11px] app-muted mt-0.5">
-                  {isFa ? 'گام مورد نظر را برای شروع فرایند دیسپنس انتخاب کنید.' : 'Choose a dispensing step to begin the workflow.'}
-                </p>
-              </div>
-            </div>
-
+          <div className="app-card border border-teal-500/40 rounded-2xl p-3 sm:p-4 space-y-3 shadow-lg bg-linear-to-b from-teal-950/20 to-transparent animate-fadeIn">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {FRED_STEP_OPTIONS.map((step) => {
                 const isSelected = viewMode === step.id;
