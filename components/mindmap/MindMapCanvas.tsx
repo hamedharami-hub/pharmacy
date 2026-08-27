@@ -7,6 +7,7 @@ import {
   MindMapLink,
   MindMapTextDisplay,
   MindMapLineStyle,
+  MindMapViewMode,
 } from '@/types/mindmap';
 import { MINDMAP_THEMES, generateLinkPathData } from '@/lib/mindmapLayout';
 import { LeitnerCard } from '@/types/leitner';
@@ -43,6 +44,10 @@ import {
   Check,
   Layers,
   ChevronsUpDown,
+  GitFork,
+  Network,
+  ListTree,
+  Grid,
 } from 'lucide-react';
 
 export interface MindMapCanvasProps {
@@ -64,9 +69,8 @@ export interface MindMapCanvasProps {
   onSetLineStyle?: (style: MindMapLineStyle) => void;
   onExpandAll?: () => void;
   onCollapseAll?: () => void;
-  aiModel?: string;
-  onSetAiModel?: (model: string) => void;
-  onTriggerAiMindMap?: () => void;
+  viewMode?: MindMapViewMode;
+  onSetViewMode?: (mode: MindMapViewMode) => void;
   isDarkTheme?: boolean;
   onOpenSettings?: () => void;
   children?: React.ReactNode;
@@ -91,9 +95,8 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
   onSetLineStyle,
   onExpandAll,
   onCollapseAll,
-  aiModel,
-  onSetAiModel,
-  onTriggerAiMindMap,
+  viewMode,
+  onSetViewMode,
   isDarkTheme = true,
   onOpenSettings,
   children,
@@ -107,7 +110,7 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
-  const [openPopover, setOpenPopover] = useState<'lang' | 'lines' | 'ai' | null>(null);
+  const [openPopover, setOpenPopover] = useState<'lang' | 'lines' | 'viewMode' | null>(null);
 
   // Close popover when clicking outside or pressing Escape
   useEffect(() => {
@@ -706,114 +709,103 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
           )}
         </div>
 
-        {/* 5. 🧠 AI Model Selector Popover */}
+        {/* 5. 🌳 Mind Map View Mode Selector Popover */}
         <div className="relative">
           <button
             type="button"
-            onClick={() => setOpenPopover(openPopover === 'ai' ? null : 'ai')}
+            onClick={() => setOpenPopover(openPopover === 'viewMode' ? null : 'viewMode')}
             className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap ${
-              openPopover === 'ai'
-                ? 'bg-linear-to-r from-purple-600 to-indigo-600 text-white ring-1 ring-purple-400/50'
+              openPopover === 'viewMode'
+                ? 'bg-purple-600 text-white ring-1 ring-purple-400/50'
                 : 'bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white'
             }`}
-            title={isFa ? 'انتخاب مدل هوش مصنوعی برای تولید و گسترش نقشه ذهنی' : 'Select AI Model for Mind Map'}
+            title={isFa ? 'انتخاب ساختار و چیدمان نقشه ذهنی (افقی، درختی، دایره‌ای، متنی و ماتریسی)' : 'Mind Map View Mode'}
           >
-            <Brain className="w-3.5 h-3.5 text-purple-400" />
-            <span className="hidden sm:inline">
-              {aiModel
-                ? aiModel.includes('flash')
-                  ? 'Gemini Flash'
-                  : aiModel.includes('pro')
-                  ? 'Gemini Pro'
-                  : aiModel.includes('llama')
-                  ? 'Llama 3.3'
-                  : 'AI Model'
-                : 'AI Model'}
+            {viewMode === 'vertical_tree' ? (
+              <GitFork className="w-3.5 h-3.5 text-amber-400 rotate-180" />
+            ) : viewMode === 'radial_circle' ? (
+              <Network className="w-3.5 h-3.5 text-cyan-400" />
+            ) : viewMode === 'outliner_tree' ? (
+              <ListTree className="w-3.5 h-3.5 text-emerald-400" />
+            ) : viewMode === 'matrix_grid' ? (
+              <Grid className="w-3.5 h-3.5 text-rose-400" />
+            ) : (
+              <Workflow className="w-3.5 h-3.5 text-amber-400" />
+            )}
+            <span>
+              {viewMode === 'vertical_tree'
+                ? isFa ? 'درختی عمودی' : 'Vertical Tree'
+                : viewMode === 'radial_circle'
+                ? isFa ? 'مدور شعاعی' : 'Radial Circle'
+                : viewMode === 'outliner_tree'
+                ? isFa ? 'نمای فهرستی' : 'Outliner'
+                : viewMode === 'matrix_grid'
+                ? isFa ? 'ماتریس بالینی' : 'Clinical Matrix'
+                : isFa ? 'بوم افقی' : 'Canvas'}
             </span>
-            <ChevronDown className={`w-3 h-3 transition-transform ${openPopover === 'ai' ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-3 h-3 transition-transform ${openPopover === 'viewMode' ? 'rotate-180' : ''}`} />
           </button>
 
-          {openPopover === 'ai' && (
+          {openPopover === 'viewMode' && (
             <div
-              className="absolute top-full start-0 sm:start-auto sm:end-0 mt-2 z-50 w-64 p-2 rounded-2xl bg-slate-900/95 border border-slate-700/80 shadow-2xl backdrop-blur-xl space-y-1.5 animate-in fade-in zoom-in-95 text-xs"
+              className="absolute top-full start-0 sm:start-auto sm:end-0 mt-2 z-50 w-64 p-1.5 rounded-2xl bg-slate-900/95 border border-slate-700/80 shadow-2xl backdrop-blur-xl space-y-1 animate-in fade-in zoom-in-95 text-xs"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                <span>{isFa ? 'موتور هوش مصنوعی (AI Engine)' : 'AI Model Selection'}</span>
-                <span className="text-amber-400 font-mono">v4.0</span>
+              <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                {isFa ? 'چیدمان و ساختار نقشه ذهنی' : 'Mind Map View Mode'}
               </div>
-
               {[
                 {
-                  id: 'gemini-2.5-flash',
-                  name: 'Gemini 2.5 Flash',
-                  badge: 'Google',
-                  desc: isFa ? 'فوق‌سریع و دقیق (پیش‌فرض پیشنهادی)' : 'Fast & accurate (Recommended)',
+                  id: 'interactive_canvas' as MindMapViewMode,
+                  name: isFa ? '🌐 بوم افقی تعاملی' : '🌐 Interactive Canvas',
+                  desc: isFa ? 'انشعاب افقی استاندارد از چپ به راست' : 'Standard horizontal branching',
                 },
                 {
-                  id: 'gemini-2.5-pro',
-                  name: 'Gemini 2.5 Pro',
-                  badge: 'Google',
-                  desc: isFa ? 'استدلال عمیق سناریوهای داروسازی' : 'Deep clinical reasoning',
+                  id: 'vertical_tree' as MindMapViewMode,
+                  name: isFa ? '🌳 ساختار درختی عمودی' : '🌳 Vertical Hierarchy Tree',
+                  desc: isFa ? 'چارت سلسله‌مراتبی از بالا به پایین' : 'Top-down hierarchical tree',
                 },
                 {
-                  id: 'llama-3.3-70b-versatile',
-                  name: 'Groq Llama 3.3 70B',
-                  badge: 'Groq',
-                  desc: isFa ? 'پاسخ‌دهی آنی با نهایت سرعت' : 'Ultra fast inference',
+                  id: 'radial_circle' as MindMapViewMode,
+                  name: isFa ? '🌀 نقشه مدور و شعاعی' : '🌀 Radial Circle Mind Map',
+                  desc: isFa ? 'چیدمان دایره‌ای ۳۶۰ درجه حول ریشه' : '360° radial mind map',
                 },
                 {
-                  id: 'deepseek-chat',
-                  name: 'DeepSeek / Custom',
-                  badge: 'xAI/API',
-                  desc: isFa ? 'مدل‌های اختصاصی و کاستوم' : 'Custom user model',
+                  id: 'outliner_tree' as MindMapViewMode,
+                  name: isFa ? '📑 نمای متنی اوت‌لاینر' : '📑 Collapsible Outliner',
+                  desc: isFa ? 'فهرست متنی با قابلیت باز و بسته‌شدن' : 'Structured text list outline',
+                },
+                {
+                  id: 'matrix_grid' as MindMapViewMode,
+                  name: isFa ? '📊 ماتریس بالینی شبکه‌ای' : '📊 Clinical Matrix Grid',
+                  desc: isFa ? 'جدول دسته‌بندی و سطوح سیستم‌ها' : '2D clinical matrix grid',
                 },
               ].map((m) => {
-                const isSelected = (aiModel || 'gemini-2.5-flash')
-                  .toLowerCase()
-                  .includes(m.id.toLowerCase().split('-')[0]);
+                const isSelected = (viewMode || 'interactive_canvas') === m.id;
                 return (
                   <button
                     key={m.id}
                     type="button"
                     onClick={() => {
-                      onSetAiModel?.(m.id);
+                      onSetViewMode?.(m.id);
                       setOpenPopover(null);
                     }}
                     className={`w-full p-2.5 rounded-xl text-start transition cursor-pointer flex items-center justify-between text-xs ${
                       isSelected
-                        ? 'bg-purple-600/20 border border-purple-500/50 text-white font-bold'
-                        : 'bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-white border border-transparent'
+                        ? 'bg-purple-600 text-white font-bold shadow-xs'
+                        : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                     }`}
                   >
                     <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-bold">{m.name}</span>
-                        <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-md bg-slate-700/80 text-slate-300">
-                          {m.badge}
-                        </span>
+                      <div className="font-bold">{m.name}</div>
+                      <div className={`text-[10px] mt-0.5 ${isSelected ? 'text-purple-200' : 'text-slate-500'}`}>
+                        {m.desc}
                       </div>
-                      <div className="text-[10px] text-slate-400 mt-0.5">{m.desc}</div>
                     </div>
-                    {isSelected && <Check className="w-3.5 h-3.5 text-purple-400" />}
+                    {isSelected && <Check className="w-3.5 h-3.5 shrink-0" />}
                   </button>
                 );
               })}
-
-              {/* Action Button: Generate Mind Map Flashcards */}
-              {onTriggerAiMindMap && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOpenPopover(null);
-                    onTriggerAiMindMap();
-                  }}
-                  className="w-full mt-1 py-2 px-3 rounded-xl bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                  <span>{isFa ? 'تولید شاخه و کارت جدید با AI ✨' : 'Generate with AI ✨'}</span>
-                </button>
-              )}
             </div>
           )}
         </div>
@@ -825,13 +817,15 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
           <Move className="w-3.5 h-3.5 text-purple-400" />
           <span>
             {isFa
-              ? 'جابجایی با لمس/ماوس • بزرگ‌نمایی با دو انگشت (Pinch) • کلیک برای باز/بستن شاخه'
-              : 'Pan with 1-finger / mouse • Pinch with 2 fingers to zoom • Tap node to expand'}
+              ? 'درگ ماوس یا لمس: جابجایی در بوم | اسکرول یا پینچ: زوم | کلیک‌راست روی گره: منوی امکانات'
+              : 'Drag to pan | Scroll/Pinch to zoom | Right-click/Hold for options'}
           </span>
         </div>
       </div>
 
-      {/* Interactive Drag & Pan Stage Container */}
+      {/* ========================================================================= */}
+      {/* INFINITE DRAGGABLE & ZOOMABLE GRAPH STAGE                                 */}
+      {/* ========================================================================= */}
       <div
         ref={stageRef}
         onMouseDown={handleMouseDown}
@@ -918,10 +912,7 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
           {/* ========================================================================= */}
           {layoutItems.map((item) => {
             const node = item.node;
-            const isExpanded = !!expandedNodeIds[node.id];
-            const hasChildren = node.children.length > 0;
             const theme = MINDMAP_THEMES[item.colorTheme] || MINDMAP_THEMES.purple;
-            const displayTitle = getNodeDisplayTitle(node);
             const isLeafQuestion = node.level === 6 && !!node.card;
 
             // -----------------------------------------------------------------
@@ -965,7 +956,7 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                       ) : (
                         <HelpCircle className="w-3.5 h-3.5 shrink-0 text-cyan-400" />
                       )}
-                      <span className="text-[10px] font-bold text-slate-400">
+                      <span className="text-[10px] font-bold text-slate-400 truncate">
                         {card.topic || 'Clinical Item'}
                       </span>
                     </div>
@@ -978,9 +969,26 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                     </div>
                   </div>
 
-                  {/* Question Content (STRICT SINGLE LANGUAGE) */}
-                  <div className="space-y-1 flex-1 min-w-0">
-                    {isFa ? (
+                  {/* Question Content (Support: Bilingual, Farsi Only, English Only) */}
+                  <div className="space-y-1.5 flex-1 min-w-0">
+                    {cardLangMode === 'bilingual' ? (
+                      <div className="space-y-1">
+                        <div
+                          className="text-xs font-bold text-slate-100 leading-relaxed break-words whitespace-normal"
+                          dir="rtl"
+                        >
+                          {qFa || qEn}
+                        </div>
+                        {qEn && qEn !== qFa && (
+                          <div
+                            className="text-[11px] font-medium text-purple-300 leading-normal font-sans break-words whitespace-normal pt-1 border-t border-slate-800/80"
+                            dir="ltr"
+                          >
+                            {qEn}
+                          </div>
+                        )}
+                      </div>
+                    ) : cardLangMode === 'fa' ? (
                       <div
                         className="text-xs font-bold text-slate-100 leading-relaxed break-words whitespace-normal"
                         dir="rtl"
@@ -1011,7 +1019,7 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
             }
 
             // -----------------------------------------------------------------
-            // B. Branch Nodes (Levels 0 to 5 - Root, Domain, System, Condition...)
+            // B. Branch Nodes (Levels 0 to 5)
             // -----------------------------------------------------------------
             return (
               <div
@@ -1036,18 +1044,47 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                     : `${theme.bg} ${theme.border} ${theme.glow}`
                 }`}
               >
-                {/* Title Content Only (Clean Minimal Cell) */}
+                {/* Title Content (Support: Bilingual, Farsi Only, English Only) */}
                 <div className="flex items-center justify-between gap-2 min-w-0 w-full">
-                  <div className="flex-1 min-w-0">
-                    {/* FULL TEXT DISPLAY - NO TRUNCATION */}
-                    <div
-                      className={`font-extrabold text-xs sm:text-sm leading-snug break-words whitespace-normal ${
-                        node.level === 0 ? 'text-purple-200' : theme.text
-                      }`}
-                      dir={isFa ? 'rtl' : 'ltr'}
-                    >
-                      {displayTitle}
-                    </div>
+                  <div className="flex-1 min-w-0 space-y-0.5">
+                    {cardLangMode === 'bilingual' ? (
+                      <>
+                        <div
+                          className={`font-extrabold text-xs sm:text-sm leading-snug break-words whitespace-normal ${
+                            node.level === 0 ? 'text-purple-200' : theme.text
+                          }`}
+                          dir="rtl"
+                        >
+                          {node.title.fa || node.title.en}
+                        </div>
+                        {node.title.en && node.title.en !== node.title.fa && (
+                          <div
+                            className="text-[10.5px] font-sans font-medium text-slate-300 break-words whitespace-normal opacity-90 leading-tight"
+                            dir="ltr"
+                          >
+                            {node.title.en}
+                          </div>
+                        )}
+                      </>
+                    ) : cardLangMode === 'fa' ? (
+                      <div
+                        className={`font-extrabold text-xs sm:text-sm leading-snug break-words whitespace-normal ${
+                          node.level === 0 ? 'text-purple-200' : theme.text
+                        }`}
+                        dir="rtl"
+                      >
+                        {node.title.fa || node.title.en}
+                      </div>
+                    ) : (
+                      <div
+                        className={`font-extrabold text-xs sm:text-sm leading-snug break-words whitespace-normal ${
+                          node.level === 0 ? 'text-purple-200' : theme.text
+                        }`}
+                        dir="ltr"
+                      >
+                        {node.title.en || node.title.fa}
+                      </div>
+                    )}
                   </div>
 
                   {node.cardCount > 0 && (

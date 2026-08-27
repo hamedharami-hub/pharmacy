@@ -1276,10 +1276,8 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
           lineStyle={lineStyle}
           onSetLineStyle={setLineStyle}
           onExpandAll={expandAll}
-          onCollapseAll={collapseAll}
-          aiModel={currentAiModel}
-          onSetAiModel={handleSetAiModel}
-          onTriggerAiMindMap={() => onOpenAiGenerator?.()}
+          viewMode={viewMode}
+          onSetViewMode={(mode) => setViewMode(mode)}
           isDarkTheme={true}
           onOpenSettings={() => setIsMindMapSettingsOpen(true)}
         >
