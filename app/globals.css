@@ -2287,6 +2287,24 @@ body.theme-reader-night h3 {
   letter-spacing: -0.015em;
 }
 
+/* ========================================================================= */
+/* ================= 5. UNICODE BIDI & PERSIAN-ENGLISH MIXED TEXT ENGINE === */
+/* ========================================================================= */
 
+[dir="rtl"], .rtl, .persian-text {
+  direction: rtl;
+  text-align: right;
+  unicode-bidi: isolate;
+}
 
+[dir="ltr"], .ltr, .english-text {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: isolate;
+}
 
+bdi, [dir="ltr"] bdi, [dir="rtl"] bdi {
+  unicode-bidi: isolate;
+  display: inline-block;
+  vertical-align: baseline;
+}

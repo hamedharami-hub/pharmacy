@@ -66,6 +66,7 @@ import {
   Settings,
   Star,
 } from 'lucide-react';
+import { formatBidiText } from '@/lib/bidiFormatter';
 import { createPortal } from 'react-dom';
 import {
   calculateFSRSRetention,
@@ -1419,20 +1420,20 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                           {cardLanguageMode === 'bilingual' ? (
                             <div className="space-y-2.5 bg-slate-950/60 p-3.5 sm:p-4 rounded-xl border border-slate-800">
                               {qFa && (
-                                <div className="text-base sm:text-lg text-white leading-relaxed font-bold" dir="rtl">
-                                  {qFa}
+                                <div className="text-base sm:text-lg text-white leading-relaxed font-bold [unicode-bidi:isolate]" dir="rtl">
+                                  {formatBidiText(qFa, true)}
                                 </div>
                               )}
                               {qEn && (
-                                <div className="text-sm sm:text-base text-slate-300 font-medium leading-relaxed border-t border-slate-800/80 pt-2 font-sans" dir="ltr">
+                                <div className="text-sm sm:text-base text-slate-300 font-medium leading-relaxed border-t border-slate-800/80 pt-2 font-sans [unicode-bidi:isolate]" dir="ltr">
                                   {qEn}
                                 </div>
                               )}
                             </div>
                           ) : (
-                            <p className="text-base sm:text-lg text-white leading-relaxed font-semibold">
-                              {cardLanguageMode === 'fa' ? qFa : qEn}
-                            </p>
+                            <div className="text-base sm:text-lg text-white leading-relaxed font-semibold [unicode-bidi:isolate]" dir={cardLanguageMode === 'fa' ? 'rtl' : 'ltr'}>
+                              {formatBidiText(cardLanguageMode === 'fa' ? qFa : qEn, cardLanguageMode === 'fa')}
+                            </div>
                           )}
 
                           {/* SPECIALIZED RENDER: MCQ OPTIONS */}
@@ -1468,11 +1469,13 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                                       <div className="leading-relaxed text-xs sm:text-[13px] flex-1 space-y-1">
                                         {cardLanguageMode === 'bilingual' ? (
                                           <>
-                                            {optFa && <div dir="rtl">{optFa}</div>}
-                                            {optEn && <div className="text-[11.5px] text-slate-300 font-sans opacity-90 border-t border-slate-700/60 pt-1" dir="ltr">{optEn}</div>}
+                                            {optFa && <div dir="rtl" className="[unicode-bidi:isolate]">{formatBidiText(optFa, true)}</div>}
+                                            {optEn && <div className="text-[11.5px] text-slate-300 font-sans opacity-90 border-t border-slate-700/60 pt-1 [unicode-bidi:isolate]" dir="ltr">{optEn}</div>}
                                           </>
                                         ) : (
-                                          <div>{cardLanguageMode === 'fa' ? optFa : optEn}</div>
+                                          <div dir={cardLanguageMode === 'fa' ? 'rtl' : 'ltr'} className="[unicode-bidi:isolate]">
+                                            {formatBidiText(cardLanguageMode === 'fa' ? optFa : optEn, cardLanguageMode === 'fa')}
+                                          </div>
                                         )}
                                       </div>
                                     </button>
@@ -1492,7 +1495,8 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                               {currentStudyCard.calLabels.map((lbl, lIdx) => (
                                 <span
                                   key={lIdx}
-                                  className="px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-200 border border-amber-500/50 font-bold text-xs shadow-sm"
+                                  className="px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-200 border border-amber-500/50 font-bold text-xs shadow-sm font-sans"
+                                  dir="ltr"
                                 >
                                   {lbl}
                                 </span>
@@ -1526,7 +1530,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
 
                           {/* SPECIALIZED RENDER: CALCULATION METHOD */}
                           {currentStudyCard.type === 'calculation' && currentStudyCard.calculationFormula && (
-                            <div className="p-3 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-cyan-200 text-xs font-mono">
+                            <div className="p-3 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-cyan-200 text-xs font-mono" dir="ltr">
                               <span className="font-bold text-cyan-300 block text-[11px] mb-1">
                                 {isFa ? '📐 فرمول و متغیرهای محاسبه:' : '📐 Formula & Variables:'}
                               </span>
@@ -1546,20 +1550,20 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                             {cardLanguageMode === 'bilingual' ? (
                               <div className="space-y-2.5 bg-emerald-950/30 border border-emerald-500/30 p-3.5 sm:p-4 rounded-xl text-sm sm:text-base leading-relaxed">
                                 {aFa && (
-                                  <div dir="rtl" className="text-emerald-100 font-medium">
-                                    {aFa}
+                                  <div dir="rtl" className="text-emerald-100 font-medium [unicode-bidi:isolate]">
+                                    {formatBidiText(aFa, true)}
                                   </div>
                                 )}
                                 {aEn && (
-                                  <div dir="ltr" className="text-slate-200 font-sans text-xs sm:text-sm border-t border-emerald-900/50 pt-2 opacity-95">
+                                  <div dir="ltr" className="text-slate-200 font-sans text-xs sm:text-sm border-t border-emerald-900/50 pt-2 opacity-95 [unicode-bidi:isolate]">
                                     {aEn}
                                   </div>
                                 )}
                               </div>
                             ) : (
-                              <p className="text-sm sm:text-base text-slate-100 leading-relaxed bg-emerald-950/30 border border-emerald-500/30 p-3.5 rounded-xl">
-                                {cardLanguageMode === 'fa' ? aFa : aEn}
-                              </p>
+                              <div className="text-sm sm:text-base text-slate-100 leading-relaxed bg-emerald-950/30 border border-emerald-500/30 p-3.5 rounded-xl [unicode-bidi:isolate]" dir={cardLanguageMode === 'fa' ? 'rtl' : 'ltr'}>
+                                {formatBidiText(cardLanguageMode === 'fa' ? aFa : aEn, cardLanguageMode === 'fa')}
+                              </div>
                             )}
                           </div>
 
@@ -1573,18 +1577,21 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                               {cardLanguageMode === 'bilingual' ? (
                                 <div className="space-y-1.5 pt-1">
                                   {currentStudyCard.distractorRationale.fa && (
-                                    <p dir="rtl" className="text-slate-200">{currentStudyCard.distractorRationale.fa}</p>
+                                    <div dir="rtl" className="text-slate-200 [unicode-bidi:isolate]">{formatBidiText(currentStudyCard.distractorRationale.fa, true)}</div>
                                   )}
                                   {currentStudyCard.distractorRationale.en && (
-                                    <p dir="ltr" className="text-slate-300 font-sans text-[11px] border-t border-slate-800 pt-1">{currentStudyCard.distractorRationale.en}</p>
+                                    <div dir="ltr" className="text-slate-300 font-sans text-[11px] border-t border-slate-800 pt-1 [unicode-bidi:isolate]">{currentStudyCard.distractorRationale.en}</div>
                                   )}
                                 </div>
                               ) : (
-                                <p className="leading-relaxed">
-                                  {cardLanguageMode === 'fa'
-                                    ? currentStudyCard.distractorRationale.fa || currentStudyCard.distractorRationale.en
-                                    : currentStudyCard.distractorRationale.en || currentStudyCard.distractorRationale.fa}
-                                </p>
+                                <div className="leading-relaxed [unicode-bidi:isolate]" dir={cardLanguageMode === 'fa' ? 'rtl' : 'ltr'}>
+                                  {formatBidiText(
+                                    cardLanguageMode === 'fa'
+                                      ? currentStudyCard.distractorRationale.fa || currentStudyCard.distractorRationale.en
+                                      : currentStudyCard.distractorRationale.en || currentStudyCard.distractorRationale.fa,
+                                    cardLanguageMode === 'fa'
+                                  )}
+                                </div>
                               )}
                             </div>
                           )}
@@ -1597,11 +1604,13 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                                 <span className="font-bold text-amber-300">{isFa ? 'نکته طلایی بالینی: ' : 'Key Clinical Point: '}</span>
                                 {cardLanguageMode === 'bilingual' ? (
                                   <div className="space-y-1">
-                                    {pFa && <div dir="rtl" className="text-purple-100">{pFa}</div>}
-                                    {pEn && <div dir="ltr" className="text-slate-300 font-sans text-xs border-t border-purple-900/40 pt-1">{pEn}</div>}
+                                    {pFa && <div dir="rtl" className="text-purple-100 [unicode-bidi:isolate]">{formatBidiText(pFa, true)}</div>}
+                                    {pEn && <div dir="ltr" className="text-slate-300 font-sans text-xs border-t border-purple-900/40 pt-1 [unicode-bidi:isolate]">{pEn}</div>}
                                   </div>
                                 ) : (
-                                  <span>{cardLanguageMode === 'fa' ? pFa : pEn}</span>
+                                  <div dir={cardLanguageMode === 'fa' ? 'rtl' : 'ltr'} className="[unicode-bidi:isolate]">
+                                    {formatBidiText(cardLanguageMode === 'fa' ? pFa : pEn, cardLanguageMode === 'fa')}
+                                  </div>
                                 )}
                               </div>
                             </div>

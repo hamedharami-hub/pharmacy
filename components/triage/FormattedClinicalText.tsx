@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Language } from '@/types/pharmacy';
+import { formatBidiText } from '@/lib/bidiFormatter';
 
 export interface FormattedClinicalTextProps {
   text: string;
@@ -12,7 +13,7 @@ export interface FormattedClinicalTextProps {
 /**
  * FormattedClinicalText:
  * Ensures clean LTR for English, RTL for Persian, and breaks down structured points (1), 2), a), b), etc.)
- * into beautifully readable bullet cards with bold text support, emoji headers, and distinct visual hierarchy.
+ * into beautifully readable bullet cards with bold text support, emoji headers, and bidirectional term isolation.
  */
 export const FormattedClinicalText: React.FC<FormattedClinicalTextProps> = ({
   text,
@@ -24,34 +25,13 @@ export const FormattedClinicalText: React.FC<FormattedClinicalTextProps> = ({
   // Detect if text is mostly English or Persian
   const enCharCount = (text.match(/[a-zA-Z]/g) || []).length;
   const faCharCount = (text.match(/[\u0600-\u06FF]/g) || []).length;
-  const isEn = enCharCount >= faCharCount;
+  const isEn = enCharCount > faCharCount;
   const dir = isEn ? 'ltr' : 'rtl';
   const textAlign = isEn ? 'text-left' : 'text-right';
 
-  // Helper to render bold markdown **text**
+  // Helper to render bold markdown **text** and isolate BiDi terms
   const renderInlineFormatted = (str: string) => {
-    const boldPattern = /\*\*(.*?)\*\*/g;
-    const parts: React.ReactNode[] = [];
-    let lastIdx = 0;
-    let match: RegExpExecArray | null;
-
-    while ((match = boldPattern.exec(str)) !== null) {
-      if (match.index > lastIdx) {
-        parts.push(str.substring(lastIdx, match.index));
-      }
-      parts.push(
-        <strong key={`b-${match.index}`} className="font-extrabold text-amber-500 dark:text-amber-300">
-          {match[1]}
-        </strong>
-      );
-      lastIdx = boldPattern.lastIndex;
-    }
-
-    if (lastIdx < str.length) {
-      parts.push(str.substring(lastIdx));
-    }
-
-    return parts.length > 0 ? parts : str;
+    return formatBidiText(str, !isEn);
   };
 
   // Check if text contains numbered items like "1)", "2)", "3)" or "1.", "2." or "۱)", "۲)"

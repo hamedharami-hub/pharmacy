@@ -5,6 +5,7 @@ import { PharmacyCard, Language } from '@/types/pharmacy';
 import { RotateCw, ChevronLeft, ChevronRight, Zap, CheckCircle2, Shuffle, Bot } from 'lucide-react';
 import { useStudyTrackerContext } from './study/StudyTrackerContext';
 import { StudyStatusBadge } from './study/StudyStatusBadge';
+import { formatBidiText } from '@/lib/bidiFormatter';
 
 interface FlashcardViewProps {
   cards: PharmacyCard[];
@@ -139,10 +140,13 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
             </div>
 
             <div className="my-auto text-center space-y-3">
-              <h3 className="text-base sm:text-lg font-bold app-text leading-snug">
-                {typeof currentCard.title === 'object' && currentCard.title
-                  ? (isFa ? (currentCard.title.fa || currentCard.title.en) : (currentCard.title.en || currentCard.title.fa))
-                  : String(currentCard.title || '')}
+              <h3 className="text-base sm:text-lg font-bold app-text leading-snug [unicode-bidi:isolate]" dir={isFa ? 'rtl' : 'ltr'}>
+                {formatBidiText(
+                  typeof currentCard.title === 'object' && currentCard.title
+                    ? (isFa ? (currentCard.title.fa || currentCard.title.en) : (currentCard.title.en || currentCard.title.fa))
+                    : String(currentCard.title || ''),
+                  isFa
+                )}
               </h3>
               <p className="text-xs app-muted">
                 {isFa
@@ -180,10 +184,13 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
             </div>
 
             <div className="space-y-3 my-auto">
-              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs leading-relaxed font-medium">
-                {typeof currentCard.actionPearl === 'object' && currentCard.actionPearl
-                  ? (isFa ? (currentCard.actionPearl.fa || currentCard.actionPearl.en) : (currentCard.actionPearl.en || currentCard.actionPearl.fa))
-                  : String(currentCard.actionPearl || '')}
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs leading-relaxed font-medium [unicode-bidi:isolate]" dir={isFa ? 'rtl' : 'ltr'}>
+                {formatBidiText(
+                  typeof currentCard.actionPearl === 'object' && currentCard.actionPearl
+                    ? (isFa ? (currentCard.actionPearl.fa || currentCard.actionPearl.en) : (currentCard.actionPearl.en || currentCard.actionPearl.fa))
+                    : String(currentCard.actionPearl || ''),
+                  isFa
+                )}
               </div>
 
               <div
