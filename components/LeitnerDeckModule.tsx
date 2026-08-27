@@ -65,6 +65,7 @@ import {
   Moon,
   Settings,
   Star,
+  Brain,
 } from 'lucide-react';
 import { formatBidiText } from '@/lib/bidiFormatter';
 import { createPortal } from 'react-dom';
@@ -129,6 +130,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
   // Leitner Study Settings State
   const [studySettings, setStudySettings] = useState<LeitnerStudySettings>(getStoredLeitnerSettings);
   const [isStudySettingsOpen, setIsStudySettingsOpen] = useState<boolean>(false);
+  const [settingsInitialTab, setSettingsInitialTab] = useState<'study' | 'fsrs' | 'display' | 'advanced' | 'backup'>('study');
 
   // Countdown timer for study
   const [timeLeft, setTimeLeft] = useState<number>(0);
@@ -540,7 +542,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
       reps: card.fsrsReps || card.reviewCount || 0,
     };
 
-    const fsrsResult = scheduleFSRSNextReview(fsrsState, rating, card.box);
+    const fsrsResult = scheduleFSRSNextReview(fsrsState, rating, card.box, studySettings.fsrsConfig);
 
     let targetBox: 1 | 2 | 3 | 4 | 5 = card.box;
     if (rating === 'again') {
@@ -561,7 +563,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
       fsrsLapses: fsrsResult.lapses,
       fsrsReps: (card.fsrsReps || 0) + 1,
     };
-  }, []);
+  }, [studySettings.fsrsConfig]);
 
   // Handle SM-2 & FSRS Rating: Again (1), Hard (2), Good (3), Easy (4)
   const handleRateCard = useCallback((rating: 'again' | 'hard' | 'good' | 'easy') => {
@@ -960,7 +962,8 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
         currentStudyCard.fsrsDifficulty,
         currentStudyCard.lastReviewed || currentStudyCard.lastReviewedDate,
         currentStudyCard.box,
-        isFa
+        isFa,
+        studySettings.fsrsConfig
       )
     : { again: '< 10m', hard: '3d', good: '7d', easy: '15d' };
 
@@ -1006,10 +1009,31 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
             <span className="text-[11px] font-bold">AI</span>
           </button>
 
+          {/* 🧠 FSRS v5 Model Indicator & Quick Settings Button */}
+          {studySettings.algorithm === 'fsrs' && (
+            <button
+              type="button"
+              onClick={() => {
+                setSettingsInitialTab('fsrs');
+                setIsStudySettingsOpen(true);
+              }}
+              className="px-2.5 py-1.5 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/40 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+              title={isFa ? 'پیکربندی دقیق و پیشرفته الگوریتم FSRS v5 (هدف یادآوری، ضرایب و فواصل)' : 'Configure FSRS v5 Algorithm Parameters'}
+            >
+              <Brain className="w-3.5 h-3.5 text-purple-400" />
+              <span className="font-mono text-[11px]">
+                FSRS ({Math.round((studySettings.fsrsConfig?.requestRetention || 0.90) * 100)}%)
+              </span>
+            </button>
+          )}
+
           {/* ⚙️ Unified Leitner Study Settings Gear Button */}
           <button
             type="button"
-            onClick={() => setIsStudySettingsOpen(true)}
+            onClick={() => {
+              setSettingsInitialTab('study');
+              setIsStudySettingsOpen(true);
+            }}
             className="px-2 py-1.5 rounded-lg app-bg hover:bg-black/5 dark:hover:bg-slate-800 app-text border app-border text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
             title={isFa ? 'تنظیمات پیشرفته مطالعه، الگوریتم مرور و زمان‌بندی' : 'Review & Algorithm Settings'}
           >
@@ -2344,6 +2368,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
         onClearCards={handleDeleteAllCards}
         onLoadSamples={handleAddSampleCards}
         totalCardsCount={cards.length}
+        initialTab={settingsInitialTab}
       />
     </div>
   );
