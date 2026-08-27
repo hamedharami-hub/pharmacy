@@ -65,6 +65,7 @@ export interface MindMapCanvasProps {
   cardLangMode: 'fa' | 'en' | 'bilingual';
   onSetCardLangMode?: (mode: 'fa' | 'en' | 'bilingual') => void;
   textDisplayMode: MindMapTextDisplay;
+  onSetTextDisplayMode?: (mode: MindMapTextDisplay) => void;
   lineStyle: MindMapLineStyle;
   onSetLineStyle?: (style: MindMapLineStyle) => void;
   onExpandAll?: () => void;
@@ -91,6 +92,7 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
   cardLangMode,
   onSetCardLangMode,
   textDisplayMode,
+  onSetTextDisplayMode,
   lineStyle,
   onSetLineStyle,
   onExpandAll,
@@ -627,6 +629,35 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
             </div>
           )}
         </div>
+
+        {/* 4. 🗜️ Compact / Detailed Display Toggle Button */}
+        {onSetTextDisplayMode && (
+          <button
+            type="button"
+            onClick={() => onSetTextDisplayMode(textDisplayMode === 'compact' ? 'full_detailed' : 'compact')}
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap ${
+              textDisplayMode === 'compact'
+                ? 'bg-indigo-600 text-white ring-1 ring-indigo-400/50 shadow-md'
+                : 'bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white'
+            }`}
+            title={
+              isFa
+                ? textDisplayMode === 'compact'
+                  ? 'تغییر به نمایش کامل و تفصیلی گره‌ها'
+                  : 'تغییر به نمایش فشرده و خلاصه گره‌ها'
+                : textDisplayMode === 'compact'
+                ? 'Switch to Full Detailed Mode'
+                : 'Switch to Compact Display Mode'
+            }
+          >
+            <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+            <span className="hidden sm:inline">
+              {textDisplayMode === 'compact'
+                ? isFa ? 'نمایش فشرده' : 'Compact'
+                : isFa ? 'نمایش جامع' : 'Detailed'}
+            </span>
+          </button>
+        )}
 
         {/* 4. 〰️ Connector Line Style Popover */}
         <div className="relative">

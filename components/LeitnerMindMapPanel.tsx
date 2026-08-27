@@ -1283,9 +1283,11 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
           cardLangMode={cardLangMode}
           onSetCardLangMode={setCardLangMode}
           textDisplayMode={textDisplayMode}
+          onSetTextDisplayMode={(mode) => setTextDisplayMode(mode)}
           lineStyle={lineStyle}
           onSetLineStyle={setLineStyle}
           onExpandAll={expandAll}
+          onCollapseAll={collapseAll}
           viewMode={viewMode}
           onSetViewMode={(mode) => setViewMode(mode)}
           isDarkTheme={true}
