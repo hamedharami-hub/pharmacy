@@ -463,8 +463,8 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
         ref={popoverContainerRef}
         className="absolute top-4 start-4 z-30 flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 shadow-2xl backdrop-blur-md max-w-[calc(100vw-2rem)] overflow-visible flex-wrap sm:flex-nowrap"
       >
-        {/* 1. Zoom Controls */}
-        <div className="flex items-center gap-1">
+        {/* 1. Zoom Controls (Desktop / Windows only - hidden on mobile) */}
+        <div className="hidden sm:flex items-center gap-1">
           <button
             type="button"
             onClick={handleZoomIn}
