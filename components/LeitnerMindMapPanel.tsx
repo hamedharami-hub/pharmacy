@@ -381,32 +381,6 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
     [customColors]
   );
 
-  // Helper to collect cards recursively under node
-  const collectCardsUnderNode = useCallback((node: MindMapNode): LeitnerCard[] => {
-    const list: LeitnerCard[] = [];
-    const traverse = (n: MindMapNode) => {
-      if (n.level === 6 && n.card) {
-        list.push(n.card);
-      }
-      n.children.forEach(traverse);
-    };
-    traverse(node);
-    return list;
-  }, []);
-
-  // Open Sequential Study Runner
-  const handleStartStudyRunner = useCallback(
-    (node: MindMapNode) => {
-      const subCards = collectCardsUnderNode(node);
-      setBranchRunnerState({
-        isOpen: true,
-        node,
-        cards: subCards,
-      });
-    },
-    [collectCardsUnderNode]
-  );
-
   // Context Menu trigger
   const handleOpenContextMenu = useCallback(
     (e: React.MouseEvent | React.TouchEvent, node: MindMapNode) => {
@@ -727,6 +701,42 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
 
     return rootNode;
   }, [filteredCards]);
+
+  // Memoized recursive card mapping for high-performance matrix and outliner rendering (prevents UI freeze)
+  const nodeCardsMap = useMemo(() => {
+    const map: Record<string, LeitnerCard[]> = {};
+    function populate(node: MindMapNode): LeitnerCard[] {
+      const list: LeitnerCard[] = [];
+      if (node.level === 6 && node.card) {
+        list.push(node.card);
+      }
+      for (const ch of node.children) {
+        list.push(...populate(ch));
+      }
+      map[node.id] = list;
+      return list;
+    }
+    populate(mindMapTree);
+    return map;
+  }, [mindMapTree]);
+
+  // Fast O(1) Helper to collect cards under node
+  const collectCardsUnderNode = useCallback((node: MindMapNode): LeitnerCard[] => {
+    return nodeCardsMap[node.id] || [];
+  }, [nodeCardsMap]);
+
+  // Open Sequential Study Runner
+  const handleStartStudyRunner = useCallback(
+    (node: MindMapNode) => {
+      const subCards = collectCardsUnderNode(node);
+      setBranchRunnerState({
+        isOpen: true,
+        node,
+        cards: subCards,
+      });
+    },
+    [collectCardsUnderNode]
+  );
 
   // Compute Layout (Nodes & Curved Connections)
   const layoutResult = useMemo(() => {
@@ -1439,112 +1449,196 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
         </MindMapCanvas>
       ) : viewMode === 'matrix_grid' ? (
         /* Matrix Grid View Mode */
-        <div className="p-3 sm:p-5 rounded-3xl app-card border app-border shadow-inner space-y-4">
-          <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b app-border">
-            <div className="flex items-center gap-2">
-              <Layers className="w-5 h-5 text-emerald-500" />
-              <h3 className="text-sm sm:text-base font-bold app-text">
-                {isFa ? 'ماتریس شبکه‌ای مفاهیم و سیستم‌های دارویی' : 'Therapeutics & Organ Systems Knowledge Matrix'}
+        <div className="p-3 sm:p-5 rounded-3xl app-card border app-border shadow-inner space-y-4 animate-fadeIn">
+          {/* Matrix Top Header Bar */}
+          <div className="flex items-center justify-between flex-wrap gap-2.5 pb-3 border-b app-border">
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="p-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <Layers className="w-4 h-4" />
+              </div>
+              <h3 className="text-xs sm:text-sm font-black app-text">
+                {isFa ? 'ماتریس شبکه‌ای مفاهیم و سیستم‌های بالینی' : 'Therapeutics & Knowledge Matrix'}
               </h3>
-              <span className="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                {filteredCards.length} {isFa ? 'کارت فعال' : 'Active Cards'}
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                {filteredCards.length} {isFa ? 'کارت' : 'cards'}
               </span>
             </div>
-            <div className="flex items-center gap-2">
+
+            {/* Matrix Header Action Controls */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {/* View Mode Switcher Dropdown */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsMindMapSettingsOpen(true)}
+                  className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-purple-600/20 text-purple-300 border border-purple-500/40 hover:bg-purple-600 hover:text-white transition flex items-center gap-1 cursor-pointer"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  <span>{isFa ? 'تنظیمات و چیدمان' : 'Settings'}</span>
+                </button>
+              </div>
+
               <button
                 type="button"
                 onClick={expandAll}
-                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-600/20 text-purple-300 border border-purple-500/40 hover:bg-purple-600 hover:text-white transition cursor-pointer"
+                className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-purple-600 text-white shadow-sm hover:bg-purple-500 transition cursor-pointer"
               >
                 {isFa ? '➕ باز کردن همه' : '➕ Expand All'}
               </button>
+
               <button
                 type="button"
                 onClick={collapseAll}
-                className="px-2.5 py-1 rounded-lg text-xs font-bold app-bg app-border app-text hover:border-slate-400 transition cursor-pointer"
+                className="px-2.5 py-1.5 rounded-xl text-xs font-bold app-bg app-border app-text hover:border-slate-400 transition cursor-pointer"
               >
                 {isFa ? '➖ بستن همه' : '➖ Collapse All'}
               </button>
             </div>
           </div>
 
+          {/* Matrix Grid Columns */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {mindMapTree.children.map((domainChild) => {
               const theme = MINDMAP_THEMES[domainChild.colorTheme] || MINDMAP_THEMES.purple;
+              const isDomainExpanded = expandedNodeIds[domainChild.id] !== false;
+
               return (
                 <div
                   key={domainChild.id}
                   className={`rounded-2xl border ${theme.border} ${theme.bg} p-4 space-y-3 shadow-sm transition hover:shadow-md`}
                 >
-                  <div className="flex items-center justify-between pb-2 border-b app-border">
+                  <div
+                    onClick={() => toggleNode(domainChild.id)}
+                    className="flex items-center justify-between pb-2 border-b app-border cursor-pointer select-none"
+                  >
                     <div className="flex items-center gap-2">
                       <span className={`w-3 h-3 rounded-full ${theme.dot}`} />
                       <h4 className={`text-xs sm:text-sm font-black ${theme.text}`}>
                         {getNodeDisplayTitle(domainChild)}
                       </h4>
                     </div>
-                    <span className="text-[11px] font-mono font-bold app-muted px-2 py-0.5 rounded-md bg-black/20">
-                      {domainChild.cardCount} {isFa ? 'مفهوم' : 'cards'}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono font-bold app-muted px-2 py-0.5 rounded-md bg-black/20">
+                        {domainChild.cardCount} {isFa ? 'مفهوم' : 'cards'}
+                      </span>
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          isDomainExpanded ? 'rotate-180 text-purple-400' : 'text-slate-400'
+                        }`}
+                      />
+                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    {domainChild.children.map((sysChild) => (
-                      <div
-                        key={sysChild.id}
-                        className="rounded-xl app-card border app-border p-2.5 space-y-2"
-                      >
-                        <div className="flex items-center justify-between text-xs font-bold app-text">
-                          <span>{getNodeDisplayTitle(sysChild)}</span>
-                          <span className="text-[10px] font-mono text-purple-400">
-                            {sysChild.cardCount}
-                          </span>
-                        </div>
+                  {isDomainExpanded && (
+                    <div className="space-y-2 animate-fadeIn">
+                      {domainChild.children.map((sysChild) => {
+                        const isSysExpanded = expandedNodeIds[sysChild.id] !== false;
+                        const subCards = collectCardsUnderNode(sysChild);
 
-                        <div className="flex flex-wrap gap-1.5">
-                          {collectCardsUnderNode(sysChild).slice(0, 6).map((c) => {
-                            const qText = typeof c.question === 'object' ? c.question.fa || c.question.en : c.question;
-                            const flag = cardFlags[c.id];
-                            return (
-                              <button
-                                key={c.id}
-                                type="button"
-                                onClick={() => setSelectedQuestionCard(c)}
-                                className="px-2 py-1 rounded-lg text-[11px] font-medium app-bg border app-border hover:border-purple-500 app-text text-start max-w-full truncate transition cursor-pointer flex items-center gap-1.5"
-                                title={qText}
-                              >
-                                {flag && <span className={`w-2 h-2 rounded-full ${FLAG_OPTIONS[flag]?.dot || 'bg-slate-400'}`} />}
-                                <span className="truncate">{qText}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                        return (
+                          <div
+                            key={sysChild.id}
+                            className="rounded-xl app-card border app-border p-2.5 space-y-2"
+                          >
+                            <div
+                              onClick={() => toggleNode(sysChild.id)}
+                              className="flex items-center justify-between text-xs font-bold app-text cursor-pointer select-none"
+                            >
+                              <span>{getNodeDisplayTitle(sysChild)}</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] font-mono text-purple-400">
+                                  {sysChild.cardCount}
+                                </span>
+                                <ChevronDown
+                                  className={`w-3 h-3 transition-transform ${
+                                    isSysExpanded ? 'rotate-180 text-purple-400' : 'text-slate-500'
+                                  }`}
+                                />
+                              </div>
+                            </div>
+
+                            {isSysExpanded && (
+                              <div className="flex flex-wrap gap-1.5 pt-1 animate-fadeIn">
+                                {subCards.slice(0, 10).map((c) => {
+                                  const qFa = typeof c.question === 'object' ? c.question.fa || c.question.en : c.question;
+                                  const qEn = typeof c.question === 'object' ? c.question.en || c.question.fa : c.question;
+                                  const qText = cardLangMode === 'en' ? (qEn || qFa) : (qFa || qEn);
+                                  const flag = cardFlags[c.id];
+
+                                  return (
+                                    <button
+                                      key={c.id}
+                                      type="button"
+                                      onClick={() => setSelectedQuestionCard(c)}
+                                      className="px-2 py-1 rounded-lg text-[11px] font-medium app-bg border app-border hover:border-purple-500 app-text text-start max-w-full truncate transition cursor-pointer flex items-center gap-1.5"
+                                      title={qText}
+                                    >
+                                      {flag && <span className={`w-2 h-2 rounded-full shrink-0 ${FLAG_OPTIONS[flag]?.dot || 'bg-slate-400'}`} />}
+                                      <span className="truncate">{qText}</span>
+                                    </button>
+                                  );
+                                })}
+                                {subCards.length > 10 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleStartStudyRunner(sysChild)}
+                                    className="px-2 py-1 rounded-lg text-[10px] font-bold bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600 hover:text-white transition cursor-pointer"
+                                  >
+                                    +{subCards.length - 10} {isFa ? 'بیشتر...' : 'more...'}
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
-
-          {/* Modals in Matrix Grid View */}
-          {selectedQuestionCard && (
-            <QuestionDetailModal
-              isOpen={!!selectedQuestionCard}
-              onClose={() => setSelectedQuestionCard(null)}
-              card={selectedQuestionCard}
-              language={language}
-              cardLangMode={cardLangMode}
-              cardFlags={cardFlags}
-              onSetCardFlag={handleSetCardFlag}
-              onRateCard={onRateCard}
-              showLeitnerGrading={showLeitnerGrading}
-            />
-          )}
         </div>
       ) : (
         /* Outliner Tree View Mode */
-        <div className="p-4 rounded-3xl app-card border app-border shadow-inner space-y-2">
+        <div className="p-4 rounded-3xl app-card border app-border shadow-inner space-y-2 animate-fadeIn">
+          {/* Outliner Top Header Bar */}
+          <div className="flex items-center justify-between flex-wrap gap-2.5 pb-3 border-b app-border">
+            <div className="flex items-center gap-2">
+              <ListTree className="w-4 h-4 text-cyan-400" />
+              <h3 className="text-xs sm:text-sm font-black app-text">
+                {isFa ? 'ساختار فهرستی اوت‌لاینر' : 'Collapsible Outliner View'}
+              </h3>
+            </div>
+
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setIsMindMapSettingsOpen(true)}
+                className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-purple-600/20 text-purple-300 border border-purple-500/40 hover:bg-purple-600 hover:text-white transition flex items-center gap-1 cursor-pointer"
+              >
+                <Settings className="w-3.5 h-3.5" />
+                <span>{isFa ? 'تنظیمات و چیدمان' : 'Settings'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={expandAll}
+                className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-purple-600 text-white shadow-sm hover:bg-purple-500 transition cursor-pointer"
+              >
+                {isFa ? '➕ باز کردن همه' : '➕ Expand All'}
+              </button>
+
+              <button
+                type="button"
+                onClick={collapseAll}
+                className="px-2.5 py-1.5 rounded-xl text-xs font-bold app-bg app-border app-text hover:border-slate-400 transition cursor-pointer"
+              >
+                {isFa ? '➖ بستن همه' : '➖ Collapse All'}
+              </button>
+            </div>
+          </div>
+
           {mindMapTree.children.length === 0 ? (
             <div className="p-12 text-center text-slate-500 space-y-3">
               <FolderTree className="w-10 h-10 mx-auto text-slate-600" />
@@ -1579,7 +1673,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
             mindMapTree.children.map((domNode) => renderOutlinerNode(domNode, 0))
           )}
 
-          {/* Context Menu Popup */}
+          {/* Context Menu Popup in Outliner */}
           {contextMenu.isOpen && contextMenu.node && (
             <div
               style={{ position: 'fixed', left: `${contextMenu.x}px`, top: `${contextMenu.y}px` }}
@@ -1635,83 +1729,85 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
               </button>
             </div>
           )}
-
-          {/* Question Detail Modal */}
-          {selectedQuestionCard && (
-            <QuestionDetailModal
-              isOpen={!!selectedQuestionCard}
-              onClose={() => setSelectedQuestionCard(null)}
-              card={selectedQuestionCard}
-              language={language}
-              cardLangMode={cardLangMode}
-              cardFlags={cardFlags}
-              onSetCardFlag={handleSetCardFlag}
-              onRateCard={onRateCard}
-              showLeitnerGrading={showLeitnerGrading}
-            />
-          )}
-
-          {/* Sequential Study Runner Modal */}
-          {branchRunnerState.isOpen && branchRunnerState.node && (
-            <BranchStudyRunnerModal
-              isOpen={branchRunnerState.isOpen}
-              onClose={() => setBranchRunnerState({ isOpen: false, node: null, cards: [] })}
-              node={branchRunnerState.node}
-              cards={branchRunnerState.cards}
-              language={language}
-              cardLangMode={cardLangMode}
-              cardFlags={cardFlags}
-              onSetCardFlag={handleSetCardFlag}
-              onRateCard={onRateCard}
-              onUpdateCardBox={onUpdateCardBox}
-            />
-          )}
-
-          {/* Rename Modal */}
-          <RenameNodeModal
-            isOpen={renameModal.isOpen}
-            onClose={() => setRenameModal({ isOpen: false, node: null, currentText: '' })}
-            node={renameModal.node}
-            currentText={renameModal.currentText}
-            onSave={handleSaveAlias}
-            onReset={handleResetAlias}
-            language={language}
-          />
-
-          {/* Color Picker Modal */}
-          <ColorPickerModal
-            isOpen={colorPickerModal.isOpen}
-            onClose={() => setColorPickerModal({ isOpen: false, node: null })}
-            node={colorPickerModal.node}
-            onSaveColor={handleSaveColor}
-            language={language}
-          />
-
-          {/* ⚙️ MIND MAP SETTINGS MODAL */}
-          <MindMapSettingsModal
-            isOpen={isMindMapSettingsOpen}
-            onClose={() => setIsMindMapSettingsOpen(false)}
-            language={language}
-            viewMode={viewMode}
-            onChangeViewMode={(mode) => setViewMode(mode)}
-            lineStyle={lineStyle}
-            onChangeLineStyle={(style) => setLineStyle(style)}
-            textDisplayMode={textDisplayMode}
-            onChangeTextDisplayMode={(mode) => setTextDisplayMode(mode)}
-            filterModule={filterModule}
-            onChangeFilterModule={(mod) => setFilterModule(mod)}
-            filterBox={filterBox}
-            onChangeFilterBox={(box) => setFilterBox(box)}
-            selectedFlagFilters={selectedFlagFilters as any}
-            onToggleFlagFilter={(flag) => toggleFlagFilter(flag)}
-            onResetFlagFilters={() => setSelectedFlagFilters([])}
-            onExpandAll={expandAll}
-            onCollapseAll={collapseAll}
-            onExportJson={handleExportJson}
-            totalNodesCount={cards.length}
-          />
         </div>
       )}
+
+      {/* ========================================================================= */}
+      {/* SHARED MODALS (MOUNTED & AVAILABLE ACROSS ALL 5 VIEW MODES)               */}
+      {/* ========================================================================= */}
+      {selectedQuestionCard && (
+        <QuestionDetailModal
+          isOpen={!!selectedQuestionCard}
+          onClose={() => setSelectedQuestionCard(null)}
+          card={selectedQuestionCard}
+          language={language}
+          cardLangMode={cardLangMode}
+          cardFlags={cardFlags}
+          onSetCardFlag={handleSetCardFlag}
+          onRateCard={onRateCard}
+          showLeitnerGrading={showLeitnerGrading}
+        />
+      )}
+
+      {branchRunnerState.isOpen && branchRunnerState.node && (
+        <BranchStudyRunnerModal
+          isOpen={branchRunnerState.isOpen}
+          onClose={() => setBranchRunnerState({ isOpen: false, node: null, cards: [] })}
+          node={branchRunnerState.node}
+          cards={branchRunnerState.cards}
+          language={language}
+          cardLangMode={cardLangMode}
+          cardFlags={cardFlags}
+          onSetCardFlag={handleSetCardFlag}
+          onRateCard={onRateCard}
+          onUpdateCardBox={onUpdateCardBox}
+        />
+      )}
+
+      {renameModal.isOpen && (
+        <RenameNodeModal
+          isOpen={renameModal.isOpen}
+          onClose={() => setRenameModal({ isOpen: false, node: null, currentText: '' })}
+          node={renameModal.node}
+          currentText={renameModal.currentText}
+          onSave={handleSaveAlias}
+          onReset={handleResetAlias}
+          language={language}
+        />
+      )}
+
+      {colorPickerModal.isOpen && (
+        <ColorPickerModal
+          isOpen={colorPickerModal.isOpen}
+          onClose={() => setColorPickerModal({ isOpen: false, node: null })}
+          node={colorPickerModal.node}
+          onSaveColor={handleSaveColor}
+          language={language}
+        />
+      )}
+
+      <MindMapSettingsModal
+        isOpen={isMindMapSettingsOpen}
+        onClose={() => setIsMindMapSettingsOpen(false)}
+        language={language}
+        viewMode={viewMode}
+        onChangeViewMode={(mode) => setViewMode(mode)}
+        lineStyle={lineStyle}
+        onChangeLineStyle={(style) => setLineStyle(style)}
+        textDisplayMode={textDisplayMode}
+        onChangeTextDisplayMode={(mode) => setTextDisplayMode(mode)}
+        filterModule={filterModule}
+        onChangeFilterModule={(mod) => setFilterModule(mod)}
+        filterBox={filterBox}
+        onChangeFilterBox={(box) => setFilterBox(box)}
+        selectedFlagFilters={selectedFlagFilters as any}
+        onToggleFlagFilter={(flag) => toggleFlagFilter(flag)}
+        onResetFlagFilters={() => setSelectedFlagFilters([])}
+        onExpandAll={expandAll}
+        onCollapseAll={collapseAll}
+        onExportJson={handleExportJson}
+        totalNodesCount={cards.length}
+      />
     </div>
   );
 };
