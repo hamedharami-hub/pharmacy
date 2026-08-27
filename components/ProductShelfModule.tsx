@@ -166,8 +166,8 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
   const [activeMechanismFilter, setActiveMechanismFilter] = useState<string>('ALL');
   const [isGroupedByMechanism, setIsGroupedByMechanism] = useState<boolean>(false);
 
-  // 3 Accordion Expand/Collapse States
-  const [isSubcategoriesAccordionOpen, setIsSubcategoriesAccordionOpen] = useState<boolean>(true);
+  // 3 Accordion Expand/Collapse States (Collapsed by default)
+  const [isSubcategoriesAccordionOpen, setIsSubcategoriesAccordionOpen] = useState<boolean>(false);
   const [isGroupingAccordionOpen, setIsGroupingAccordionOpen] = useState<boolean>(false);
   const [isCommonMechanismAccordionOpen, setIsCommonMechanismAccordionOpen] = useState<boolean>(false);
 
