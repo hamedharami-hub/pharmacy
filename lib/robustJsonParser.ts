@@ -9,6 +9,9 @@ export function sanitizeAndRepairJson(raw: string): string {
 
   let cleaned = raw.trim();
 
+  // 0. Remove DeepSeek-R1 <think>...</think> reasoning blocks completely
+  cleaned = cleaned.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
   // 1. Remove Markdown code fence wrappers (```json ... ``` or ``` ...)
   cleaned = cleaned.replace(/^```(?:json)?\s*/i, '');
   cleaned = cleaned.replace(/\s*```$/i, '');

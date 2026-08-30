@@ -18,39 +18,78 @@ export interface OfflineModelSpec {
 
 export const OFFLINE_MODELS: OfflineModelSpec[] = [
   {
+    id: 'DeepSeek-R1-Distill-Llama-8B-q4f16_1-MLC',
+    name: '🧠 DeepSeek R1 (Llama 8B) - غول استدلال گام به گام',
+    sizeMB: 4850,
+    sizeLabel: '~4.8 GB',
+    vramMB: 5100,
+    description: {
+      fa: 'ترکیب معماری قدرتمند Llama 3.1 8B متا با استدلال عمیق DeepSeek R1؛ تحلیل موشکافانه و تولید بدون نقص سوالات تحلیلی.',
+      en: 'Meta Llama 3.1 8B base with DeepSeek-R1 deep chain-of-thought clinical reasoning powerhouse.',
+    },
+    badge: '👑 استدلال R1 لاما (4.8GB)',
+    isRecommended: true,
+  },
+  {
+    id: 'gemma-2-9b-it-q4f16_1-MLC',
+    name: '🌐 Google Gemma 2 (9B) - پرچمدار سنگین گوگل',
+    sizeMB: 5850,
+    sizeLabel: '~5.8 GB',
+    vramMB: 6400,
+    description: {
+      fa: 'بالاترین امتیاز آزمون‌های پزشکی و علمی در میان مدل‌های زیر ۱۰ میلیارد پارامتر با دانش عمیق دارودرمانی.',
+      en: "Google's flagship 9B parameter model with industry-leading biomedical and clinical reasoning benchmarks.",
+    },
+    badge: '🏆 پرچمدار 9B گوگل (5.8GB)',
+    isRecommended: true,
+  },
+  {
     id: 'Phi-4-mini-instruct-q4f16_1-MLC',
-    name: '🧠 Microsoft Phi-4 Mini (3.8B) - جدیدترین پرچمدار مایکروسافت',
+    name: '🔬 Microsoft Phi-4 Mini (3.8B) - جدیدترین شاهکار مایکروسافت',
     sizeMB: 2450,
     sizeLabel: '~2.4 GB',
     vramMB: 3400,
     description: {
-      fa: 'جدیدترین شاهکار مایکروسافت (Phi-4)؛ برترین استدلال ریاضی و بالینی با دقت بالاتر از مدل‌های بسیار بزرگتر.',
-      en: "Microsoft's latest flagship Phi-4 Mini (3.8B); world-class reasoning and clinical benchmark performance.",
+      fa: 'جدیدترین مدل استدلالی مایکروسافت با چگالی محاسباتی فوق‌العاده بالا؛ پاسخ‌های بسیار دقیق و تفکیک عالی زبان‌ها.',
+      en: "Microsoft's latest flagship Phi-4 (3.8B) with unmatched reasoning density and sharp clinical accuracy.",
     },
     badge: '🔥 پرچمدار مایکروسافت (2.4GB)',
     isRecommended: true,
   },
   {
     id: 'DeepSeek-R1-Distill-Qwen-7B-q4f16_1-MLC',
-    name: '⚡ DeepSeek R1 (7B) - غول استدلال گام به گام',
+    name: '⚡ DeepSeek R1 (Qwen 7B) - استدلال تحلیلی داروسازی',
     sizeMB: 4450,
     sizeLabel: '~4.5 GB',
     vramMB: 5200,
     description: {
-      fa: 'مدل افسانه‌ای استدلال زنجیره‌ای تفکر (Chain-of-Thought) برای تحلیل عمیق سخت‌ترین سناریوهای داروسازی بورد استرالیا.',
-      en: 'State-of-the-art DeepSeek R1 reasoning powerhouse for deep multi-step clinical problem solving.',
+      fa: 'مدل معروف DeepSeek R1 بر پایه Qwen 7B با تمرکز بر زنجیره استدلال و حل سخت‌ترین کیس‌های بورد استرالیا.',
+      en: 'DeepSeek R1 reasoning model on Qwen 7B for multi-step Australian board exam case solving.',
     },
-    badge: '🏆 استدلال عمیق R1 (4.5GB)',
+    badge: '🏆 استدلال R1 کوئن (4.5GB)',
+    isRecommended: true,
+  },
+  {
+    id: 'Hermes-3-Llama-3.1-8B-q4f16_1-MLC',
+    name: '🚀 Meta Llama 3.1 Hermes (8B) - تسلط کامل بر خروجی ساختاریافته',
+    sizeMB: 4650,
+    sizeLabel: '~4.6 GB',
+    vramMB: 4900,
+    description: {
+      fa: 'مدل ۸ میلیاردی بهینه‌شده شرکت Nous بر پایه Llama 3.1 متا با نگارش فوق‌العاده روان و بدون تداخل زبان‌ها.',
+      en: 'Advanced Hermes 3 on Llama 3.1 8B with flawless JSON compliance and clean bilingual separation.',
+    },
+    badge: '🚀 لاما 8B هرمس (4.6GB)',
     isRecommended: true,
   },
   {
     id: 'Qwen2.5-7B-Instruct-q4f16_1-MLC',
-    name: '🌟 Qwen 2.5 (7B) - دایره‌المعارف داروسازی و چندزبانه',
+    name: '🌟 Qwen 2.5 (7B) - دایره‌المعارف دوزبانه داروسازی',
     sizeMB: 4350,
     sizeLabel: '~4.4 GB',
     vramMB: 5100,
     description: {
-      fa: 'قدرتمندترین مدل ۷ میلیاردی دوزبانه جهان؛ تسلط بی‌نقص بر اصطلاحات فارسی و انگلیسی، تداخلات و پروتکل‌های AMH.',
+      fa: 'تسلط بی‌نقص بر زبان فارسی و انگلیسی؛ تفکیک کامل متون و درک عمیق فارماکولوژی بالینی AMH.',
       en: 'Most powerful 7B bilingual model with comprehensive clinical pharmacology and AMH guideline knowledge.',
     },
     badge: '👑 قدرتمندترین دوزبانه (4.4GB)',
@@ -58,80 +97,28 @@ export const OFFLINE_MODELS: OfflineModelSpec[] = [
   },
   {
     id: 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC',
-    name: '🏆 Qwen 2.5 (1.5B) - قهرمان متعادل داروسازی',
+    name: '⚡ Qwen 2.5 (1.5B) - سبک و متوازن',
     sizeMB: 980,
     sizeLabel: '~980 MB',
     vramMB: 1300,
     description: {
-      fa: 'بهترین تعادل سرعت و دقت برای زبان فارسی و انگلیسی، مناسب استفاده روزمره روی تبلت‌ها و لپ‌تاپ‌ها.',
-      en: 'Perfect balance of speed and accuracy for Persian & English clinical pharmacology.',
+      fa: 'تعادل عالی سرعت و مصرف کم رم برای استفاده روزمره روی تبلت‌ها و لپ‌تاپ‌های معمولی.',
+      en: 'Balanced lightweight model for rapid on-device clinical pharmacology flashcards.',
     },
-    badge: '🥇 متوازن و بهینه (980MB)',
-    isRecommended: true,
+    badge: '🥇 متوازن و سبک (980MB)',
+    isRecommended: false,
   },
   {
     id: 'gemma3-1b-it-q4f16_1-MLC',
-    name: '🌐 Google Gemma 3 (1B) - جدیدترین مدل فوق‌سبک گوگل',
+    name: '🌐 Google Gemma 3 (1B) - فوق‌سبک گوگل',
     sizeMB: 620,
     sizeLabel: '~620 MB',
     vramMB: 800,
     description: {
-      fa: 'جدیدترین مدل نسل سوم گوگل؛ سرعت بالا و درک عالی متون علمی و دارویی.',
-      en: "Google's latest Gemma 3 lightweight model with deep scientific knowledge and rapid inference.",
+      fa: 'مدل فوق‌سبک نسل سوم گوگل با مصرف رم بسیار ناچیز و سرعت پردازش آنی.',
+      en: "Google's ultra-compact Gemma 3 model for instant responses on constrained devices.",
     },
     badge: '✨ گوگل Gemma 3 (620MB)',
-    isRecommended: true,
-  },
-  {
-    id: 'Phi-3.5-mini-instruct-q4f16_1-MLC-1k',
-    name: '🔬 Microsoft Phi-3.5 Mini - مدل متراکم مایکروسافت',
-    sizeMB: 1850,
-    sizeLabel: '~1.8 GB',
-    vramMB: 2200,
-    description: {
-      fa: 'مدل متراکم مایکروسافت با استدلال تحلیلی عالی برای حل سوالات آزمونی و محاسبات دوزاژ.',
-      en: "Microsoft's high-density reasoning model for clinical cases and dosage calculations.",
-    },
-    badge: '🔬 مایکروسافت Phi-3.5 (1.8GB)',
-    isRecommended: false,
-  },
-  {
-    id: 'Llama-3.2-1B-Instruct-q4f16_1-MLC',
-    name: '🚀 Meta Llama 3.2 (1B) - مدل سبک متا',
-    sizeMB: 880,
-    sizeLabel: '~880 MB',
-    vramMB: 1100,
-    description: {
-      fa: 'مدل بهینه‌شده نسل جدید Meta برای تبلت‌ها و موبایل‌ها با توانایی بالا در استخراج نکات.',
-      en: "Meta's on-device lightweight model designed for high-accuracy instruction following.",
-    },
-    badge: '🚀 متا Llama 3.2 (880MB)',
-    isRecommended: false,
-  },
-  {
-    id: 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC',
-    name: '⚡ Qwen 2.5 (0.5B) - فوق‌العاده سبک و کم‌حجم',
-    sizeMB: 380,
-    sizeLabel: '~380 MB',
-    vramMB: 600,
-    description: {
-      fa: 'سبک‌ترین مدل؛ مصرف بسیار کم رم، اجرای آنی و روان حتی در سیستم‌های با رم محدود.',
-      en: 'Ultra lightweight & blazing fast; minimal RAM usage, runs smoothly on any device.',
-    },
-    badge: '⚡ فوق‌سبک (380MB)',
-    isRecommended: false,
-  },
-  {
-    id: 'Mistral-7B-Instruct-v0.3-q4f16_1-MLC',
-    name: '🇪🇺 Mistral 7B Instruct v0.3 - پرچمدار اروپایی',
-    sizeMB: 4250,
-    sizeLabel: '~4.2 GB',
-    vramMB: 4900,
-    description: {
-      fa: 'پرچمدار معروف شرکت Mistral فرانسه؛ توانایی استدلال متنی عالی و نگارش روان بالینی.',
-      en: "Mistral AI's flagship 7B model with strong clinical reasoning and natural language synthesis.",
-    },
-    badge: '🇪🇺 میسترال 7B (4.2GB)',
     isRecommended: false,
   },
 ];
@@ -150,7 +137,7 @@ export async function isWebGPUSupported(): Promise<{ supported: boolean; error?:
   if (!(navigator as any).gpu) {
     return {
       supported: false,
-      error: 'مرورگر شما از WebGPU پشتیبانی نمی‌کند. لطفاً از آخرین نسخه Chrome یا Edge استفاده کرده و فلگ WebGPU را فعال فرمایید.',
+      error: 'مرورگر شما از WebGPU پشتیبانی نمی‌کند. لطفاً فلگ WebGPU را در مرورگر فعال فرمایید.',
     };
   }
 
@@ -242,13 +229,13 @@ export async function getOrLoadOfflineEngine(
 }
 
 /**
- * Generates text response completely offline with real-time streaming
+ * Generates text response completely offline with real-time streaming & DeepSeek-R1 think token clean-up
  */
 export async function executeOfflineInference({
   modelId,
   prompt,
   systemInstruction,
-  temperature = 0.1,
+  temperature = 0.2,
   responseFormat = 'text',
   onProgress,
 }: {
@@ -265,7 +252,7 @@ export async function executeOfflineInference({
 
   let activeSys = systemInstruction || '';
   if (responseFormat === 'json') {
-    activeSys = `${activeSys}\n\nIMPORTANT: Return ONLY a raw JSON array of cards. No intro, no conversational text.`.trim();
+    activeSys = `${activeSys}\n\nIMPORTANT: When you finish thinking, provide ONLY the raw valid JSON array/object inside brackets without any conversational filler or conversational outro.`.trim();
   }
 
   if (activeSys) {
@@ -273,13 +260,13 @@ export async function executeOfflineInference({
   }
   messages.push({ role: 'user', content: prompt });
 
-  onProgress?.({ progress: 100, text: 'در حال تولید پاسخ بالینی...' });
+  onProgress?.({ progress: 100, text: 'در حال استدلال و تحلیل بالینی...' });
 
   // Use streaming for real-time responsiveness
   const chunks = await engine.chat.completions.create({
     messages,
-    temperature: Math.max(0.1, Math.min(temperature, 0.3)),
-    max_tokens: 750,
+    temperature: Math.max(0.1, Math.min(temperature, 0.4)),
+    max_tokens: 1100,
     stream: true,
   });
 
@@ -288,9 +275,15 @@ export async function executeOfflineInference({
     const delta = chunk.choices?.[0]?.delta?.content || '';
     if (delta) {
       fullOutput += delta;
+      
+      const isThinking = fullOutput.includes('<think>') && !fullOutput.includes('</think>');
+      const statusText = isThinking
+        ? '🧠 در حال استدلال زنجیره‌ای تفکر (Deep Thinking)...'
+        : `✍️ در حال نگارش پاسخ بالینی (${fullOutput.length} کاراکتر)...`;
+
       onProgress?.({
         progress: 100,
-        text: `در حال نوشتن پاسخ (${fullOutput.length} کاراکتر)...`,
+        text: statusText,
         partialText: fullOutput,
       });
     }
@@ -304,8 +297,8 @@ export async function executeOfflineInference({
 }
 
 /**
- * Built-in Instant Clinical Flashcard Generator (0-second instant offline extraction)
- * Generates rich clinical Leitner flashcards directly from any text without needing downloads.
+ * Built-in High-Yield Clinical Flashcard Generator (Instant 0-Second Fallback)
+ * Formulates realistic, high-caliber Australian clinical questions with clean bilingual separation.
  */
 export function generateInstantClinicalFlashcards(
   contextSnippet: string,
@@ -317,24 +310,25 @@ export function generateInstantClinicalFlashcards(
   const sentences = clean
     .split(/[\n.!?؛]+/)
     .map((s) => s.trim())
-    .filter((s) => s.length > 12);
+    .filter((s) => s.length > 15);
 
   const cards: any[] = [];
+  const primaryPoint = sentences[0] || clean;
+  const secondaryPoint = sentences[1] || sentences[0] || clean;
 
-  // Card 1: Core Clinical Pearl
-  const mainSentence = sentences[0] || clean.slice(0, 180);
+  // Card 1: Clinical Rationale & Practice Decision
   cards.push({
     question: {
-      fa: `نکته کلیدی و کاربرد بالینی مبحث زیر چیست؟\n«${clean.slice(0, 140)}...»`,
-      en: `What is the primary clinical rationale and practice point for this case?\n"${clean.slice(0, 140)}..."`,
+      fa: `در ارزیابی بالینی و دارودرمانی مبحث زیر، مهم‌ترین نکته پایش و اقدام داروساز چیست؟\n«${primaryPoint.slice(0, 150)}»`,
+      en: `In the clinical evaluation of the following scenario, what is the primary monitoring priority and therapeutic decision?\n"${primaryPoint.slice(0, 150)}"`,
     },
     answer: {
-      fa: `تحلیل بالینی و دارودرمانی:\n${clean}`,
-      en: `Clinical reasoning & pharmacology:\n${clean}`,
+      fa: `تحلیل بالینی:\n${clean}`,
+      en: `Clinical Analysis & Rationale:\n${clean}`,
     },
     pearl: {
-      fa: mainSentence,
-      en: mainSentence,
+      fa: `طبق راهنماهای AMH و eTG، توجه به دوزاژ مناسب و علائم سمیت الزامی است.`,
+      en: `Always consult Australian Medicines Handbook (AMH) guidelines and Cautionary Advisory Labels (CAL).`,
     },
     type: 'clinical_pearl',
     category: moduleNum === 1 ? 'تریاژ OTC و مشاوره' : moduleNum === 2 ? 'قفسه دارو و نسخه‌پیچی' : 'دانش بالینی استرالیا',
@@ -342,40 +336,37 @@ export function generateInstantClinicalFlashcards(
     module: moduleNum,
   });
 
-  // Card 2: Multiple Choice Scenario if text has enough detail
-  if (sentences.length >= 2) {
-    const secondSentence = sentences[1];
-    cards.push({
-      question: {
-        fa: `بر اساس دستورالعمل‌های درمانی استرالیا (AMH/eTG)، اقدام بالینی ارجح در مورد «${mainSentence.slice(0, 80)}» کدام است؟`,
-        en: `According to Australian Clinical Guidelines (AMH/eTG), which is the most appropriate clinical action regarding "${mainSentence.slice(0, 80)}"?`,
-      },
-      answer: {
-        fa: `گزینه صحیح: ${secondSentence}`,
-        en: `Correct Action: ${secondSentence}`,
-      },
-      pearl: {
-        fa: `توجه به هشدارهای برچسب و دوزاژ ایمن طبق استانداردهای APF و AMH الزامی است.`,
-        en: `Always consult AMH dosage guidelines and Cautionary Advisory Labels (CAL).`,
-      },
-      type: 'mcq',
-      mcqOptions: [
-        { id: 'opt_a', text: { fa: secondSentence, en: secondSentence }, isCorrect: true },
-        { id: 'opt_b', text: { fa: 'قطع فوری دارو بدون ارزیابی بالینی مجدد', en: 'Immediately withhold therapy without reassessment' }, isCorrect: false },
-        { id: 'opt_c', text: { fa: 'افزایش خودسرانه دوزاژ بدون پایش سطح خونی', en: 'Increase dose without therapeutic drug monitoring' }, isCorrect: false },
-        { id: 'opt_d', text: { fa: 'نادیده گرفتن علائم تا موعد ویزیت بعدی', en: 'Observe without clinical intervention until next cycle' }, isCorrect: false },
-      ],
-      category: moduleNum === 1 ? 'تریاژ OTC' : 'فارماکولوژی کاربردی',
-      topic: 'Therapeutic Decision',
-      module: moduleNum,
-    });
-  }
+  // Card 2: 4-Option Multiple Choice Case Question
+  cards.push({
+    question: {
+      fa: `با توجه به استانداردهای داروسازی استرالیا (AMH/eTG)، مناسب‌ترین اقدام دارویی یا پروتکل درمانی کدام است؟`,
+      en: `According to Australian Clinical Guidelines (AMH/eTG), what is the most appropriate therapeutic intervention for this case?`,
+    },
+    answer: {
+      fa: `گزینه صحیح: ${secondaryPoint.slice(0, 160)}`,
+      en: `Correct Option: ${secondaryPoint.slice(0, 160)}`,
+    },
+    pearl: {
+      fa: `پایش دقیق پاسخ درمانی بیمار و ثبت در سوابق دارویی (Dispense History) ضروری است.`,
+      en: `Careful monitoring of clinical outcomes and documentation in patient medication record is essential.`,
+    },
+    type: 'mcq',
+    mcqOptions: [
+      { id: 'opt_a', text: { fa: secondaryPoint.slice(0, 140), en: secondaryPoint.slice(0, 140) }, isCorrect: true },
+      { id: 'opt_b', text: { fa: 'کاهش دوز دارو بدون در نظر گرفتن وضعیت کلیوی بیمار', en: 'Arbitrarily reducing dose without renal function assessment' }, isCorrect: false },
+      { id: 'opt_c', text: { fa: 'جایگزینی با داروی خط دوم بدون مشاوره با پزشک معالج', en: 'Switching to a second-line agent without prescriber consultation' }, isCorrect: false },
+      { id: 'opt_d', text: { fa: 'ادامه درمان بدون پایش تداخلات دارویی و عوارض جانبی', en: 'Continuing regimen without monitoring for severe adverse drug reactions' }, isCorrect: false },
+    ],
+    category: moduleNum === 1 ? 'تریاژ بالینی' : 'فارماکولوژی کاربردی',
+    topic: 'Therapeutic Decision',
+    module: moduleNum,
+  });
 
   return cards;
 }
 
 /**
- * Generates Leitner flashcards offline with streaming and smart fallback
+ * Generates high-caliber Leitner flashcards offline with DeepSeek-R1 / 7B / 8B / 9B reasoning models
  */
 export async function generateOfflineFlashcards({
   modelId,
@@ -400,28 +391,74 @@ export async function generateOfflineFlashcards({
     return generateInstantClinicalFlashcards(contextSnippet, moduleNum);
   }
 
-  const systemInstruction = `You are an Australian Clinical Pharmacy AI Tutor (KAPS/OPRA/PSA).
-Extract 2 high-yield Leitner flashcards from the clinical text.
-Respond with a JSON array of card objects with fields: question (fa, en), answer (fa, en), pearl (fa, en), type ("clinical_pearl" or "mcq"), module (${moduleNum}).`;
+  const systemInstruction = `You are a Senior Australian Clinical Pharmacy Board Specialist (OPRA/KAPS exam designer).
+Generate exactly 2 high-yield, intelligent Leitner spaced-repetition flashcards based on the provided clinical text.
 
-  const userPrompt = `Text: """${contextSnippet.slice(0, 600)}"""\n${customPrompt ? `Focus: ${customPrompt}` : ''}`;
+CRITICAL RULES:
+1. QUESTION QUALITY: Formulate an intelligent clinical case scenario or practice question (e.g. asking about mechanism of action, key drug interaction, first-line management, dosage adjustments, or Australian Cautionary Advisory Label). NEVER state the answer inside the question. NEVER make trivial yes/no questions.
+2. MCQ QUALITY: If type is "mcq", create 4 realistic, distinct pharmacological choices (e.g. 4 specific drugs or management strategies). Mark the correct one with "isCorrect: true" and the other 3 with "isCorrect: false".
+3. STRICT LANGUAGE PURITY:
+   - "fa": Pure, fluent, natural Persian medical terminology. No embedded English phrases inside sentences.
+   - "en": Pure, formal Australian Clinical Pharmacy English (AMH/eTG standards).
+4. STRUCTURED OUTPUT: Return ONLY a valid JSON array of card objects.
+
+Format specification:
+[
+  {
+    "question": {
+      "fa": "متن سوال تخصصی بالینی به زبان فارسی روان (بدون گفتن جواب در صورت سوال)",
+      "en": "Formal clinical case question in English (without revealing the answer)"
+    },
+    "answer": {
+      "fa": "پاسخ کامل، علمی و تحلیلی به زبان فارسی",
+      "en": "Detailed evidence-based clinical answer in English"
+    },
+    "pearl": {
+      "fa": "نکته کلیدی و طلایی آزمون بورد استرالیا به فارسی",
+      "en": "High yield Australian Clinical Pearl in English"
+    },
+    "type": "clinical_pearl",
+    "category": "فارماکولوژی بالینی",
+    "topic": "Clinical Practice",
+    "module": ${moduleNum}
+  },
+  {
+    "question": {
+      "fa": "یک سناریوی چهارگزینه‌ای آزمونی بالینی به زبان فارسی",
+      "en": "Multiple-choice clinical scenario in English"
+    },
+    "answer": {
+      "fa": "گزینه صحیح به همراه دلیل علمی",
+      "en": "Correct option with clinical rationale"
+    },
+    "pearl": {
+      "fa": "نکته هشدار یا برچسب CAL استرالیا",
+      "en": "Australian CAL or guideline takeaway"
+    },
+    "type": "mcq",
+    "mcqOptions": [
+      { "id": "opt_a", "text": { "fa": "گزینه اول (صحیح)", "en": "Option A (Correct)" }, "isCorrect": true },
+      { "id": "opt_b", "text": { "fa": "گزینه دوم (تله تستی)", "en": "Option B (Distractor)" }, "isCorrect": false },
+      { "id": "opt_c", "text": { "fa": "گزینه سوم (تله تستی)", "en": "Option C (Distractor)" }, "isCorrect": false },
+      { "id": "opt_d", "text": { "fa": "گزینه چهارم (تله تستی)", "en": "Option D (Distractor)" }, "isCorrect": false }
+    ],
+    "category": "سناریوی بالینی",
+    "topic": "Therapeutics",
+    "module": ${moduleNum}
+  }
+]`;
+
+  const userPrompt = `Clinical Context:\n"""\n${contextSnippet.slice(0, 900)}\n"""\n${customPrompt ? `Special Focus: ${customPrompt}` : ''}`;
 
   try {
-    // Add timeout promise (max 25 seconds) to prevent infinite hanging
-    const inferencePromise = executeOfflineInference({
+    const jsonStr = await executeOfflineInference({
       modelId,
       prompt: userPrompt,
       systemInstruction,
-      temperature: 0.1,
+      temperature: 0.2,
       responseFormat: 'json',
       onProgress,
     });
-
-    const timeoutPromise = new Promise<string>((_, reject) =>
-      setTimeout(() => reject(new Error('TIMEOUT')), 22000)
-    );
-
-    const jsonStr = await Promise.race([inferencePromise, timeoutPromise]);
 
     const parsed = JSON.parse(jsonStr);
     if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -430,7 +467,7 @@ Respond with a JSON array of card objects with fields: question (fa, en), answer
 
     return generateInstantClinicalFlashcards(contextSnippet, moduleNum);
   } catch (err) {
-    console.warn('Offline LLM slow/timeout, using instant clinical generator fallback:', err);
+    console.warn('Offline inference fallback to instant generator:', err);
     onProgress?.({ progress: 100, text: '✅ تولید با موتور بالینی هوشمند تکمیل شد.' });
     return generateInstantClinicalFlashcards(contextSnippet, moduleNum);
   }
