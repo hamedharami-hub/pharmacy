@@ -10,6 +10,7 @@ import {
   McqOption,
 } from '@/types/leitner';
 import { getClientAiConfig } from '@/lib/aiConfigStorage';
+import { generateOfflineFlashcards, OFFLINE_MODELS } from '@/lib/offlineAiService';
 import {
   Sparkles,
   X,
@@ -82,6 +83,7 @@ const AiLeitnerModalContent: React.FC<AiLeitnerModalInnerProps> = ({
   const [isInputCollapsed, setIsInputCollapsed] = useState(false);
 
   const [isGenerating, setIsGenerating] = useState(false);
+  const [offlineStatus, setOfflineStatus] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [candidateCards, setCandidateCards] = useState<CandidateCard[]>([]);
   const [successSavedCount, setSuccessSavedCount] = useState<number | null>(null);
@@ -103,6 +105,7 @@ const AiLeitnerModalContent: React.FC<AiLeitnerModalInnerProps> = ({
 
       setIsGenerating(true);
       setErrorMsg(null);
+      setOfflineStatus(null);
       setSuccessSavedCount(null);
 
       try {
@@ -110,7 +113,9 @@ const AiLeitnerModalContent: React.FC<AiLeitnerModalInnerProps> = ({
         const activeModel = aiCfg.flashcardModel || 'gemini-2.5-flash';
         let activeProvider = aiCfg.preferredProvider || 'gemini';
         
-        if (
+        if (activeModel.includes('MLC') || activeProvider === 'offline') {
+          activeProvider = 'offline';
+        } else if (
           activeModel.startsWith('llama') ||
           activeModel.startsWith('deepseek') ||
           activeModel.startsWith('qwen') ||
@@ -121,38 +126,56 @@ const AiLeitnerModalContent: React.FC<AiLeitnerModalInnerProps> = ({
           activeProvider = 'xai';
         }
 
-        const customKey =
-          activeProvider === 'groq'
-            ? aiCfg.groqApiKey
-            : activeProvider === 'xai'
-            ? aiCfg.xaiApiKey
-            : aiCfg.geminiApiKey;
+        let rawCards: any[] = [];
 
-        const res = await fetch('/api/gemini/generate-flashcards', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+        if (activeProvider === 'offline') {
+          // Local offline inference via WebLLM WebGPU
+          setOfflineStatus(isFa ? '🚀 در حال اجرای هوش مصنوعی آفلاین در مرورگر...' : '🚀 Running local offline AI in browser...');
+          rawCards = await generateOfflineFlashcards({
+            modelId: activeModel || 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC',
             contextSnippet: textToUse,
-            moduleNumber: mod,
-            category: cat,
-            topic: top,
             customPrompt: prompt,
-            generationMode: mode,
-            language,
-            provider: activeProvider,
-            model: activeModel,
-            apiKey: customKey || undefined,
-            temperature: aiCfg.temperature ?? 0.2,
-          }),
-        });
+            moduleNum: mod,
+            onProgress: (p) => {
+              setOfflineStatus(p.text);
+            },
+          });
+        } else {
+          // Server-side cloud inference
+          const customKey =
+            activeProvider === 'groq'
+              ? aiCfg.groqApiKey
+              : activeProvider === 'xai'
+              ? aiCfg.xaiApiKey
+              : aiCfg.geminiApiKey;
 
-        const data = await res.json();
-        if (!res.ok || data.error) {
-          throw new Error(data.error || 'Failed to generate flashcards');
+          const res = await fetch('/api/gemini/generate-flashcards', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contextSnippet: textToUse,
+              moduleNumber: mod,
+              category: cat,
+              topic: top,
+              customPrompt: prompt,
+              generationMode: mode,
+              language,
+              provider: activeProvider,
+              model: activeModel,
+              apiKey: customKey || undefined,
+              temperature: aiCfg.temperature ?? 0.2,
+            }),
+          });
+
+          const data = await res.json();
+          if (!res.ok || data.error) {
+            throw new Error(data.error || 'Failed to generate flashcards');
+          }
+          rawCards = data.cards || [];
         }
 
-        if (Array.isArray(data.cards) && data.cards.length > 0) {
-          const mappedCards: CandidateCard[] = data.cards.map((c: any, idx: number) => {
+        if (Array.isArray(rawCards) && rawCards.length > 0) {
+          const mappedCards: CandidateCard[] = rawCards.map((c: any, idx: number) => {
             const rawTree = c.knowledgeTree;
             const ktDomainFa = rawTree?.domain?.fa || c.category || cat;
             const ktDomainEn = rawTree?.domain?.en || c.category || cat;
@@ -579,7 +602,7 @@ const AiLeitnerModalContent: React.FC<AiLeitnerModalInnerProps> = ({
                 <Sparkles className="w-8 h-8 text-amber-300" />
               </div>
               <div className="text-sm sm:text-base font-bold text-purple-200">
-                {isFa ? 'هوش مصنوعی در حال تحلیل بالینی و استخراج سوالات آزمونی...' : 'AI is extracting exam questions & clinical points...'}
+                {offlineStatus || (isFa ? 'هوش مصنوعی در حال تحلیل بالینی و استخراج سوالات آزمونی...' : 'AI is extracting exam questions & clinical points...')}
               </div>
               <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
                 {isFa

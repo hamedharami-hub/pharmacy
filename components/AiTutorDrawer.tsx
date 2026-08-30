@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Language, UserAiConfig, AiProvider } from '@/types/pharmacy';
+import { executeOfflineInference, OFFLINE_MODELS } from '@/lib/offlineAiService';
 import {
   Bot,
   X,
@@ -141,34 +142,50 @@ export const AiTutorDrawer: React.FC<AiTutorDrawerProps> = ({
           parts: [{ text: m.content }],
         }));
 
-      let apiKey = aiConfig.geminiApiKey;
-      if (activeProvider === 'groq') apiKey = aiConfig.groqApiKey;
-      if (activeProvider === 'xai') apiKey = aiConfig.xaiApiKey || '';
+      let botContent = '';
+      let usedProvider = activeProvider;
 
-      const res = await fetch('/api/gemini/tutor', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      if (activeProvider === 'offline' || activeModel.includes('MLC')) {
+        usedProvider = 'offline';
+        botContent = await executeOfflineInference({
+          modelId: activeModel,
           prompt: text,
-          conversationHistory: history,
-          provider: activeProvider,
-          model: activeModel,
-          apiKey,
-        }),
-      });
+          systemInstruction: isFa
+            ? 'شما استاد راهنمای هوش مصنوعی داروسازی بالینی و آزمون‌های بورد استرالیا هستید. پاسخ‌های دقیق، علمی و مستند بر اساس AMH و eTG به زبان فارسی و انگلیسی ارائه دهید.'
+            : 'You are an Australian Clinical Pharmacy AI Tutor specializing in AMH, eTG, and board exams. Provide concise, high-yield clinical reasoning.',
+          temperature: aiConfig.temperature ?? 0.2,
+        });
+      } else {
+        let apiKey = aiConfig.geminiApiKey;
+        if (activeProvider === 'groq') apiKey = aiConfig.groqApiKey;
+        if (activeProvider === 'xai') apiKey = aiConfig.xaiApiKey || '';
 
-      const data = await res.json();
-      if (!res.ok || data.error) {
-        throw new Error(data.error || 'Failed to get response from AI');
+        const res = await fetch('/api/gemini/tutor', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: text,
+            conversationHistory: history,
+            provider: activeProvider,
+            model: activeModel,
+            apiKey,
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          throw new Error(data.error || 'Failed to get response from AI');
+        }
+        botContent = data.reply || data.text || '';
       }
 
       const botReply: AiChatMessage = {
         id: createMsgId(),
         role: 'assistant',
-        content: data.reply || data.text || '',
+        content: botContent,
         timestamp: getFormattedTime(),
         modelUsed: activeModel,
-        providerUsed: activeProvider,
+        providerUsed: usedProvider,
         suggestedCards: true,
       };
 
@@ -274,33 +291,53 @@ export const AiTutorDrawer: React.FC<AiTutorDrawerProps> = ({
               value={activeModel}
               onChange={(e) => {
                 const newModel = e.target.value;
+                const isOffline = OFFLINE_MODELS.some((m) => m.id === newModel);
                 const matched = aiConfig.customModels?.find((m) => m.id === newModel);
                 setActiveModel(newModel);
-                if (matched?.provider) {
+                if (isOffline) {
+                  setActiveProvider('offline');
+                } else if (matched?.provider) {
                   setActiveProvider(matched.provider);
                 }
               }}
               className="bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-2 py-1 text-[11px] focus:outline-none focus:border-sky-500 font-mono truncate max-w-[240px] sm:max-w-xs cursor-pointer"
             >
-              {(aiConfig.customModels || []).map((m) => (
-                <option key={m.id} value={m.id}>
-                  [{m.provider.toUpperCase()}] {m.name}
-                </option>
-              ))}
+              <optgroup label={isFa ? '🚀 مدل‌های هوش مصنوعی آفلاین (بدون اینترنت)' : '🚀 Offline Local Models'}>
+                {OFFLINE_MODELS.map((om) => (
+                  <option key={om.id} value={om.id}>
+                    [OFFLINE] {om.name}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label={isFa ? '☁️ مدل‌های ابری' : '☁️ Cloud Models'}>
+                {(aiConfig.customModels || []).map((m) => (
+                  <option key={m.id} value={m.id}>
+                    [{m.provider.toUpperCase()}] {m.name}
+                  </option>
+                ))}
+              </optgroup>
             </select>
           </div>
 
           <div className="flex items-center gap-1 shrink-0">
             <span
               className={`text-[9.5px] px-2 py-0.5 rounded-full font-mono uppercase font-bold ${
-                activeProvider === 'gemini'
+                activeProvider === 'offline'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                  : activeProvider === 'gemini'
                   ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30'
                   : activeProvider === 'groq'
                   ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                   : 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
               }`}
             >
-              {activeProvider === 'groq' ? '⚡ Groq LPU' : activeProvider === 'xai' ? '🤖 xAI Grok' : '✨ Gemini'}
+              {activeProvider === 'offline'
+                ? '🚀 آفلاین (WebGPU)'
+                : activeProvider === 'groq'
+                ? '⚡ Groq LPU'
+                : activeProvider === 'xai'
+                ? '🤖 xAI Grok'
+                : '✨ Gemini'}
             </span>
           </div>
         </div>
