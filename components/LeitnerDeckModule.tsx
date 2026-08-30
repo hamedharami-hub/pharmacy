@@ -969,8 +969,16 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
 
   return (
     <div className="space-y-3 min-w-0" dir={isFa ? 'rtl' : 'ltr'}>
-      {/* 1. TOP HEADER & SWITCH BAR (Minimal & Clean) */}
-      <div className="flex items-center justify-end gap-2 p-1 bg-slate-900/60 backdrop-blur-md rounded-2xl border app-border shadow-xs">
+      {/* 1. TOP HEADER & SWITCH BAR (Minimal, Centered & Clean) */}
+      <div className="max-w-3xl mx-auto w-full flex items-center justify-between gap-2 p-1 bg-slate-900/60 backdrop-blur-md rounded-2xl border app-border shadow-xs">
+        {/* Left Side: Deck Scope Indicator / Title */}
+        <div className="flex items-center gap-2 px-2 min-w-0">
+          <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse shrink-0" />
+          <span className="text-xs font-bold text-slate-300 truncate max-w-[150px] sm:max-w-xs">
+            {studyScopeName}
+          </span>
+        </div>
+
         {/* View Switcher: Single Unified Tab Row with Settings Gear Button */}
         <div className="flex items-center gap-1 app-bg p-1 rounded-xl border app-border overflow-x-auto no-scrollbar shrink-0">
           <button
@@ -1048,7 +1056,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
         /* ========================================================================= */
         /* ANKIDROID MINIMALIST STUDY CANVAS                                         */
         /* ========================================================================= */
-        <div className="space-y-3">
+        <div className="space-y-3 max-w-3xl mx-auto w-full">
           {/* Top Controls for Study Mode (Ultra Minimal) */}
           {(studySettings.countdownTimer > 0 || (activeStudyQueue.length > 0 && !sessionCompleted)) && (
             <div className="flex items-center justify-end text-xs px-2 app-muted gap-2">
@@ -1086,7 +1094,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
 
           {/* LIVE SESSION PROGRESS BAR */}
           {activeStudyQueue.length > 0 && !sessionCompleted && (
-            <div className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2 shadow-md">
+            <div className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2 shadow-md max-w-3xl mx-auto w-full">
               <div className="flex items-center justify-between text-xs font-semibold gap-2 flex-wrap">
                 <div className="flex items-center gap-2">
                   <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[11px] font-mono font-bold">
@@ -1735,7 +1743,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
         /* ========================================================================= */
         /* DECKS / KNOWLEDGE TREE FOLDERS VIEW (DIRECT & MAXIMAL HEADLINE SPACE)     */
         /* ========================================================================= */
-        <div className="space-y-3">
+        <div className="space-y-3 max-w-4xl mx-auto w-full">
           {/* Sub Navigation & Actions Bar */}
           <div className="flex items-center justify-between gap-2 border-b border-slate-800 pb-2 flex-wrap">
             <div className="flex items-center gap-2">

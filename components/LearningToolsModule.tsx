@@ -43,7 +43,7 @@ export const LearningToolsModule: React.FC<LearningToolsModuleProps> = ({
   return (
     <div className="space-y-2.5 min-w-0" dir={isFa ? 'rtl' : 'ltr'}>
       {/* Pure Dual-Shape Switcher Bar (Icons Only - Ultra Minimal) */}
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-end max-w-3xl mx-auto w-full">
         <div className="flex items-center gap-1 bg-slate-900/90 backdrop-blur-md p-1 rounded-2xl border app-border shadow-xs">
           {/* Shape 1: Flashcard / Review Icon */}
           <button
