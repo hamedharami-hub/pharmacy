@@ -682,15 +682,6 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
             title={isFa ? 'سبک و انحنای خطوط اتصال بین گره‌ها' : 'Connector Line Style'}
           >
             <Workflow className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="hidden sm:inline">
-              {lineStyle === 'smooth_bezier'
-                ? isFa ? 'منحنی' : 'Smooth'
-                : lineStyle === 'straight'
-                ? isFa ? 'مستقیم' : 'Straight'
-                : lineStyle === 'orthogonal_step'
-                ? isFa ? 'پله‌ای' : 'Stepped'
-                : isFa ? 'شعاعی' : 'Radial'}
-            </span>
             <ChevronDown className={`w-3 h-3 transition-transform ${openPopover === 'lines' ? 'rotate-180' : ''}`} />
           </button>
 
