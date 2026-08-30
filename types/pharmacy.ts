@@ -10,7 +10,7 @@ export type LayoutMode = 'window-grid' | 'list' | 'split';
 export type MainModuleId = 1 | 2 | 3 | 4 | 5 | 6;
 export type ModuleId = 'software' | 'ALL' | 'mod1' | 'mod2' | 'mod3' | 'mod4' | 'mod5' | 'mod6';
 
-export type AiProvider = 'gemini' | 'groq' | 'xai' | 'offline';
+export type AiProvider = 'gemini' | 'groq' | 'xai';
 
 export interface AiModelOption {
   id: string;
@@ -31,7 +31,6 @@ export interface UserAiConfig {
   xaiApiKey?: string;
   flashcardModel: string;
   tutorModel: string;
-  offlineModel?: string;
   temperature: number;
   customModels: AiModelOption[];
 }

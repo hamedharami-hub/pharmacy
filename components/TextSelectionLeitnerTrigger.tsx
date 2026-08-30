@@ -6,7 +6,13 @@ import { Language } from '@/types/pharmacy';
 
 interface TextSelectionLeitnerTriggerProps {
   language: Language;
-  onOpenLeitnerModal: (text: string, defaultModule?: 1 | 2 | 3 | 4, category?: string, topic?: string) => void;
+  onOpenLeitnerModal: (
+    text: string,
+    defaultModule?: 1 | 2 | 3 | 4,
+    category?: string,
+    topic?: string,
+    initialTab?: 'ai' | 'manual'
+  ) => void;
 }
 
 export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerProps> = ({
@@ -148,105 +154,96 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
     );
 
     if (contextualEl) {
-      const modAttr =
-        contextualEl.getAttribute('data-module') ||
-        contextualEl.closest('[data-module]')?.getAttribute('data-module');
+      const modAttr = contextualEl.getAttribute('data-module');
       if (modAttr) {
-        const parsedMod = parseInt(modAttr, 10);
-        if (parsedMod >= 1 && parsedMod <= 4) foundModule = parsedMod as 1 | 2 | 3 | 4;
+        const modNum = parseInt(modAttr, 10);
+        if (modNum >= 1 && modNum <= 4) {
+          foundModule = modNum as 1 | 2 | 3 | 4;
+        }
       }
 
       foundCategory =
         contextualEl.getAttribute('data-category') ||
-        contextualEl.closest('[data-category]')?.getAttribute('data-category') ||
-        undefined;
-
-      foundTopic =
-        contextualEl.getAttribute('data-topic') ||
         contextualEl.getAttribute('data-clinical-topic') ||
-        contextualEl.closest('[data-topic]')?.getAttribute('data-topic') ||
         undefined;
 
-      if (!foundTopic) {
-        const heading = contextualEl.querySelector('h1, h2, h3, h4')?.textContent?.trim();
-        if (heading && heading.length < 80) {
-          foundTopic = heading;
-        }
-      }
+      foundTopic = contextualEl.getAttribute('data-topic') || undefined;
     }
 
-    try {
-      const range = selection.getRangeAt(0);
-      const rect = range.getBoundingClientRect();
-      if (rect.width === 0 && rect.height === 0) {
-        setCoords(null);
-        setSelectedText('');
-        setDetectedContext({});
-        return;
-      }
+    setDetectedContext({
+      module: foundModule,
+      category: foundCategory,
+      topic: foundTopic,
+    });
 
-      // Position floating bubble nicely above selection with auto-boundary protection
-      const bubbleHeight = 44;
-      let top = rect.top - bubbleHeight - 8;
-      // If too close to the top, place it just below the selected text
-      if (top < 56) {
-        top = rect.bottom + 8;
-      }
+    setSelectedText(text);
 
-      const left = Math.min(
-        window.innerWidth - 240,
-        Math.max(16, rect.left + rect.width / 2 - 110)
-      );
+    // 4. Calculate floating bubble coordinates
+    const range = selection.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
 
-      setSelectedText(text);
-      setDetectedContext({
-        module: foundModule,
-        category: foundCategory,
-        topic: foundTopic,
-      });
-      setCoords({ top, left });
-    } catch {
-      // Ignore DOM range measurement errors during re-renders
+    const bubbleWidth = 260;
+    const bubbleHeight = 44;
+    const padding = 12;
+
+    let top = rect.top - bubbleHeight - 10;
+    let left = rect.left + rect.width / 2 - bubbleWidth / 2;
+
+    if (top < padding) {
+      top = rect.bottom + 10;
     }
+
+    if (left < padding) {
+      left = padding;
+    } else if (left + bubbleWidth > window.innerWidth - padding) {
+      left = window.innerWidth - bubbleWidth - padding;
+    }
+
+    setCoords({ top, left });
   }, []);
 
   useEffect(() => {
-    let debounceTimer: NodeJS.Timeout;
+    let timeoutId: NodeJS.Timeout;
+
     const handleSelectionDebounced = () => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(inspectSelection, 100);
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        inspectSelection();
+      }, 100);
     };
 
     const handlePointerUp = () => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(inspectSelection, 60);
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        inspectSelection();
+      }, 50);
     };
 
     const handleDocumentMouseDown = (e: MouseEvent | TouchEvent) => {
       const target = e.target as HTMLElement | null;
       if (
-        target?.closest('.leitner-selection-bubble') ||
-        target?.closest('.leitner-selection-bar')
+        triggerRef.current &&
+        !triggerRef.current.contains(target) &&
+        !target?.closest('.leitner-selection-bubble') &&
+        !target?.closest('.leitner-selection-bar')
       ) {
-        return;
-      }
-      setTimeout(() => {
-        const sel = window.getSelection();
-        if (!sel || sel.isCollapsed) {
+        const selection = window.getSelection();
+        if (selection && selection.isCollapsed) {
           setCoords(null);
           setSelectedText('');
+          setDetectedContext({});
         }
-      }, 120);
+      }
     };
 
     document.addEventListener('selectionchange', handleSelectionDebounced);
     document.addEventListener('mouseup', handlePointerUp);
     document.addEventListener('touchend', handlePointerUp);
     document.addEventListener('mousedown', handleDocumentMouseDown);
-    document.addEventListener('touchstart', handleDocumentMouseDown, { passive: true });
+    document.addEventListener('touchstart', handleDocumentMouseDown);
 
     return () => {
-      clearTimeout(debounceTimer);
+      clearTimeout(timeoutId);
       document.removeEventListener('selectionchange', handleSelectionDebounced);
       document.removeEventListener('mouseup', handlePointerUp);
       document.removeEventListener('touchend', handlePointerUp);
@@ -255,7 +252,7 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
     };
   }, [inspectSelection]);
 
-  const handleLaunchModal = (e: React.MouseEvent) => {
+  const handleLaunchModal = (tab: 'ai' | 'manual') => (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (!selectedText) return;
@@ -264,7 +261,8 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
       selectedText,
       detectedContext.module || 2,
       detectedContext.category,
-      detectedContext.topic
+      detectedContext.topic,
+      tab
     );
     setCoords(null);
     setSelectedText('');
@@ -310,14 +308,25 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
           className="leitner-selection-bubble animate-in fade-in zoom-in-95 duration-150 hidden md:block"
         >
           <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-900/95 border border-purple-500/60 shadow-2xl backdrop-blur-xl ring-1 ring-purple-400/20">
+            {/* AI Generate Button */}
             <button
               type="button"
               onMouseDown={(e) => e.preventDefault()}
-              onClick={handleLaunchModal}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-linear-to-r from-purple-600 via-indigo-600 to-sky-600 text-white font-bold text-xs shadow-md hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-95 transition cursor-pointer whitespace-nowrap"
+              onClick={handleLaunchModal('ai')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-linear-to-r from-purple-600 to-indigo-600 text-white font-bold text-xs shadow-md hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-95 transition cursor-pointer whitespace-nowrap"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-              <span>{isFa ? 'ساخت کارت لایتنر' : 'Create Leitner Card'}</span>
+              <span>{isFa ? 'تولید هوشمند (AI)' : 'AI Generate'}</span>
+            </button>
+
+            {/* Manual Create Button */}
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleLaunchModal('manual')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-700/80 hover:bg-emerald-600 text-white font-bold text-xs shadow-md hover:scale-[1.02] active:scale-95 transition cursor-pointer whitespace-nowrap"
+            >
+              <span>{isFa ? '✍️ ثبت دستی' : '✍️ Manual'}</span>
             </button>
 
             <div className="w-px h-4 bg-slate-700/80 mx-0.5" />
@@ -383,15 +392,20 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
             <button
               type="button"
               onMouseDown={(e) => e.preventDefault()}
-              onClick={handleLaunchModal}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-2xl bg-linear-to-r from-purple-600 via-indigo-600 to-sky-600 text-white font-bold text-xs shadow-lg hover:shadow-purple-500/40 active:scale-98 transition cursor-pointer"
+              onClick={handleLaunchModal('ai')}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-2xl bg-linear-to-r from-purple-600 via-indigo-600 to-sky-600 text-white font-bold text-xs shadow-lg hover:shadow-purple-500/40 active:scale-98 transition cursor-pointer"
             >
               <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
-              <span>
-                {isFa
-                  ? 'تولید هوشمند فلش‌کارت لایتنر'
-                  : 'AI Generate Leitner Flashcards'}
-              </span>
+              <span>{isFa ? 'تولید هوش مصنوعی' : 'AI Generate'}</span>
+            </button>
+
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleLaunchModal('manual')}
+              className="flex items-center justify-center gap-1.5 py-2.5 px-3.5 rounded-2xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs shadow-md active:scale-98 transition cursor-pointer"
+            >
+              <span>{isFa ? '✍️ ثبت دستی' : '✍️ Manual'}</span>
             </button>
 
             <button
@@ -413,4 +427,3 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
     </>
   );
 };
-

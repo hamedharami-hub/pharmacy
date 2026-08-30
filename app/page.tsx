@@ -160,9 +160,11 @@ export default function Home() {
     module: 1 | 2 | 3 | 4;
     category?: string;
     topic?: string;
+    initialTab?: 'ai' | 'manual';
   }>({
     text: '',
     module: 1,
+    initialTab: 'ai',
   });
 
   // AI Clinical Tutor Drawer State
@@ -589,13 +591,15 @@ export default function Home() {
     text: string,
     defaultModule?: 1 | 2 | 3 | 4,
     category?: string,
-    topic?: string
+    topic?: string,
+    initialTab: 'ai' | 'manual' = 'ai'
   ) => {
     setAiLeitnerParams({
       text: text || '',
       module: defaultModule || (activeMainModule <= 4 ? (activeMainModule as 1 | 2 | 3 | 4) : 4),
       category,
       topic,
+      initialTab,
     });
     setIsAiLeitnerModalOpen(true);
   }, [activeMainModule]);
@@ -850,6 +854,7 @@ export default function Home() {
         initialModule={aiLeitnerParams.module}
         initialCategory={aiLeitnerParams.category}
         initialTopic={aiLeitnerParams.topic}
+        initialTab={aiLeitnerParams.initialTab}
         userId={user?.uid}
         onAddCardsToLeitner={handleAddCardsToLeitner}
         onOpenLeitnerBox={() => {

@@ -22,7 +22,7 @@ export function getClientAiConfig(): UserAiConfig {
 
     const validatedConfig: UserAiConfig = {
       preferredProvider:
-        parsed.preferredProvider === 'groq' || parsed.preferredProvider === 'xai' || parsed.preferredProvider === 'offline'
+        parsed.preferredProvider === 'groq' || parsed.preferredProvider === 'xai'
           ? parsed.preferredProvider
           : 'gemini',
       geminiApiKey: parsed.geminiApiKey || '',
@@ -30,7 +30,6 @@ export function getClientAiConfig(): UserAiConfig {
       xaiApiKey: parsed.xaiApiKey || '',
       flashcardModel: parsed.flashcardModel || (modelList[0]?.id || ''),
       tutorModel: parsed.tutorModel || (modelList[0]?.id || ''),
-      offlineModel: parsed.offlineModel || 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC',
       temperature: typeof parsed.temperature === 'number' ? parsed.temperature : 0.2,
       customModels: modelList,
     };

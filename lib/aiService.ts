@@ -36,12 +36,7 @@ export function sanitizeModelId(
   let prov = provider;
 
   // Auto-detect provider if model matches known naming conventions
-  if (model.includes('MLC') || prov === 'offline') {
-    prov = 'offline';
-    if (!model) {
-      model = 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC';
-    }
-  } else if (model.startsWith('grok') || model.includes('xai')) {
+  if (model.startsWith('grok') || model.includes('xai')) {
     prov = 'xai';
   } else if (
     model.startsWith('llama') ||
