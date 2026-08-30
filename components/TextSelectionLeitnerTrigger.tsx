@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Sparkles, Copy, Check, X, BookOpen, Layers } from 'lucide-react';
+import { Sparkles, Copy, Check, X, BookOpen, Layers, GraduationCap } from 'lucide-react';
 import { Language } from '@/types/pharmacy';
 
 interface TextSelectionLeitnerTriggerProps {
@@ -16,10 +16,6 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
   const [selectedText, setSelectedText] = useState('');
   const [isCopied, setIsCopied] = useState(false);
-  const [isTouchDevice, setIsTouchDevice] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  });
   const triggerRef = useRef<HTMLDivElement>(null);
   const isFa = language === 'fa';
 
@@ -34,60 +30,147 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
 
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed || !selection.rangeCount) {
-      // Don't immediately clear if the click is on the trigger button itself
       return;
     }
 
     const text = selection.toString().trim();
-    // Valid text snippet: at least 3 characters, up to 4000 characters
-    if (text.length < 3 || text.length > 4000) {
+    // Valid educational snippet: at least 5 characters and at least 2 words, up to 3500 chars
+    const words = text.split(/\s+/).filter(Boolean);
+    if (text.length < 5 || words.length < 2 || text.length > 3500) {
       setCoords(null);
       setSelectedText('');
       setDetectedContext({});
       return;
     }
 
-    // Ignore if selection originates inside an input, textarea, or editable element
     const anchorNode = selection.anchorNode;
+    const focusNode = selection.focusNode;
+    if (!anchorNode) return;
+
+    const anchorElement =
+      anchorNode.nodeType === Node.ELEMENT_NODE
+        ? (anchorNode as Element)
+        : anchorNode.parentElement;
+    const focusElement =
+      focusNode?.nodeType === Node.ELEMENT_NODE
+        ? (focusNode as Element)
+        : focusNode?.parentElement;
+
+    const targetElement = anchorElement || focusElement;
+    if (!targetElement) return;
+
+    // 1. STRICT EXCLUSIONS: Ignore selection in navigation, headers, footers, toolbars, buttons, modals & inputs
+    const isExcluded = targetElement.closest(
+      [
+        'nav',
+        'header',
+        'footer',
+        'button',
+        'input',
+        'textarea',
+        'select',
+        '[role="navigation"]',
+        '[role="menu"]',
+        '[role="menubar"]',
+        '[role="toolbar"]',
+        '[role="tablist"]',
+        '[contenteditable="true"]',
+        '.app-glass-header',
+        '.app-glass-bottom-nav',
+        '.sidebar-nav',
+        '.settings-modal',
+        '.auth-modal',
+        '.edit-modal',
+        '.command-palette',
+        '.no-leitner-trigger',
+        '.no-text-select-ai',
+        '.leitner-selection-bubble',
+        '.leitner-selection-bar',
+        '.status-bar',
+        '.badge',
+      ].join(', ')
+    );
+
+    if (isExcluded) {
+      setCoords(null);
+      setSelectedText('');
+      setDetectedContext({});
+      return;
+    }
+
+    // 2. STRICT INCLUSIONS: Selection MUST be within an educational/clinical study text container
+    const isStudyContent = targetElement.closest(
+      [
+        'article',
+        'p',
+        'li',
+        'td',
+        'th',
+        'dd',
+        'dt',
+        'blockquote',
+        '.prose',
+        '.study-card',
+        '.shelf-drug-card',
+        '.formatted-clinical-text',
+        '.clinical-content',
+        '.study-text',
+        '.study-content',
+        '[data-module]',
+        '[data-topic]',
+        '[data-category]',
+        '[data-clinical-topic]',
+        '[data-study-content]',
+        '.app-card',
+        '.triage-chat-feed',
+        '.scenario-card',
+        '.protocol-content',
+        '.matrix-content',
+        '.handbook-viewer',
+        '.leitner-card-content',
+      ].join(', ')
+    );
+
+    if (!isStudyContent) {
+      setCoords(null);
+      setSelectedText('');
+      setDetectedContext({});
+      return;
+    }
+
+    // 3. Extract contextual module, category, and clinical topic
     let foundModule: 1 | 2 | 3 | 4 | undefined = undefined;
     let foundCategory: string | undefined = undefined;
     let foundTopic: string | undefined = undefined;
 
-    if (anchorNode) {
-      const element = anchorNode.nodeType === Node.ELEMENT_NODE ? (anchorNode as Element) : anchorNode.parentElement;
-      if (element?.closest('input, textarea, [contenteditable="true"], .no-leitner-trigger, .no-text-select-ai')) {
-        setCoords(null);
-        setSelectedText('');
-        setDetectedContext({});
-        return;
+    const contextualEl = targetElement.closest(
+      '[data-module], [data-topic], [data-category], [data-clinical-topic], article, .app-card'
+    );
+
+    if (contextualEl) {
+      const modAttr =
+        contextualEl.getAttribute('data-module') ||
+        contextualEl.closest('[data-module]')?.getAttribute('data-module');
+      if (modAttr) {
+        const parsedMod = parseInt(modAttr, 10);
+        if (parsedMod >= 1 && parsedMod <= 4) foundModule = parsedMod as 1 | 2 | 3 | 4;
       }
 
-      // Automatically search closest container for context data attributes or headings
-      const contextualEl = element?.closest('[data-module], [data-topic], [data-category], [data-clinical-topic], article, .app-card');
-      if (contextualEl) {
-        const modAttr = contextualEl.getAttribute('data-module') || contextualEl.closest('[data-module]')?.getAttribute('data-module');
-        if (modAttr) {
-          const parsedMod = parseInt(modAttr, 10);
-          if (parsedMod >= 1 && parsedMod <= 4) foundModule = parsedMod as 1 | 2 | 3 | 4;
-        }
+      foundCategory =
+        contextualEl.getAttribute('data-category') ||
+        contextualEl.closest('[data-category]')?.getAttribute('data-category') ||
+        undefined;
 
-        foundCategory =
-          contextualEl.getAttribute('data-category') ||
-          contextualEl.closest('[data-category]')?.getAttribute('data-category') ||
-          undefined;
+      foundTopic =
+        contextualEl.getAttribute('data-topic') ||
+        contextualEl.getAttribute('data-clinical-topic') ||
+        contextualEl.closest('[data-topic]')?.getAttribute('data-topic') ||
+        undefined;
 
-        foundTopic =
-          contextualEl.getAttribute('data-topic') ||
-          contextualEl.getAttribute('data-clinical-topic') ||
-          contextualEl.closest('[data-topic]')?.getAttribute('data-topic') ||
-          undefined;
-
-        // If topic not in data attribute, look for closest heading
-        if (!foundTopic) {
-          const heading = contextualEl.querySelector('h1, h2, h3, h4')?.textContent?.trim();
-          if (heading && heading.length < 80) {
-            foundTopic = heading;
-          }
+      if (!foundTopic) {
+        const heading = contextualEl.querySelector('h1, h2, h3, h4')?.textContent?.trim();
+        if (heading && heading.length < 80) {
+          foundTopic = heading;
         }
       }
     }
@@ -102,11 +185,17 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
         return;
       }
 
-      // Position floating bubble with viewport safety (fixed positioning)
-      const top = Math.max(12, rect.top - 46);
+      // Position floating bubble nicely above selection with auto-boundary protection
+      const bubbleHeight = 44;
+      let top = rect.top - bubbleHeight - 8;
+      // If too close to the top, place it just below the selected text
+      if (top < 56) {
+        top = rect.bottom + 8;
+      }
+
       const left = Math.min(
-        window.innerWidth - 190,
-        Math.max(12, rect.left + rect.width / 2 - 80)
+        window.innerWidth - 240,
+        Math.max(16, rect.left + rect.width / 2 - 110)
       );
 
       setSelectedText(text);
@@ -117,7 +206,7 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
       });
       setCoords({ top, left });
     } catch {
-      // Range might be invalid during DOM shifts
+      // Ignore DOM range measurement errors during re-renders
     }
   }, []);
 
@@ -125,27 +214,29 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
     let debounceTimer: NodeJS.Timeout;
     const handleSelectionDebounced = () => {
       clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(inspectSelection, 120);
+      debounceTimer = setTimeout(inspectSelection, 100);
     };
 
     const handlePointerUp = () => {
       clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(inspectSelection, 80);
+      debounceTimer = setTimeout(inspectSelection, 60);
     };
 
     const handleDocumentMouseDown = (e: MouseEvent | TouchEvent) => {
       const target = e.target as HTMLElement | null;
-      if (target?.closest('.leitner-selection-bubble') || target?.closest('.leitner-selection-bar')) {
+      if (
+        target?.closest('.leitner-selection-bubble') ||
+        target?.closest('.leitner-selection-bar')
+      ) {
         return;
       }
-      // If clicking outside, check if selection was collapsed
       setTimeout(() => {
         const sel = window.getSelection();
         if (!sel || sel.isCollapsed) {
           setCoords(null);
           setSelectedText('');
         }
-      }, 150);
+      }, 120);
     };
 
     document.addEventListener('selectionchange', handleSelectionDebounced);
@@ -202,11 +293,11 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
 
   const wordCount = selectedText.split(/\s+/).filter(Boolean).length;
   const previewSnippet =
-    selectedText.length > 55 ? `${selectedText.substring(0, 55)}...` : selectedText;
+    selectedText.length > 50 ? `${selectedText.substring(0, 50)}...` : selectedText;
 
   return (
     <>
-      {/* 1. Desktop Floating Quick Pill (Above/Near Selection) */}
+      {/* 1. Desktop Smart Floating Pill (Rendered directly near selected text) */}
       {coords && (
         <div
           ref={triggerRef}
@@ -218,32 +309,38 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
           }}
           className="leitner-selection-bubble animate-in fade-in zoom-in-95 duration-150 hidden md:block"
         >
-          <div className="flex items-center gap-1 p-1 rounded-full bg-slate-950/95 border border-purple-500/50 shadow-2xl backdrop-blur-md">
+          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-900/95 border border-purple-500/60 shadow-2xl backdrop-blur-xl ring-1 ring-purple-400/20">
             <button
               type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={handleLaunchModal}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-linear-to-r from-purple-600 via-indigo-600 to-sky-600 text-white font-bold text-xs shadow-md hover:shadow-purple-500/40 hover:scale-105 active:scale-95 transition cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-linear-to-r from-purple-600 via-indigo-600 to-sky-600 text-white font-bold text-xs shadow-md hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-95 transition cursor-pointer whitespace-nowrap"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-              <span>{isFa ? '✨ ساخت کارت لایتنر' : '✨ AI Leitner Card'}</span>
+              <span>{isFa ? 'ساخت کارت لایتنر' : 'Create Leitner Card'}</span>
             </button>
+
+            <div className="w-px h-4 bg-slate-700/80 mx-0.5" />
 
             <button
               type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={handleCopyText}
-              className="p-1.5 rounded-full text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
               title={isFa ? 'کپی متن انتخابی' : 'Copy selected text'}
             >
-              {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              {isCopied ? (
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+              ) : (
+                <Copy className="w-3.5 h-3.5" />
+              )}
             </button>
 
             <button
               type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={handleDismiss}
-              className="p-1.5 rounded-full text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition cursor-pointer"
               title={isFa ? 'بستن' : 'Dismiss'}
             >
               <X className="w-3.5 h-3.5" />
@@ -252,20 +349,20 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
         </div>
       )}
 
-      {/* 2. Responsive Mobile & Global Bottom Dock (Always accessible on touch/mobile without conflicting with browser menus) */}
+      {/* 2. Responsive Mobile & Touch Dock (Docked cleanly above mobile bottom navigation bar) */}
       <div
         style={{ zIndex: 99998 }}
-        className="leitner-selection-bar fixed bottom-20 md:bottom-6 inset-x-3 sm:inset-x-auto sm:right-6 sm:max-w-md animate-in slide-in-from-bottom-5 fade-in duration-200"
+        className="leitner-selection-bar md:hidden fixed bottom-20 inset-x-3 max-w-lg mx-auto animate-in slide-in-from-bottom-4 fade-in duration-200"
       >
-        <div className="p-3 rounded-2xl bg-slate-950/95 border border-purple-500/50 shadow-2xl backdrop-blur-xl flex flex-col gap-2">
+        <div className="p-3 rounded-3xl bg-slate-900/95 border border-purple-500/60 shadow-2xl backdrop-blur-2xl flex flex-col gap-2.5 ring-1 ring-purple-400/25">
           {/* Header Row: Word Count & Snippet Preview */}
           <div className="flex items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-1.5 min-w-0 text-purple-300">
-              <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
+              <GraduationCap className="w-4 h-4 text-purple-400 shrink-0" />
               <span className="font-bold truncate">
-                {isFa ? `${wordCount} کلمه انتخاب شد:` : `${wordCount} words selected:`}
+                {isFa ? `${wordCount} کلمه از متن درسی:` : `${wordCount} study words:`}
               </span>
-              <span className="text-[11px] text-slate-400 truncate opacity-90 hidden xs:inline">
+              <span className="text-[11px] text-slate-300 truncate opacity-90">
                 «{previewSnippet}»
               </span>
             </div>
@@ -274,7 +371,7 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
               type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={handleDismiss}
-              className="p-1 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-900 transition shrink-0"
+              className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition shrink-0"
               title={isFa ? 'بستن' : 'Close'}
             >
               <X className="w-4 h-4" />
@@ -287,13 +384,13 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
               type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={handleLaunchModal}
-              className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-linear-to-r from-purple-600 via-indigo-600 to-sky-600 text-white font-bold text-xs shadow-lg hover:shadow-purple-500/30 active:scale-98 transition cursor-pointer"
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-2xl bg-linear-to-r from-purple-600 via-indigo-600 to-sky-600 text-white font-bold text-xs shadow-lg hover:shadow-purple-500/40 active:scale-98 transition cursor-pointer"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+              <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
               <span>
                 {isFa
-                  ? 'تولید کارت‌های لایتنر و درخت دانش با هوش مصنوعی'
-                  : 'Generate Leitner Cards & Knowledge Tree with AI'}
+                  ? 'تولید هوشمند فلش‌کارت لایتنر'
+                  : 'AI Generate Leitner Flashcards'}
               </span>
             </button>
 
@@ -301,10 +398,14 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
               type="button"
               onMouseDown={(e) => e.preventDefault()}
               onClick={handleCopyText}
-              className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer shrink-0"
+              className="p-2.5 rounded-2xl bg-slate-800/90 border border-slate-700 text-slate-200 hover:text-white hover:bg-slate-700 transition cursor-pointer shrink-0"
               title={isFa ? 'کپی متن' : 'Copy'}
             >
-              {isCopied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+              {isCopied ? (
+                <Check className="w-4 h-4 text-emerald-400" />
+              ) : (
+                <Copy className="w-4 h-4" />
+              )}
             </button>
           </div>
         </div>
@@ -312,3 +413,4 @@ export const TextSelectionLeitnerTrigger: React.FC<TextSelectionLeitnerTriggerPr
     </>
   );
 };
+
