@@ -136,6 +136,10 @@ const AiLeitnerModalContent: React.FC<AiLeitnerModalInnerProps> = ({
             contextSnippet: textToUse,
             customPrompt: prompt,
             moduleNum: mod,
+            category: cat,
+            topic: top,
+            generationMode: mode,
+            count: 2,
             onProgress: (p) => {
               setOfflineStatus(p.text);
             },

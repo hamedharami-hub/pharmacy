@@ -252,7 +252,7 @@ export async function executeOfflineInference({
 
   let activeSys = systemInstruction || '';
   if (responseFormat === 'json') {
-    activeSys = `${activeSys}\n\nIMPORTANT: When you finish thinking, provide ONLY the raw valid JSON array/object inside brackets without any conversational filler or conversational outro.`.trim();
+    activeSys = `${activeSys}\n\nIMPORTANT: When you finish thinking, provide ONLY the raw valid JSON object starting with { and ending with } without any conversational filler or codeblock wrappers.`.trim();
   }
 
   if (activeSys) {
@@ -265,8 +265,8 @@ export async function executeOfflineInference({
   // Use streaming for real-time responsiveness
   const chunks = await engine.chat.completions.create({
     messages,
-    temperature: Math.max(0.1, Math.min(temperature, 0.4)),
-    max_tokens: 1100,
+    temperature: Math.max(0.1, Math.min(temperature, 0.3)),
+    max_tokens: 1600,
     stream: true,
   });
 
@@ -278,8 +278,8 @@ export async function executeOfflineInference({
       
       const isThinking = fullOutput.includes('<think>') && !fullOutput.includes('</think>');
       const statusText = isThinking
-        ? '🧠 در حال استدلال زنجیره‌ای تفکر (Deep Thinking)...'
-        : `✍️ در حال نگارش پاسخ بالینی (${fullOutput.length} کاراکتر)...`;
+        ? '🧠 در حال استدلال عمیق بالینی (Deep Thinking)...'
+        : `✍️ در حال نگارش و اعتبارسنجی کارت‌ها (${fullOutput.length} کاراکتر)...`;
 
       onProgress?.({
         progress: 100,
@@ -302,7 +302,9 @@ export async function executeOfflineInference({
  */
 export function generateInstantClinicalFlashcards(
   contextSnippet: string,
-  moduleNum: number = 2
+  moduleNum: number = 2,
+  category: string = 'فارماکولوژی بالینی',
+  topic: string = 'دارودرمانی'
 ): any[] {
   const clean = contextSnippet.trim();
   if (!clean || clean.length < 5) return [];
@@ -312,73 +314,101 @@ export function generateInstantClinicalFlashcards(
     .map((s) => s.trim())
     .filter((s) => s.length > 15);
 
-  const cards: any[] = [];
   const primaryPoint = sentences[0] || clean;
   const secondaryPoint = sentences[1] || sentences[0] || clean;
 
-  // Card 1: Clinical Rationale & Practice Decision
-  cards.push({
-    question: {
-      fa: `در ارزیابی بالینی و دارودرمانی مبحث زیر، مهم‌ترین نکته پایش و اقدام داروساز چیست؟\n«${primaryPoint.slice(0, 150)}»`,
-      en: `In the clinical evaluation of the following scenario, what is the primary monitoring priority and therapeutic decision?\n"${primaryPoint.slice(0, 150)}"`,
+  return [
+    {
+      question: {
+        fa: `در ارزیابی بالینی مبحث زیر، اولویت اصلی پایش اثربخشی، پیشگیری از سمیت و اقدام داروساز چیست؟\n«${primaryPoint.slice(0, 150)}»`,
+        en: `In the clinical evaluation of the following pharmacotherapy concept, what is the primary monitoring priority and pharmacist intervention?\n"${primaryPoint.slice(0, 150)}"`,
+      },
+      answer: {
+        fa: `تحلیل بالینی و دارودرمانی:\n${clean}`,
+        en: `Clinical Analysis & Rationale:\n${clean}`,
+      },
+      pearl: {
+        fa: `طبق راهنماهای رسمی AMH و eTG استرالیا، پایش سطح خونی، عملکرد کلیوی و تداخلات دارویی در اولویت است.`,
+        en: `Consult AMH and eTG guidelines for therapeutic range, renal dosing adjustments, and Cautionary Advisory Labels (CAL).`,
+      },
+      type: 'clinical_pearl',
+      category: moduleNum === 1 ? 'تریاژ OTC و مشاوره' : moduleNum === 2 ? 'قفسه دارو و نسخه‌پیچی' : category,
+      topic: topic,
+      module: moduleNum,
+      knowledgeTree: {
+        domain: { fa: category, en: 'Australian Clinical Pharmacy' },
+        system: { fa: topic, en: 'Pharmacotherapy' },
+        subsystem: { fa: 'فارماکولوژی کاربردی', en: 'Applied Pharmacology' },
+        microTopic: { fa: 'پایش و ایمنی دارو', en: 'Monitoring & Safety' },
+        path: {
+          fa: [category, topic, 'فارماکولوژی کاربردی', 'پایش و ایمنی دارو'],
+          en: ['Australian Clinical Pharmacy', topic, 'Applied Pharmacology', 'Monitoring & Safety'],
+        },
+      },
     },
-    answer: {
-      fa: `تحلیل بالینی:\n${clean}`,
-      en: `Clinical Analysis & Rationale:\n${clean}`,
+    {
+      question: {
+        fa: `بر اساس استانداردهای بورد داروسازی استرالیا (AMH/eTG)، کدام اقدام درمانی در ارتباط با این مبحث صحیح است؟`,
+        en: `According to Australian Clinical Guidelines (AMH/eTG), which clinical intervention is the most appropriate for this patient?`,
+      },
+      answer: {
+        fa: `گزینه صحیح: ${secondaryPoint.slice(0, 160)}`,
+        en: `Correct Option: ${secondaryPoint.slice(0, 160)}`,
+      },
+      pearl: {
+        fa: `ثبت شرح‌حال بیمار و کنترل برچسب‌های هشدار الزامی است.`,
+        en: `Patient profile documentation and Cautionary Advisory Label verification are mandatory.`,
+      },
+      type: 'mcq',
+      mcqOptions: [
+        { id: 'opt_a', text: { fa: secondaryPoint.slice(0, 140), en: secondaryPoint.slice(0, 140) }, isCorrect: true, explanation: { fa: 'مطابق با پروتکل درمانی خط اول استرالیا', en: 'In accordance with Australian first-line guidelines' } },
+        { id: 'opt_b', text: { fa: 'کاهش دوز دارو بدون پایش عملکرد کلیوی و کبدی', en: 'Reducing dose arbitrarily without assessing renal/hepatic function' }, isCorrect: false, explanation: { fa: 'اقدام غیرایمن و بدون استناد علمی', en: 'Unsafe practice without clinical justification' } },
+        { id: 'opt_c', text: { fa: 'قطع ناگهانی درمان بدون مشورت با پزشک معالج', en: 'Abruptly discontinuing therapy without prescriber discussion' }, isCorrect: false, explanation: { fa: 'خطر عود علائم حاد بیماری', en: 'Risk of acute disease rebound' } },
+        { id: 'opt_d', text: { fa: 'افزایش دوزاژ بدون توجه به سقف ایمنی برچسب CAL', en: 'Escalating dosage exceeding maximum safe CAL parameters' }, isCorrect: false, explanation: { fa: 'افزایش خطر سمیت شدید دارویی', en: 'Severe risk of drug-induced toxicity' } },
+      ],
+      distractorRationale: {
+        fa: 'گزینه‌های انحرافی نشان‌دهنده خطاهای رایج در آزمون‌های بورد داروسازی استرالیا هستند.',
+        en: 'Distractor options reflect common clinical pitfalls on Australian pharmacy board exams.',
+      },
+      category: category,
+      topic: topic,
+      module: moduleNum,
+      knowledgeTree: {
+        domain: { fa: category, en: 'Australian Clinical Pharmacy' },
+        system: { fa: topic, en: 'Pharmacotherapy' },
+        subsystem: { fa: 'تصمیم‌گیری بالینی', en: 'Clinical Decision Making' },
+        microTopic: { fa: 'سناریوی تشخیصی', en: 'Diagnostic Scenario' },
+        path: {
+          fa: [category, topic, 'تصمیم‌گیری بالینی', 'سناریوی تشخیصی'],
+          en: ['Australian Clinical Pharmacy', topic, 'Clinical Decision Making', 'Diagnostic Scenario'],
+        },
+      },
     },
-    pearl: {
-      fa: `طبق راهنماهای AMH و eTG، توجه به دوزاژ مناسب و علائم سمیت الزامی است.`,
-      en: `Always consult Australian Medicines Handbook (AMH) guidelines and Cautionary Advisory Labels (CAL).`,
-    },
-    type: 'clinical_pearl',
-    category: moduleNum === 1 ? 'تریاژ OTC و مشاوره' : moduleNum === 2 ? 'قفسه دارو و نسخه‌پیچی' : 'دانش بالینی استرالیا',
-    topic: 'Clinical Pharmacy Practice',
-    module: moduleNum,
-  });
-
-  // Card 2: 4-Option Multiple Choice Case Question
-  cards.push({
-    question: {
-      fa: `با توجه به استانداردهای داروسازی استرالیا (AMH/eTG)، مناسب‌ترین اقدام دارویی یا پروتکل درمانی کدام است؟`,
-      en: `According to Australian Clinical Guidelines (AMH/eTG), what is the most appropriate therapeutic intervention for this case?`,
-    },
-    answer: {
-      fa: `گزینه صحیح: ${secondaryPoint.slice(0, 160)}`,
-      en: `Correct Option: ${secondaryPoint.slice(0, 160)}`,
-    },
-    pearl: {
-      fa: `پایش دقیق پاسخ درمانی بیمار و ثبت در سوابق دارویی (Dispense History) ضروری است.`,
-      en: `Careful monitoring of clinical outcomes and documentation in patient medication record is essential.`,
-    },
-    type: 'mcq',
-    mcqOptions: [
-      { id: 'opt_a', text: { fa: secondaryPoint.slice(0, 140), en: secondaryPoint.slice(0, 140) }, isCorrect: true },
-      { id: 'opt_b', text: { fa: 'کاهش دوز دارو بدون در نظر گرفتن وضعیت کلیوی بیمار', en: 'Arbitrarily reducing dose without renal function assessment' }, isCorrect: false },
-      { id: 'opt_c', text: { fa: 'جایگزینی با داروی خط دوم بدون مشاوره با پزشک معالج', en: 'Switching to a second-line agent without prescriber consultation' }, isCorrect: false },
-      { id: 'opt_d', text: { fa: 'ادامه درمان بدون پایش تداخلات دارویی و عوارض جانبی', en: 'Continuing regimen without monitoring for severe adverse drug reactions' }, isCorrect: false },
-    ],
-    category: moduleNum === 1 ? 'تریاژ بالینی' : 'فارماکولوژی کاربردی',
-    topic: 'Therapeutic Decision',
-    module: moduleNum,
-  });
-
-  return cards;
+  ];
 }
 
 /**
- * Generates high-caliber Leitner flashcards offline with DeepSeek-R1 / 7B / 8B / 9B reasoning models
+ * Generates elite-grade Leitner flashcards offline using the rich Australian Clinical Pharmacy prompt
  */
 export async function generateOfflineFlashcards({
   modelId,
   contextSnippet,
   customPrompt,
   moduleNum = 2,
+  category = 'داروسازی بالینی',
+  topic = 'فارماکولوژی کاربردی',
+  generationMode = 'auto',
+  count = 2,
   onProgress,
 }: {
   modelId: string;
   contextSnippet: string;
   customPrompt?: string;
   moduleNum?: number;
+  category?: string;
+  topic?: string;
+  generationMode?: string;
+  count?: number;
   onProgress?: (progress: { progress: number; text: string }) => void;
 }): Promise<any[]> {
   // Check if model is cached first
@@ -388,67 +418,131 @@ export async function generateOfflineFlashcards({
       progress: 50,
       text: '⚠️ مدل در حافظه نیست؛ در حال استخراج آنی با موتور بالینی هوشمند بومی...',
     });
-    return generateInstantClinicalFlashcards(contextSnippet, moduleNum);
+    return generateInstantClinicalFlashcards(contextSnippet, moduleNum, category, topic);
   }
 
-  const systemInstruction = `You are a Senior Australian Clinical Pharmacy Board Specialist (OPRA/KAPS exam designer).
-Generate exactly 2 high-yield, intelligent Leitner spaced-repetition flashcards based on the provided clinical text.
+  const modeInstructionsMap: Record<string, string> = {
+    mcq: `MODE: MULTIPLE-CHOICE CLINICAL QUESTIONS (Australian Pharmacy Practice).
+Generate 4-option clinical scenario MCQs with:
+- "mcqOptions": array of 4 options [{ "id": "A", "text": { "fa": "...", "en": "..." }, "isCorrect": true/false, "explanation": { "fa": "...", "en": "..." } }]. EXACTLY ONE option must have isCorrect: true.
+- "distractorRationale": { "fa": "استدلال بالینی تفکیک گزینه‌ها و علت نامناسب بودن سایر انتخاب‌ها", "en": "Clinical rationale explaining why other options are inappropriate based on AMH/eTG" }.
+- "type": "mcq"`,
+    triage_redflag: `MODE: AUSTRALIAN OTC TRIAGE & RED FLAGS (Primary Healthcare Protocols).
+Generate clinical primary care triage cases assessing whether to supply OTC medicine or refer:
+- "triageOutcome": "supply_otc" | "urgent_referral" | "gp_referral"
+- "pearl": { "fa": "علائم هشداردهنده حیاتی (Red Flags) و پروتکل مشاوره داروساز", "en": "Critical red flags requiring emergency or GP referral according to APF/PSA" }
+- "type": "triage_redflag"`,
+    calculation: `MODE: CLINICAL DOSING & PHARMACOKINETIC CALCULATIONS.
+Focus on real-world calculations: eGFR/CrCl Cockcroft-Gault, Paediatric mg/kg, Opioid/Steroid Equivalence:
+- "calculationFormula": { "fa": "فرمول و محاسبات گام به گام بالینی همراه با واحدها", "en": "Step-by-step clinical calculation formula with unit conversions" }
+- "type": "calculation"`,
+    cal_warning: `MODE: AUSTRALIAN CAUTIONARY ADVISORY LABELS (CALs & Safe Dispensing).
+Focus on official Australian Cautionary Labels (e.g. Label 1, Label 2, Label 12, Label 13) and counseling points:
+- "calLabels": ["Label 1", "Label 12"]
+- "pearl": { "fa": "نکات مشاوره تحویل دارو و برچسب‌های هشدار الزامی استرالیا", "en": "Essential Australian CAL labels and patient counseling directives" }
+- "type": "cal_warning"`,
+    auto: `MODE: COMPREHENSIVE HIGH-YIELD CLINICAL MIX.
+Generate a rich, balanced mix of therapeutic pearls, clinical scenarios, cautionary guidance, and high-yield decision points.`,
+  };
 
-CRITICAL RULES:
-1. QUESTION QUALITY: Formulate an intelligent clinical case scenario or practice question (e.g. asking about mechanism of action, key drug interaction, first-line management, dosage adjustments, or Australian Cautionary Advisory Label). NEVER state the answer inside the question. NEVER make trivial yes/no questions.
-2. MCQ QUALITY: If type is "mcq", create 4 realistic, distinct pharmacological choices (e.g. 4 specific drugs or management strategies). Mark the correct one with "isCorrect: true" and the other 3 with "isCorrect: false".
-3. STRICT LANGUAGE PURITY:
-   - "fa": Pure, fluent, natural Persian medical terminology. No embedded English phrases inside sentences.
-   - "en": Pure, formal Australian Clinical Pharmacy English (AMH/eTG standards).
-4. STRUCTURED OUTPUT: Return ONLY a valid JSON array of card objects.
+  const specificModeInstruction = modeInstructionsMap[generationMode] || modeInstructionsMap.auto;
 
-Format specification:
-[
-  {
-    "question": {
-      "fa": "متن سوال تخصصی بالینی به زبان فارسی روان (بدون گفتن جواب در صورت سوال)",
-      "en": "Formal clinical case question in English (without revealing the answer)"
-    },
-    "answer": {
-      "fa": "پاسخ کامل، علمی و تحلیلی به زبان فارسی",
-      "en": "Detailed evidence-based clinical answer in English"
-    },
-    "pearl": {
-      "fa": "نکته کلیدی و طلایی آزمون بورد استرالیا به فارسی",
-      "en": "High yield Australian Clinical Pearl in English"
-    },
-    "type": "clinical_pearl",
-    "category": "فارماکولوژی بالینی",
-    "topic": "Clinical Practice",
-    "module": ${moduleNum}
-  },
-  {
-    "question": {
-      "fa": "یک سناریوی چهارگزینه‌ای آزمونی بالینی به زبان فارسی",
-      "en": "Multiple-choice clinical scenario in English"
-    },
-    "answer": {
-      "fa": "گزینه صحیح به همراه دلیل علمی",
-      "en": "Correct option with clinical rationale"
-    },
-    "pearl": {
-      "fa": "نکته هشدار یا برچسب CAL استرالیا",
-      "en": "Australian CAL or guideline takeaway"
-    },
-    "type": "mcq",
-    "mcqOptions": [
-      { "id": "opt_a", "text": { "fa": "گزینه اول (صحیح)", "en": "Option A (Correct)" }, "isCorrect": true },
-      { "id": "opt_b", "text": { "fa": "گزینه دوم (تله تستی)", "en": "Option B (Distractor)" }, "isCorrect": false },
-      { "id": "opt_c", "text": { "fa": "گزینه سوم (تله تستی)", "en": "Option C (Distractor)" }, "isCorrect": false },
-      { "id": "opt_d", "text": { "fa": "گزینه چهارم (تله تستی)", "en": "Option D (Distractor)" }, "isCorrect": false }
-    ],
-    "category": "سناریوی بالینی",
-    "topic": "Therapeutics",
-    "module": ${moduleNum}
+  const systemInstruction = `You are a Principal Clinical Pharmacist and Medical Educator in Australia specializing in Australian Pharmacy Standards (AMH, Therapeutic Guidelines eTG, APF 26, PBS, and SUSMP Scheduling).
+
+CORE CLINICAL DIRECTIVES:
+1. Ground all questions, answers, and clinical pearls strictly in modern Australian Clinical Pharmacy Practice (AMH, eTG, APF, PSA standards).
+2. Use professional, natural, high-yield language. Avoid trivial dictionary questions; construct realistic diagnostic, therapeutic, dosing, interaction, and counseling challenges. NEVER state the answer inside the question. NEVER produce yes/no questions.
+3. MANDATORY 100% BILINGUAL COMPLETION: Every single flashcard MUST have BOTH fluent, pure Persian ('fa') and precise Australian clinical English ('en') for EVERY field:
+   - question: { fa: "متن سناریو یا پرسش بالینی به فارسی سلیس و بدون کلمات انگلیسی", en: "Clinical scenario question in standard medical English" }
+   - answer: { fa: "پاسخ تحلیلی کامل به زبان فارسی", en: "Comprehensive clinical answer in English" }
+   - pearl: { fa: "نکته کلیدی و طلایی داروسازی به فارسی", en: "Key Australian clinical pearl in English" }
+   - mcqOptions: array of 4 items with text: { fa: "...", en: "..." } and explanation: { fa: "...", en: "..." }
+   - distractorRationale: { fa: "تحلیل گزینه‌های انحرافی", en: "Comparative analysis of distractors" }
+   Never leave 'fa' or 'en' empty, undefined, or copied untranslated. Both languages must be fully articulated without mixing languages in the same sentence.
+4. DO NOT use generic test filler or placeholders. Provide concrete clinical mechanisms, drug names (TGA approved), and clear rationales.
+5. STRICT JSON OUTPUT: Return ONLY a valid JSON object starting with { and ending with }.
+
+${specificModeInstruction}
+
+KNOWLEDGE TREE SPECIFICATION (5-Level Real Taxonomy):
+- domain: { fa: "حوزه کلان داروسازی", en: "Knowledge Domain" }
+- system: { fa: "سیستم فیزیولوژی یا مبحث کلان", en: "Organ System / Major Subject" }
+- subsystem: { fa: "رده درمانی یا بیماری مشخص", en: "Therapeutic Class / Disease State" }
+- subClass: { fa: "نام واقعی و تخصصی رده دارویی یا مولکول", en: "Specific Drug Class / Molecule" }
+- microTopic: { fa: "نکته تخصصی، تداخل یا مکانیسم بالینی دقیق", en: "Micro-Topic / Mechanism / Pitfall" }
+- path: {
+    fa: ["حوزه کلان", "سیستم", "رده درمانی", "رده دارویی واقعی", "نکته دقیق"],
+    en: ["Domain", "System", "Class", "Specific SubClass", "Micro-Topic"]
   }
-]`;
 
-  const userPrompt = `Clinical Context:\n"""\n${contextSnippet.slice(0, 900)}\n"""\n${customPrompt ? `Special Focus: ${customPrompt}` : ''}`;
+JSON STRUCTURE:
+{
+  "cards": [
+    {
+      "question": {
+        "fa": "متن سناریو یا پرسش بالینی به فارسی دقیق و رسا (بدون آوردن جواب در صورت سوال)",
+        "en": "Clinical scenario or question in English (without revealing the answer)"
+      },
+      "answer": {
+        "fa": "پاسخ کامل، استدلال بالینی و نکات راهنمای درمانی به فارسی",
+        "en": "Comprehensive clinical answer and rationale in English"
+      },
+      "pearl": {
+        "fa": "نکته طلایی بالینی و کلیدی برای داروساز به فارسی",
+        "en": "Key clinical pearl in English"
+      },
+      "type": "clinical_pearl",
+      "category": "${category || 'داروسازی بالینی'}",
+      "topic": "${topic || 'فارماکولوژی کاربردی'}",
+      "module": ${moduleNum},
+      "mcqOptions": [
+        { "id": "A", "text": { "fa": "گزینه اول (صحیح)", "en": "Option A (Correct)" }, "isCorrect": true, "explanation": { "fa": "استدلال بالینی صحت گزینه", "en": "Clinical rationale" } },
+        { "id": "B", "text": { "fa": "گزینه دوم (تله تستی)", "en": "Option B (Distractor)" }, "isCorrect": false, "explanation": { "fa": "علت تمایز بالینی", "en": "Why incorrect" } },
+        { "id": "C", "text": { "fa": "گزینه سوم (تله تستی)", "en": "Option C (Distractor)" }, "isCorrect": false, "explanation": { "fa": "علت تمایز بالینی", "en": "Why incorrect" } },
+        { "id": "D", "text": { "fa": "گزینه چهارم (تله تستی)", "en": "Option D (Distractor)" }, "isCorrect": false, "explanation": { "fa": "علت تمایز بالینی", "en": "Why incorrect" } }
+      ],
+      "distractorRationale": {
+        "fa": "تحلیل مقایسه‌ای و تمایز گزینه‌های انحرافی",
+        "en": "Comparative analysis of distractor options"
+      },
+      "knowledgeTree": {
+        "domain": { "fa": "${category || 'داروسازی بالینی استرالیا'}", "en": "${category || 'Australian Clinical Pharmacy'}" },
+        "system": { "fa": "${topic || 'سیستم دارودرمانی'}", "en": "${topic || 'Pharmacotherapy System'}" },
+        "subsystem": { "fa": "رده درمانی و بیماری‌ها", "en": "Therapeutic Class & Conditions" },
+        "subClass": { "fa": "رده دارویی تخصصی", "en": "Specific Drug SubClass" },
+        "microTopic": { "fa": "نکته بالینی و تداخل", "en": "Clinical Pearls & Safety" },
+        "path": {
+          "fa": ["${category || 'داروسازی بالینی استرالیا'}", "${topic || 'سیستم دارودرمانی'}", "رده درمانی و بیماری‌ها", "رده دارویی تخصصی", "نکته بالینی و تداخل"],
+          "en": ["${category || 'Australian Clinical Pharmacy'}", "${topic || 'Pharmacotherapy System'}", "Therapeutic Class & Conditions", "Specific Drug SubClass", "Clinical Pearls & Safety"]
+        }
+      },
+      "tags": ["${category || 'Clinical'}", "${topic || 'Pharmacy'}"]
+    }
+  ]
+}`;
+
+  const safeCustomPrompt = customPrompt ? String(customPrompt).slice(0, 1000).replace(/```/g, '') : '';
+  const safeContextSnippet = contextSnippet ? String(contextSnippet).slice(0, 3000).replace(/```/g, '') : '';
+
+  const userPrompt = `PRIMARY CLINICAL DOMAIN:
+- Topic / Medicine / Disease: ${topic || 'Clinical Pharmacology'}
+- Therapeutic Category: ${category || 'Clinical Pharmacy'}
+- Active Practice Module: Module ${moduleNum}
+- Target Flashcard Count: ${count}
+
+${safeCustomPrompt ? `SPECIFIC USER DIRECTIVE:\n${safeCustomPrompt}\n` : ''}
+${safeContextSnippet ? `CLINICAL SOURCE CONTEXT (Selected Study Text / Clinical Guide):
+\`\`\`clinical-context
+${safeContextSnippet}
+\`\`\`
+CRITICAL INSTRUCTION FOR CONTEXT:
+1. Deeply analyze the provided Clinical Source Context above.
+2. Extract the high-yield therapeutic facts, clinical pearls, scheduling rules (SUSMP S2/S3/S4/S8), Cautionary Advisory Labels (CALs), and red flag symptoms directly described or implied in this context.
+3. Synthesize exactly ${count} cards that test real-world clinical decision-making, patient consultation protocols, and pharmacology principles directly grounded in this specific context.
+` : `Generate ${count} high-yield cards specifically on the clinical topic "${topic}" within category "${category}".`}
+
+Generate exactly ${count} high-yield, professionally formatted clinical flashcards in valid JSON matching the exact schema above.
+Start your response directly with { and end with }.`;
 
   try {
     const jsonStr = await executeOfflineInference({
@@ -465,10 +559,10 @@ Format specification:
     if (Array.isArray(parsed.cards) && parsed.cards.length > 0) return parsed.cards;
     if (Array.isArray(parsed.flashcards) && parsed.flashcards.length > 0) return parsed.flashcards;
 
-    return generateInstantClinicalFlashcards(contextSnippet, moduleNum);
+    return generateInstantClinicalFlashcards(contextSnippet, moduleNum, category, topic);
   } catch (err) {
     console.warn('Offline inference fallback to instant generator:', err);
     onProgress?.({ progress: 100, text: '✅ تولید با موتور بالینی هوشمند تکمیل شد.' });
-    return generateInstantClinicalFlashcards(contextSnippet, moduleNum);
+    return generateInstantClinicalFlashcards(contextSnippet, moduleNum, category, topic);
   }
 }
