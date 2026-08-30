@@ -300,6 +300,10 @@ export async function executeOfflineInference({
  * Built-in High-Yield Clinical Flashcard Generator (Instant 0-Second Fallback)
  * Formulates realistic, high-caliber Australian clinical questions with clean bilingual separation.
  */
+/**
+ * Built-in High-Yield Clinical Flashcard Generator (Instant 0-Second Fallback)
+ * Formulates realistic, high-caliber Australian clinical questions with clean bilingual separation.
+ */
 export function generateInstantClinicalFlashcards(
   contextSnippet: string,
   moduleNum: number = 2,
@@ -317,19 +321,22 @@ export function generateInstantClinicalFlashcards(
   const primaryPoint = sentences[0] || clean;
   const secondaryPoint = sentences[1] || sentences[0] || clean;
 
+  const topicNameFa = topic || 'دارودرمانی بالینی';
+  const topicNameEn = topic || 'Clinical Pharmacotherapy';
+
   return [
     {
       question: {
-        fa: `در ارزیابی بالینی مبحث زیر، اولویت اصلی پایش اثربخشی، پیشگیری از سمیت و اقدام داروساز چیست؟\n«${primaryPoint.slice(0, 150)}»`,
-        en: `In the clinical evaluation of the following pharmacotherapy concept, what is the primary monitoring priority and pharmacist intervention?\n"${primaryPoint.slice(0, 150)}"`,
+        fa: `در پروتکل‌های درمانی و استانداردهای داروسازی استرالیا (AMH/eTG) در ارتباط با «${topicNameFa}»، مهم‌ترین اصل پایش، پیشگیری از عوارض و اقدام داروساز چیست؟`,
+        en: `According to Australian Clinical Guidelines (AMH/eTG) regarding "${topicNameEn}", what is the primary monitoring priority, safety consideration, and pharmacist counseling directive?`,
       },
       answer: {
         fa: `تحلیل بالینی و دارودرمانی:\n${clean}`,
-        en: `Clinical Analysis & Rationale:\n${clean}`,
+        en: `Clinical Analysis & Evidence-Based Rationale:\n${clean}`,
       },
       pearl: {
-        fa: `طبق راهنماهای رسمی AMH و eTG استرالیا، پایش سطح خونی، عملکرد کلیوی و تداخلات دارویی در اولویت است.`,
-        en: `Consult AMH and eTG guidelines for therapeutic range, renal dosing adjustments, and Cautionary Advisory Labels (CAL).`,
+        fa: `طبق راهنماهای رسمی AMH و eTG استرالیا، پایش اثربخشی، غربالگری تداخلات دارویی و کنترل برچسب‌های هشدار (CAL) در اولویت است.`,
+        en: `Consult AMH and eTG guidelines for therapeutic range, organ dosing adjustments, and Cautionary Advisory Labels (CAL).`,
       },
       type: 'clinical_pearl',
       category: moduleNum === 1 ? 'تریاژ OTC و مشاوره' : moduleNum === 2 ? 'قفسه دارو و نسخه‌پیچی' : category,
@@ -348,23 +355,23 @@ export function generateInstantClinicalFlashcards(
     },
     {
       question: {
-        fa: `بر اساس استانداردهای بورد داروسازی استرالیا (AMH/eTG)، کدام اقدام درمانی در ارتباط با این مبحث صحیح است؟`,
-        en: `According to Australian Clinical Guidelines (AMH/eTG), which clinical intervention is the most appropriate for this patient?`,
+        fa: `در مدیریت بالینی و تصمیم‌گیری درمانی برای «${topicNameFa}»، کدام اقدام داروساز بر اساس راهنماهای AMH استرالیا صحیح و ایمن است؟`,
+        en: `In the therapeutic management and clinical decision-making for "${topicNameEn}", which clinical action is the most appropriate according to AMH guidelines?`,
       },
       answer: {
         fa: `گزینه صحیح: ${secondaryPoint.slice(0, 160)}`,
         en: `Correct Option: ${secondaryPoint.slice(0, 160)}`,
       },
       pearl: {
-        fa: `ثبت شرح‌حال بیمار و کنترل برچسب‌های هشدار الزامی است.`,
+        fa: `بررسی دقیق پرونده دارویی بیمار (Dispensing History) و تطبیق دوزاژ با شرایط فیزیولوژیک بیمار الزامی است.`,
         en: `Patient profile documentation and Cautionary Advisory Label verification are mandatory.`,
       },
       type: 'mcq',
       mcqOptions: [
         { id: 'opt_a', text: { fa: secondaryPoint.slice(0, 140), en: secondaryPoint.slice(0, 140) }, isCorrect: true, explanation: { fa: 'مطابق با پروتکل درمانی خط اول استرالیا', en: 'In accordance with Australian first-line guidelines' } },
-        { id: 'opt_b', text: { fa: 'کاهش دوز دارو بدون پایش عملکرد کلیوی و کبدی', en: 'Reducing dose arbitrarily without assessing renal/hepatic function' }, isCorrect: false, explanation: { fa: 'اقدام غیرایمن و بدون استناد علمی', en: 'Unsafe practice without clinical justification' } },
-        { id: 'opt_c', text: { fa: 'قطع ناگهانی درمان بدون مشورت با پزشک معالج', en: 'Abruptly discontinuing therapy without prescriber discussion' }, isCorrect: false, explanation: { fa: 'خطر عود علائم حاد بیماری', en: 'Risk of acute disease rebound' } },
-        { id: 'opt_d', text: { fa: 'افزایش دوزاژ بدون توجه به سقف ایمنی برچسب CAL', en: 'Escalating dosage exceeding maximum safe CAL parameters' }, isCorrect: false, explanation: { fa: 'افزایش خطر سمیت شدید دارویی', en: 'Severe risk of drug-induced toxicity' } },
+        { id: 'opt_b', text: { fa: 'کاهش خودسرانه دوز دارو بدون پایش سطح خونی و عملکرد ارگان‌ها', en: 'Arbitrarily reducing dose without therapeutic drug monitoring' }, isCorrect: false, explanation: { fa: 'اقدام غیرایمن و بدون استناد علمی', en: 'Unsafe practice without clinical justification' } },
+        { id: 'opt_c', text: { fa: 'قطع ناگهانی درمان بدون ارزیابی خطر عود حاد بیماری', en: 'Abruptly discontinuing therapy without risk reassessment' }, isCorrect: false, explanation: { fa: 'خطر عود علائم حاد بیماری', en: 'Risk of acute disease rebound' } },
+        { id: 'opt_d', text: { fa: 'افزایش دوزاژ بدون توجه به برچسب‌های هشدار الزامی (CAL)', en: 'Escalating dosage exceeding maximum safe CAL parameters' }, isCorrect: false, explanation: { fa: 'افزایش خطر سمیت شدید دارویی', en: 'Severe risk of drug-induced toxicity' } },
       ],
       distractorRationale: {
         fa: 'گزینه‌های انحرافی نشان‌دهنده خطاهای رایج در آزمون‌های بورد داروسازی استرالیا هستند.',
@@ -451,7 +458,11 @@ Generate a rich, balanced mix of therapeutic pearls, clinical scenarios, caution
 
 CORE CLINICAL DIRECTIVES:
 1. Ground all questions, answers, and clinical pearls strictly in modern Australian Clinical Pharmacy Practice (AMH, eTG, APF, PSA standards).
-2. Use professional, natural, high-yield language. Avoid trivial dictionary questions; construct realistic diagnostic, therapeutic, dosing, interaction, and counseling challenges. NEVER state the answer inside the question. NEVER produce yes/no questions.
+2. STRICT SELF-CONTAINED QUESTIONS (MANDATORY):
+   - When a student reviews this flashcard months later in Leitner spaced repetition, the question MUST be 100% standalone, clear, and context-independent.
+   - You MUST explicitly state the EXACT drug name (e.g. "متوترکسات (Methotrexate)", "وارفارین (Warfarin)", "آمپی‌سیلین (Ampicillin)"), the specific disease state / clinical condition (e.g. "در درمان آرتریت روماتوئید", "در بیمار با نارسایی کلیوی"), and the specific clinical challenge.
+   - STRICTLY PROHIBITED: NEVER use vague or referential phrases like "این مبحث", "در این مورد", "متن فوق", "این بیماری", "این دارو", "در این سناریو" without explicitly stating the exact drug and topic name!
+   - Construct authentic Australian Clinical Pharmacy Board (KAPS/OPRA/PSA) questions that can be understood in isolation.
 3. MANDATORY 100% BILINGUAL COMPLETION: Every single flashcard MUST have BOTH fluent, pure Persian ('fa') and precise Australian clinical English ('en') for EVERY field:
    - question: { fa: "متن سناریو یا پرسش بالینی به فارسی سلیس و بدون کلمات انگلیسی", en: "Clinical scenario question in standard medical English" }
    - answer: { fa: "پاسخ تحلیلی کامل به زبان فارسی", en: "Comprehensive clinical answer in English" }
