@@ -1267,10 +1267,55 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </span>
               ) : (
                 <span className="text-[10.5px] px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">
-                  {webgpuStatus.error || (isFa ? 'پشتیبانی نمی‌شود' : 'Not supported')}
+                  {isFa ? 'نیاز به فعال‌سازی در مرورگر' : 'Requires Browser Flag'}
                 </span>
               )}
             </div>
+
+            {/* Surface Snapdragon / ARM WebGPU Activation Guide */}
+            {!webgpuStatus.supported && (
+              <div className="p-3.5 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs space-y-2.5 animate-fadeIn">
+                <div className="flex items-center gap-2 font-bold text-amber-300">
+                  <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>{isFa ? 'راهنمای فعال‌سازی سریع در تبلت سرفیس و پردازنده‌های اسنپ‌دراگون (Snapdragon/NPU):' : 'How to enable WebGPU on Surface Snapdragon:'}</span>
+                </div>
+                <p className="text-[11px] text-amber-300/90 leading-relaxed">
+                  {isFa
+                    ? 'پردازنده‌های اسنپ‌دراگون و سرفیس دارای گرافیک Adreno و NPU قدرتمند هستند، اما مایکروسافت اج و گوگل کروم به صورت پیش‌فرض WebGPU را روی ویندوز ARM خاموش نگه می‌دارند. برای فعال‌سازی در ۳۰ ثانیه:'
+                    : 'Surface Snapdragon devices have capable Adreno GPUs and NPUs, but Edge/Chrome require enabling the WebGPU flag on ARM Windows.'}
+                </p>
+                <div className="space-y-1.5 bg-black/40 p-2.5 rounded-xl border border-amber-500/20 font-mono text-[11px] text-slate-200">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-amber-300 font-bold">۱. آدرس فلگ در مرورگر Edge:</span>
+                    <button
+                      type="button"
+                      onClick={() => navigator.clipboard.writeText('edge://flags/#enable-unsafe-webgpu')}
+                      className="px-2 py-0.5 rounded bg-amber-500/30 hover:bg-amber-500/50 text-amber-200 text-[10px] font-sans font-bold cursor-pointer"
+                    >
+                      {isFa ? 'کپی آدرس' : 'Copy'}
+                    </button>
+                  </div>
+                  <div className="text-[10px] text-slate-400 select-all">edge://flags/#enable-unsafe-webgpu</div>
+
+                  <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-700/50">
+                    <span className="text-amber-300 font-bold">یا در مرورگر Chrome:</span>
+                    <button
+                      type="button"
+                      onClick={() => navigator.clipboard.writeText('chrome://flags/#enable-unsafe-webgpu')}
+                      className="px-2 py-0.5 rounded bg-amber-500/30 hover:bg-amber-500/50 text-amber-200 text-[10px] font-sans font-bold cursor-pointer"
+                    >
+                      {isFa ? 'کپی آدرس' : 'Copy'}
+                    </button>
+                  </div>
+                  <div className="text-[10px] text-slate-400 select-all">chrome://flags/#enable-unsafe-webgpu</div>
+                </div>
+                <div className="text-[11px] text-amber-200/90 leading-relaxed font-sans">
+                  {isFa
+                    ? '۲. گزینه Unsafe WebGPU Support را روی «Enabled» بگذارید و دکمه «Restart / Relaunch» مرورگر را بزنید.'
+                    : '2. Set Unsafe WebGPU Support to Enabled and click Relaunch.'}
+                </div>
+              </div>
+            )}
 
             {/* Model Presets List */}
             <div className="space-y-3">

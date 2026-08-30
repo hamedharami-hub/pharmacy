@@ -150,20 +150,30 @@ export async function getOrLoadOfflineEngine(
 
   const webllm = await import('@mlc-ai/web-llm');
 
-  const engine = await webllm.CreateMLCEngine(modelId, {
-    initProgressCallback: (report) => {
-      const pct = Math.round((report.progress || 0) * 100);
-      onProgress?.({
-        progress: pct,
-        text: report.text || `در حال بارگذاری مدل آفلاین (${pct}%)...`,
-        timeElapsed: report.timeElapsed,
-      });
-    },
-  });
+  try {
+    const engine = await webllm.CreateMLCEngine(modelId, {
+      initProgressCallback: (report) => {
+        const pct = Math.round((report.progress || 0) * 100);
+        onProgress?.({
+          progress: pct,
+          text: report.text || `در حال بارگذاری مدل آفلاین (${pct}%)...`,
+          timeElapsed: report.timeElapsed,
+        });
+      },
+    });
 
-  globalEngine = engine;
-  currentLoadedModelId = modelId;
-  return engine;
+    globalEngine = engine;
+    currentLoadedModelId = modelId;
+    return engine;
+  } catch (err: any) {
+    const msg = err?.message || String(err);
+    if (msg.includes('GPU') || msg.includes('WebGPU') || msg.includes('adapter')) {
+      throw new Error(
+        'پردازنده گرافیکی WebGPU در مرورگر فعال نیست. برای فعال‌سازی در تبلت سرفیس و پردازنده‌های اسنپ‌دراگون، لطفاً آدرس edge://flags/#enable-unsafe-webgpu را در مرورگر باز کرده و آن را روی Enabled قرار دهید و مرورگر را ریستارت فرمایید.'
+      );
+    }
+    throw err;
+  }
 }
 
 /**
