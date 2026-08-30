@@ -2,6 +2,15 @@ import { LeitnerCard, LeitnerCardType } from './leitner';
 
 export type MindMapLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
+export type MindMapPerspective =
+  | 'comprehensive'   // 🌐 درخت جامع و یکپارچه
+  | 'diseases'        // 🩺 ۱. بیماری‌ها و سیستم‌های بدن (eTG)
+  | 'drugs'           // 💊 ۲. دسته‌های دارویی و فارماکوتراپی (AMH)
+  | 'law'             // ⚖️ ۳. قوانین، نسخه‌پیچی و مقررات استرالیا
+  | 'otc_triage'      // 🏪 ۴. تریاژ OTC و فرآورده‌های قفسه
+  | 'safety'          // 🛡️ ۵. ایمنی، برچسب‌های هشدار و تداخلات
+  | 'calculations';   // 🧮 ۶. محاسبات داروسازی و دوزاژ بالینی
+
 export interface MindMapNode {
   id: string;
   level: MindMapLevel;
