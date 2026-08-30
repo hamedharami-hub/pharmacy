@@ -404,14 +404,21 @@ body.theme-day .border-gray-700 {
   border-color: #e2e8f0 !important;
 }
 
-/* Text Hierarchy & Contrast in Light Theme */
+/* Text Hierarchy & Contrast in Light Theme (Day) */
 body.theme-day .text-white,
+body.theme-day [class*="text-white"],
 body.theme-day .text-slate-100,
 body.theme-day .text-slate-200,
 body.theme-day .text-zinc-100,
 body.theme-day .text-zinc-200,
 body.theme-day .text-gray-100,
-body.theme-day .text-gray-200 {
+body.theme-day .text-gray-200,
+body.theme-day [class*="text-slate-1"],
+body.theme-day [class*="text-slate-2"],
+body.theme-day [class*="text-zinc-1"],
+body.theme-day [class*="text-zinc-2"],
+body.theme-day [class*="text-gray-1"],
+body.theme-day [class*="text-gray-2"] {
   color: #0f172a !important;
 }
 
@@ -420,14 +427,29 @@ body.theme-day .text-slate-400,
 body.theme-day .text-zinc-300,
 body.theme-day .text-zinc-400,
 body.theme-day .text-gray-300,
-body.theme-day .text-gray-400 {
+body.theme-day .text-gray-400,
+body.theme-day [class*="text-slate-3"],
+body.theme-day [class*="text-slate-4"],
+body.theme-day [class*="text-zinc-3"],
+body.theme-day [class*="text-zinc-4"],
+body.theme-day [class*="text-gray-3"],
+body.theme-day [class*="text-gray-4"] {
   color: #334155 !important;
 }
 
 body.theme-day .text-slate-500,
 body.theme-day .text-zinc-500,
-body.theme-day .text-gray-500 {
-  color: #64748b !important;
+body.theme-day .text-gray-500,
+body.theme-day [class*="text-slate-5"],
+body.theme-day [class*="text-zinc-5"],
+body.theme-day [class*="text-gray-5"] {
+  color: #475569 !important;
+}
+
+/* Translucent white tags in Day theme become soft light-gray tint */
+body.theme-day [class*="bg-white/"] {
+  background-color: rgba(15, 23, 42, 0.06) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
 }
 
 /* =========================================================================
@@ -1217,14 +1239,14 @@ body.theme-reader-day textarea {
 /* ================== GOOGLE MATERIAL DARK THEME TOUCHES =================== */
 /* ========================================================================= */
 
-body:not(.theme-light):not(.theme-sepia):not(.theme-reading-day):not(.theme-reading-night):not(.theme-ereader) {
-  background-color: #0b0f17;
-  color: #f8fafc;
+body.theme-night {
+  background-color: #09090b;
+  color: #fafafa;
 }
 
-body:not(.theme-light):not(.theme-sepia):not(.theme-reading-day):not(.theme-reading-night):not(.theme-ereader) .app-card {
-  background-color: #111827;
-  border-color: #1e293b;
+body.theme-night .app-card {
+  background-color: #18181b;
+  border-color: #3f3f46;
 }
 
 /* Smooth Scrollbar */
