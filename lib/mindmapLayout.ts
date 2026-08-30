@@ -241,8 +241,13 @@ export function computeMindMapLayout(
       parentId: string
     ) {
       if (!nodes || nodes.length === 0) return;
-      const radius = level === 1 ? 380 : level === 2 ? 720 : level === 3 ? 1040 : 1320;
-      const angleStep = (endAngle - startAngle) / nodes.length;
+      const radius =
+        level === 1 ? 380 :
+        level === 2 ? 700 :
+        level === 3 ? 1000 :
+        level === 4 ? 1300 :
+        level === 5 ? 1600 : 1900;
+      const angleStep = (endAngle - startAngle) / Math.max(1, nodes.length);
 
       nodes.forEach((childNode, idx) => {
         const isChildExpanded = !!expandedNodeIds[childNode.id];
@@ -579,27 +584,36 @@ export function computeMindMapLayout(
  */
 export function generateLinkPathData(
   link: MindMapLink,
-  style: MindMapLineStyle = 'smooth_bezier'
+  style: MindMapLineStyle = 'smooth_bezier',
+  viewMode?: MindMapViewMode
 ): string {
   const { startX, startY, endX, endY } = link;
 
-  if (style === 'polar_radial') {
-    const midX = (startX + endX) / 2;
-    const midY = (startY + endY) / 2;
-    return `M ${startX} ${startY} Q ${midX} ${midY} ${endX} ${endY}`;
+  if (viewMode === 'radial_circle' || style === 'polar_radial') {
+    return `M ${startX} ${startY} L ${endX} ${endY}`;
   }
 
-  const dx = Math.max(30, (endX - startX) * 0.5);
+  if (viewMode === 'vertical_tree') {
+    if (style === 'straight') {
+      return `M ${startX} ${startY} L ${endX} ${endY}`;
+    }
+    if (style === 'orthogonal_step') {
+      const midY = (startY + endY) / 2;
+      return `M ${startX} ${startY} L ${startX} ${midY} L ${endX} ${midY} L ${endX} ${endY}`;
+    }
+    const dy = Math.max(20, (endY - startY) * 0.5);
+    return `M ${startX} ${startY} C ${startX} ${startY + dy}, ${endX} ${endY - dy}, ${endX} ${endY}`;
+  }
 
-  if (style === 'smooth_bezier') {
-    return `M ${startX} ${startY} C ${startX + dx} ${startY}, ${endX - dx} ${endY}, ${endX} ${endY}`;
+  if (style === 'straight') {
+    return `M ${startX} ${startY} L ${endX} ${endY}`;
   }
 
   if (style === 'orthogonal_step') {
-    const midX = startX + dx;
+    const midX = (startX + endX) / 2;
     return `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`;
   }
 
-  // Straight line
-  return `M ${startX} ${startY} L ${endX} ${endY}`;
+  const dx = Math.max(30, (endX - startX) * 0.5);
+  return `M ${startX} ${startY} C ${startX + dx} ${startY}, ${endX - dx} ${endY}, ${endX} ${endY}`;
 }

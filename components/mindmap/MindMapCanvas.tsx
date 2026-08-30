@@ -163,16 +163,43 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
     startMidY: 0,
   });
 
-  // Center canvas on first load ONLY (never reset position on node expand/collapse)
+  // Compute optimal scale and pan offset to perfectly center mind map content
+  const fitViewToContainer = useCallback((customBounds = bounds) => {
+    if (!containerRef.current) return;
+    const cw = containerRef.current.clientWidth || 900;
+    const ch = containerRef.current.clientHeight || 650;
+
+    const bWidth = Math.max(customBounds.width, customBounds.maxX - customBounds.minX, 200);
+    const bHeight = Math.max(customBounds.height, customBounds.maxY - customBounds.minY, 200);
+
+    const scaleX = (cw - 80) / bWidth;
+    const scaleY = (ch - 80) / bHeight;
+    const optimalScale = Math.min(1.15, Math.max(0.3, Math.min(scaleX, scaleY)));
+    const finalZoom = +optimalScale.toFixed(2);
+
+    const contentCenterX = (customBounds.minX + customBounds.maxX) / 2;
+    const contentCenterY = (customBounds.minY + customBounds.maxY) / 2;
+
+    const targetPanX = Math.round(cw / 2 - contentCenterX * finalZoom);
+    const targetPanY = Math.round(ch / 2 - contentCenterY * finalZoom);
+
+    setZoomLevel(finalZoom);
+    setPanOffset({ x: targetPanX, y: targetPanY });
+  }, [bounds]);
+
+  // Center canvas on first load and automatically re-center when switching viewMode
+  const prevViewModeRef = useRef(viewMode);
   useEffect(() => {
-    if (!hasInitializedViewRef.current && bounds.width > 0 && containerRef.current) {
-      const containerWidth = containerRef.current.clientWidth || 900;
-      const initialScale = Math.min(1, Math.max(0.65, containerWidth / Math.max(bounds.width, 1000)));
-      setZoomLevel(initialScale);
-      setPanOffset({ x: 40, y: 40 });
-      hasInitializedViewRef.current = true;
+    if (bounds.width > 0 && containerRef.current) {
+      if (!hasInitializedViewRef.current) {
+        fitViewToContainer();
+        hasInitializedViewRef.current = true;
+      } else if (prevViewModeRef.current !== viewMode) {
+        prevViewModeRef.current = viewMode;
+        fitViewToContainer();
+      }
     }
-  }, [bounds.width]);
+  }, [bounds.width, viewMode, fitViewToContainer]);
 
   // Handle Fullscreen Toggle
   const toggleFullscreen = () => {
@@ -215,34 +242,51 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
 
   // Zoom handlers
   const handleZoomIn = () => setZoomLevel((z) => Math.min(2.5, +(z + 0.15).toFixed(2)));
-  const handleZoomOut = () => setZoomLevel((z) => Math.max(0.35, +(z - 0.15).toFixed(2)));
+  const handleZoomOut = () => setZoomLevel((z) => Math.max(0.3, +(z - 0.15).toFixed(2)));
   const handleResetZoom = () => {
-    setZoomLevel(1);
-    setPanOffset({ x: 40, y: 40 });
-  };
-  const handleFitView = () => {
     if (!containerRef.current) return;
     const cw = containerRef.current.clientWidth || 900;
     const ch = containerRef.current.clientHeight || 650;
-    const scaleX = (cw - 80) / Math.max(bounds.width, 200);
-    const scaleY = (ch - 80) / Math.max(bounds.height, 200);
-    const optimalScale = Math.min(1.2, Math.max(0.4, Math.min(scaleX, scaleY)));
-    setZoomLevel(+optimalScale.toFixed(2));
-    setPanOffset({ x: 40, y: 40 });
+    const contentCenterX = (bounds.minX + bounds.maxX) / 2;
+    const contentCenterY = (bounds.minY + bounds.maxY) / 2;
+    setZoomLevel(1);
+    setPanOffset({
+      x: Math.round(cw / 2 - contentCenterX * 1),
+      y: Math.round(ch / 2 - contentCenterY * 1),
+    });
+  };
+  const handleFitView = () => {
+    fitViewToContainer();
   };
 
-  // Mouse wheel zoom & pan
+  // Mouse wheel: Directly zoom in/out centered at mouse cursor position
   const handleWheel = (e: React.WheelEvent) => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
-      setZoomLevel((z) => Math.min(2.5, Math.max(0.35, +(z * zoomFactor).toFixed(2))));
-    } else {
-      setPanOffset((prev) => ({
-        x: prev.x - e.deltaX,
-        y: prev.y - e.deltaY,
-      }));
-    }
+    e.preventDefault();
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const rect = container.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const zoomMultiplier = e.deltaY < 0 ? 1.12 : 0.88;
+
+    setZoomLevel((prevZoom) => {
+      const nextZoom = Math.min(2.5, Math.max(0.3, +(prevZoom * zoomMultiplier).toFixed(3)));
+      if (nextZoom === prevZoom) return prevZoom;
+
+      setPanOffset((prevPan) => {
+        const contentX = (mouseX - prevPan.x) / prevZoom;
+        const contentY = (mouseY - prevPan.y) / prevZoom;
+        return {
+          x: Math.round(mouseX - contentX * nextZoom),
+          y: Math.round(mouseY - contentY * nextZoom),
+        };
+      });
+
+      return nextZoom;
+    });
   };
 
   // Mouse Pan Handlers
@@ -898,7 +942,7 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
             </defs>
 
             {layoutLinks.map((link) => {
-              const pathData = generateLinkPathData(link, lineStyle);
+              const pathData = generateLinkPathData(link, lineStyle, viewMode);
               const isLinkActive = hoveredNodeId === link.sourceId || hoveredNodeId === link.targetId;
 
               return (
