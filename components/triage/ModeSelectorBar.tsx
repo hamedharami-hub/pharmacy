@@ -99,7 +99,7 @@ export const ModeSelectorBar: React.FC<ModeSelectorBarProps> = ({
           subtitleEn="Choose a consultation mode and scenario"
           changeLabel={{ fa: 'تغییر انتخاب', en: 'Change Selection' }}
           isOpen
-          onToggle={() => setIsBrowseOpen(false)}
+          onToggle={() => setIsBrowseOpen(true)}
           language={language}
         >
           <div className="space-y-2.5">
