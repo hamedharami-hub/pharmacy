@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import { Language } from '@/types/pharmacy';
-import { Check, ChevronDown, ChevronUp, FolderTree } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Check, FolderTree } from 'lucide-react';
 import { haptic } from '@/lib/haptics';
+import { StageSelectorCard } from '@/components/ui';
 
 export type MatrixSectionId = 'ANTIMICROBIAL' | 'VACCINE' | 'MONITORING_TDM' | 'PREGNANCY_SAFETY';
 
@@ -91,72 +93,21 @@ export const MatrixSectionSelector: React.FC<MatrixSectionSelectorProps> = ({
   const SelectedIcon = selectedSection?.icon || FolderTree;
 
   return (
-    <div className="space-y-2">
-      {!isExpanded && selectedSection && (
-        <div className="app-card border app-border rounded-2xl overflow-hidden shadow-sm transition-all">
-          <button
-            type="button"
-            onClick={() => {
-              haptic.light();
-              setIsExpanded(true);
-            }}
-            className="w-full text-start p-3 sm:p-3.5 app-bg hover:bg-black/5 dark:hover:bg-slate-900 transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 select-none"
-            title={isFa ? 'کلیک کنید تا تمام سرفصل‌ها نمایش داده شوند' : 'Click to show all protocol sections'}
-          >
-            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${selectedStyle.iconBg}`}>
-                <SelectedIcon className={`w-4 h-4 ${selectedStyle.iconColor}`} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h4 className="text-xs sm:text-sm font-black leading-tight app-text truncate">
-                  {isFa ? selectedSection.titleFa : selectedSection.titleEn}
-                </h4>
-                <p className="text-[10px] app-muted truncate opacity-80 mt-0.5" dir="ltr">
-                  {selectedSection.titleEn}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              {queryActive && matchCounts[selectedSection.id] > 0 && (
-                <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300">
-                  {matchCounts[selectedSection.id]}
-                </span>
-              )}
-              <div className="px-2 py-1 rounded-lg bg-teal-500/15 text-teal-600 dark:text-teal-400 text-[11px] font-bold flex items-center gap-1 transition">
-                <span>{isFa ? 'تغییر سرفصل' : 'Change Section'}</span>
-                <ChevronDown className="w-3.5 h-3.5 transition-transform group-hover:translate-y-0.5" />
-              </div>
-            </div>
-          </button>
-        </div>
-      )}
-
-      {isExpanded && (
-        <div className="space-y-2.5 animate-fadeIn">
-          <div className="flex items-center justify-between gap-2 pb-1.5 border-b app-border">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-teal-500/15 flex items-center justify-center text-teal-500">
-                <FolderTree className="w-3.5 h-3.5" />
-              </div>
-              <span className="text-xs sm:text-sm font-black app-text">
-                {isFa ? 'انتخاب سرفصل پروتکل بالینی:' : 'Select Clinical Protocol Section:'}
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                haptic.light();
-                setIsExpanded(false);
-              }}
-              className="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-            >
-              <span>{isFa ? 'بستن منو' : 'Collapse'}</span>
-              <ChevronUp className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-            {sections.map((section) => {
+    <StageSelectorCard
+      icon={SelectedIcon as LucideIcon}
+      title={{
+        fa: selectedSection?.titleFa || 'انتخاب سرفصل پروتکل',
+        en: selectedSection?.titleEn || 'Select Protocol Section',
+      }}
+      subtitleEn={selectedSection?.titleEn}
+      count={selectedSection?.topics.filter((topic) => topic.id !== 'ALL').length}
+      changeLabel={{ fa: 'تغییر سرفصل', en: 'Change Section' }}
+      isOpen={isExpanded}
+      onToggle={() => setIsExpanded((prev) => !prev)}
+      language={language}
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 animate-fadeIn">
+        {sections.map((section) => {
               const isSelected = section.id === selectedSectionId;
               const style = SECTION_STYLES[section.palette];
               const Icon = section.icon;
@@ -216,10 +167,8 @@ export const MatrixSectionSelector: React.FC<MatrixSectionSelectorProps> = ({
                   </div>
                 </button>
               );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
+        })}
+      </div>
+    </StageSelectorCard>
   );
 };

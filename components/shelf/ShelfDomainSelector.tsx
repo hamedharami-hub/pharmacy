@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { ClinicalDomain } from '@/types/shelf';
 import { Language } from '@/types/pharmacy';
+import type { LucideIcon } from 'lucide-react';
 import {
   Stethoscope,
   Heart,
@@ -14,11 +15,10 @@ import {
   Boxes,
   Check,
   FolderTree,
-  ChevronDown,
-  ChevronUp,
   Sparkles,
 } from 'lucide-react';
 import { haptic } from '@/lib/haptics';
+import { StageSelectorCard } from '@/components/ui';
 
 interface ShelfDomainSelectorProps {
   clinicalDomains: ClinicalDomain[];
@@ -138,79 +138,21 @@ export const ShelfDomainSelector: React.FC<ShelfDomainSelectorProps> = ({
   const SelectedIcon = selectedStyle?.icon || FolderTree;
 
   return (
-    <div className="space-y-2">
-      {/* 1. COLLAPSED VIEW: ONLY SHOW THE SELECTED DOMAIN WITH EXPAND TRIGGER */}
-      {!isExpanded && selectedDomain && selectedStyle && (
-        <div className="app-card border app-border rounded-2xl overflow-hidden shadow-sm transition-all">
-          {/* Clickable Selected Domain Card */}
-          <button
-            type="button"
-            onClick={() => {
-              haptic.light();
-              setIsExpanded(true);
-            }}
-            className="w-full text-start p-3 sm:p-3.5 app-bg hover:bg-black/5 dark:hover:bg-slate-900 transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 select-none"
-            title={isFa ? 'کلیک کنید تا تمام دامنه‌ها نمایش داده شوند' : 'Click to show all clinical domains'}
-          >
-            {/* Left Icon & Title */}
-            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div
-                className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${selectedStyle.iconBg}`}
-              >
-                <SelectedIcon className={`w-4 h-4 ${selectedStyle.iconColor}`} />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <h4 className="text-xs sm:text-sm font-black leading-tight app-text truncate">
-                  {isFa ? selectedDomain.titleFa : selectedDomain.titleEn}
-                </h4>
-                <p className="text-[10px] app-muted truncate opacity-80 mt-0.5" dir="ltr">
-                  {selectedDomain.titleEn}
-                </p>
-              </div>
-            </div>
-
-            {/* Right: Badge, Active check and Expand Chevron */}
-            <div className="flex items-center gap-2 shrink-0">
-              <div className="px-2 py-1 rounded-lg bg-teal-500/15 text-teal-600 dark:text-teal-400 text-[11px] font-bold flex items-center gap-1 transition">
-                <span>{isFa ? 'تغییر دامنه' : 'Change Domain'}</span>
-                <ChevronDown className="w-3.5 h-3.5 transition-transform group-hover:translate-y-0.5" />
-              </div>
-            </div>
-          </button>
-        </div>
-      )}
-
-      {/* 2. EXPANDED VIEW: SHOW ALL DOMAINS IN RESPONSIVE GRID */}
-      {isExpanded && (
-        <div className="space-y-2.5 animate-fadeIn">
-          {/* Header Bar with Collapse Button */}
-          <div className="flex items-center justify-between gap-2 pb-1.5 border-b app-border">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-teal-500/15 flex items-center justify-center text-teal-500">
-                <FolderTree className="w-3.5 h-3.5" />
-              </div>
-              <span className="text-xs sm:text-sm font-black app-text">
-                {isFa ? 'انتخاب سرفصل و دامنه بالینی (کلیک کنید تا اعمال شود):' : 'Select Clinical Pharmacy Domain:'}
-              </span>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                haptic.light();
-                setIsExpanded(false);
-              }}
-              className="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-            >
-              <span>{isFa ? 'بستن منو' : 'Collapse'}</span>
-              <ChevronUp className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          {/* Modern Responsive Domain Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
-            {clinicalDomains.map((domain) => {
+    <StageSelectorCard
+      icon={SelectedIcon as LucideIcon}
+      title={{
+        fa: selectedDomain?.titleFa || 'انتخاب دامنه بالینی',
+        en: selectedDomain?.titleEn || 'Select Clinical Domain',
+      }}
+      subtitleEn={selectedDomain?.titleEn}
+      count={selectedDomain?.subcategories.length}
+      changeLabel={{ fa: 'تغییر دامنه', en: 'Change Domain' }}
+      isOpen={isExpanded}
+      onToggle={() => setIsExpanded((prev) => !prev)}
+      language={language}
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 animate-fadeIn">
+        {clinicalDomains.map((domain) => {
               const isSelected = domain.id === selectedDomainId;
               const style = getDomainStyle(domain.iconType);
               const Icon = style.icon;
@@ -270,11 +212,8 @@ export const ShelfDomainSelector: React.FC<ShelfDomainSelectorProps> = ({
                   </div>
                 </button>
               );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
+        })}
+      </div>
+    </StageSelectorCard>
   );
 };
-

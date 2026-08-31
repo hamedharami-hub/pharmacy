@@ -1239,6 +1239,11 @@ body.theme-reader-day textarea {
 /* ================== GOOGLE MATERIAL DARK THEME TOUCHES =================== */
 /* ========================================================================= */
 
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
 body.theme-night {
   background-color: #09090b;
   color: #fafafa;
