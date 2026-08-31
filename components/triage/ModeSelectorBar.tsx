@@ -6,6 +6,7 @@ import { Scenario, ConversationMode } from '@/data/otcScenarios';
 import { Layers, Search, Stethoscope } from 'lucide-react';
 import { ScenarioListAccordion, cleanLocalizedText } from './ScenarioListAccordion';
 import { ScenarioModeSelector } from './ScenarioModeSelector';
+import { ModuleSearchField, StageEnterButton, StageSelectorCard } from '@/components/ui';
 
 interface ModeSelectorBarProps {
   language: Language;
@@ -81,28 +82,26 @@ export const ModeSelectorBar: React.FC<ModeSelectorBarProps> = ({
         </div>
       </div>
 
-      <div className="relative flex-1">
-        <Search className="w-4 h-4 absolute right-3 top-2.5 text-slate-400 pointer-events-none" />
-        <input
-          type="text"
-          value={scenarioSearchTerm}
-          onChange={(e) => setScenarioSearchTerm(e.target.value)}
-          placeholder={isFa ? 'جستجوی سناریو، نام بیمار، شرح مراجعه یا دسته‌بندی...' : 'Search scenarios, patient names, presentations or categories...'}
-          className="w-full pr-10 pl-4 py-2 rounded-xl border app-border bg-black/30 text-xs app-text focus:outline-none focus:border-teal-500 shadow-inner"
-        />
-        {scenarioSearchTerm.trim() && (
-          <button
-            type="button"
-            onClick={() => setScenarioSearchTerm('')}
-            className="absolute left-3 top-2.5 text-xs text-slate-400 hover:text-white px-1.5 py-0.5 rounded bg-slate-800 cursor-pointer"
-          >
-            ✕
-          </button>
-        )}
-      </div>
+      <ModuleSearchField
+        value={scenarioSearchTerm}
+        onChange={setScenarioSearchTerm}
+        language={language}
+        placeholder={{
+          fa: 'جستجوی سناریو، نام بیمار، شرح مراجعه یا دسته‌بندی...',
+          en: 'Search scenarios, patient names, presentations or categories...',
+        }}
+      />
 
       {!browseOpen ? (
-        <div className="app-card border border-teal-500/40 rounded-2xl p-3 sm:p-4 space-y-3 shadow-lg bg-linear-to-b from-teal-950/20 to-transparent animate-fadeIn">
+        <StageSelectorCard
+          icon={Layers}
+          title={{ fa: 'انتخاب سناریو و حالت مشاوره', en: 'Select Scenario and Consultation Mode' }}
+          subtitleEn="Choose a consultation mode and scenario"
+          changeLabel={{ fa: 'تغییر انتخاب', en: 'Change Selection' }}
+          isOpen
+          onToggle={() => setIsBrowseOpen(true)}
+          language={language}
+        >
           <div className="space-y-2.5">
             <ScenarioModeSelector
               selectedMode={selectedConversationMode}
@@ -123,15 +122,13 @@ export const ModeSelectorBar: React.FC<ModeSelectorBarProps> = ({
             />
           </div>
 
-          <button
-            type="button"
+          <StageEnterButton
+            icon={Layers}
+            label={{ fa: '✨ مشاهده و مطالعه سناریو (View Scenario)', en: '✨ View & Study Scenario' }}
             onClick={() => setIsBrowseOpen(true)}
-            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-teal-600 via-sky-600 to-indigo-600 hover:from-teal-500 hover:to-indigo-500 text-white font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-teal-950/50 cursor-pointer transition hover:scale-[1.005] active:scale-99"
-          >
-            <Layers className="w-5 h-5 text-amber-300" />
-            <span>{isFa ? '✨ مشاهده و مطالعه سناریو (View Scenario)' : '✨ View & Study Scenario'}</span>
-          </button>
-        </div>
+            language={language}
+          />
+        </StageSelectorCard>
       ) : (
         <div className="app-card border border-teal-500/30 rounded-2xl p-3.5 sm:p-4 shadow-sm bg-gradient-to-b from-slate-900/90 to-slate-950/80 space-y-2.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-slate-800/80">

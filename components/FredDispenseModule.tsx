@@ -28,12 +28,12 @@ import {
   Lock,
   Box,
   Layers,
-  ChevronDown,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { ScriptVisualizerPanel } from '@/components/ScriptVisualizerPanel';
 import { FredShortcutCheatSheet, FredShortcutState } from '@/components/FredShortcutCheatSheet';
 import { useStudyTrackerContext } from '@/components/study/StudyTrackerContext';
+import { EmptyState, ModuleHeaderBar, ModuleSearchField, StageSelectorCard } from '@/components/ui';
 import { haptic } from '@/lib/haptics';
 
 // Dynamically import heavy modals & sub-panels
@@ -339,6 +339,7 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
   const [selectedScenarioId, setSelectedScenarioId] = useState<string>('script-1');
   const [viewMode, setViewMode] = useState<FredViewMode>(null);
   const [isStepAccordionOpen, setIsStepAccordionOpen] = useState(true);
+  const [stepSearchTerm, setStepSearchTerm] = useState('');
 
   // Fred Screen Inputs
   const [enteredPbsCode, setEnteredPbsCode] = useState('');
@@ -393,6 +394,16 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
 
   const scenario = SCRIPT_SCENARIOS.find((s) => s.id === selectedScenarioId) || SCRIPT_SCENARIOS[0];
   const activeVisualizerTab = SCENARIO_TO_VISUALIZER_TAB[scenario.id];
+  const activeStep = FRED_STEP_OPTIONS.find((step) => step.id === viewMode);
+  const normalizedStepSearchTerm = stepSearchTerm.trim().toLowerCase();
+  const filteredStepOptions = normalizedStepSearchTerm
+    ? FRED_STEP_OPTIONS.filter(
+        (step) =>
+          step.labelFa.toLowerCase().includes(normalizedStepSearchTerm) ||
+          step.labelEn.toLowerCase().includes(normalizedStepSearchTerm)
+      )
+    : FRED_STEP_OPTIONS;
+  const isStepBrowseOpen = isStepAccordionOpen || Boolean(normalizedStepSearchTerm);
 
   const {
     markItemViewed,
@@ -634,139 +645,123 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
 
   return (
     <div className="space-y-5">
-      {/* Module Header Container with Step Accordion Selector */}
-      <div className="app-card border app-border rounded-2xl p-3 sm:p-4 shadow-sm space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs font-bold app-muted">
-            <Layers className="w-4 h-4 text-teal-400" />
-            <span>{isFa ? 'زنجیره نسخه‌پیچی Fred' : 'Fred Dispensing Pipeline'}</span>
-          </div>
+      <ModuleHeaderBar
+        icon={Layers}
+        title={{ fa: 'زنجیره نسخه‌پیچی Fred', en: 'Fred Dispensing Pipeline' }}
+        subtitle={{ fa: 'فرآیند کامل دریافت، بررسی و تحویل نسخه', en: 'Complete prescription intake, review and supply workflow' }}
+        accent="teal"
+        language={language}
+        actions={
+          <button
+            type="button"
+            onClick={() => setIsProjectStopOpen(true)}
+            className="px-3 py-1.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/40 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+            title={isFa ? 'استعلام هویت خریدار سودوافدرین و قوانین S3' : 'Project STOP Pseudoephedrine verification'}
+          >
+            <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+            <span>Project STOP (S3)</span>
+          </button>
+        }
+      />
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setIsProjectStopOpen(true)}
-              className="px-3 py-1.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/40 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-              title={isFa ? 'استعلام هویت خریدار سودوافدرین و قوانین S3' : 'Project STOP Pseudoephedrine verification'}
-            >
-              <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
-              <span>{isFa ? 'Project STOP (S3)' : 'Project STOP (S3)'}</span>
-            </button>
-          </div>
-        </div>
+      {!viewMode && (
+        <>
+          <ModuleSearchField
+            value={stepSearchTerm}
+            onChange={setStepSearchTerm}
+            language={language}
+            placeholder={{
+              fa: 'جستجوی گام نسخه‌پیچی...',
+              en: 'Search dispensing steps...',
+            }}
+          />
+          <StageSelectorCard
+            icon={Layers}
+            title={{ fa: 'انتخاب گام زنجیره نسخه‌پیچی', en: 'Select Dispensing Pipeline Step' }}
+            subtitleEn="Choose a step to begin the dispensing workflow"
+            count={filteredStepOptions.length}
+            changeLabel={{ fa: 'تغییر گام', en: 'Change Step' }}
+            isOpen={isStepBrowseOpen}
+            onToggle={() => setIsStepAccordionOpen((prev) => !prev)}
+            language={language}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {filteredStepOptions.map((step) => {
+                const isSelected = viewMode === step.id;
+                const Icon = step.icon;
 
-        {/* Current Active Step Bar & Accordion Trigger */}
-        <div className="app-card border border-teal-500/30 rounded-2xl p-3 sm:p-3.5 shadow-sm bg-linear-to-r from-slate-900/90 via-slate-900/70 to-slate-950/80">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div className="p-2 rounded-xl bg-teal-500/20 text-teal-400 border border-teal-500/30 shrink-0">
-                <Layers className="w-4 h-4" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-xs sm:text-sm font-black app-text truncate">
-                    {viewMode
-                      ? isFa
-                        ? FRED_STEP_OPTIONS.find((step) => step.id === viewMode)?.labelFa
-                        : FRED_STEP_OPTIONS.find((step) => step.id === viewMode)?.labelEn
-                      : isFa
-                      ? 'انتخاب مرحله نسخه پیچی'
-                      : 'Select Dispensing Step'}
-                  </h2>
-                  {viewMode ? (
-                    <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-mono font-bold border border-teal-500/30">
-                      {FRED_STEP_OPTIONS.find((step) => step.id === viewMode)?.stepNumber}
-                    </span>
-                  ) : (
-                    <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30 animate-pulse">
-                      {isFa ? 'یک مرحله را از بالا انتخاب کنید' : 'Choose a step above'}
-                    </span>
-                  )}
-                </div>
-              </div>
+                return (
+                  <button
+                    key={step.id}
+                    type="button"
+                    onClick={() => {
+                      haptic.light();
+                      setViewMode(step.id);
+                      setIsStepAccordionOpen(false);
+                    }}
+                    className={`group text-start p-2.5 sm:p-3 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-2.5 select-none ${
+                      isSelected
+                        ? `${step.activeClasses} font-bold shadow-sm ring-1 ring-teal-500/40 scale-[1.01]`
+                        : 'app-border hover:border-slate-400/40 bg-black/10 dark:bg-slate-900/60 hover:bg-black/20 dark:hover:bg-slate-800/80 opacity-85 hover:opacity-100'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isSelected ? 'bg-white/15' : 'bg-black/10 dark:bg-slate-800'}`}>
+                        <Icon className={`w-4 h-4 ${isSelected ? step.iconColor : 'text-slate-400 group-hover:text-slate-200'}`} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold leading-tight truncate">
+                          {isFa ? step.labelFa : step.labelEn}
+                        </p>
+                        {isFa && (
+                          <p className="text-[10px] opacity-75 truncate mt-0.5 font-sans" dir="ltr">
+                            {step.labelEn}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-black/30 text-slate-200">
+                        {step.stepNumber}
+                      </span>
+                      {isSelected && (
+                        <div className="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-xs">
+                          <Check className="w-2.5 h-2.5 stroke-[3]" />
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
+          </StageSelectorCard>
+        </>
+      )}
 
+      {viewMode && activeStep && (
+        <ModuleHeaderBar
+          icon={Layers}
+          title={{ fa: activeStep.labelFa, en: activeStep.labelEn }}
+          badge={
+            <span className="text-xs px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-500 font-mono font-bold">
+              {activeStep.stepNumber}
+            </span>
+          }
+          actions={
             <button
               type="button"
               onClick={() => {
-                haptic.light();
-                setIsStepAccordionOpen((prev) => !prev);
+                setViewMode(null);
+                setIsStepAccordionOpen(true);
               }}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
+              className="px-3 py-1.5 rounded-full app-border border app-muted hover:opacity-70 text-xs font-bold transition cursor-pointer"
             >
-              <span>
-                {isStepAccordionOpen
-                  ? isFa
-                    ? 'بستن منو'
-                    : 'Close Menu'
-                  : viewMode
-                  ? isFa
-                    ? 'تغییر گام ▾'
-                    : 'Change Step ▾'
-                  : isFa
-                  ? 'انتخاب گام ▾'
-                  : 'Select Step ▾'}
-              </span>
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isStepAccordionOpen ? 'rotate-180 text-teal-400' : ''}`} />
+              {isFa ? 'تغییر گام' : 'Change Step'}
             </button>
-          </div>
-
-          {/* Accordion Expandable Step Grid */}
-          {isStepAccordionOpen && (
-            <div className="pt-3 mt-3 border-t border-slate-800/80 animate-fadeIn space-y-2">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                {FRED_STEP_OPTIONS.map((step) => {
-                  const isSelected = viewMode === step.id;
-                  const Icon = step.icon;
-
-                  return (
-                    <button
-                      key={step.id}
-                      type="button"
-                      onClick={() => {
-                        haptic.light();
-                        setViewMode(step.id);
-                        setIsStepAccordionOpen(false);
-                      }}
-                      className={`group text-start p-2.5 sm:p-3 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-2.5 select-none ${
-                        isSelected
-                          ? `${step.activeClasses} font-bold shadow-sm ring-1 ring-teal-500/40 scale-[1.01]`
-                          : 'app-border hover:border-slate-400/40 bg-black/10 dark:bg-slate-900/60 hover:bg-black/20 dark:hover:bg-slate-800/80 opacity-85 hover:opacity-100'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isSelected ? 'bg-white/15' : 'bg-black/10 dark:bg-slate-800'}`}>
-                          <Icon className={`w-4 h-4 ${isSelected ? step.iconColor : 'text-slate-400 group-hover:text-slate-200'}`} />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-bold leading-tight truncate">
-                            {isFa ? step.labelFa : step.labelEn}
-                          </p>
-                          {isFa && (
-                            <p className="text-[10px] opacity-75 truncate mt-0.5 font-sans" dir="ltr">
-                              {step.labelEn}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-black/30 text-slate-200">
-                          {step.stepNumber}
-                        </span>
-                        {isSelected && (
-                          <div className="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-xs">
-                            <Check className="w-2.5 h-2.5 stroke-[3]" />
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+          }
+          language={language}
+        />
+      )}
 
       {viewMode ? (
         <>
@@ -1299,21 +1294,15 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
           )}
         </>
       ) : (
-        <div className="p-8 sm:p-12 text-center rounded-3xl border border-dashed border-teal-500/30 bg-slate-900/30 space-y-3 animate-fadeIn">
-          <div className="w-14 h-14 rounded-2xl bg-teal-500/15 text-teal-400 border border-teal-500/30 flex items-center justify-center mx-auto shadow-inner">
-            <Monitor className="w-7 h-7" />
-          </div>
-          <div className="space-y-1 max-w-md mx-auto">
-            <h3 className="text-sm sm:text-base font-black app-text">
-              {isFa ? 'هیچ مرحله‌ای انتخاب نشده است' : 'No Dispensing Step Selected'}
-            </h3>
-            <p className="text-xs app-muted leading-relaxed">
-              {isFa
-                ? 'برای شروع و مشاهده جزئیات، لطفاً از منوی بالای صفحه یکی از گام‌های نسخه‌پیچی (بررسی نسخه، ترمینال Fred، شورت‌کات‌ها، برچسب‌گذاری و...) را انتخاب نمایید.'
-                : 'Please choose one of the dispensing pipeline steps from the menu above to begin workflow and view its interface.'}
-            </p>
-          </div>
-        </div>
+        <EmptyState
+          icon={Monitor}
+          title={{ fa: 'هیچ مرحله‌ای انتخاب نشده است', en: 'No Dispensing Step Selected' }}
+          description={{
+            fa: 'برای شروع و مشاهده جزئیات، لطفاً از منوی بالای صفحه یکی از گام‌های نسخه‌پیچی (بررسی نسخه، ترمینال Fred، شورت‌کات‌ها، برچسب‌گذاری و...) را انتخاب نمایید.',
+            en: 'Please choose one of the dispensing pipeline steps from the menu above to begin workflow and view its interface.',
+          }}
+          language={language}
+        />
       )}
 
       {/* Pharmacist Final Check Audit Screen (F10 Hotkey) */}

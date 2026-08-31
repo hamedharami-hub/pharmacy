@@ -3,12 +3,11 @@
 import React, { useState } from 'react';
 import { DISEASE_CATEGORIES, DISEASES_REGISTRY } from '@/data/diseasesRegistry';
 import { Language } from '@/types/pharmacy';
+import type { LucideIcon } from 'lucide-react';
 import {
   Activity,
   Brain,
   Check,
-  ChevronDown,
-  ChevronUp,
   Eye,
   FolderTree,
   Heart,
@@ -19,6 +18,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { haptic } from '@/lib/haptics';
+import { StageSelectorCard } from '@/components/ui';
 
 interface DiseaseCategorySelectorProps {
   selectedCategoryId: string;
@@ -164,127 +164,76 @@ export const DiseaseCategorySelector: React.FC<DiseaseCategorySelectorProps> = (
   const categories = [allCategory, ...DISEASE_CATEGORIES];
 
   return (
-    <div className="space-y-2">
-      {!isExpanded && (
-        <div className="app-card border app-border rounded-2xl overflow-hidden shadow-sm transition-all">
-          <button
-            type="button"
-            onClick={() => {
-              haptic.light();
-              setIsExpanded(true);
-            }}
-            className="w-full text-start p-3 sm:p-3.5 app-bg hover:bg-black/5 dark:hover:bg-slate-900 transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 select-none"
-            title={isFa ? 'کلیک کنید تا تمام دسته‌بندی‌ها نمایش داده شوند' : 'Click to show all disease categories'}
-          >
-            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${selectedStyle.iconBg}`}>
-                <SelectedIcon className={`w-4 h-4 ${selectedStyle.iconColor}`} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h4 className="text-xs sm:text-sm font-black leading-tight app-text truncate">
-                  {isFa ? selectedCategory.name.fa : selectedCategory.name.en}
-                </h4>
-                <p className="text-[10px] app-muted truncate opacity-80 mt-0.5" dir="ltr">
-                  {selectedCategory.name.en}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <div className="px-2 py-1 rounded-lg bg-teal-500/15 text-teal-600 dark:text-teal-400 text-[11px] font-bold flex items-center gap-1 transition">
-                <span>{isFa ? 'تغییر دسته‌بندی' : 'Change Category'}</span>
-                <ChevronDown className="w-3.5 h-3.5 transition-transform group-hover:translate-y-0.5" />
-              </div>
-            </div>
-          </button>
-        </div>
-      )}
+    <StageSelectorCard
+      icon={SelectedIcon as LucideIcon}
+      title={{ fa: selectedCategory.name.fa, en: selectedCategory.name.en }}
+      subtitleEn={selectedCategory.name.en}
+      count={categories.length}
+      changeLabel={{ fa: 'تغییر دسته‌بندی', en: 'Change Category' }}
+      isOpen={isExpanded}
+      onToggle={() => setIsExpanded((prev) => !prev)}
+      language={language}
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 animate-fadeIn">
+        {categories.map((category) => {
+          const isSelected = category.id === selectedCategoryId;
+          const style = getCategoryStyle(category.iconName);
+          const Icon = style.icon;
+          const categoryCount =
+            category.id === 'ALL'
+              ? DISEASES_REGISTRY.length
+              : DISEASES_REGISTRY.filter((disease) => disease.categoryId === category.id).length;
 
-      {isExpanded && (
-        <div className="space-y-2.5 animate-fadeIn">
-          <div className="flex items-center justify-between gap-2 pb-1.5 border-b app-border">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-teal-500/15 flex items-center justify-center text-teal-500">
-                <FolderTree className="w-3.5 h-3.5" />
-              </div>
-              <span className="text-xs sm:text-sm font-black app-text">
-                {isFa ? 'انتخاب دسته‌بندی بیماری (برای اعمال کلیک کنید):' : 'Select Disease Category:'}
-              </span>
-            </div>
+          return (
             <button
+              key={category.id}
               type="button"
               onClick={() => {
                 haptic.light();
+                onSelectCategory(category.id);
                 setIsExpanded(false);
               }}
-              className="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+              className={`group text-start p-2.5 sm:p-3 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-2.5 select-none relative overflow-hidden ${
+                isSelected
+                  ? `${style.activeBorder} ${style.activeBg} font-bold shadow-sm scale-[1.01]`
+                  : 'app-border hover:border-slate-400/40 bg-black/5 dark:bg-slate-900/40 hover:bg-black/10 dark:hover:bg-slate-800/60 opacity-85 hover:opacity-100'
+              }`}
             >
-              <span>{isFa ? 'بستن منو' : 'Collapse'}</span>
-              <ChevronUp className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
-            {categories.map((category) => {
-              const isSelected = category.id === selectedCategoryId;
-              const style = getCategoryStyle(category.iconName);
-              const Icon = style.icon;
-              const categoryCount =
-                category.id === 'ALL'
-                  ? DISEASES_REGISTRY.length
-                  : DISEASES_REGISTRY.filter((disease) => disease.categoryId === category.id).length;
-
-              return (
-                <button
-                  key={category.id}
-                  type="button"
-                  onClick={() => {
-                    haptic.light();
-                    onSelectCategory(category.id);
-                    setIsExpanded(false);
-                  }}
-                  className={`group text-start p-2.5 sm:p-3 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-2.5 select-none relative overflow-hidden ${
-                    isSelected
-                      ? `${style.activeBorder} ${style.activeBg} font-bold shadow-sm scale-[1.01]`
-                      : 'app-border hover:border-slate-400/40 bg-black/5 dark:bg-slate-900/40 hover:bg-black/10 dark:hover:bg-slate-800/60 opacity-85 hover:opacity-100'
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${
+                    isSelected ? style.iconBg : 'bg-black/5 dark:bg-slate-800'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                    <div
-                      className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${
-                        isSelected ? style.iconBg : 'bg-black/5 dark:bg-slate-800'
-                      }`}
-                    >
-                      <Icon className={`w-4 h-4 ${isSelected ? style.iconColor : 'text-slate-400 group-hover:text-slate-200'}`} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className={`text-xs font-bold leading-tight truncate ${isSelected ? 'app-text font-black' : 'app-text'}`}>
-                        {isFa ? category.name.fa : category.name.en}
-                      </p>
-                      <p className="text-[10px] app-muted truncate opacity-80 mt-0.5" dir="ltr">
-                        {category.name.en}
-                      </p>
-                    </div>
+                  <Icon className={`w-4 h-4 ${isSelected ? style.iconColor : 'text-slate-400 group-hover:text-slate-200'}`} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className={`text-xs font-bold leading-tight truncate ${isSelected ? 'app-text font-black' : 'app-text'}`}>
+                    {isFa ? category.name.fa : category.name.en}
+                  </p>
+                  <p className="text-[10px] app-muted truncate opacity-80 mt-0.5" dir="ltr">
+                    {category.name.en}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span
+                  className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                    isSelected ? `${style.badgeBg} ${style.badgeText}` : 'bg-black/10 dark:bg-slate-800 app-muted'
+                  }`}
+                >
+                  {categoryCount}
+                </span>
+                {isSelected && (
+                  <div className="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-xs animate-in zoom-in-50 duration-150">
+                    <Check className="w-2.5 h-2.5 stroke-[3]" />
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span
-                      className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
-                        isSelected ? `${style.badgeBg} ${style.badgeText}` : 'bg-black/10 dark:bg-slate-800 app-muted'
-                      }`}
-                    >
-                      {categoryCount}
-                    </span>
-                    {isSelected && (
-                      <div className="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-xs animate-in zoom-in-50 duration-150">
-                        <Check className="w-2.5 h-2.5 stroke-[3]" />
-                      </div>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </StageSelectorCard>
   );
 };
