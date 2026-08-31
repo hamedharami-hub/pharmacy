@@ -15,6 +15,7 @@ export interface StageSelectorCardProps {
   icon: LucideIcon;
   title: LocalizedLabel;
   subtitleEn?: string;
+  badge?: React.ReactNode;
   count?: number;
   changeLabel: LocalizedLabel;
   isOpen: boolean;
@@ -27,6 +28,7 @@ export const StageSelectorCard: React.FC<StageSelectorCardProps> = ({
   icon: Icon,
   title,
   subtitleEn,
+  badge,
   count,
   changeLabel,
   isOpen,
@@ -62,6 +64,7 @@ export const StageSelectorCard: React.FC<StageSelectorCardProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+          {badge}
           {typeof count === 'number' && (
             <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full app-border border app-muted">
               {count}

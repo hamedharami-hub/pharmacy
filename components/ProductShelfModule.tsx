@@ -589,45 +589,47 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
           {/* UNIFIED CARD DECK & SELECTOR EXPERIENCE (MOBILE & DESKTOP) */}
           {isMobile ? (
             <div className="space-y-4">
-              <StageSelectorCard
-                icon={Layers}
-                title={{ fa: 'انتخاب سرفصل و زیرمجموعه بالینی', en: 'Select Domain & Subcategory' }}
-                subtitleEn="Choose a clinical domain and subcategory"
-                changeLabel={{ fa: 'تغییر انتخاب', en: 'Change Selection' }}
-                isOpen={!isMobileSelectorCollapsed}
-                onToggle={() => setIsMobileSelectorCollapsed((prev) => !prev)}
-                language={language}
-              >
-                <div className="space-y-4 animate-fadeIn">
-                  <div className="space-y-3">
-                    <ShelfDomainSelector
-                      clinicalDomains={CLINICAL_DOMAINS}
-                      selectedDomainId={selectedDomainId}
-                      onSelectDomain={handleSelectDomain}
-                      language={language}
-                    />
+              {!isMobileSelectorCollapsed && (
+                <StageSelectorCard
+                  icon={Layers}
+                  title={{ fa: 'انتخاب سرفصل و زیرمجموعه بالینی', en: 'Select Domain & Subcategory' }}
+                  subtitleEn="Choose a clinical domain and subcategory"
+                  changeLabel={{ fa: 'تغییر انتخاب', en: 'Change Selection' }}
+                  isOpen={true}
+                  onToggle={() => setIsMobileSelectorCollapsed((prev) => !prev)}
+                  language={language}
+                >
+                  <div className="space-y-4 animate-fadeIn">
+                    <div className="space-y-3">
+                      <ShelfDomainSelector
+                        clinicalDomains={CLINICAL_DOMAINS}
+                        selectedDomainId={selectedDomainId}
+                        onSelectDomain={handleSelectDomain}
+                        language={language}
+                      />
 
-                    <ShelfSubcategoriesAccordion
-                      activeDomain={activeDomain}
-                      activeSubCat={activeSubCat}
-                      isOpen={isSubcategoriesAccordionOpen}
-                      onToggleOpen={() => setIsSubcategoriesAccordionOpen((prev) => !prev)}
-                      onSelectSubCatId={(id) => setSelectedSubCatId(id)}
-                      onSelectDisease={setSelectedDisease}
+                      <ShelfSubcategoriesAccordion
+                        activeDomain={activeDomain}
+                        activeSubCat={activeSubCat}
+                        isOpen={isSubcategoriesAccordionOpen}
+                        onToggleOpen={() => setIsSubcategoriesAccordionOpen((prev) => !prev)}
+                        onSelectSubCatId={(id) => setSelectedSubCatId(id)}
+                        onSelectDisease={setSelectedDisease}
+                        language={language}
+                        hideClinicalProfile={true}
+                      />
+                    </div>
+
+                    {/* Big Confirmation Button: Collapses selector and shows interactive card deck */}
+                    <StageEnterButton
+                      icon={Sparkles}
+                      label={{ fa: '✨ مشاهده و مطالعه کارت‌ها (View Cards)', en: '✨ View & Study Cards' }}
+                      onClick={() => setIsMobileSelectorCollapsed(true)}
                       language={language}
-                      hideClinicalProfile={true}
                     />
                   </div>
-
-                  {/* Big Confirmation Button: Collapses selector and shows interactive card deck */}
-                  <StageEnterButton
-                    icon={Sparkles}
-                    label={{ fa: '✨ مشاهده و مطالعه کارت‌ها (View Cards)', en: '✨ View & Study Cards' }}
-                    onClick={() => setIsMobileSelectorCollapsed(true)}
-                    language={language}
-                  />
-                </div>
-              </StageSelectorCard>
+                </StageSelectorCard>
+              )}
               {isMobileSelectorCollapsed && (
                 <MobileShelfCardDeck
                   activeDomain={activeDomain}
@@ -655,45 +657,46 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
           ) : (
             /* DESKTOP EXPERIENCE: MODERN CARD-CENTRIC STUDY HUB */
             <div className="space-y-4 my-2">
-              <StageSelectorCard
-                icon={Layers}
-                title={{ fa: 'انتخاب سرفصل بالینی و زیرمجموعه', en: 'Select Clinical Domain & Subcategory' }}
-                subtitleEn="Choose your clinical domain and subcategory"
-                changeLabel={{ fa: 'تغییر انتخاب', en: 'Change Selection' }}
-                isOpen={!isMobileSelectorCollapsed}
-                onToggle={() => setIsMobileSelectorCollapsed((prev) => !prev)}
-                language={language}
-              >
-                <div className="space-y-4 animate-fadeIn">
-                  <div className="space-y-3">
-                    <ShelfDomainSelector
-                      clinicalDomains={CLINICAL_DOMAINS}
-                      selectedDomainId={selectedDomainId}
-                      onSelectDomain={handleSelectDomain}
-                      language={language}
-                    />
+              {!isMobileSelectorCollapsed ? (
+                <StageSelectorCard
+                  icon={Layers}
+                  title={{ fa: 'انتخاب سرفصل بالینی و زیرمجموعه', en: 'Select Clinical Domain & Subcategory' }}
+                  subtitleEn="Choose your clinical domain and subcategory"
+                  changeLabel={{ fa: 'تغییر انتخاب', en: 'Change Selection' }}
+                  isOpen={true}
+                  onToggle={() => setIsMobileSelectorCollapsed((prev) => !prev)}
+                  language={language}
+                >
+                  <div className="space-y-4 animate-fadeIn">
+                    <div className="space-y-3">
+                      <ShelfDomainSelector
+                        clinicalDomains={CLINICAL_DOMAINS}
+                        selectedDomainId={selectedDomainId}
+                        onSelectDomain={handleSelectDomain}
+                        language={language}
+                      />
 
-                    <ShelfSubcategoriesAccordion
-                      activeDomain={activeDomain}
-                      activeSubCat={activeSubCat}
-                      isOpen={isSubcategoriesAccordionOpen}
-                      onToggleOpen={() => setIsSubcategoriesAccordionOpen((prev) => !prev)}
-                      onSelectSubCatId={(id) => setSelectedSubCatId(id)}
-                      onSelectDisease={setSelectedDisease}
+                      <ShelfSubcategoriesAccordion
+                        activeDomain={activeDomain}
+                        activeSubCat={activeSubCat}
+                        isOpen={isSubcategoriesAccordionOpen}
+                        onToggleOpen={() => setIsSubcategoriesAccordionOpen((prev) => !prev)}
+                        onSelectSubCatId={(id) => setSelectedSubCatId(id)}
+                        onSelectDisease={setSelectedDisease}
+                        language={language}
+                        hideClinicalProfile={true}
+                      />
+                    </div>
+
+                    <StageEnterButton
+                      icon={Sparkles}
+                      label={{ fa: '✨ مشاهده و مطالعه کامل سرفصل و داروها (View Cards & Shelf)', en: '✨ View Cards & Shelf' }}
+                      onClick={() => setIsMobileSelectorCollapsed(true)}
                       language={language}
-                      hideClinicalProfile={true}
                     />
                   </div>
-
-                  <StageEnterButton
-                    icon={Sparkles}
-                    label={{ fa: '✨ مشاهده و مطالعه کامل سرفصل و داروها (View Cards & Shelf)', en: '✨ View Cards & Shelf' }}
-                    onClick={() => setIsMobileSelectorCollapsed(true)}
-                    language={language}
-                  />
-                </div>
-              </StageSelectorCard>
-              {isMobileSelectorCollapsed ? (
+                </StageSelectorCard>
+              ) : (
                 /* Desktop Focused Card Hub */
                 <div className="space-y-4 animate-fadeIn">
                   {/* Top Hub Bar */}
@@ -823,7 +826,7 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
                     language={language}
                   />
                 </div>
-              ) : null}
+              )}
             </div>
           )}
         </>

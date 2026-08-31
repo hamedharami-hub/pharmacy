@@ -40,7 +40,7 @@ export const ModuleSearchField: React.FC<ModuleSearchFieldProps> = ({
           <button
             type="button"
             onClick={() => onChange('')}
-            className="app-muted hover:app-text cursor-pointer"
+            className="app-muted hover:opacity-70 cursor-pointer"
             aria-label={isFa ? 'پاک کردن جستجو' : 'Clear search'}
           >
             <X className="w-4 h-4" />

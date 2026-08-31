@@ -100,6 +100,13 @@ export const MatrixSectionSelector: React.FC<MatrixSectionSelectorProps> = ({
         en: selectedSection?.titleEn || 'Select Protocol Section',
       }}
       subtitleEn={selectedSection?.titleEn}
+      badge={
+        selectedSection && queryActive && matchCounts[selectedSection.id] > 0 ? (
+          <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300">
+            {matchCounts[selectedSection.id]}
+          </span>
+        ) : undefined
+      }
       count={selectedSection?.topics.filter((topic) => topic.id !== 'ALL').length}
       changeLabel={{ fa: 'تغییر سرفصل', en: 'Change Section' }}
       isOpen={isExpanded}
@@ -108,65 +115,65 @@ export const MatrixSectionSelector: React.FC<MatrixSectionSelectorProps> = ({
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 animate-fadeIn">
         {sections.map((section) => {
-              const isSelected = section.id === selectedSectionId;
-              const style = SECTION_STYLES[section.palette];
-              const Icon = section.icon;
-              const topicCount = section.topics.filter((topic) => topic.id !== 'ALL').length;
-              const matchCount = matchCounts[section.id];
+          const isSelected = section.id === selectedSectionId;
+          const style = SECTION_STYLES[section.palette];
+          const Icon = section.icon;
+          const topicCount = section.topics.filter((topic) => topic.id !== 'ALL').length;
+          const matchCount = matchCounts[section.id];
 
-              return (
-                <button
-                  key={section.id}
-                  type="button"
-                  onClick={() => {
-                    haptic.light();
-                    onSelectSection(section.id);
-                    setIsExpanded(false);
-                  }}
-                  className={`group text-start p-2.5 sm:p-3 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-2.5 select-none relative overflow-hidden ${
-                    isSelected
-                      ? `${style.activeBorder} ${style.activeBg} font-bold shadow-sm scale-[1.01]`
-                      : 'app-border hover:border-slate-400/40 bg-black/5 dark:bg-slate-900/40 hover:bg-black/10 dark:hover:bg-slate-800/60 opacity-85 hover:opacity-100'
-                  } ${queryActive && matchCount === 0 ? 'opacity-50' : ''}`}
+          return (
+            <button
+              key={section.id}
+              type="button"
+              onClick={() => {
+                haptic.light();
+                onSelectSection(section.id);
+                setIsExpanded(false);
+              }}
+              className={`group text-start p-2.5 sm:p-3 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-2.5 select-none relative overflow-hidden ${
+                isSelected
+                  ? `${style.activeBorder} ${style.activeBg} font-bold shadow-sm scale-[1.01]`
+                  : 'app-border hover:border-slate-400/40 bg-black/5 dark:bg-slate-900/40 hover:bg-black/10 dark:hover:bg-slate-800/60 opacity-85 hover:opacity-100'
+              } ${queryActive && matchCount === 0 ? 'opacity-50' : ''}`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${
+                    isSelected ? style.iconBg : 'bg-black/5 dark:bg-slate-800'
+                  }`}
                 >
-                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                    <div
-                      className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${
-                        isSelected ? style.iconBg : 'bg-black/5 dark:bg-slate-800'
-                      }`}
-                    >
-                      <Icon className={`w-4 h-4 ${isSelected ? style.iconColor : 'text-slate-400 group-hover:text-slate-200'}`} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className={`text-xs font-bold leading-tight truncate ${isSelected ? 'app-text font-black' : 'app-text'}`}>
-                        {isFa ? section.titleFa : section.titleEn}
-                      </p>
-                      <p className="text-[10px] app-muted truncate opacity-80 mt-0.5" dir="ltr">
-                        {section.titleEn}
-                      </p>
-                    </div>
+                  <Icon className={`w-4 h-4 ${isSelected ? style.iconColor : 'text-slate-400 group-hover:text-slate-200'}`} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className={`text-xs font-bold leading-tight truncate ${isSelected ? 'app-text font-black' : 'app-text'}`}>
+                    {isFa ? section.titleFa : section.titleEn}
+                  </p>
+                  <p className="text-[10px] app-muted truncate opacity-80 mt-0.5" dir="ltr">
+                    {section.titleEn}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span
+                  className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                    isSelected ? `${style.badgeBg} ${style.badgeText}` : 'bg-black/10 dark:bg-slate-800 app-muted'
+                  }`}
+                >
+                  {topicCount}
+                </span>
+                {queryActive && matchCount > 0 && (
+                  <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300">
+                    {matchCount}
+                  </span>
+                )}
+                {isSelected && (
+                  <div className="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-xs animate-in zoom-in-50 duration-150">
+                    <Check className="w-2.5 h-2.5 stroke-[3]" />
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span
-                      className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
-                        isSelected ? `${style.badgeBg} ${style.badgeText}` : 'bg-black/10 dark:bg-slate-800 app-muted'
-                      }`}
-                    >
-                      {topicCount}
-                    </span>
-                    {queryActive && matchCount > 0 && (
-                      <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300">
-                        {matchCount}
-                      </span>
-                    )}
-                    {isSelected && (
-                      <div className="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-xs animate-in zoom-in-50 duration-150">
-                        <Check className="w-2.5 h-2.5 stroke-[3]" />
-                      </div>
-                    )}
-                  </div>
-                </button>
-              );
+                )}
+              </div>
+            </button>
+          );
         })}
       </div>
     </StageSelectorCard>

@@ -176,62 +176,62 @@ export const DiseaseCategorySelector: React.FC<DiseaseCategorySelectorProps> = (
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 animate-fadeIn">
         {categories.map((category) => {
-              const isSelected = category.id === selectedCategoryId;
-              const style = getCategoryStyle(category.iconName);
-              const Icon = style.icon;
-              const categoryCount =
-                category.id === 'ALL'
-                  ? DISEASES_REGISTRY.length
-                  : DISEASES_REGISTRY.filter((disease) => disease.categoryId === category.id).length;
+          const isSelected = category.id === selectedCategoryId;
+          const style = getCategoryStyle(category.iconName);
+          const Icon = style.icon;
+          const categoryCount =
+            category.id === 'ALL'
+              ? DISEASES_REGISTRY.length
+              : DISEASES_REGISTRY.filter((disease) => disease.categoryId === category.id).length;
 
-              return (
-                <button
-                  key={category.id}
-                  type="button"
-                  onClick={() => {
-                    haptic.light();
-                    onSelectCategory(category.id);
-                    setIsExpanded(false);
-                  }}
-                  className={`group text-start p-2.5 sm:p-3 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-2.5 select-none relative overflow-hidden ${
-                    isSelected
-                      ? `${style.activeBorder} ${style.activeBg} font-bold shadow-sm scale-[1.01]`
-                      : 'app-border hover:border-slate-400/40 bg-black/5 dark:bg-slate-900/40 hover:bg-black/10 dark:hover:bg-slate-800/60 opacity-85 hover:opacity-100'
+          return (
+            <button
+              key={category.id}
+              type="button"
+              onClick={() => {
+                haptic.light();
+                onSelectCategory(category.id);
+                setIsExpanded(false);
+              }}
+              className={`group text-start p-2.5 sm:p-3 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-2.5 select-none relative overflow-hidden ${
+                isSelected
+                  ? `${style.activeBorder} ${style.activeBg} font-bold shadow-sm scale-[1.01]`
+                  : 'app-border hover:border-slate-400/40 bg-black/5 dark:bg-slate-900/40 hover:bg-black/10 dark:hover:bg-slate-800/60 opacity-85 hover:opacity-100'
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${
+                    isSelected ? style.iconBg : 'bg-black/5 dark:bg-slate-800'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                    <div
-                      className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${
-                        isSelected ? style.iconBg : 'bg-black/5 dark:bg-slate-800'
-                      }`}
-                    >
-                      <Icon className={`w-4 h-4 ${isSelected ? style.iconColor : 'text-slate-400 group-hover:text-slate-200'}`} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className={`text-xs font-bold leading-tight truncate ${isSelected ? 'app-text font-black' : 'app-text'}`}>
-                        {isFa ? category.name.fa : category.name.en}
-                      </p>
-                      <p className="text-[10px] app-muted truncate opacity-80 mt-0.5" dir="ltr">
-                        {category.name.en}
-                      </p>
-                    </div>
+                  <Icon className={`w-4 h-4 ${isSelected ? style.iconColor : 'text-slate-400 group-hover:text-slate-200'}`} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className={`text-xs font-bold leading-tight truncate ${isSelected ? 'app-text font-black' : 'app-text'}`}>
+                    {isFa ? category.name.fa : category.name.en}
+                  </p>
+                  <p className="text-[10px] app-muted truncate opacity-80 mt-0.5" dir="ltr">
+                    {category.name.en}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span
+                  className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                    isSelected ? `${style.badgeBg} ${style.badgeText}` : 'bg-black/10 dark:bg-slate-800 app-muted'
+                  }`}
+                >
+                  {categoryCount}
+                </span>
+                {isSelected && (
+                  <div className="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-xs animate-in zoom-in-50 duration-150">
+                    <Check className="w-2.5 h-2.5 stroke-[3]" />
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span
-                      className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
-                        isSelected ? `${style.badgeBg} ${style.badgeText}` : 'bg-black/10 dark:bg-slate-800 app-muted'
-                      }`}
-                    >
-                      {categoryCount}
-                    </span>
-                    {isSelected && (
-                      <div className="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-xs animate-in zoom-in-50 duration-150">
-                        <Check className="w-2.5 h-2.5 stroke-[3]" />
-                      </div>
-                    )}
-                  </div>
-                </button>
-              );
+                )}
+              </div>
+            </button>
+          );
         })}
       </div>
     </StageSelectorCard>

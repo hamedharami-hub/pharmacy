@@ -394,6 +394,7 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
 
   const scenario = SCRIPT_SCENARIOS.find((s) => s.id === selectedScenarioId) || SCRIPT_SCENARIOS[0];
   const activeVisualizerTab = SCENARIO_TO_VISUALIZER_TAB[scenario.id];
+  const activeStep = FRED_STEP_OPTIONS.find((step) => step.id === viewMode);
   const normalizedStepSearchTerm = stepSearchTerm.trim().toLowerCase();
   const filteredStepOptions = normalizedStepSearchTerm
     ? FRED_STEP_OPTIONS.filter(
@@ -737,46 +738,29 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
         </>
       )}
 
-      {viewMode && (
-        <div className="app-card app-border rounded-2xl border p-3 sm:p-4 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-teal-500/10 text-teal-500 flex items-center justify-center shrink-0">
-              <Layers className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-sm font-bold app-text truncate">
-                  {isFa
-                    ? FRED_STEP_OPTIONS.find((step) => step.id === viewMode)?.labelFa
-                    : FRED_STEP_OPTIONS.find((step) => step.id === viewMode)?.labelEn}
-                </h2>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-500 font-mono font-bold">
-                  {FRED_STEP_OPTIONS.find((step) => step.id === viewMode)?.stepNumber}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={() => setIsProjectStopOpen(true)}
-              className="px-3 py-1.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/40 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-            >
-              <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
-              <span>Project STOP (S3)</span>
-            </button>
+      {viewMode && activeStep && (
+        <ModuleHeaderBar
+          icon={Layers}
+          title={{ fa: activeStep.labelFa, en: activeStep.labelEn }}
+          badge={
+            <span className="text-xs px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-500 font-mono font-bold">
+              {activeStep.stepNumber}
+            </span>
+          }
+          actions={
             <button
               type="button"
               onClick={() => {
                 setViewMode(null);
                 setIsStepAccordionOpen(true);
               }}
-              className="px-3 py-1.5 rounded-full app-border border app-muted hover:app-text text-xs font-bold transition cursor-pointer"
+              className="px-3 py-1.5 rounded-full app-border border app-muted hover:opacity-70 text-xs font-bold transition cursor-pointer"
             >
               {isFa ? 'تغییر گام' : 'Change Step'}
             </button>
-          </div>
-        </div>
+          }
+          language={language}
+        />
       )}
 
       {viewMode ? (
