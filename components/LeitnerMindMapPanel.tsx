@@ -26,6 +26,7 @@ import {
   BranchExportModal,
   NodeImageModal,
   ImageViewerModal,
+  extractCardBilingualText,
 } from '@/components/mindmap/MindMapModals';
 import { MindMapSettingsModal } from '@/components/mindmap/MindMapSettingsModal';
 import { getClientAiConfig, saveClientAiConfig } from '@/lib/aiConfigStorage';
@@ -1202,12 +1203,21 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
     if (node.level === 6 && node.card) {
       const card = node.card;
       const isRevealed = !!revealedAnswerIds[card.id];
-      const qFa = typeof card.question === 'object' ? card.question.fa || card.question.en : card.question;
-      const qEn = typeof card.question === 'object' ? card.question.en || card.question.fa : card.question;
-      const aFa = typeof card.answer === 'object' ? card.answer.fa || card.answer.en : card.answer;
-      const aEn = typeof card.answer === 'object' ? card.answer.en || card.answer.fa : card.answer;
-      const pFa = card.pearl ? (typeof card.pearl === 'object' ? card.pearl.fa : card.pearl) : null;
-      const pEn = card.pearl ? (typeof card.pearl === 'object' ? card.pearl.en : card.pearl) : null;
+      const qObj = extractCardBilingualText(
+        card.question,
+        (card as any).questionFa || (card as any).qFa,
+        (card as any).questionEn || (card as any).qEn
+      );
+      const aObj = extractCardBilingualText(
+        card.answer,
+        (card as any).answerFa || (card as any).aFa,
+        (card as any).answerEn || (card as any).aEn
+      );
+      const pObj = extractCardBilingualText(
+        card.pearl,
+        (card as any).pearlFa || (card as any).pFa,
+        (card as any).pearlEn || (card as any).pEn
+      );
       const flag = cardFlags[card.id];
       const flagInfo = flag ? FLAG_OPTIONS[flag] : null;
 
@@ -1230,15 +1240,26 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                 <HelpCircle className="w-4 h-4 text-cyan-400" />
               </div>
 
-              {/* Full Text Display in Selected Single Language */}
-              <div className="space-y-1 flex-1 min-w-0">
-                {isFa ? (
-                  <div className="font-bold text-xs sm:text-sm text-slate-100 leading-relaxed break-words whitespace-normal" dir="rtl">
-                    {qFa || qEn}
+              {/* Text Display Based on Active Mind Map Language Mode */}
+              <div className="space-y-1.5 flex-1 min-w-0">
+                {cardLangMode === 'bilingual' ? (
+                  <div className="space-y-1">
+                    <div className="font-bold text-xs sm:text-sm text-slate-100 leading-relaxed break-words" dir="rtl">
+                      {qObj.fa}
+                    </div>
+                    {qObj.en && qObj.en !== qObj.fa && (
+                      <div className="font-medium text-[11px] sm:text-xs text-purple-300 leading-relaxed font-sans border-t border-slate-800/80 pt-1 break-words" dir="ltr">
+                        {qObj.en}
+                      </div>
+                    )}
+                  </div>
+                ) : cardLangMode === 'fa' ? (
+                  <div className="font-bold text-xs sm:text-sm text-slate-100 leading-relaxed break-words" dir="rtl">
+                    {qObj.fa || qObj.en}
                   </div>
                 ) : (
-                  <div className="font-semibold text-xs sm:text-sm text-slate-100 leading-relaxed font-sans break-words whitespace-normal" dir="ltr">
-                    {qEn || qFa}
+                  <div className="font-semibold text-xs sm:text-sm text-slate-100 leading-relaxed font-sans break-words" dir="ltr">
+                    {qObj.en || qObj.fa}
                   </div>
                 )}
 
@@ -1295,23 +1316,39 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                   <span>{isFa ? 'پاسخ بالینی و استدلال:' : 'Target Answer:'}</span>
                 </div>
                 <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 leading-relaxed">
-                  {isFa ? (
-                    <div dir="rtl">{aFa || aEn}</div>
-                  ) : (
-                    <div dir="ltr" className="font-sans">
-                      {aEn || aFa}
+                  {cardLangMode === 'bilingual' ? (
+                    <div className="space-y-2">
+                      <div dir="rtl" className="whitespace-pre-line leading-relaxed">{aObj.fa}</div>
+                      {aObj.en && aObj.en !== aObj.fa && (
+                        <div dir="ltr" className="font-sans whitespace-pre-line text-purple-200/90 pt-2 border-t border-slate-800 leading-relaxed">
+                          {aObj.en}
+                        </div>
+                      )}
                     </div>
+                  ) : cardLangMode === 'fa' ? (
+                    <div dir="rtl" className="whitespace-pre-line leading-relaxed">{aObj.fa || aObj.en}</div>
+                  ) : (
+                    <div dir="ltr" className="font-sans whitespace-pre-line leading-relaxed">{aObj.en || aObj.fa}</div>
                   )}
                 </div>
               </div>
 
-              {(isFa ? pFa || pEn : pEn || pFa) && (
+              {(pObj.fa || pObj.en) && (
                 <div className="p-3 rounded-xl bg-amber-950/25 border border-amber-500/30 text-amber-200 space-y-1">
                   <div className="font-bold flex items-center gap-1 text-[11px] text-amber-400">
                     <Zap className="w-3.5 h-3.5" />
                     <span>{isFa ? 'نکته کلیدی و مروارید بالینی (Pearl):' : 'Key Pearl:'}</span>
                   </div>
-                  <div dir={isFa ? 'rtl' : 'ltr'}>{isFa ? pFa || pEn : pEn || pFa}</div>
+                  {cardLangMode === 'bilingual' ? (
+                    <div className="space-y-1">
+                      <div dir="rtl" className="text-xs leading-relaxed">{pObj.fa}</div>
+                      {pObj.en && pObj.en !== pObj.fa && (
+                        <div dir="ltr" className="font-sans text-[11.5px] text-amber-300/90 pt-1 border-t border-amber-500/20 leading-relaxed">{pObj.en}</div>
+                      )}
+                    </div>
+                  ) : (
+                    <div dir={cardLangMode === 'fa' ? 'rtl' : 'ltr'}>{cardLangMode === 'fa' ? pObj.fa || pObj.en : pObj.en || pObj.fa}</div>
+                  )}
                 </div>
               )}
 

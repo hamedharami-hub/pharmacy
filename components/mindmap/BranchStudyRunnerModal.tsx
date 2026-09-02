@@ -5,6 +5,7 @@ import { LeitnerCard } from '@/types/leitner';
 import { Language } from '@/types/pharmacy';
 import { MindMapNode } from '@/types/mindmap';
 import { FLAG_OPTIONS, FlagColor } from '@/components/LeitnerMindMapPanel';
+import { extractCardBilingualText } from '@/components/mindmap/MindMapModals';
 import {
   X,
   Eye,
@@ -51,19 +52,38 @@ export const BranchStudyRunnerModal: React.FC<BranchStudyRunnerModalProps> = ({
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const [selectedMcqOption, setSelectedMcqOption] = useState<string | null>(null);
   const [reviewedResults, setReviewedResults] = useState<Record<string, 'again' | 'hard' | 'good' | 'easy'>>({});
-  const [runnerLang, setRunnerLang] = useState<'bilingual' | 'fa' | 'en'>('bilingual');
+  const [runnerLang, setRunnerLang] = useState<'bilingual' | 'fa' | 'en'>(
+    cardLangMode || (language === 'fa' ? 'fa' : 'bilingual')
+  );
 
   if (!isOpen || !node || cards.length === 0) return null;
 
   const currentCard = cards[currentIndex];
   const progressPercent = Math.round(((currentIndex + 1) / cards.length) * 100);
 
-  const qFa = typeof currentCard?.question === 'object' ? currentCard.question.fa || currentCard.question.en : currentCard?.question;
-  const qEn = typeof currentCard?.question === 'object' ? currentCard.question.en || currentCard.question.fa : currentCard?.question;
-  const aFa = typeof currentCard?.answer === 'object' ? currentCard.answer.fa || currentCard.answer.en : currentCard?.answer;
-  const aEn = typeof currentCard?.answer === 'object' ? currentCard.answer.en || currentCard.answer.fa : currentCard?.answer;
-  const pFa = currentCard?.pearl ? (typeof currentCard.pearl === 'object' ? currentCard.pearl.fa : currentCard.pearl) : null;
-  const pEn = currentCard?.pearl ? (typeof currentCard.pearl === 'object' ? currentCard.pearl.en : currentCard.pearl) : null;
+  const qObj = currentCard
+    ? extractCardBilingualText(
+        currentCard.question,
+        (currentCard as any).questionFa || (currentCard as any).qFa,
+        (currentCard as any).questionEn || (currentCard as any).qEn
+      )
+    : { fa: '', en: '' };
+
+  const aObj = currentCard
+    ? extractCardBilingualText(
+        currentCard.answer,
+        (currentCard as any).answerFa || (currentCard as any).aFa,
+        (currentCard as any).answerEn || (currentCard as any).aEn
+      )
+    : { fa: '', en: '' };
+
+  const pObj = currentCard
+    ? extractCardBilingualText(
+        currentCard.pearl,
+        (currentCard as any).pearlFa || (currentCard as any).pFa,
+        (currentCard as any).pearlEn || (currentCard as any).pEn
+      )
+    : { fa: '', en: '' };
 
   const flag = currentCard ? cardFlags[currentCard.id] : null;
   const isMcq = currentCard?.type === 'mcq' && currentCard.mcqOptions && currentCard.mcqOptions.length > 0;
@@ -190,26 +210,26 @@ export const BranchStudyRunnerModal: React.FC<BranchStudyRunnerModalProps> = ({
 
             {runnerLang === 'bilingual' ? (
               <div className="space-y-2.5">
-                {qFa && (
+                {qObj.fa && (
                   <div className="text-sm sm:text-base font-bold text-slate-100 leading-relaxed break-words whitespace-normal" dir="rtl">
                     <span className="text-[10px] text-amber-400 font-mono font-bold ml-1.5 px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">FA</span>
-                    {qFa}
+                    {qObj.fa}
                   </div>
                 )}
-                {qEn && (
+                {qObj.en && qObj.en !== qObj.fa && (
                   <div className="text-xs sm:text-sm font-medium text-slate-300 leading-relaxed font-sans border-t border-slate-800 pt-2 break-words whitespace-normal" dir="ltr">
                     <span className="text-[10px] text-sky-400 font-mono font-bold mr-1.5 px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">EN</span>
-                    {qEn}
+                    {qObj.en}
                   </div>
                 )}
               </div>
             ) : runnerLang === 'fa' ? (
               <div className="text-sm sm:text-base font-bold text-slate-100 leading-relaxed break-words whitespace-normal" dir="rtl">
-                {qFa || qEn}
+                {qObj.fa || qObj.en}
               </div>
             ) : (
               <div className="text-xs sm:text-sm font-semibold text-slate-100 leading-relaxed font-sans break-words whitespace-normal" dir="ltr">
-                {qEn || qFa}
+                {qObj.en || qObj.fa}
               </div>
             )}
 
@@ -244,8 +264,7 @@ export const BranchStudyRunnerModal: React.FC<BranchStudyRunnerModalProps> = ({
               </div>
               <div className="space-y-2">
                 {currentCard.mcqOptions.map((opt, idx) => {
-                  const optFa = opt.text?.fa || opt.text?.en || '';
-                  const optEn = opt.text?.en || opt.text?.fa || '';
+                  const optObj = extractCardBilingualText(opt.text, (opt as any).textFa, (opt as any).textEn);
                   const optId = opt.id || String.fromCharCode(65 + idx);
                   const isSelected = selectedMcqOption === optId;
                   const isCorrect = opt.isCorrect;
@@ -275,11 +294,13 @@ export const BranchStudyRunnerModal: React.FC<BranchStudyRunnerModalProps> = ({
                         <div className="leading-relaxed break-words flex-1 space-y-1">
                           {runnerLang === 'bilingual' ? (
                             <>
-                              {optFa && <div dir="rtl">{optFa}</div>}
-                              {optEn && <div className="text-[11px] text-slate-300 font-sans opacity-90 border-t border-slate-700/60 pt-1" dir="ltr">{optEn}</div>}
+                              {optObj.fa && <div dir="rtl">{optObj.fa}</div>}
+                              {optObj.en && optObj.en !== optObj.fa && (
+                                <div className="text-[11px] text-slate-300 font-sans opacity-90 border-t border-slate-700/60 pt-1" dir="ltr">{optObj.en}</div>
+                              )}
                             </>
                           ) : (
-                            <div>{runnerLang === 'fa' ? optFa : optEn}</div>
+                            <div>{runnerLang === 'fa' ? optObj.fa : optObj.en}</div>
                           )}
                         </div>
                       </div>
@@ -311,16 +332,16 @@ export const BranchStudyRunnerModal: React.FC<BranchStudyRunnerModalProps> = ({
               
               {runnerLang === 'bilingual' ? (
                 <div className="space-y-2">
-                  {aFa && (
+                  {aObj.fa && (
                     <div className="text-xs sm:text-sm text-slate-100 leading-relaxed" dir="rtl">
                       <span className="text-[10px] text-emerald-400 font-mono font-bold ml-1.5 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">FA</span>
-                      {aFa}
+                      {aObj.fa}
                     </div>
                   )}
-                  {aEn && (
+                  {aObj.en && aObj.en !== aObj.fa && (
                     <div className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed border-t border-emerald-900/60 pt-2" dir="ltr">
                       <span className="text-[10px] text-sky-400 font-mono font-bold mr-1.5 px-1.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">EN</span>
-                      {aEn}
+                      {aObj.en}
                     </div>
                   )}
                 </div>
@@ -329,22 +350,22 @@ export const BranchStudyRunnerModal: React.FC<BranchStudyRunnerModalProps> = ({
                   className="text-xs sm:text-sm text-slate-100 leading-relaxed"
                   dir={runnerLang === 'fa' ? 'rtl' : 'ltr'}
                 >
-                  {runnerLang === 'fa' ? aFa || aEn : aEn || aFa}
+                  {runnerLang === 'fa' ? aObj.fa || aObj.en : aObj.en || aObj.fa}
                 </div>
               )}
 
-              {(pFa || pEn) && (
+              {(pObj.fa || pObj.en) && (
                 <div className="p-3 rounded-xl bg-purple-950/50 border border-purple-500/30 text-purple-200 text-xs flex items-start gap-2">
                   <Sparkles className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
                   <div className="space-y-1 flex-1">
                     <span className="font-bold text-amber-300">{isFa ? 'نکته کلیدی: ' : 'Key Point: '}</span>
                     {runnerLang === 'bilingual' ? (
                       <div className="space-y-1">
-                        {pFa && <div dir="rtl">{pFa}</div>}
-                        {pEn && <div dir="ltr" className="text-slate-300 font-sans text-xs border-t border-purple-900/40 pt-1">{pEn}</div>}
+                        {pObj.fa && <div dir="rtl">{pObj.fa}</div>}
+                        {pObj.en && pObj.en !== pObj.fa && <div dir="ltr" className="text-slate-300 font-sans text-xs border-t border-purple-900/40 pt-1">{pObj.en}</div>}
                       </div>
                     ) : (
-                      <span>{runnerLang === 'fa' ? pFa : pEn}</span>
+                      <span>{runnerLang === 'fa' ? pObj.fa || pObj.en : pObj.en || pObj.fa}</span>
                     )}
                   </div>
                 </div>

@@ -42,6 +42,40 @@ import {
 } from 'lucide-react';
 
 /* ========================================================================= */
+/* Helper to safely extract bilingual Fa/En strings from various card formats */
+/* ========================================================================= */
+export function extractCardBilingualText(field: any, fieldFaFallback?: any, fieldEnFallback?: any): { fa: string; en: string } {
+  if (!field && !fieldFaFallback && !fieldEnFallback) return { fa: '', en: '' };
+
+  let fa = '';
+  let en = '';
+
+  if (typeof field === 'object' && field !== null) {
+    fa = field.fa || field.fa_IR || field.fa_ir || '';
+    en = field.en || field.en_US || field.en_us || '';
+  } else if (typeof field === 'string') {
+    const hasPersian = /[\u0600-\u06FF]/.test(field);
+    if (hasPersian) {
+      fa = field;
+    } else {
+      en = field;
+    }
+  }
+
+  if (!fa && typeof fieldFaFallback === 'string') {
+    fa = fieldFaFallback;
+  }
+  if (!en && typeof fieldEnFallback === 'string') {
+    en = fieldEnFallback;
+  }
+
+  if (!fa && en) fa = en;
+  if (!en && fa) en = fa;
+
+  return { fa: (fa || '').trim(), en: (en || '').trim() };
+}
+
+/* ========================================================================= */
 /* 1. QUESTION DETAIL MODAL & IN-NODE QUIZ                                   */
 /* ========================================================================= */
 export interface QuestionDetailModalProps {
@@ -76,6 +110,9 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
   showLeitnerGrading = false,
 }) => {
   const isFa = language === 'fa';
+  const [activeLang, setActiveLang] = useState<'fa' | 'en' | 'bilingual'>(
+    cardLangMode || (language === 'fa' ? 'fa' : 'bilingual')
+  );
   const [isRevealed, setIsRevealed] = useState(false);
   const [selectedMcqOption, setSelectedMcqOption] = useState<string | null>(null);
   const [ratedRating, setRatedRating] = useState<'again' | 'hard' | 'good' | 'easy' | null>(null);
@@ -89,16 +126,28 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
     setSelectedMcqOption(null);
     setRatedRating(null);
     setCopiedAiPrompt(false);
+    if (cardLangMode) {
+      setActiveLang(cardLangMode);
+    }
   }
 
   if (!isOpen || !card) return null;
 
-  const qFa = typeof card.question === 'object' ? card.question.fa || card.question.en : card.question;
-  const qEn = typeof card.question === 'object' ? card.question.en || card.question.fa : card.question;
-  const aFa = typeof card.answer === 'object' ? card.answer.fa || card.answer.en : card.answer;
-  const aEn = typeof card.answer === 'object' ? card.answer.en || card.answer.fa : card.answer;
-  const pFa = card.pearl ? (typeof card.pearl === 'object' ? card.pearl.fa : card.pearl) : null;
-  const pEn = card.pearl ? (typeof card.pearl === 'object' ? card.pearl.en : card.pearl) : null;
+  const qObj = extractCardBilingualText(
+    card.question,
+    (card as any).questionFa || (card as any).qFa,
+    (card as any).questionEn || (card as any).qEn
+  );
+  const aObj = extractCardBilingualText(
+    card.answer,
+    (card as any).answerFa || (card as any).aFa,
+    (card as any).answerEn || (card as any).aEn
+  );
+  const pObj = extractCardBilingualText(
+    card.pearl,
+    (card as any).pearlFa || (card as any).pFa,
+    (card as any).pearlEn || (card as any).pEn
+  );
 
   const currentFlag = cardFlags[card.id];
   const isMcq = card.type === 'mcq' && card.mcqOptions && card.mcqOptions.length > 0;
@@ -117,11 +166,11 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
 
   const handleCopyCardAiPrompt = () => {
     const singlePrompt = `### 🎯 CLINICAL TOPIC / CARD: ${card.topic || 'Pharmacology'}
-- **Clinical Question (EN)**: ${qEn}
-- **Clinical Question (FA)**: ${qFa}
-- **Target Clinical Answer (EN)**: ${aEn}
-- **Target Clinical Answer (FA)**: ${aFa}
-${pEn || pFa ? `- **High-Yield Clinical Pearl**: ${pEn || pFa}` : ''}
+- **Clinical Question (EN)**: ${qObj.en}
+- **Clinical Question (FA)**: ${qObj.fa}
+- **Target Clinical Answer (EN)**: ${aObj.en}
+- **Target Clinical Answer (FA)**: ${aObj.fa}
+${pObj.en || pObj.fa ? `- **High-Yield Clinical Pearl**: ${pObj.en || pObj.fa}` : ''}
 ${isMcq && card.mcqOptions ? `- **Options**: ${card.mcqOptions.map(o => `[${o.id}] ${typeof o.text === 'object' ? o.text.en : o.text}`).join(' | ')}` : ''}
 
 ### 🎨 INFOGRAPHIC DESIGN REQUEST:
@@ -139,13 +188,13 @@ Create a structured diagram with color-coded comparison boxes, clinical pearls, 
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
       <div className="w-full max-w-xl p-4 sm:p-7 rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl space-y-4 sm:space-y-5 max-h-[92vh] overflow-y-auto overflow-x-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30">
+        <div className="flex items-center justify-between gap-2.5 border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <div className="p-2 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 shrink-0">
               <HelpCircle className="w-5 h-5" />
             </div>
-            <div>
-              <h3 className="font-extrabold text-sm sm:text-base text-slate-100">
+            <div className="min-w-0 flex-1">
+              <h3 className="font-extrabold text-sm sm:text-base text-slate-100 truncate">
                 {showLeitnerGrading
                   ? isFa
                     ? 'آزمون و ارزیابی سوال لایتنر در نقشه (ماژول ۵)'
@@ -154,7 +203,7 @@ Create a structured diagram with color-coded comparison boxes, clinical pearls, 
                   ? 'بررسی سناریو و پاسخ تشریحی بالینی'
                   : 'Clinical Question & Target Answer'}
               </h3>
-              <p className="text-[11px] text-slate-400 font-mono">
+              <p className="text-[11px] text-slate-400 font-mono truncate">
                 {card.topic || 'Pharmacotherapy'} {showLeitnerGrading && `• Box ${card.box}`}
                 {showLeitnerGrading && (!card.nextReviewDate || card.nextReviewDate <= new Date().toISOString())
                   ? isFa
@@ -165,28 +214,72 @@ Create a structured diagram with color-coded comparison boxes, clinical pearls, 
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Quick In-Modal Language Toggle */}
+            <div className="flex items-center bg-slate-950 p-0.5 rounded-xl border border-slate-800 text-[11px] font-bold">
+              <button
+                type="button"
+                onClick={() => { haptic.light(); setActiveLang('fa'); }}
+                className={`px-2 py-1 rounded-lg transition cursor-pointer ${activeLang === 'fa' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'}`}
+                title="نمایش فقط فارسی"
+              >
+                🇮🇷 فا
+              </button>
+              <button
+                type="button"
+                onClick={() => { haptic.light(); setActiveLang('bilingual'); }}
+                className={`px-2 py-1 rounded-lg transition cursor-pointer ${activeLang === 'bilingual' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'}`}
+                title="نمایش دوزبانه (فارسی + انگلیسی)"
+              >
+                🌐 دو
+              </button>
+              <button
+                type="button"
+                onClick={() => { haptic.light(); setActiveLang('en'); }}
+                className={`px-2 py-1 rounded-lg transition cursor-pointer ${activeLang === 'en' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'}`}
+                title="English Only"
+              >
+                🇬🇧 En
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Question Text (Full Text in Single Language) */}
+        {/* Question Text */}
         <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
-          <div className="text-xs font-bold text-slate-400">{isFa ? 'صورت مسئله و سناریو:' : 'Scenario & Question:'}</div>
-          {isFa ? (
-            <div className="text-sm sm:text-base font-bold text-slate-100 leading-relaxed break-words whitespace-normal" dir="rtl">
-              {qFa || qEn}
+          <div className="flex items-center justify-between text-xs font-bold text-slate-400">
+            <span>{activeLang === 'en' ? 'Scenario & Question:' : 'صورت مسئله و سناریو:'}</span>
+            <span className="text-[10.5px] text-purple-400 font-mono font-normal">
+              {activeLang === 'bilingual' ? '🌐 دوزبانه' : activeLang === 'fa' ? '🇮🇷 فارسی' : '🇬🇧 English'}
+            </span>
+          </div>
+
+          {activeLang === 'bilingual' ? (
+            <div className="space-y-2.5">
+              <div className="text-sm sm:text-base font-bold text-slate-100 leading-relaxed break-words" dir="rtl">
+                {qObj.fa}
+              </div>
+              {qObj.en && qObj.en !== qObj.fa && (
+                <div className="text-xs sm:text-sm font-semibold text-purple-300 leading-relaxed font-sans pt-2 border-t border-slate-800/80 break-words" dir="ltr">
+                  {qObj.en}
+                </div>
+              )}
+            </div>
+          ) : activeLang === 'fa' ? (
+            <div className="text-sm sm:text-base font-bold text-slate-100 leading-relaxed break-words" dir="rtl">
+              {qObj.fa || qObj.en}
             </div>
           ) : (
-            <div
-              className="text-xs sm:text-sm font-semibold text-slate-100 leading-relaxed font-sans break-words whitespace-normal"
-              dir="ltr"
-            >
-              {qEn || qFa}
+            <div className="text-xs sm:text-sm font-semibold text-slate-100 leading-relaxed font-sans break-words" dir="ltr">
+              {qObj.en || qObj.fa}
             </div>
           )}
         </div>
@@ -194,12 +287,12 @@ Create a structured diagram with color-coded comparison boxes, clinical pearls, 
         {/* INTERACTIVE MCQ CHOICES (IF MCQ TYPE) */}
         {isMcq && card.mcqOptions && (
           <div className="space-y-2">
-            <div className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-              <span>{isFa ? 'گزینه‌های پاسخ (یک مورد را انتخاب کنید):' : 'Multiple Choice Options:'}</span>
+            <div className="text-xs font-bold text-slate-300 flex items-center justify-between">
+              <span>{activeLang === 'en' ? 'Multiple Choice Options (Select One):' : 'گزینه‌های پاسخ (یک مورد را انتخاب کنید):'}</span>
             </div>
             <div className="space-y-2">
               {card.mcqOptions.map((opt, idx) => {
-                const optText = isFa ? opt.text.fa || opt.text.en : opt.text.en || opt.text.fa;
+                const optObj = extractCardBilingualText(opt.text, (opt as any).textFa, (opt as any).textEn);
                 const optId = opt.id || String.fromCharCode(65 + idx);
                 const isSelected = selectedMcqOption === optId;
                 const isCorrect = opt.isCorrect;
@@ -222,11 +315,24 @@ Create a structured diagram with color-coded comparison boxes, clinical pearls, 
                     onClick={() => handleSelectOption(optId)}
                     className={`w-full p-3 rounded-xl border text-start transition flex items-center justify-between gap-3 text-xs sm:text-sm cursor-pointer ${optStyle}`}
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
                       <span className="w-6 h-6 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs shrink-0 text-slate-300">
                         {optId.toUpperCase()}
                       </span>
-                      <span className="leading-relaxed break-words">{optText}</span>
+                      <div className="min-w-0 flex-1">
+                        {activeLang === 'bilingual' ? (
+                          <div className="space-y-0.5">
+                            <div dir="rtl" className="font-bold leading-relaxed break-words">{optObj.fa}</div>
+                            {optObj.en && optObj.en !== optObj.fa && (
+                              <div dir="ltr" className="text-[11px] font-sans text-purple-300/90 leading-tight">{optObj.en}</div>
+                            )}
+                          </div>
+                        ) : activeLang === 'fa' ? (
+                          <div dir="rtl" className="leading-relaxed break-words">{optObj.fa || optObj.en}</div>
+                        ) : (
+                          <div dir="ltr" className="font-sans leading-relaxed break-words">{optObj.en || optObj.fa}</div>
+                        )}
+                      </div>
                     </div>
                     {isRevealed && isCorrect && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
                     {isRevealed && isSelected && !isCorrect && <XCircle className="w-4 h-4 text-rose-400 shrink-0" />}
@@ -249,9 +355,9 @@ Create a structured diagram with color-coded comparison boxes, clinical pearls, 
                 <button
                   type="button"
                   onClick={() => onSetCardFlag(card.id, null)}
-                  className="text-[10px] text-rose-400 hover:underline cursor-pointer"
+                  className="text-[11px] text-rose-400 hover:text-rose-300 cursor-pointer"
                 >
-                  {isFa ? 'حذف پرچم' : 'Clear flag'}
+                  {isFa ? 'حذف پرچم' : 'Clear Flag'}
                 </button>
               )}
             </div>
@@ -362,30 +468,50 @@ Create a structured diagram with color-coded comparison boxes, clinical pearls, 
         ) : (
           <div className="p-4 sm:p-5 rounded-2xl bg-purple-950/20 border border-purple-500/30 space-y-4 animate-in fade-in">
             <div className="space-y-1.5">
-              <div className="text-xs font-bold text-purple-300 flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>{isFa ? 'پاسخ صحیح و استدلال بالینی:' : 'Target Clinical Answer:'}</span>
+              <div className="text-xs font-bold text-purple-300 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>{activeLang === 'en' ? 'Target Clinical Answer & Rationale:' : 'پاسخ صحیح و استدلال بالینی:'}</span>
+                </span>
               </div>
-              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs sm:text-sm text-slate-200 leading-relaxed font-sans">
-                {isFa ? (
-                  <div dir="rtl" className="whitespace-pre-line">{aFa || aEn}</div>
-                ) : (
-                  <div dir="ltr" className="font-sans whitespace-pre-line">
-                    {aEn || aFa}
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs sm:text-sm text-slate-200 leading-relaxed">
+                {activeLang === 'bilingual' ? (
+                  <div className="space-y-2.5">
+                    <div dir="rtl" className="whitespace-pre-line leading-relaxed font-sans">{aObj.fa}</div>
+                    {aObj.en && aObj.en !== aObj.fa && (
+                      <div dir="ltr" className="font-sans whitespace-pre-line text-purple-200/90 pt-2.5 border-t border-slate-800 leading-relaxed">
+                        {aObj.en}
+                      </div>
+                    )}
                   </div>
+                ) : activeLang === 'fa' ? (
+                  <div dir="rtl" className="whitespace-pre-line leading-relaxed font-sans">{aObj.fa || aObj.en}</div>
+                ) : (
+                  <div dir="ltr" className="font-sans whitespace-pre-line leading-relaxed">{aObj.en || aObj.fa}</div>
                 )}
               </div>
             </div>
 
-            {(isFa ? pFa || pEn : pEn || pFa) && (
+            {(pObj.fa || pObj.en) && (
               <div className="p-3.5 rounded-xl bg-amber-950/25 border border-amber-500/30 text-amber-200 space-y-1.5">
                 <div className="font-bold flex items-center gap-1.5 text-xs text-amber-400">
                   <Zap className="w-4 h-4" />
-                  <span>{isFa ? 'نکته کلیدی و مروارید بالینی (Clinical Pearl):' : 'Key Clinical Pearl:'}</span>
+                  <span>{activeLang === 'en' ? 'High-Yield Clinical Pearl:' : 'نکته کلیدی و مروارید بالینی (Clinical Pearl):'}</span>
                 </div>
-                <div dir={isFa ? 'rtl' : 'ltr'} className="text-xs leading-relaxed">
-                  {isFa ? pFa || pEn : pEn || pFa}
-                </div>
+                {activeLang === 'bilingual' ? (
+                  <div className="space-y-1.5">
+                    <div dir="rtl" className="text-xs leading-relaxed font-sans">{pObj.fa}</div>
+                    {pObj.en && pObj.en !== pObj.fa && (
+                      <div dir="ltr" className="font-sans text-[11.5px] text-amber-300/90 pt-1.5 border-t border-amber-500/20 leading-relaxed">
+                        {pObj.en}
+                      </div>
+                    )}
+                  </div>
+                ) : activeLang === 'fa' ? (
+                  <div dir="rtl" className="text-xs leading-relaxed font-sans">{pObj.fa || pObj.en}</div>
+                ) : (
+                  <div dir="ltr" className="font-sans text-xs leading-relaxed">{pObj.en || pObj.fa}</div>
+                )}
               </div>
             )}
 
