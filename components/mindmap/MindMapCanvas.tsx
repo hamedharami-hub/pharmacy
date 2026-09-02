@@ -549,6 +549,14 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
         touchAction: 'none',
       }}
     >
+      {/* Click-away backdrop for popovers */}
+      {openPopover && (
+        <div
+          className="fixed inset-0 z-20 bg-black/10 sm:bg-transparent"
+          onClick={() => setOpenPopover(null)}
+        />
+      )}
+
       {/* Floating Canvas Controls & Settings Multi-Toolbar */}
       <div
         ref={popoverContainerRef}
@@ -614,16 +622,6 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
           </button>
         </div>
 
-{/* Fullscreen toggle for all devices */}
-<button
-  type="button"
-  onClick={toggleFullscreen}
-  className={`p-2 rounded-xl transition shadow-sm cursor-pointer ${isFullscreen ? 'bg-purple-600 text-white ring-2 ring-purple-400/50' : 'bg-slate-800/90 hover:bg-purple-600 text-slate-200 hover:text-white'}`}
-  title={isFullscreen ? (isFa ? 'خروج از تمام‌صفحه (ESC)' : 'Exit Fullscreen (ESC)') : (isFa ? 'تمام‌صفحه واقعی نقشه ذهنی' : 'True Fullscreen')}
->
-  {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4 text-purple-400" />}
-</button>
-
         {/* Divider */}
         <div className="w-px h-5 bg-slate-700/80 mx-0.5 hidden sm:block" />
 
@@ -680,7 +678,7 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
 
           {openPopover === 'lang' && (
             <div
-              className="absolute top-full start-0 mt-2 z-50 w-52 p-1.5 rounded-2xl bg-slate-900/95 border border-slate-700/80 shadow-2xl backdrop-blur-xl space-y-1 animate-in fade-in zoom-in-95 text-xs"
+              className="absolute top-full start-0 mt-2 z-50 w-52 max-w-[calc(100vw-2rem)] p-1.5 rounded-2xl bg-slate-900/98 border border-slate-700/80 shadow-2xl backdrop-blur-xl space-y-1 animate-in fade-in zoom-in-95 text-xs"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
@@ -776,7 +774,7 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
 
           {openPopover === 'lines' && (
             <div
-              className="absolute top-full start-0 mt-2 z-50 w-56 p-1.5 rounded-2xl bg-slate-900/95 border border-slate-700/80 shadow-2xl backdrop-blur-xl space-y-1 animate-in fade-in zoom-in-95 text-xs"
+              className="absolute top-full end-0 mt-2 z-50 w-60 max-w-[calc(100vw-2rem)] p-1.5 rounded-2xl bg-slate-900/98 border border-slate-700/80 shadow-2xl backdrop-blur-xl space-y-1 animate-in fade-in zoom-in-95 text-xs"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
@@ -869,7 +867,7 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
 
           {openPopover === 'viewMode' && (
             <div
-              className="absolute top-full start-0 sm:start-auto sm:end-0 mt-2 z-50 w-64 p-1.5 rounded-2xl bg-slate-900/95 border border-slate-700/80 shadow-2xl backdrop-blur-xl space-y-1 animate-in fade-in zoom-in-95 text-xs"
+              className="absolute top-full end-0 mt-2 z-50 w-64 max-w-[calc(100vw-2rem)] p-1.5 rounded-2xl bg-slate-900/98 border border-slate-700/80 shadow-2xl backdrop-blur-xl space-y-1 animate-in fade-in zoom-in-95 text-xs"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
