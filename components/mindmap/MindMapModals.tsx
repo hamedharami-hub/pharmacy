@@ -136,8 +136,8 @@ Create a structured diagram with color-coded comparison boxes, clinical pearls, 
   };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
-      <div className="w-full max-w-xl p-5 sm:p-7 rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
+      <div className="w-full max-w-xl p-4 sm:p-7 rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl space-y-4 sm:space-y-5 max-h-[92vh] overflow-y-auto overflow-x-hidden">
         {/* Header */}
         <div className="flex items-center justify-between gap-3 border-b border-slate-800 pb-3">
           <div className="flex items-center gap-2.5">
@@ -693,66 +693,66 @@ export const BranchExportModal: React.FC<BranchExportModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in" dir={isFa ? 'rtl' : 'ltr'}>
-      <div className="w-full max-w-3xl p-5 sm:p-7 rounded-3xl bg-slate-900 border border-purple-500/40 shadow-2xl space-y-4 max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in" dir={isFa ? 'rtl' : 'ltr'}>
+      <div className="w-full max-w-3xl p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-900 border border-purple-500/40 shadow-2xl space-y-3 sm:space-y-4 max-h-[94vh] flex flex-col overflow-hidden">
         {/* Modal Header */}
-        <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-3">
-          <div className="space-y-1">
+        <div className="flex items-start justify-between gap-2.5 border-b border-slate-800 pb-2.5 shrink-0">
+          <div className="space-y-0.5 min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className="p-2 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/40">
-                <Sparkles className="w-5 h-5 text-purple-400" />
+              <span className="p-1.5 sm:p-2 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/40 shrink-0">
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
               </span>
-              <h3 className="font-bold text-base sm:text-lg text-white">
-                {isFa ? 'کپی جامع مطالب شاخه (ویژه ساخت اینفوگرافیک با هوش مصنوعی)' : 'Export Branch for AI & Infographics'}
+              <h3 className="font-bold text-sm sm:text-base text-white truncate">
+                {isFa ? 'کپی جامع مطالب شاخه (پرامپت هوش مصنوعی)' : 'Export Branch for AI & Infographics'}
               </h3>
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-[11px] sm:text-xs text-slate-400 truncate">
               {isFa
-                ? `شاخه هدف: ${node.title.fa} (${node.title.en}) — استخراج کل سلسله‌مراتب و کارت‌های متصل تا عمیق‌ترین سطح`
-                : `Target branch: ${node.title.en} (${node.title.fa}) — recursive knowledge export down to all leaves`}
+                ? `شاخه: ${node.title.fa || node.title.en} — استخراج کل سلسله‌مراتب`
+                : `Branch: ${node.title.en || node.title.fa} — recursive export`}
             </p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+            className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition cursor-pointer shrink-0"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
 
         {/* Metrics Bar */}
         {metrics && (
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="px-2.5 py-1 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-300 font-bold">
-              🌲 {metrics.totalSubBranches} {isFa ? 'زیرشاخه فعال' : 'Sub-branches'}
+          <div className="flex flex-wrap items-center gap-1.5 text-[10px] sm:text-xs shrink-0">
+            <span className="px-2 py-0.5 sm:py-1 rounded-lg sm:rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-300 font-bold">
+              🌲 {metrics.totalSubBranches} {isFa ? 'زیرشاخه' : 'Sub-branches'}
             </span>
-            <span className="px-2.5 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold">
-              📇 {metrics.totalCards} {isFa ? 'فلش‌کارت بالینی' : 'Clinical Cards'}
+            <span className="px-2 py-0.5 sm:py-1 rounded-lg sm:rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold">
+              📇 {metrics.totalCards} {isFa ? 'فلش‌کارت' : 'Cards'}
             </span>
-            <span className="px-2.5 py-1 rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-300 font-bold">
-              📊 {isFa ? `عمق سلسله‌مراتب: سطح ${metrics.maxDepth}` : `Max Depth: Level ${metrics.maxDepth}`}
+            <span className="px-2 py-0.5 sm:py-1 rounded-lg sm:rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-300 font-bold">
+              📊 {isFa ? `سطح ${metrics.maxDepth}` : `Depth: L${metrics.maxDepth}`}
             </span>
           </div>
         )}
 
-        {/* Format Selector Tabs */}
-        <div className="flex items-center gap-1.5 border-b border-slate-800 pb-2 text-xs">
+        {/* Format Selector Tabs - Responsive 3-col Grid */}
+        <div className="grid grid-cols-3 gap-1.5 border-b border-slate-800 pb-2 text-[11px] sm:text-xs shrink-0">
           <button
             type="button"
             onClick={() => {
               haptic.light();
               setExportFormat('ai_infographic');
             }}
-            className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer border ${
+            className={`p-2 sm:px-3 sm:py-2 rounded-xl font-bold transition flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer border text-center ${
               exportFormat === 'ai_infographic'
                 ? 'bg-purple-600 text-white border-purple-500 shadow-md'
                 : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>{isFa ? '🎨 پرامپت هوش مصنوعی ساخت اینفوگرافیک' : '🎨 AI Infographic Prompt'}</span>
+            <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+            <span className="truncate">{isFa ? 'پرامپت AI' : 'AI Prompt'}</span>
           </button>
 
           <button
@@ -761,14 +761,14 @@ export const BranchExportModal: React.FC<BranchExportModalProps> = ({
               haptic.light();
               setExportFormat('markdown');
             }}
-            className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer border ${
+            className={`p-2 sm:px-3 sm:py-2 rounded-xl font-bold transition flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer border text-center ${
               exportFormat === 'markdown'
                 ? 'bg-purple-600 text-white border-purple-500 shadow-md'
                 : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
             }`}
           >
-            <FileText className="w-3.5 h-3.5 text-cyan-300" />
-            <span>{isFa ? '📝 مارک‌داون ساختاریافته' : '📝 Structured Markdown'}</span>
+            <FileText className="w-3.5 h-3.5 text-cyan-300 shrink-0" />
+            <span className="truncate">{isFa ? 'مارک‌داون' : 'Markdown'}</span>
           </button>
 
           <button
@@ -777,36 +777,36 @@ export const BranchExportModal: React.FC<BranchExportModalProps> = ({
               haptic.light();
               setExportFormat('mermaid');
             }}
-            className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer border ${
+            className={`p-2 sm:px-3 sm:py-2 rounded-xl font-bold transition flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer border text-center ${
               exportFormat === 'mermaid'
                 ? 'bg-purple-600 text-white border-purple-500 shadow-md'
                 : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
             }`}
           >
-            <Code className="w-3.5 h-3.5 text-emerald-300" />
-            <span>{isFa ? '📊 کد دیاگرام Mermaid.js' : '📊 Mermaid Graph'}</span>
+            <Code className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
+            <span className="truncate">{isFa ? 'دیاگرام Mermaid' : 'Mermaid'}</span>
           </button>
         </div>
 
         {/* Content Preview Box */}
-        <div className="flex-1 min-h-0 bg-slate-950 rounded-2xl border border-slate-800 p-3 overflow-hidden flex flex-col">
+        <div className="flex-1 min-h-[150px] max-h-[42vh] bg-slate-950 rounded-xl sm:rounded-2xl border border-slate-800 p-2.5 sm:p-3 overflow-hidden flex flex-col">
           <textarea
             readOnly
             value={generatedContent}
-            className="w-full h-full bg-transparent text-xs font-mono text-slate-200 resize-none focus:outline-none overflow-y-auto leading-relaxed select-all"
+            className="w-full h-full bg-transparent text-[11px] sm:text-xs font-mono text-slate-200 resize-none focus:outline-none overflow-y-auto leading-relaxed select-all"
             dir="ltr"
           />
         </div>
 
-        {/* Modal Actions */}
-        <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-800">
-          <span className="text-[11px] text-slate-400">
+        {/* Modal Actions Footer - Fully Responsive */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2 border-t border-slate-800 shrink-0">
+          <span className="text-[10px] sm:text-[11px] text-slate-400 text-center sm:text-start leading-tight">
             {isFa
-              ? '💡 متن کپی‌شده را در ChatGPT، Claude، Midjourney، Ideogram، Canva یا ابزارهای رسم دیاگرام قرار دهید.'
-              : '💡 Paste this prompt into ChatGPT, Claude, Ideogram, Napkin, Canva, or Miro for visual generation.'}
+              ? '💡 متن کپی‌شده را در ChatGPT، Claude، Canva یا ابزارهای دیاگرام پیست کنید.'
+              : '💡 Paste this prompt into ChatGPT, Claude, Ideogram, Napkin, or Canva.'}
           </span>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
             {onOpenAiGenerator && (
               <button
                 type="button"
@@ -814,17 +814,17 @@ export const BranchExportModal: React.FC<BranchExportModalProps> = ({
                   onClose();
                   onOpenAiGenerator(generatedContent);
                 }}
-                className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                className="flex-1 sm:flex-none px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Zap className="w-3.5 h-3.5 text-amber-300" />
-                <span>{isFa ? 'ارسال به هوش مصنوعی برنامه' : 'Send to AI'}</span>
+                <Zap className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                <span className="truncate">{isFa ? 'ارسال به AI' : 'Send to AI'}</span>
               </button>
             )}
 
             <button
               type="button"
               onClick={handleCopy}
-              className={`px-5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-lg ${
+              className={`flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-lg ${
                 copied
                   ? 'bg-emerald-600 text-white shadow-emerald-600/30'
                   : 'bg-purple-600 hover:bg-purple-500 text-white shadow-purple-600/30'
@@ -832,13 +832,13 @@ export const BranchExportModal: React.FC<BranchExportModalProps> = ({
             >
               {copied ? (
                 <>
-                  <Check className="w-4 h-4" />
-                  <span>{isFa ? 'کپی شد! (Copied)' : 'Copied!'}</span>
+                  <Check className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{isFa ? 'کپی شد!' : 'Copied!'}</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-4 h-4" />
-                  <span>{isFa ? '📋 کپی کامل پرامپت و داده‌ها' : '📋 Copy Full Content'}</span>
+                  <Copy className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{isFa ? '📋 کپی کامل پرامپت' : '📋 Copy Prompt'}</span>
                 </>
               )}
             </button>
@@ -956,31 +956,31 @@ export const NodeImageModal: React.FC<NodeImageModalProps> = ({
         </div>
 
         {/* Tabs: Upload vs URL */}
-        <div className="flex items-center gap-2 border-b border-slate-800 pb-2 text-xs">
+        <div className="grid grid-cols-2 gap-1.5 border-b border-slate-800 pb-2 text-[11px] sm:text-xs">
           <button
             type="button"
             onClick={() => setActiveTab('upload')}
-            className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer ${
+            className={`p-2 rounded-xl font-bold transition flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer border text-center ${
               activeTab === 'upload'
-                ? 'bg-purple-600 text-white'
-                : 'bg-slate-950 text-slate-400 hover:text-white'
+                ? 'bg-purple-600 text-white border-purple-500 shadow-md'
+                : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
             }`}
           >
-            <Upload className="w-3.5 h-3.5" />
-            <span>{isFa ? '📁 بارگذاری از حافظه گوشی / کامپیوتر' : '📁 Upload Image File'}</span>
+            <Upload className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">{isFa ? '📁 آپلود فایل عکس' : '📁 Upload File'}</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('url')}
-            className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer ${
+            className={`p-2 rounded-xl font-bold transition flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer border text-center ${
               activeTab === 'url'
-                ? 'bg-purple-600 text-white'
-                : 'bg-slate-950 text-slate-400 hover:text-white'
+                ? 'bg-purple-600 text-white border-purple-500 shadow-md'
+                : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
             }`}
           >
-            <LinkIcon className="w-3.5 h-3.5" />
-            <span>{isFa ? '🔗 آدرس اینترنتی (Image URL)' : '🔗 Image Web URL'}</span>
+            <LinkIcon className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">{isFa ? '🔗 آدرس وب عکس' : '🔗 Image URL'}</span>
           </button>
         </div>
 

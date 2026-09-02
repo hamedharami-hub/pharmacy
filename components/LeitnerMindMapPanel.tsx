@@ -1669,143 +1669,169 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
           onCollapseAll={collapseAll}
           onViewImage={(img, title) => setImageViewerModal({ isOpen: true, image: img, title })}
         >
-          {/* Node Context Menu */}
+          {/* Node Context Menu & Mobile Action Sheet */}
           {contextMenu.isOpen && contextMenu.node && (
-            <div
-              style={{
-                position: 'fixed',
-                top: `${contextMenu.y}px`,
-                left: `${contextMenu.x}px`,
-                zIndex: 99999,
-              }}
-              className="w-72 p-2 rounded-2xl bg-slate-900/95 border border-purple-500/60 shadow-2xl backdrop-blur-xl space-y-1 text-xs animate-in zoom-in-95 duration-150"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-2 border-b border-slate-800 text-slate-300 font-bold flex items-center justify-between">
-                <span className="truncate">{getNodeDisplayTitle(contextMenu.node)}</span>
-                <button
-                  type="button"
-                  onClick={() => setContextMenu((prev) => ({ ...prev, isOpen: false }))}
-                  className="p-1 rounded text-slate-400 hover:text-white"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
+            <>
+              {/* Backdrop for easy dismiss on mobile and click outside */}
+              <div
+                className="fixed inset-0 z-[99998] bg-black/60 sm:bg-black/20 backdrop-blur-xs transition-opacity"
+                onClick={() => setContextMenu((prev) => ({ ...prev, isOpen: false }))}
+              />
 
-              {/* Set as Focal Root Button */}
-              {contextMenu.node.level > 0 && (
+              <div
+                style={
+                  typeof window !== 'undefined' && window.innerWidth >= 640
+                    ? {
+                        position: 'fixed',
+                        top: `${contextMenu.y}px`,
+                        left: `${contextMenu.x}px`,
+                        zIndex: 99999,
+                      }
+                    : {
+                        position: 'fixed',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        zIndex: 99999,
+                      }
+                }
+                className="w-full sm:w-72 p-3.5 sm:p-2 rounded-t-3xl sm:rounded-2xl bg-slate-900/98 sm:bg-slate-900/95 border-t sm:border border-purple-500/60 shadow-2xl backdrop-blur-xl space-y-1.5 sm:space-y-1 text-xs max-h-[85vh] sm:max-h-none overflow-y-auto animate-in slide-in-from-bottom-6 sm:zoom-in-95 duration-150"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Mobile Drawer Pull Indicator */}
+                <div className="w-10 h-1 rounded-full bg-slate-700 mx-auto mb-1 sm:hidden" />
+
+                <div className="p-2 border-b border-slate-800 text-slate-200 font-bold flex items-center justify-between">
+                  <div className="flex items-center gap-2 truncate flex-1 min-w-0">
+                    <span className="p-1 rounded-lg bg-purple-500/20 text-purple-300 shrink-0">
+                      {contextMenu.node.customImage ? '🖼️' : '🌿'}
+                    </span>
+                    <span className="truncate text-xs">{getNodeDisplayTitle(contextMenu.node)}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setContextMenu((prev) => ({ ...prev, isOpen: false }))}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 transition shrink-0"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Set as Focal Root Button */}
+                {contextMenu.node.level > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFocalNodeId(contextMenu.node!.id);
+                      setContextMenu((prev) => ({ ...prev, isOpen: false }));
+                    }}
+                    className="w-full p-2.5 sm:px-3 sm:py-2 rounded-xl hover:bg-purple-600/30 text-purple-200 text-xs font-bold flex items-center gap-2.5 transition cursor-pointer"
+                  >
+                    <Target className="w-4 h-4 text-purple-400 shrink-0" />
+                    <span>{isFa ? '🎯 تمرکز روی این شاخه (Focal Center)' : 'Focus Sub-branch as Root'}</span>
+                  </button>
+                )}
+
+                {/* Copy Branch Content for AI & Infographics */}
                 <button
                   type="button"
                   onClick={() => {
-                    setFocalNodeId(contextMenu.node!.id);
-                    setContextMenu((prev) => ({ ...prev, isOpen: false }));
-                  }}
-                  className="w-full px-3 py-2 rounded-xl hover:bg-purple-600/30 text-purple-200 text-xs font-bold flex items-center gap-2 transition cursor-pointer"
-                >
-                  <Target className="w-3.5 h-3.5 text-purple-400" />
-                  <span>{isFa ? '🎯 تمرکز روی این شاخه (Focal Center)' : 'Focus Sub-branch as Root'}</span>
-                </button>
-              )}
-
-              {/* Copy Branch Content for AI & Infographics */}
-              <button
-                type="button"
-                onClick={() => {
-                  setBranchExportModal({
-                    isOpen: true,
-                    node: contextMenu.node,
-                  });
-                  setContextMenu((prev) => ({ ...prev, isOpen: false }));
-                }}
-                className="w-full px-3 py-2 rounded-xl hover:bg-purple-600/25 text-purple-200 text-xs font-bold flex items-center gap-2 transition cursor-pointer bg-purple-950/30 border border-purple-500/30"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-                <span>{isFa ? '📋 کپی مطالب شاخه (پرامپت هوش مصنوعی/اینفوگرافیک)' : 'Copy Branch (AI Infographic Prompt)'}</span>
-              </button>
-
-              {/* Attach / Edit Image */}
-              <button
-                type="button"
-                onClick={() => {
-                  setNodeImageModal({
-                    isOpen: true,
-                    node: contextMenu.node,
-                  });
-                  setContextMenu((prev) => ({ ...prev, isOpen: false }));
-                }}
-                className="w-full px-3 py-2 rounded-xl hover:bg-slate-800 text-slate-200 text-xs font-medium flex items-center gap-2 transition cursor-pointer"
-              >
-                <ImageIcon className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                <span>
-                  {contextMenu.node.customImage
-                    ? (isFa ? '🖼️ ویرایش تصویر پیوست شاخه' : 'Edit Attached Image')
-                    : (isFa ? '🖼️ افزودن تصویر به شاخه' : 'Attach Image to Branch')}
-                </span>
-              </button>
-
-              {/* If node has an image, offer view fullscreen */}
-              {contextMenu.node.customImage && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setImageViewerModal({
+                    setBranchExportModal({
                       isOpen: true,
-                      image: contextMenu.node!.customImage!,
-                      title: getNodeDisplayTitle(contextMenu.node!),
+                      node: contextMenu.node,
                     });
                     setContextMenu((prev) => ({ ...prev, isOpen: false }));
                   }}
-                  className="w-full px-3 py-2 rounded-xl hover:bg-slate-800 text-cyan-300 text-xs font-medium flex items-center gap-2 transition cursor-pointer"
+                  className="w-full p-2.5 sm:px-3 sm:py-2 rounded-xl hover:bg-purple-600/25 text-purple-200 text-xs font-bold flex items-center gap-2.5 transition cursor-pointer bg-purple-950/40 border border-purple-500/30"
                 >
-                  <Eye className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                  <span>{isFa ? '🔍 مشاهده تصویر بزرگ' : 'View Full Image'}</span>
+                  <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
+                  <span>{isFa ? '📋 کپی مطالب شاخه (پرامپت هوش مصنوعی/اینفوگرافیک)' : 'Copy Branch (AI Infographic Prompt)'}</span>
                 </button>
-              )}
 
-              {/* Study Runner Action */}
-              <button
-                type="button"
-                onClick={() => {
-                  handleStartStudyRunner(contextMenu.node!);
-                  setContextMenu((prev) => ({ ...prev, isOpen: false }));
-                }}
-                className="w-full px-3 py-2 rounded-xl hover:bg-slate-800 text-emerald-300 text-xs font-bold flex items-center gap-2 transition cursor-pointer"
-              >
-                <Play className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                <span>{isFa ? 'مرور پیوسته فلش‌کارت‌ها' : 'Drill Flashcards'}</span>
-              </button>
+                {/* Attach / Edit Image */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNodeImageModal({
+                      isOpen: true,
+                      node: contextMenu.node,
+                    });
+                    setContextMenu((prev) => ({ ...prev, isOpen: false }));
+                  }}
+                  className="w-full p-2.5 sm:px-3 sm:py-2 rounded-xl hover:bg-slate-800 text-slate-200 text-xs font-medium flex items-center gap-2.5 transition cursor-pointer"
+                >
+                  <ImageIcon className="w-4 h-4 text-cyan-400 shrink-0" />
+                  <span>
+                    {contextMenu.node.customImage
+                      ? (isFa ? '🖼️ ویرایش تصویر پیوست شاخه' : 'Edit Attached Image')
+                      : (isFa ? '🖼️ افزودن تصویر به شاخه' : 'Attach Image to Branch')}
+                  </span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setRenameModal({
-                    isOpen: true,
-                    node: contextMenu.node,
-                    currentText: getNodeDisplayTitle(contextMenu.node!),
-                  });
-                  setContextMenu((prev) => ({ ...prev, isOpen: false }));
-                }}
-                className="w-full px-3 py-2 rounded-xl hover:bg-slate-800 text-slate-200 text-xs font-medium flex items-center gap-2 transition cursor-pointer"
-              >
-                <Pencil className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                <span>{isFa ? 'تغییر نام شاخه (Alias)' : 'Rename Branch Alias'}</span>
-              </button>
+                {/* If node has an image, offer view fullscreen */}
+                {contextMenu.node.customImage && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImageViewerModal({
+                        isOpen: true,
+                        image: contextMenu.node!.customImage!,
+                        title: getNodeDisplayTitle(contextMenu.node!),
+                      });
+                      setContextMenu((prev) => ({ ...prev, isOpen: false }));
+                    }}
+                    className="w-full p-2.5 sm:px-3 sm:py-2 rounded-xl hover:bg-slate-800 text-cyan-300 text-xs font-medium flex items-center gap-2.5 transition cursor-pointer"
+                  >
+                    <Eye className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <span>{isFa ? '🔍 مشاهده تصویر بزرگ' : 'View Full Image'}</span>
+                  </button>
+                )}
 
-              <button
-                type="button"
-                onClick={() => {
-                  setColorPickerModal({
-                    isOpen: true,
-                    node: contextMenu.node,
-                  });
-                  setContextMenu((prev) => ({ ...prev, isOpen: false }));
-                }}
-                className="w-full px-3 py-2 rounded-xl hover:bg-slate-800 text-slate-200 text-xs font-medium flex items-center gap-2 transition cursor-pointer"
-              >
-                <Palette className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span>{isFa ? 'انتخاب رنگ شاخه' : 'Change Color Palette'}</span>
-              </button>
-            </div>
+                {/* Study Runner Action */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleStartStudyRunner(contextMenu.node!);
+                    setContextMenu((prev) => ({ ...prev, isOpen: false }));
+                  }}
+                  className="w-full p-2.5 sm:px-3 sm:py-2 rounded-xl hover:bg-slate-800 text-emerald-300 text-xs font-bold flex items-center gap-2.5 transition cursor-pointer"
+                >
+                  <Play className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>{isFa ? 'مرور پیوسته فلش‌کارت‌ها' : 'Drill Flashcards'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRenameModal({
+                      isOpen: true,
+                      node: contextMenu.node,
+                      currentText: getNodeDisplayTitle(contextMenu.node!),
+                    });
+                    setContextMenu((prev) => ({ ...prev, isOpen: false }));
+                  }}
+                  className="w-full p-2.5 sm:px-3 sm:py-2 rounded-xl hover:bg-slate-800 text-slate-200 text-xs font-medium flex items-center gap-2.5 transition cursor-pointer"
+                >
+                  <Pencil className="w-4 h-4 text-cyan-400 shrink-0" />
+                  <span>{isFa ? 'تغییر نام شاخه (Alias)' : 'Rename Branch Alias'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setColorPickerModal({
+                      isOpen: true,
+                      node: contextMenu.node,
+                    });
+                    setContextMenu((prev) => ({ ...prev, isOpen: false }));
+                  }}
+                  className="w-full p-2.5 sm:px-3 sm:py-2 rounded-xl hover:bg-slate-800 text-slate-200 text-xs font-medium flex items-center gap-2.5 transition cursor-pointer"
+                >
+                  <Palette className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>{isFa ? 'انتخاب رنگ شاخه' : 'Change Color Palette'}</span>
+                </button>
+              </div>
+            </>
           )}
         </MindMapCanvas>
       )}
