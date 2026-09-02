@@ -10,6 +10,7 @@ import {
   MindMapLineStyle,
   MindMapViewMode,
   MindMapPerspective,
+  NodeCustomImage,
 } from '@/types/mindmap';
 import {
   computeMindMapLayout,
@@ -22,6 +23,9 @@ import {
   QuestionDetailModal,
   RenameNodeModal,
   ColorPickerModal,
+  BranchExportModal,
+  NodeImageModal,
+  ImageViewerModal,
 } from '@/components/mindmap/MindMapModals';
 import { MindMapSettingsModal } from '@/components/mindmap/MindMapSettingsModal';
 import { getClientAiConfig, saveClientAiConfig } from '@/lib/aiConfigStorage';
@@ -67,6 +71,7 @@ import {
   Target,
   Home,
   ArrowRight,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 export interface LeitnerMindMapPanelProps {
@@ -96,6 +101,7 @@ export type { MindMapNode };
 const NODE_ALIASES_STORAGE_KEY = 'AU_PHARMACY_NODE_ALIASES_V2';
 const NODE_COLORS_STORAGE_KEY = 'AU_PHARMACY_NODE_COLORS_V2';
 const CARD_FLAGS_STORAGE_KEY = 'AU_PHARMACY_MINDMAP_FLAGS_V1';
+const NODE_IMAGES_STORAGE_KEY = 'AU_PHARMACY_NODE_IMAGES_V1';
 
 // Flags definition
 export type FlagColor = 'red' | 'amber' | 'green' | 'blue' | 'purple';
@@ -310,6 +316,17 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
     }
   });
 
+  // Custom Node Images
+  const [nodeImages, setNodeImages] = useState<Record<string, NodeCustomImage>>(() => {
+    if (typeof window === 'undefined') return {};
+    try {
+      const saved = localStorage.getItem(NODE_IMAGES_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
   // Modals & Context Menu State
   const [contextMenu, setContextMenu] = useState<{
     isOpen: boolean;
@@ -339,6 +356,32 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
   }>({
     isOpen: false,
     node: null,
+  });
+
+  const [branchExportModal, setBranchExportModal] = useState<{
+    isOpen: boolean;
+    node: MindMapNode | null;
+  }>({
+    isOpen: false,
+    node: null,
+  });
+
+  const [nodeImageModal, setNodeImageModal] = useState<{
+    isOpen: boolean;
+    node: MindMapNode | null;
+  }>({
+    isOpen: false,
+    node: null,
+  });
+
+  const [imageViewerModal, setImageViewerModal] = useState<{
+    isOpen: boolean;
+    image: NodeCustomImage | null;
+    title: string;
+  }>({
+    isOpen: false,
+    image: null,
+    title: '',
   });
 
   const [selectedQuestionCard, setSelectedQuestionCard] = useState<LeitnerCard | null>(null);
@@ -424,6 +467,23 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
       return updated;
     });
     setColorPickerModal({ isOpen: false, node: null });
+  }, []);
+
+  const handleSaveNodeImage = useCallback((canonicalKey: string, image: NodeCustomImage | null) => {
+    setNodeImages((prev) => {
+      const updated = { ...prev };
+      if (!image) {
+        delete updated[canonicalKey];
+      } else {
+        updated[canonicalKey] = image;
+      }
+      try {
+        localStorage.setItem(NODE_IMAGES_STORAGE_KEY, JSON.stringify(updated));
+      } catch (err) {
+        console.error('Failed to save node image:', err);
+      }
+      return updated;
+    });
   }, []);
 
   const getNodeDisplayTitle = useCallback(
@@ -561,16 +621,18 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
       rootTheme = 'indigo';
     }
 
+    const rootCanonical = `ROOT_AU_${perspective.toUpperCase()}`;
     const rootNode: MindMapNode = {
       id: 'root',
       level: 0,
-      canonicalKey: `ROOT_AU_${perspective.toUpperCase()}`,
+      canonicalKey: rootCanonical,
       title: { fa: rootTitleFa, en: rootTitleEn },
       children: [],
       cardCount: filteredCards.length,
       dueCount: 0,
       boxCounts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
       colorTheme: rootTheme,
+      customImage: nodeImages[rootCanonical],
     };
 
     type MicroTopicEntry = { title: { fa: string; en: string }; cards: LeitnerCard[] };
@@ -802,11 +864,12 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
       const domainColor = DOMAIN_COLOR_PALETTES[domainIdx % DOMAIN_COLOR_PALETTES.length];
       domainIdx++;
 
+      const domainCanonical = `DOMAIN_${dKey}`;
       const domainNode: MindMapNode = {
         id: `dom-${dKey}`,
         level: 1,
         parentId: 'root',
-        canonicalKey: `DOMAIN_${dKey}`,
+        canonicalKey: domainCanonical,
         title: dVal.title,
         module: dVal.module,
         domainName: dKey,
@@ -815,14 +878,16 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
         dueCount: 0,
         boxCounts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
         colorTheme: domainColor,
+        customImage: nodeImages[domainCanonical],
       };
 
       dVal.systems.forEach((sVal, sKey) => {
+        const sysCanonical = `SYSTEM_${sKey}`;
         const sysNode: MindMapNode = {
           id: `sys-${dKey}-${sKey}`,
           level: 2,
           parentId: domainNode.id,
-          canonicalKey: `SYSTEM_${sKey}`,
+          canonicalKey: sysCanonical,
           title: sVal.title,
           module: dVal.module,
           domainName: dKey,
@@ -832,14 +897,16 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
           dueCount: 0,
           boxCounts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
           colorTheme: domainColor,
+          customImage: nodeImages[sysCanonical],
         };
 
         sVal.conditions.forEach((cVal, cKey) => {
+          const condCanonical = `COND_${cKey}`;
           const condNode: MindMapNode = {
             id: `cond-${dKey}-${sKey}-${cKey}`,
             level: 3,
             parentId: sysNode.id,
-            canonicalKey: `COND_${cKey}`,
+            canonicalKey: condCanonical,
             title: cVal.title,
             module: dVal.module,
             domainName: dKey,
@@ -850,17 +917,19 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
             dueCount: 0,
             boxCounts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
             colorTheme: domainColor,
+            customImage: nodeImages[condCanonical],
           };
 
           cVal.subClasses.forEach((scVal, scKey) => {
             let parentContainer: MindMapNode = condNode;
 
             if (!scVal.isGeneric) {
+              const scCanonical = `SUBCLASS_${scKey}`;
               const scNode: MindMapNode = {
                 id: `sc-${dKey}-${sKey}-${cKey}-${scKey}`,
                 level: 4,
                 parentId: condNode.id,
-                canonicalKey: `SUBCLASS_${scKey}`,
+                canonicalKey: scCanonical,
                 title: scVal.title,
                 module: dVal.module,
                 domainName: dKey,
@@ -872,17 +941,19 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                 dueCount: 0,
                 boxCounts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
                 colorTheme: domainColor,
+                customImage: nodeImages[scCanonical],
               };
               condNode.children.push(scNode);
               parentContainer = scNode;
             }
 
             scVal.microTopics.forEach((mVal, mKey) => {
+              const microCanonical = `MICRO_${mKey}`;
               const microNode: MindMapNode = {
                 id: `micro-${dKey}-${sKey}-${cKey}-${scKey}-${mKey}`,
                 level: 5,
                 parentId: parentContainer.id,
-                canonicalKey: `MICRO_${mKey}`,
+                canonicalKey: microCanonical,
                 title: mVal.title,
                 module: dVal.module,
                 domainName: dKey,
@@ -895,6 +966,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                 dueCount: 0,
                 boxCounts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
                 colorTheme: domainColor,
+                customImage: nodeImages[microCanonical],
               };
 
               const nowIso = new Date().toISOString();
@@ -907,12 +979,13 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
 
                 const qFa = typeof card.question === 'object' ? card.question.fa || card.question.en : card.question;
                 const qEn = typeof card.question === 'object' ? card.question.en || card.question.fa : card.question;
+                const cardCanonical = `CARD_${card.id}`;
 
                 const qNode: MindMapNode = {
                   id: `card-${card.id}`,
                   level: 6,
                   parentId: microNode.id,
-                  canonicalKey: `CARD_${card.id}`,
+                  canonicalKey: cardCanonical,
                   title: {
                     fa: qFa || 'سوال بالینی',
                     en: qEn || 'Clinical Flashcard',
@@ -934,6 +1007,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                     5: card.box === 5 ? 1 : 0,
                   },
                   colorTheme: domainColor,
+                  customImage: nodeImages[cardCanonical],
                 };
                 microNode.children.push(qNode);
               });
@@ -1374,6 +1448,39 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
+            {node.customImage && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setImageViewerModal({
+                    isOpen: true,
+                    image: node.customImage!,
+                    title: displayTitle,
+                  });
+                }}
+                className="p-1 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-bold flex items-center gap-1 hover:bg-purple-500/40 transition"
+                title={isFa ? 'مشاهده تصویر پیوست' : 'View Image'}
+              >
+                <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setBranchExportModal({
+                  isOpen: true,
+                  node,
+                });
+              }}
+              className="p-1.5 rounded-lg bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/30 transition"
+              title={isFa ? 'کپی مطالب شاخه برای هوش مصنوعی و اینفوگرافیک' : 'Export AI Infographic Prompt'}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            </button>
+
             <span className="text-[10.5px] font-mono font-bold px-2 py-0.5 rounded-md bg-black/40 text-slate-300 border border-slate-700">
               {node.cardCount} {isFa ? 'کارت' : 'cards'}
             </span>
@@ -1560,6 +1667,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
           onOpenSettings={() => setIsMindMapSettingsOpen(true)}
           onExpandAll={expandAll}
           onCollapseAll={collapseAll}
+          onViewImage={(img, title) => setImageViewerModal({ isOpen: true, image: img, title })}
         >
           {/* Node Context Menu */}
           {contextMenu.isOpen && contextMenu.node && (
@@ -1570,7 +1678,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                 left: `${contextMenu.x}px`,
                 zIndex: 99999,
               }}
-              className="w-64 p-2 rounded-2xl bg-slate-900/95 border border-purple-500/60 shadow-2xl backdrop-blur-xl space-y-1 text-xs animate-in zoom-in-95 duration-150"
+              className="w-72 p-2 rounded-2xl bg-slate-900/95 border border-purple-500/60 shadow-2xl backdrop-blur-xl space-y-1 text-xs animate-in zoom-in-95 duration-150"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-2 border-b border-slate-800 text-slate-300 font-bold flex items-center justify-between">
@@ -1599,6 +1707,61 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                 </button>
               )}
 
+              {/* Copy Branch Content for AI & Infographics */}
+              <button
+                type="button"
+                onClick={() => {
+                  setBranchExportModal({
+                    isOpen: true,
+                    node: contextMenu.node,
+                  });
+                  setContextMenu((prev) => ({ ...prev, isOpen: false }));
+                }}
+                className="w-full px-3 py-2 rounded-xl hover:bg-purple-600/25 text-purple-200 text-xs font-bold flex items-center gap-2 transition cursor-pointer bg-purple-950/30 border border-purple-500/30"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                <span>{isFa ? '📋 کپی مطالب شاخه (پرامپت هوش مصنوعی/اینفوگرافیک)' : 'Copy Branch (AI Infographic Prompt)'}</span>
+              </button>
+
+              {/* Attach / Edit Image */}
+              <button
+                type="button"
+                onClick={() => {
+                  setNodeImageModal({
+                    isOpen: true,
+                    node: contextMenu.node,
+                  });
+                  setContextMenu((prev) => ({ ...prev, isOpen: false }));
+                }}
+                className="w-full px-3 py-2 rounded-xl hover:bg-slate-800 text-slate-200 text-xs font-medium flex items-center gap-2 transition cursor-pointer"
+              >
+                <ImageIcon className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                <span>
+                  {contextMenu.node.customImage
+                    ? (isFa ? '🖼️ ویرایش تصویر پیوست شاخه' : 'Edit Attached Image')
+                    : (isFa ? '🖼️ افزودن تصویر به شاخه' : 'Attach Image to Branch')}
+                </span>
+              </button>
+
+              {/* If node has an image, offer view fullscreen */}
+              {contextMenu.node.customImage && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImageViewerModal({
+                      isOpen: true,
+                      image: contextMenu.node!.customImage!,
+                      title: getNodeDisplayTitle(contextMenu.node!),
+                    });
+                    setContextMenu((prev) => ({ ...prev, isOpen: false }));
+                  }}
+                  className="w-full px-3 py-2 rounded-xl hover:bg-slate-800 text-cyan-300 text-xs font-medium flex items-center gap-2 transition cursor-pointer"
+                >
+                  <Eye className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  <span>{isFa ? '🔍 مشاهده تصویر بزرگ' : 'View Full Image'}</span>
+                </button>
+              )}
+
               {/* Study Runner Action */}
               <button
                 type="button"
@@ -1608,7 +1771,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                 }}
                 className="w-full px-3 py-2 rounded-xl hover:bg-slate-800 text-emerald-300 text-xs font-bold flex items-center gap-2 transition cursor-pointer"
               >
-                <Play className="w-3.5 h-3.5 text-emerald-400" />
+                <Play className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 <span>{isFa ? 'مرور پیوسته فلش‌کارت‌ها' : 'Drill Flashcards'}</span>
               </button>
 
@@ -1624,7 +1787,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                 }}
                 className="w-full px-3 py-2 rounded-xl hover:bg-slate-800 text-slate-200 text-xs font-medium flex items-center gap-2 transition cursor-pointer"
               >
-                <Pencil className="w-3.5 h-3.5 text-cyan-400" />
+                <Pencil className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
                 <span>{isFa ? 'تغییر نام شاخه (Alias)' : 'Rename Branch Alias'}</span>
               </button>
 
@@ -1639,7 +1802,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
                 }}
                 className="w-full px-3 py-2 rounded-xl hover:bg-slate-800 text-slate-200 text-xs font-medium flex items-center gap-2 transition cursor-pointer"
               >
-                <Palette className="w-3.5 h-3.5 text-amber-400" />
+                <Palette className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                 <span>{isFa ? 'انتخاب رنگ شاخه' : 'Change Color Palette'}</span>
               </button>
             </div>
@@ -1653,6 +1816,35 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
           isOpen={!!selectedQuestionCard}
           onClose={() => setSelectedQuestionCard(null)}
           card={selectedQuestionCard}
+          cardImage={nodeImages[`CARD_${selectedQuestionCard.id}`]}
+          onOpenImageModal={() => {
+            const qFa = typeof selectedQuestionCard.question === 'object' ? selectedQuestionCard.question.fa || selectedQuestionCard.question.en : selectedQuestionCard.question;
+            const qEn = typeof selectedQuestionCard.question === 'object' ? selectedQuestionCard.question.en || selectedQuestionCard.question.fa : selectedQuestionCard.question;
+            const cardNode: MindMapNode = {
+              id: `card-${selectedQuestionCard.id}`,
+              level: 6,
+              canonicalKey: `CARD_${selectedQuestionCard.id}`,
+              title: {
+                fa: qFa || 'سوال بالینی',
+                en: qEn || 'Clinical Flashcard',
+              },
+              card: selectedQuestionCard,
+              children: [],
+              cardCount: 1,
+              dueCount: 0,
+              boxCounts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+              colorTheme: 'purple',
+              customImage: nodeImages[`CARD_${selectedQuestionCard.id}`],
+            };
+            setNodeImageModal({ isOpen: true, node: cardNode });
+          }}
+          onViewImage={(img) =>
+            setImageViewerModal({
+              isOpen: true,
+              image: img,
+              title: selectedQuestionCard.topic || 'Clinical Reference',
+            })
+          }
           language={language}
           cardLangMode={cardLangMode}
           cardFlags={cardFlags}
@@ -1695,6 +1887,38 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
           onClose={() => setColorPickerModal({ isOpen: false, node: null })}
           node={colorPickerModal.node}
           onSaveColor={handleSaveColor}
+          language={language}
+        />
+      )}
+
+      {branchExportModal.isOpen && (
+        <BranchExportModal
+          isOpen={branchExportModal.isOpen}
+          onClose={() => setBranchExportModal({ isOpen: false, node: null })}
+          node={branchExportModal.node}
+          language={language}
+          nodeImages={nodeImages}
+          onOpenAiGenerator={onOpenAiGenerator}
+        />
+      )}
+
+      {nodeImageModal.isOpen && (
+        <NodeImageModal
+          isOpen={nodeImageModal.isOpen}
+          onClose={() => setNodeImageModal({ isOpen: false, node: null })}
+          node={nodeImageModal.node}
+          currentImage={nodeImageModal.node ? nodeImages[nodeImageModal.node.canonicalKey] : null}
+          onSaveImage={handleSaveNodeImage}
+          language={language}
+        />
+      )}
+
+      {imageViewerModal.isOpen && (
+        <ImageViewerModal
+          isOpen={imageViewerModal.isOpen}
+          onClose={() => setImageViewerModal({ isOpen: false, image: null, title: '' })}
+          image={imageViewerModal.image}
+          title={imageViewerModal.title}
           language={language}
         />
       )}

@@ -12,6 +12,7 @@ import {
 import { ALL_PHARMACY_CARDS } from '@/lib/pharmacy-data';
 import { StudyCard } from '@/components/StudyCard';
 import { FredDispenseModule } from '@/components/FredDispenseModule';
+import { CypInteractionMatrixPanel } from '@/components/CypInteractionMatrixPanel';
 import { useStudyTrackerContext } from './study/StudyTrackerContext';
 import { ResumeStudyBanner } from './study/ResumeStudyBanner';
 import {
@@ -20,6 +21,7 @@ import {
   FolderOpen,
   Monitor,
   Sparkles,
+  Dna,
 } from 'lucide-react';
 
 interface ClinicalKnowledgeModuleProps {
@@ -113,14 +115,16 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
   const { getLastStudied } = useStudyTrackerContext();
   const lastStudiedInMod4 = getLastStudied(4);
 
-  // Category chips: First chip is "نرم‌افزار" (Fred Dispense), then other clinical/dispensing categories
+  // Category chips: First chip is "نرم‌افزار" (Fred Dispense), second is "ماتریس CYP450", then other clinical categories
   const categoryChips: Array<{
     id: ModuleId;
     name: { fa: string; en: string };
     icon?: any;
     isSoftware?: boolean;
+    isCyp?: boolean;
   }> = [
     { id: 'software', name: { fa: 'نرم‌افزار', en: 'Software' }, icon: Monitor, isSoftware: true },
+    { id: 'cyp_matrix', name: { fa: '🧬 ماتریس CYP450', en: '🧬 CYP450 Matrix' }, icon: Dna, isCyp: true },
     { id: 'ALL', name: { fa: 'همه سرفصل‌ها', en: 'All Topics' } },
     { id: 'mod6', name: { fa: 'نسخه‌پیچی و دیسپنس', en: 'Prescription & PBS' } },
     { id: 'mod2', name: { fa: 'قوانین و جدول‌بندی', en: 'Legislation & Schedules' } },
@@ -130,10 +134,10 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
     { id: 'mod5', name: { fa: 'گزارش‌نویسی و مقالات', en: 'Academic Writing & Reports' } },
   ];
 
-  // Filter cards in real time (when not on software tab)
+  // Filter cards in real time (when not on software or cyp tab)
   const filteredCards = ALL_PHARMACY_CARDS.filter((item) => {
     if (deleted.includes(item.id)) return false;
-    if (activeModule !== 'ALL' && activeModule !== 'software' && item.module !== activeModule) return false;
+    if (activeModule !== 'ALL' && activeModule !== 'software' && activeModule !== 'cyp_matrix' && item.module !== activeModule) return false;
     if (activeCategory !== 'ALL' && item.category[language] !== activeCategory) return false;
 
     if (searchQuery.trim()) {
@@ -150,7 +154,7 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
   return (
     <div className="space-y-5">
       {/* Resume Study Banner for Module 4 */}
-      {lastStudiedInMod4 && activeModule !== 'software' && (
+      {lastStudiedInMod4 && activeModule !== 'software' && activeModule !== 'cyp_matrix' && (
         <ResumeStudyBanner
           language={language}
           lastStudied={lastStudiedInMod4}
@@ -165,7 +169,7 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
 
       {/* DIRECT TOPICS & SOFTWARE BAR (NO REDUNDANT INTRO) */}
       <div className="space-y-3">
-        {/* Submodule Category Chips (First is "نرم‌افزار", followed by topics) */}
+        {/* Submodule Category Chips */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">
           {categoryChips.map((chip) => {
             const Icon = chip.icon;
@@ -178,9 +182,13 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
                   isSelected
                     ? chip.isSoftware
                       ? 'bg-teal-600 text-white border-teal-500 shadow-xs'
+                      : chip.isCyp
+                      ? 'bg-purple-600 text-white border-purple-500 shadow-xs'
                       : 'bg-indigo-600 text-white border-indigo-500 shadow-xs'
                     : chip.isSoftware
                     ? 'bg-teal-500/15 border-teal-500/30 text-teal-800 dark:text-teal-300 hover:bg-teal-500/25'
+                    : chip.isCyp
+                    ? 'bg-purple-500/15 border-purple-500/30 text-purple-800 dark:text-purple-300 hover:bg-purple-500/25'
                     : 'app-bg app-border app-muted hover:app-text'
                 }`}
               >
@@ -192,7 +200,7 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
         </div>
 
         {/* Real-Time Search Input (Displayed when browsing knowledge cards) */}
-        {activeModule !== 'software' && (
+        {activeModule !== 'software' && activeModule !== 'cyp_matrix' && (
           <div className="relative w-full">
             <Search className="w-4 h-4 absolute end-3.5 top-2.5 text-slate-400 pointer-events-none" />
             <input
@@ -219,10 +227,18 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
         )}
       </div>
 
-      {/* 3. CONTENT DISPLAY: EITHER SOFTWARE (FRED DISPENSE) OR CARDS */}
+      {/* 3. CONTENT DISPLAY: EITHER SOFTWARE (FRED DISPENSE), CYP MATRIX OR CARDS */}
       {activeModule === 'software' ? (
         <div className="space-y-4">
           <FredDispenseModule language={language} onNavigateToModule={onNavigateToModule} />
+        </div>
+      ) : activeModule === 'cyp_matrix' ? (
+        <div className="space-y-4">
+          <CypInteractionMatrixPanel
+            language={language}
+            onOpenAiLeitner={onOpenAiLeitner}
+            onClose={() => onSelectModule('ALL')}
+          />
         </div>
       ) : (
         /* STUDY CARDS DIRECT DISPLAY */

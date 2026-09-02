@@ -109,6 +109,35 @@ export const ShelfDrugCard: React.FC<ShelfDrugCardProps> = ({
     );
   };
 
+  const getPregnancyBadge = (compact = false) => {
+    if (!prod.tgaPregnancyCategory) return null;
+    const cat = prod.tgaPregnancyCategory;
+    const badgeStyles: Record<string, string> = {
+      A: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+      B1: 'bg-teal-500/20 text-teal-300 border-teal-500/40',
+      B2: 'bg-sky-500/20 text-sky-300 border-sky-500/40',
+      B3: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+      C: 'bg-orange-500/20 text-orange-300 border-orange-500/40',
+      D: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+      X: 'bg-red-600/30 text-red-200 border-red-500/60 animate-pulse',
+    };
+
+    return (
+      <span
+        className={`text-[9.5px] sm:text-[10.5px] font-mono font-bold px-1.5 py-0.5 rounded border flex items-center gap-1 shrink-0 ${
+          badgeStyles[cat] || badgeStyles.A
+        }`}
+        title={
+          isFa
+            ? `رده‌بندی ایمنی در بارداری استرالیا: رده ${cat} TGA`
+            : `Australian TGA Pregnancy Category ${cat}`
+        }
+      >
+        <span>🤰 {compact ? `TGA ${cat}` : `TGA Category ${cat}`}</span>
+      </span>
+    );
+  };
+
   return (
     <div
       onClick={toggleExpand}
@@ -131,6 +160,8 @@ export const ShelfDrugCard: React.FC<ShelfDrugCardProps> = ({
             </h3>
             {/* Integrated Schedule Badge */}
             {getScheduleBadge(true)}
+            {/* TGA Pregnancy Badge */}
+            {getPregnancyBadge(true)}
             {prod.requiresProjectStop && (
               <span className="text-[9.5px] sm:text-[10.5px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold flex items-center gap-1 shrink-0">
                 <ShieldAlert className="w-3 h-3 shrink-0" />
@@ -327,6 +358,26 @@ export const ShelfDrugCard: React.FC<ShelfDrugCardProps> = ({
                     </span>
                   ))}
                 </div>
+              )}
+            </div>
+          )}
+
+          {/* TGA Pregnancy Category Box */}
+          {prod.tgaPregnancyCategory && (
+            <div className="p-2.5 rounded-xl bg-slate-950/50 border border-slate-800/80 space-y-1.5">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                  <span>🤰</span>
+                  <span>{isFa ? 'رده‌بندی مصرف در بارداری (TGA Pregnancy Category):' : 'TGA Pregnancy Safety Category:'}</span>
+                </span>
+                {getPregnancyBadge(false)}
+              </div>
+              {prod.pregnancyAdvice && (
+                <p className="text-xs leading-relaxed text-slate-300 pt-0.5">
+                  {typeof prod.pregnancyAdvice === 'object' && prod.pregnancyAdvice
+                    ? (isFa ? prod.pregnancyAdvice.fa : prod.pregnancyAdvice.en)
+                    : String(prod.pregnancyAdvice || '')}
+                </p>
               )}
             </div>
           )}

@@ -57,12 +57,18 @@ export interface Product {
   conceptIds?: string[];
   mechanism?: DrugMechanismInfo;
 
+  // TGA Pregnancy Category & Clinical Safety
+  tgaPregnancyCategory?: 'A' | 'B1' | 'B2' | 'B3' | 'C' | 'D' | 'X';
+  pregnancyAdvice?: { fa: string; en: string };
+
   // Brand Substitution & Bioequivalence / NTI Rules
   aFlagBioequivalent?: boolean; // True if standard A-Flag brand substitution is allowed in Australia
   isNarrowTherapeuticIndex?: boolean; // True if NTI (e.g. Warfarin, Lithium, Carbamazepine, Levothyroxine)
   brandSubstitutionNotice?: { fa: string; en: string }; // Notice explaining substitution rules/warnings
   equivalentBrands?: string[]; // Equivalent generic/brand names in Australia
 }
+
+export type TgaPregnancyCategory = 'A' | 'B1' | 'B2' | 'B3' | 'C' | 'D' | 'X';
 
 export interface CalLabelInfo {
   code: string;

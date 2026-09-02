@@ -11,6 +11,12 @@ export type MindMapPerspective =
   | 'safety'          // 🛡️ ۵. ایمنی، برچسب‌های هشدار و تداخلات
   | 'calculations';   // 🧮 ۶. محاسبات داروسازی و دوزاژ بالینی
 
+export interface NodeCustomImage {
+  url: string;
+  caption?: string;
+  addedAt?: string;
+}
+
 export interface MindMapNode {
   id: string;
   level: MindMapLevel;
@@ -29,6 +35,7 @@ export interface MindMapNode {
   dueCount: number;
   boxCounts: Record<1 | 2 | 3 | 4 | 5, number>;
   colorTheme: string;
+  customImage?: NodeCustomImage;
 }
 
 export type MindMapLineStyle = 'smooth_bezier' | 'orthogonal_step' | 'straight' | 'polar_radial';
@@ -52,6 +59,7 @@ export interface MindMapLayoutItem {
   isExpanded: boolean;
   hasChildren: boolean;
   colorTheme: string;
+  customImage?: NodeCustomImage;
 }
 
 export interface MindMapLink {

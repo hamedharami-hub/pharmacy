@@ -8,7 +8,7 @@ export type StudyMode = 'accordion' | 'speed' | 'flagged';
 export type LayoutMode = 'window-grid' | 'list' | 'split';
 
 export type MainModuleId = 1 | 2 | 3 | 4 | 5 | 6;
-export type ModuleId = 'software' | 'ALL' | 'mod1' | 'mod2' | 'mod3' | 'mod4' | 'mod5' | 'mod6';
+export type ModuleId = 'software' | 'cyp_matrix' | 'ALL' | 'mod1' | 'mod2' | 'mod3' | 'mod4' | 'mod5' | 'mod6';
 
 export type AiProvider = 'gemini' | 'groq' | 'xai';
 

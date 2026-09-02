@@ -1,11 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { LeitnerCard } from '@/types/leitner';
 import { Language } from '@/types/pharmacy';
-import { MindMapNode } from '@/types/mindmap';
+import { MindMapNode, NodeCustomImage } from '@/types/mindmap';
 import { MINDMAP_THEMES } from '@/lib/mindmapLayout';
 import { FLAG_OPTIONS, FlagColor } from '@/components/LeitnerMindMapPanel';
+import {
+  generateAiInfographicPrompt,
+  generateStructuredMarkdown,
+  generateMermaidMindmap,
+  traverseBranchNodes,
+} from '@/lib/mindmapExportHelpers';
+import { haptic } from '@/lib/haptics';
 import {
   X,
   Eye,
@@ -23,6 +30,15 @@ import {
   Check,
   Award,
   Sparkles,
+  Copy,
+  Upload,
+  Image as ImageIcon,
+  Link as LinkIcon,
+  Trash2,
+  ExternalLink,
+  Info,
+  Layers,
+  ZoomIn,
 } from 'lucide-react';
 
 /* ========================================================================= */
@@ -32,6 +48,9 @@ export interface QuestionDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   card: LeitnerCard | null;
+  cardImage?: NodeCustomImage | null;
+  onOpenImageModal?: () => void;
+  onViewImage?: (image: NodeCustomImage) => void;
   language: Language;
   cardLangMode: 'fa' | 'en' | 'bilingual';
   cardFlags: Record<string, FlagColor>;
@@ -45,6 +64,9 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
   isOpen,
   onClose,
   card,
+  cardImage,
+  onOpenImageModal,
+  onViewImage,
   language,
   cardLangMode,
   cardFlags,
@@ -57,6 +79,7 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
   const [isRevealed, setIsRevealed] = useState(false);
   const [selectedMcqOption, setSelectedMcqOption] = useState<string | null>(null);
   const [ratedRating, setRatedRating] = useState<'again' | 'hard' | 'good' | 'easy' | null>(null);
+  const [copiedAiPrompt, setCopiedAiPrompt] = useState(false);
 
   // Sync state with prop safely when card changes
   const [prevCardId, setPrevCardId] = useState<string | null>(null);
@@ -65,6 +88,7 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
     setIsRevealed(false);
     setSelectedMcqOption(null);
     setRatedRating(null);
+    setCopiedAiPrompt(false);
   }
 
   if (!isOpen || !card) return null;
@@ -89,6 +113,26 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
     if (onRateCard) {
       onRateCard(card.id, rating);
     }
+  };
+
+  const handleCopyCardAiPrompt = () => {
+    const singlePrompt = `### 🎯 CLINICAL TOPIC / CARD: ${card.topic || 'Pharmacology'}
+- **Clinical Question (EN)**: ${qEn}
+- **Clinical Question (FA)**: ${qFa}
+- **Target Clinical Answer (EN)**: ${aEn}
+- **Target Clinical Answer (FA)**: ${aFa}
+${pEn || pFa ? `- **High-Yield Clinical Pearl**: ${pEn || pFa}` : ''}
+${isMcq && card.mcqOptions ? `- **Options**: ${card.mcqOptions.map(o => `[${o.id}] ${typeof o.text === 'object' ? o.text.en : o.text}`).join(' | ')}` : ''}
+
+### 🎨 INFOGRAPHIC DESIGN REQUEST:
+Please generate a high-yield medical infographic summary for this clinical concept.
+Create a structured diagram with color-coded comparison boxes, clinical pearls, contraindications, and exam mnemonics.`;
+
+    navigator.clipboard.writeText(singlePrompt).then(() => {
+      setCopiedAiPrompt(true);
+      haptic.success();
+      setTimeout(() => setCopiedAiPrompt(false), 2500);
+    });
   };
 
   return (
@@ -233,6 +277,77 @@ export const QuestionDetailModal: React.FC<QuestionDetailModalProps> = ({
             </div>
           </div>
         )}
+
+        {/* Attached Visual Reference / Image (if present) */}
+        {cardImage && (
+          <div className="p-3 rounded-2xl bg-slate-950/80 border border-purple-500/30 space-y-2">
+            <div className="flex items-center justify-between text-xs text-purple-300 font-bold">
+              <span className="flex items-center gap-1.5">
+                <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />
+                <span>{isFa ? 'تصویر و رفرنس بصری پیوست شده:' : 'Attached Visual Reference:'}</span>
+              </span>
+              {onOpenImageModal && (
+                <button
+                  type="button"
+                  onClick={onOpenImageModal}
+                  className="text-[10.5px] text-purple-400 hover:underline cursor-pointer"
+                >
+                  {isFa ? '✏️ ویرایش یا تعویض' : 'Edit / Change'}
+                </button>
+              )}
+            </div>
+            <div
+              onClick={() => onViewImage?.(cardImage)}
+              className="relative rounded-xl overflow-hidden border border-purple-500/40 bg-black/60 max-h-48 flex items-center justify-center cursor-zoom-in group/cardimg"
+            >
+              <img src={cardImage.url} alt="Attached" className="w-full max-h-48 object-contain group-hover/cardimg:scale-102 transition" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-between p-2 text-xs text-white">
+                <span className="truncate max-w-[80%]">{cardImage.caption || (isFa ? 'برای بزرگنمایی کلیک کنید' : 'Click to zoom')}</span>
+                <ZoomIn className="w-4 h-4 text-cyan-300" />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Action Tools Bar */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+          {onOpenImageModal && (
+            <button
+              type="button"
+              onClick={onOpenImageModal}
+              className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer"
+            >
+              <ImageIcon className="w-4 h-4 text-cyan-400 shrink-0" />
+              <span>
+                {cardImage
+                  ? isFa ? '🖼️ مدیریت تصویر پیوست' : 'Manage Image'
+                  : isFa ? '🖼️ افزودن عکس / اینفوگرافیک به این کارت' : 'Attach Image to Card'}
+              </span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={handleCopyCardAiPrompt}
+            className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
+              copiedAiPrompt
+                ? 'bg-emerald-950/80 border-emerald-500 text-emerald-300'
+                : 'bg-purple-950/40 hover:bg-purple-900/50 border-purple-500/40 text-purple-200'
+            }`}
+          >
+            {copiedAiPrompt ? (
+              <>
+                <Check className="w-4 h-4 text-emerald-400" />
+                <span>{isFa ? '✓ پرامپت کپی شد!' : '✓ Prompt Copied!'}</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
+                <span>{isFa ? '📋 کپی پرامپت برای ساخت اینفوگرافیک' : 'Copy AI Infographic Prompt'}</span>
+              </>
+            )}
+          </button>
+        </div>
 
         {/* Answer Content & Rationale */}
         {!isRevealed ? (
@@ -523,3 +638,518 @@ export const ColorPickerModal: React.FC<ColorPickerModalProps> = ({
     </div>
   );
 };
+
+/* ========================================================================= */
+/* 4. BRANCH EXPORT & AI INFOGRAPHIC PROMPT MODAL                           */
+/* ========================================================================= */
+export interface BranchExportModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  node: MindMapNode | null;
+  language: Language;
+  nodeImages?: Record<string, NodeCustomImage>;
+  onOpenAiGenerator?: (text: string) => void;
+}
+
+export const BranchExportModal: React.FC<BranchExportModalProps> = ({
+  isOpen,
+  onClose,
+  node,
+  language,
+  nodeImages,
+  onOpenAiGenerator,
+}) => {
+  const isFa = language === 'fa';
+  const [exportFormat, setExportFormat] = useState<'ai_infographic' | 'markdown' | 'mermaid'>('ai_infographic');
+  const [copied, setCopied] = useState(false);
+
+  const metrics = useMemo(() => {
+    if (!node) return null;
+    return traverseBranchNodes(node).metrics;
+  }, [node]);
+
+  const generatedContent = useMemo(() => {
+    if (!node) return '';
+    if (exportFormat === 'ai_infographic') {
+      return generateAiInfographicPrompt(node, language, nodeImages);
+    }
+    if (exportFormat === 'markdown') {
+      return generateStructuredMarkdown(node, language);
+    }
+    return generateMermaidMindmap(node);
+  }, [node, exportFormat, language, nodeImages]);
+
+  if (!isOpen || !node) return null;
+
+  const handleCopy = async () => {
+    haptic.medium();
+    try {
+      await navigator.clipboard.writeText(generatedContent);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch (err) {
+      console.warn('Clipboard copy failed:', err);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in" dir={isFa ? 'rtl' : 'ltr'}>
+      <div className="w-full max-w-3xl p-5 sm:p-7 rounded-3xl bg-slate-900 border border-purple-500/40 shadow-2xl space-y-4 max-h-[92vh] flex flex-col">
+        {/* Modal Header */}
+        <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-3">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="p-2 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                <Sparkles className="w-5 h-5 text-purple-400" />
+              </span>
+              <h3 className="font-bold text-base sm:text-lg text-white">
+                {isFa ? 'کپی جامع مطالب شاخه (ویژه ساخت اینفوگرافیک با هوش مصنوعی)' : 'Export Branch for AI & Infographics'}
+              </h3>
+            </div>
+            <p className="text-xs text-slate-400">
+              {isFa
+                ? `شاخه هدف: ${node.title.fa} (${node.title.en}) — استخراج کل سلسله‌مراتب و کارت‌های متصل تا عمیق‌ترین سطح`
+                : `Target branch: ${node.title.en} (${node.title.fa}) — recursive knowledge export down to all leaves`}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Metrics Bar */}
+        {metrics && (
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="px-2.5 py-1 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-300 font-bold">
+              🌲 {metrics.totalSubBranches} {isFa ? 'زیرشاخه فعال' : 'Sub-branches'}
+            </span>
+            <span className="px-2.5 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold">
+              📇 {metrics.totalCards} {isFa ? 'فلش‌کارت بالینی' : 'Clinical Cards'}
+            </span>
+            <span className="px-2.5 py-1 rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-300 font-bold">
+              📊 {isFa ? `عمق سلسله‌مراتب: سطح ${metrics.maxDepth}` : `Max Depth: Level ${metrics.maxDepth}`}
+            </span>
+          </div>
+        )}
+
+        {/* Format Selector Tabs */}
+        <div className="flex items-center gap-1.5 border-b border-slate-800 pb-2 text-xs">
+          <button
+            type="button"
+            onClick={() => {
+              haptic.light();
+              setExportFormat('ai_infographic');
+            }}
+            className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer border ${
+              exportFormat === 'ai_infographic'
+                ? 'bg-purple-600 text-white border-purple-500 shadow-md'
+                : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span>{isFa ? '🎨 پرامپت هوش مصنوعی ساخت اینفوگرافیک' : '🎨 AI Infographic Prompt'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              haptic.light();
+              setExportFormat('markdown');
+            }}
+            className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer border ${
+              exportFormat === 'markdown'
+                ? 'bg-purple-600 text-white border-purple-500 shadow-md'
+                : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5 text-cyan-300" />
+            <span>{isFa ? '📝 مارک‌داون ساختاریافته' : '📝 Structured Markdown'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              haptic.light();
+              setExportFormat('mermaid');
+            }}
+            className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer border ${
+              exportFormat === 'mermaid'
+                ? 'bg-purple-600 text-white border-purple-500 shadow-md'
+                : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+            }`}
+          >
+            <Code className="w-3.5 h-3.5 text-emerald-300" />
+            <span>{isFa ? '📊 کد دیاگرام Mermaid.js' : '📊 Mermaid Graph'}</span>
+          </button>
+        </div>
+
+        {/* Content Preview Box */}
+        <div className="flex-1 min-h-0 bg-slate-950 rounded-2xl border border-slate-800 p-3 overflow-hidden flex flex-col">
+          <textarea
+            readOnly
+            value={generatedContent}
+            className="w-full h-full bg-transparent text-xs font-mono text-slate-200 resize-none focus:outline-none overflow-y-auto leading-relaxed select-all"
+            dir="ltr"
+          />
+        </div>
+
+        {/* Modal Actions */}
+        <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-800">
+          <span className="text-[11px] text-slate-400">
+            {isFa
+              ? '💡 متن کپی‌شده را در ChatGPT، Claude، Midjourney، Ideogram، Canva یا ابزارهای رسم دیاگرام قرار دهید.'
+              : '💡 Paste this prompt into ChatGPT, Claude, Ideogram, Napkin, Canva, or Miro for visual generation.'}
+          </span>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {onOpenAiGenerator && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenAiGenerator(generatedContent);
+                }}
+                className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+              >
+                <Zap className="w-3.5 h-3.5 text-amber-300" />
+                <span>{isFa ? 'ارسال به هوش مصنوعی برنامه' : 'Send to AI'}</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={handleCopy}
+              className={`px-5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-lg ${
+                copied
+                  ? 'bg-emerald-600 text-white shadow-emerald-600/30'
+                  : 'bg-purple-600 hover:bg-purple-500 text-white shadow-purple-600/30'
+              }`}
+            >
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  <span>{isFa ? 'کپی شد! (Copied)' : 'Copied!'}</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" />
+                  <span>{isFa ? '📋 کپی کامل پرامپت و داده‌ها' : '📋 Copy Full Content'}</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ========================================================================= */
+/* 5. ATTACH / EDIT NODE IMAGE MODAL                                         */
+/* ========================================================================= */
+export interface NodeImageModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  node: MindMapNode | null;
+  currentImage?: NodeCustomImage | null;
+  onSaveImage: (canonicalKey: string, image: NodeCustomImage | null) => void;
+  language: Language;
+}
+
+export const NodeImageModal: React.FC<NodeImageModalProps> = ({
+  isOpen,
+  onClose,
+  node,
+  currentImage,
+  onSaveImage,
+  language,
+}) => {
+  const isFa = language === 'fa';
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [imageUrl, setImageUrl] = useState<string>(currentImage?.url || '');
+  const [caption, setCaption] = useState<string>(currentImage?.caption || '');
+  const [activeTab, setActiveTab] = useState<'upload' | 'url'>('upload');
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  // Sync state with prop safely when node changes
+  const [prevNodeId, setPrevNodeId] = useState<string | null>(null);
+  if (node && node.id !== prevNodeId) {
+    setPrevNodeId(node.id);
+    setImageUrl(currentImage?.url || '');
+    setCaption(currentImage?.caption || '');
+    setUploadError(null);
+  }
+
+  if (!isOpen || !node) return null;
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setUploadError(isFa ? 'لطفاً یک فایل تصویری معتبر انتخاب کنید.' : 'Please select a valid image file.');
+      return;
+    }
+
+    if (file.size > 8 * 1024 * 1024) {
+      setUploadError(isFa ? 'حجم تصویر نباید بیشتر از ۸ مگابایت باشد.' : 'Image size must be less than 8MB.');
+      return;
+    }
+
+    setUploadError(null);
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setImageUrl(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSave = () => {
+    if (!imageUrl.trim()) {
+      onSaveImage(node.canonicalKey, null);
+    } else {
+      onSaveImage(node.canonicalKey, {
+        url: imageUrl.trim(),
+        caption: caption.trim() || undefined,
+        addedAt: new Date().toISOString(),
+      });
+    }
+    onClose();
+  };
+
+  const handleRemove = () => {
+    onSaveImage(node.canonicalKey, null);
+    setImageUrl('');
+    setCaption('');
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in" dir={isFa ? 'rtl' : 'ltr'}>
+      <div className="w-full max-w-lg p-5 sm:p-6 rounded-3xl bg-slate-900 border border-purple-500/40 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="p-2 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/40">
+              <ImageIcon className="w-4 h-4 text-purple-400" />
+            </span>
+            <div>
+              <h3 className="font-bold text-sm sm:text-base text-white">
+                {isFa ? 'افزودن یا ویرایش تصویر شاخه' : 'Attach / Edit Branch Image'}
+              </h3>
+              <p className="text-xs text-slate-400 truncate max-w-xs">
+                {node.title.fa} ({node.title.en})
+              </p>
+            </div>
+          </div>
+          <button type="button" onClick={onClose} className="p-1 rounded text-slate-400 hover:text-white">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Tabs: Upload vs URL */}
+        <div className="flex items-center gap-2 border-b border-slate-800 pb-2 text-xs">
+          <button
+            type="button"
+            onClick={() => setActiveTab('upload')}
+            className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'upload'
+                ? 'bg-purple-600 text-white'
+                : 'bg-slate-950 text-slate-400 hover:text-white'
+            }`}
+          >
+            <Upload className="w-3.5 h-3.5" />
+            <span>{isFa ? '📁 بارگذاری از حافظه گوشی / کامپیوتر' : '📁 Upload Image File'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('url')}
+            className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'url'
+                ? 'bg-purple-600 text-white'
+                : 'bg-slate-950 text-slate-400 hover:text-white'
+            }`}
+          >
+            <LinkIcon className="w-3.5 h-3.5" />
+            <span>{isFa ? '🔗 آدرس اینترنتی (Image URL)' : '🔗 Image Web URL'}</span>
+          </button>
+        </div>
+
+        {/* Tab 1: Upload */}
+        {activeTab === 'upload' && (
+          <div className="space-y-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="p-6 rounded-2xl border-2 border-dashed border-slate-700 hover:border-purple-500/80 bg-slate-950/60 hover:bg-purple-950/20 text-center cursor-pointer transition space-y-2"
+            >
+              <Upload className="w-8 h-8 mx-auto text-purple-400" />
+              <p className="text-xs font-bold text-slate-200">
+                {isFa ? 'برای انتخاب یا عکس گرفتن کلیک کنید' : 'Click to browse image or photo'}
+              </p>
+              <p className="text-[11px] text-slate-400">
+                PNG, JPG, WEBP, SVG (حداکثر ۸ مگابایت)
+              </p>
+            </div>
+            {uploadError && <p className="text-xs text-rose-400 font-medium">{uploadError}</p>}
+          </div>
+        )}
+
+        {/* Tab 2: URL */}
+        {activeTab === 'url' && (
+          <div className="space-y-1.5">
+            <label className="text-xs text-slate-400 font-medium">
+              {isFa ? 'آدرس اینترنتی مستقیم تصویر (Direct Image URL):' : 'Direct Image URL:'}
+            </label>
+            <input
+              type="url"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://example.com/diagram.png"
+              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none font-mono"
+              dir="ltr"
+            />
+          </div>
+        )}
+
+        {/* Caption */}
+        <div className="space-y-1">
+          <label className="text-xs text-slate-400 font-medium">
+            {isFa ? 'توضیح یا زیرنویس تصویر (اختیاری):' : 'Image Caption / Description (Optional):'}
+          </label>
+          <input
+            type="text"
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+            placeholder={isFa ? 'مثال: فلوچارت تریاژ سرفه یا مکانیسم اثر داروی مهارکننده سیتوکروم' : 'e.g., Triage flowchart or CYP450 mechanism diagram'}
+            className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none"
+          />
+        </div>
+
+        {/* Image Live Preview */}
+        {imageUrl && (
+          <div className="space-y-1.5 pt-1">
+            <span className="text-xs text-slate-400 font-bold">{isFa ? 'پیش‌نمایش تصویر:' : 'Preview:'}</span>
+            <div className="relative rounded-2xl overflow-hidden border border-slate-700 max-h-48 bg-black/40 flex items-center justify-center">
+              <img
+                src={imageUrl}
+                alt={caption || 'Branch Attachment'}
+                className="max-h-48 w-auto object-contain rounded-xl"
+                onError={() => setUploadError(isFa ? 'خطا در بارگذاری تصویر از آدرس وارد شده.' : 'Failed to load image from URL.')}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-800">
+          {currentImage?.url ? (
+            <button
+              type="button"
+              onClick={handleRemove}
+              className="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>{isFa ? 'حذف تصویر' : 'Remove'}</span>
+            </button>
+          ) : (
+            <div />
+          )}
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition cursor-pointer"
+            >
+              {isFa ? 'انصراف' : 'Cancel'}
+            </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={!imageUrl}
+              className="px-4 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-xs font-bold shadow-md transition cursor-pointer"
+            >
+              {isFa ? 'ذخیره و پیوست به شاخه' : 'Save & Attach'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ========================================================================= */
+/* 6. FULLSCREEN HIGH-RES IMAGE VIEWER MODAL                                 */
+/* ========================================================================= */
+export interface ImageViewerModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  image: NodeCustomImage | null;
+  title: string;
+  language: Language;
+}
+
+export const ImageViewerModal: React.FC<ImageViewerModalProps> = ({
+  isOpen,
+  onClose,
+  image,
+  title,
+  language,
+}) => {
+  const isFa = language === 'fa';
+  if (!isOpen || !image) return null;
+
+  return (
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-lg animate-in fade-in cursor-zoom-out"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative max-w-5xl w-full max-h-[90vh] flex flex-col items-center justify-center space-y-3 cursor-default"
+      >
+        {/* Top bar */}
+        <div className="w-full flex items-center justify-between gap-3 text-white px-2">
+          <div className="space-y-0.5">
+            <h4 className="font-bold text-sm sm:text-base">{title}</h4>
+            {image.caption && <p className="text-xs text-slate-300">{image.caption}</p>}
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white transition cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Main Image */}
+        <div className="rounded-2xl overflow-hidden border border-slate-700 bg-slate-950/80 max-h-[80vh] flex items-center justify-center">
+          <img
+            src={image.url}
+            alt={image.caption || title}
+            className="max-h-[78vh] w-auto object-contain rounded-xl"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+

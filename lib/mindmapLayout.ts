@@ -144,9 +144,10 @@ export function calculateNodeDimensions(
   cardLangMode: 'fa' | 'en' | 'bilingual' = 'fa'
 ): { width: number; height: number } {
   const isLeafCard = node.level === 6 && !!node.card;
+  const imageExtraHeight = node.customImage ? 85 : 0;
 
   if (node.level === 0) {
-    return { width: 300, height: 76 };
+    return { width: 300, height: 76 + imageExtraHeight };
   }
 
   if (isLeafCard && node.card) {
@@ -160,11 +161,11 @@ export function calculateNodeDimensions(
       const width = 340;
       // Calculate dynamic height based on text volume
       const lines = Math.ceil(charCount / 38);
-      const height = Math.max(88, Math.min(260, 52 + lines * 18));
+      const height = Math.max(88, Math.min(260, 52 + lines * 18)) + imageExtraHeight;
       return { width, height };
     } else {
       const width = 280;
-      const height = 68;
+      const height = 68 + imageExtraHeight;
       return { width, height };
     }
   }
@@ -177,11 +178,11 @@ export function calculateNodeDimensions(
   if (displayMode === 'full_detailed') {
     const width = node.level === 1 ? 270 : node.level === 2 ? 260 : node.level === 3 ? 270 : 280;
     const isMultiLine = titleLen > 28;
-    const height = isMultiLine ? (node.level === 1 ? 76 : 70) : (node.level === 1 ? 64 : 58);
+    const height = (isMultiLine ? (node.level === 1 ? 76 : 70) : (node.level === 1 ? 64 : 58)) + imageExtraHeight;
     return { width, height };
   } else {
     const width = node.level === 1 ? 230 : node.level === 2 ? 220 : 210;
-    const height = node.level === 1 ? 58 : 52;
+    const height = (node.level === 1 ? 58 : 52) + imageExtraHeight;
     return { width, height };
   }
 }
@@ -231,6 +232,7 @@ export function computeMindMapLayout(
       isExpanded: isExpandedRoot,
       hasChildren: root.children.length > 0,
       colorTheme: root.colorTheme || 'purple',
+      customImage: root.customImage,
     });
 
     function layoutRadialSubtree(
@@ -269,6 +271,7 @@ export function computeMindMapLayout(
           isExpanded: isChildExpanded,
           hasChildren: childNode.children.length > 0,
           colorTheme: childNode.colorTheme || 'purple',
+          customImage: childNode.customImage,
         });
 
         if (isChildExpanded && childNode.children.length > 0) {
@@ -385,6 +388,7 @@ export function computeMindMapLayout(
         isExpanded,
         hasChildren: node.children.length > 0,
         colorTheme: node.colorTheme || 'purple',
+        customImage: node.customImage,
       });
 
       return { x: nodeX, width };
@@ -495,6 +499,7 @@ export function computeMindMapLayout(
       isExpanded,
       hasChildren,
       colorTheme: node.colorTheme || 'purple',
+      customImage: node.customImage,
     };
 
     items.push(layoutItem);

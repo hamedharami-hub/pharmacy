@@ -8,11 +8,13 @@ import {
   MindMapTextDisplay,
   MindMapLineStyle,
   MindMapViewMode,
+  NodeCustomImage,
 } from '@/types/mindmap';
 import { MINDMAP_THEMES, generateLinkPathData } from '@/lib/mindmapLayout';
 import { LeitnerCard } from '@/types/leitner';
 import { Language } from '@/types/pharmacy';
 import { FLAG_OPTIONS, FlagColor } from '@/components/LeitnerMindMapPanel';
+import { haptic } from '@/lib/haptics';
 import {
   ZoomIn,
   ZoomOut,
@@ -48,6 +50,7 @@ import {
   Network,
   ListTree,
   Grid,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 export interface MindMapCanvasProps {
@@ -74,6 +77,7 @@ export interface MindMapCanvasProps {
   onSetViewMode?: (mode: MindMapViewMode) => void;
   isDarkTheme?: boolean;
   onOpenSettings?: () => void;
+  onViewImage?: (image: NodeCustomImage, title: string) => void;
   children?: React.ReactNode;
 }
 
@@ -101,6 +105,7 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
   onSetViewMode,
   isDarkTheme = true,
   onOpenSettings,
+  onViewImage,
   children,
 }) => {
   const isFa = language === 'fa';
@@ -162,6 +167,46 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
     startMidX: 0,
     startMidY: 0,
   });
+
+  // Touch-hold long-press detection for mobile context menu
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const longPressMovedRef = useRef<boolean>(false);
+  const touchStartPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  const handleNodeTouchStart = (e: React.TouchEvent, node: MindMapNode) => {
+    longPressMovedRef.current = false;
+    if (e.touches.length === 1) {
+      touchStartPosRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = setTimeout(() => {
+        if (!longPressMovedRef.current) {
+          haptic.heavy();
+          onOpenContextMenu(e, node);
+        }
+      }, 450);
+    }
+  };
+
+  const handleNodeTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      const dx = Math.abs(e.touches[0].clientX - touchStartPosRef.current.x);
+      const dy = Math.abs(e.touches[0].clientY - touchStartPosRef.current.y);
+      if (dx > 8 || dy > 8) {
+        longPressMovedRef.current = true;
+        if (longPressTimerRef.current) {
+          clearTimeout(longPressTimerRef.current);
+          longPressTimerRef.current = null;
+        }
+      }
+    }
+  };
+
+  const handleNodeTouchEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
 
   // Compute optimal scale and pan offset to perfectly center mind map content
   const fitViewToContainer = useCallback((customBounds = bounds) => {
@@ -947,7 +992,6 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
 
               return (
                 <g key={link.id} className="transition-all duration-200">
-                  {/* Outer Glow Halo Line (High Visibility) */}
                   <path
                     d={pathData}
                     fill="none"
@@ -956,7 +1000,6 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                     strokeOpacity={isLinkActive ? 0.45 : 0.22}
                     strokeLinecap="round"
                   />
-                  {/* Inner Solid Sharp Line */}
                   <path
                     d={pathData}
                     fill="none"
@@ -965,35 +1008,18 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                     strokeOpacity={isLinkActive ? 1 : 0.85}
                     strokeLinecap="round"
                   />
-                  {/* Subtle Junction Dots */}
-                  <circle
-                    cx={link.startX}
-                    cy={link.startY}
-                    r={isLinkActive ? 4 : 3}
-                    fill={link.color}
-                  />
-                  <circle
-                    cx={link.endX}
-                    cy={link.endY}
-                    r={isLinkActive ? 4 : 3}
-                    fill={link.color}
-                  />
+                  <circle cx={link.startX} cy={link.startY} r={isLinkActive ? 4 : 3} fill={link.color} />
+                  <circle cx={link.endX} cy={link.endY} r={isLinkActive ? 4 : 3} fill={link.color} />
                 </g>
               );
             })}
           </svg>
 
-          {/* ========================================================================= */}
-          {/* 2. INTERACTIVE NODE CARDS (ALL 6 LEVELS - NO TRUNCATION)                  */}
-          {/* ========================================================================= */}
           {layoutItems.map((item) => {
             const node = item.node;
             const theme = MINDMAP_THEMES[item.colorTheme] || MINDMAP_THEMES.purple;
             const isLeafQuestion = node.level === 6 && !!node.card;
 
-            // -----------------------------------------------------------------
-            // A. Leaf Flashcard Node (Question Card - Full Text Display)
-            // -----------------------------------------------------------------
             if (isLeafQuestion && node.card) {
               const card = node.card;
               const flag = cardFlags[card.id];
@@ -1004,11 +1030,12 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
               return (
                 <div
                   key={node.id}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSelectQuestionCard(card);
-                  }}
+                  onClick={(e) => { e.stopPropagation(); onSelectQuestionCard(card); }}
                   onContextMenu={(e) => onOpenContextMenu(e, node)}
+                  onTouchStart={(e) => handleNodeTouchStart(e, node)}
+                  onTouchMove={handleNodeTouchMove}
+                  onTouchEnd={handleNodeTouchEnd}
+                  onTouchCancel={handleNodeTouchEnd}
                   onMouseEnter={() => setHoveredNodeId(node.id)}
                   onMouseLeave={() => setHoveredNodeId(null)}
                   style={{
@@ -1024,7 +1051,6 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                       : 'bg-slate-900/95 hover:bg-slate-850 border-slate-700/80 hover:border-purple-400'
                   }`}
                 >
-                  {/* Top Bar: Icon, Box Badge & Flag */}
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1.5 min-w-0">
                       {flagInfo ? (
@@ -1032,79 +1058,79 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                       ) : (
                         <HelpCircle className="w-3.5 h-3.5 shrink-0 text-cyan-400" />
                       )}
-                      <span className="text-[10px] font-bold text-slate-400 truncate">
-                        {card.topic || 'Clinical Item'}
-                      </span>
+                      <span className="text-[10px] font-bold text-slate-400 truncate">{card.topic || 'Clinical Item'}</span>
                     </div>
-
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="text-[10px] px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono font-bold">
-                        B{card.box}
-                      </span>
-                      <Eye className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-300 transition" />
+                    <div className="flex items-center gap-1 shrink-0">
+                      {node.customImage && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onViewImage?.(node.customImage!, node.title.fa || node.title.en || 'Card');
+                          }}
+                          className="text-[11px] px-1 py-0.5 rounded bg-purple-500/30 hover:bg-purple-500/60 text-purple-200 border border-purple-500/40 cursor-pointer transition"
+                          title={isFa ? 'مشاهده تصویر پیوست' : 'View Image'}
+                        >
+                          🖼️
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenContextMenu(e, node);
+                        }}
+                        className="px-1 py-0.5 rounded-md bg-slate-800/80 hover:bg-purple-600/40 text-slate-300 hover:text-white border border-slate-700/80 transition cursor-pointer text-[11px] font-bold"
+                        title={isFa ? 'امکانات شاخه (پیوست تصویر، کپی AI، رنگ و...)' : 'Actions & Image'}
+                      >
+                        ⋮
+                      </button>
+                      <span className="text-[10px] px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono font-bold">B{card.box}</span>
                     </div>
                   </div>
 
-                  {/* Question Content (Support: Bilingual, Farsi Only, English Only) */}
                   <div className="space-y-1.5 flex-1 min-w-0">
                     {cardLangMode === 'bilingual' ? (
                       <div className="space-y-1">
-                        <div
-                          className="text-xs font-bold text-slate-100 leading-relaxed break-words whitespace-normal"
-                          dir="rtl"
-                        >
-                          {qFa || qEn}
-                        </div>
-                        {qEn && qEn !== qFa && (
-                          <div
-                            className="text-[11px] font-medium text-purple-300 leading-normal font-sans break-words whitespace-normal pt-1 border-t border-slate-800/80"
-                            dir="ltr"
-                          >
-                            {qEn}
-                          </div>
-                        )}
+                        <div className="text-xs font-bold text-slate-100 leading-relaxed" dir="rtl">{qFa || qEn}</div>
+                        {qEn && qEn !== qFa && <div className="text-[11px] font-medium text-purple-300 leading-normal border-t border-slate-800/80 pt-1" dir="ltr">{qEn}</div>}
                       </div>
                     ) : cardLangMode === 'fa' ? (
-                      <div
-                        className="text-xs font-bold text-slate-100 leading-relaxed break-words whitespace-normal"
-                        dir="rtl"
-                      >
-                        {qFa || qEn}
-                      </div>
+                      <div className="text-xs font-bold text-slate-100" dir="rtl">{qFa || qEn}</div>
                     ) : (
-                      <div
-                        className="text-xs font-semibold text-slate-100 leading-relaxed font-sans break-words whitespace-normal"
-                        dir="ltr"
-                      >
-                        {qEn || qFa}
-                      </div>
+                      <div className="text-xs font-semibold text-slate-100" dir="ltr">{qEn || qFa}</div>
                     )}
                   </div>
 
-                  {/* Card Footer: Tags & Review Hint */}
+                  {node.customImage && (
+                    <div
+                      onClick={(e) => { e.stopPropagation(); onViewImage?.(node.customImage!, node.title.fa || node.title.en || 'Node'); }}
+                      className="relative rounded-xl overflow-hidden border border-purple-500/40 bg-black/50 max-h-20 flex items-center justify-center cursor-zoom-in group/img"
+                    >
+                      <img src={node.customImage.url} alt="Attachment" className="w-full h-16 object-cover group-hover/img:scale-105 transition" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end justify-between p-1 text-[9px] text-white">
+                        <span className="truncate max-w-[85%]">{node.customImage.caption || 'Image'}</span>
+                        <ZoomIn className="w-3 h-3 text-cyan-300" />
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between pt-1 border-t border-slate-800/60 text-[10px] text-slate-400">
-                    <span className="font-mono text-emerald-400 font-semibold">
-                      {isFa ? 'برای مشاهده پاسخ کلیک کنید' : 'Click to reveal'}
-                    </span>
-                    {flagInfo && (
-                      <span className="font-bold">{isFa ? flagInfo.name.fa.split(' ')[0] : flagInfo.name.en.split(' ')[0]}</span>
-                    )}
+                    <span className="font-mono text-emerald-400 font-semibold">{isFa ? 'برای مشاهده پاسخ کلیک کنید' : 'Click to reveal'}</span>
                   </div>
                 </div>
               );
             }
 
-            // -----------------------------------------------------------------
-            // B. Branch Nodes (Levels 0 to 5)
-            // -----------------------------------------------------------------
             return (
               <div
                 key={node.id}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleNode(node.id);
-                }}
+                onClick={(e) => { e.stopPropagation(); onToggleNode(node.id); }}
                 onContextMenu={(e) => onOpenContextMenu(e, node)}
+                onTouchStart={(e) => handleNodeTouchStart(e, node)}
+                onTouchMove={handleNodeTouchMove}
+                onTouchEnd={handleNodeTouchEnd}
+                onTouchCancel={handleNodeTouchEnd}
                 onMouseEnter={() => setHoveredNodeId(node.id)}
                 onMouseLeave={() => setHoveredNodeId(null)}
                 style={{
@@ -1114,61 +1140,63 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                   width: `${item.width}px`,
                   minHeight: `${item.height}px`,
                 }}
-                className={`mindmap-interactive-node group p-3 rounded-2xl border transition-all duration-200 cursor-pointer shadow-lg hover:shadow-2xl hover:scale-[1.02] flex flex-col justify-between gap-1.5 ${
-                  node.level === 0
-                    ? 'bg-slate-900/95 border-purple-500/80 shadow-purple-500/20 ring-2 ring-purple-500/30'
-                    : `${theme.bg} ${theme.border} ${theme.glow}`
+                className={`mindmap-interactive-node group p-3 rounded-2xl border transition-all duration-200 cursor-pointer shadow-lg hover:shadow-2xl flex flex-col gap-1.5 ${
+                  node.level === 0 ? 'bg-slate-900/95 border-purple-500/80' : `${theme.bg} ${theme.border} ${theme.glow}`
                 }`}
               >
-                {/* Title Content (Support: Bilingual, Farsi Only, English Only) */}
                 <div className="flex items-center justify-between gap-2 min-w-0 w-full">
                   <div className="flex-1 min-w-0 space-y-0.5">
                     {cardLangMode === 'bilingual' ? (
                       <>
-                        <div
-                          className={`font-extrabold text-xs sm:text-sm leading-snug break-words whitespace-normal ${
-                            node.level === 0 ? 'text-purple-200' : theme.text
-                          }`}
-                          dir="rtl"
-                        >
-                          {node.title.fa || node.title.en}
-                        </div>
-                        {node.title.en && node.title.en !== node.title.fa && (
-                          <div
-                            className="text-[10.5px] font-sans font-medium text-slate-300 break-words whitespace-normal opacity-90 leading-tight"
-                            dir="ltr"
-                          >
-                            {node.title.en}
-                          </div>
-                        )}
+                        <div className={`font-extrabold text-xs sm:text-sm ${node.level === 0 ? 'text-purple-200' : theme.text}`} dir="rtl">{node.title.fa || node.title.en}</div>
+                        {node.title.en && node.title.en !== node.title.fa && <div className="text-[10.5px] text-slate-300 opacity-90" dir="ltr">{node.title.en}</div>}
                       </>
                     ) : cardLangMode === 'fa' ? (
-                      <div
-                        className={`font-extrabold text-xs sm:text-sm leading-snug break-words whitespace-normal ${
-                          node.level === 0 ? 'text-purple-200' : theme.text
-                        }`}
-                        dir="rtl"
-                      >
-                        {node.title.fa || node.title.en}
-                      </div>
+                      <div className={`font-extrabold text-xs sm:text-sm ${node.level === 0 ? 'text-purple-200' : theme.text}`} dir="rtl">{node.title.fa || node.title.en}</div>
                     ) : (
-                      <div
-                        className={`font-extrabold text-xs sm:text-sm leading-snug break-words whitespace-normal ${
-                          node.level === 0 ? 'text-purple-200' : theme.text
-                        }`}
-                        dir="ltr"
-                      >
-                        {node.title.en || node.title.fa}
-                      </div>
+                      <div className={`font-extrabold text-xs sm:text-sm ${node.level === 0 ? 'text-purple-200' : theme.text}`} dir="ltr">{node.title.en || node.title.fa}</div>
                     )}
                   </div>
-
-                  {node.cardCount > 0 && (
-                    <span className="px-1.5 py-0.5 rounded-md bg-black/40 text-slate-300 text-[10px] font-mono font-bold shrink-0">
-                      {node.cardCount}
-                    </span>
-                  )}
+                  <div className="flex items-center gap-1 shrink-0">
+                     {node.customImage && (
+                       <button
+                         type="button"
+                         onClick={(e) => {
+                           e.stopPropagation();
+                           onViewImage?.(node.customImage!, node.title.fa || node.title.en || 'Node');
+                         }}
+                         className="text-[11px] px-1 py-0.5 rounded bg-purple-500/30 hover:bg-purple-500/60 text-purple-200 border border-purple-500/40 cursor-pointer transition"
+                         title={isFa ? 'مشاهده تصویر پیوست' : 'View Image'}
+                       >
+                         🖼️
+                       </button>
+                     )}
+                     <button
+                       type="button"
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         onOpenContextMenu(e, node);
+                       }}
+                       className="px-1 py-0.5 rounded-md bg-slate-800/80 hover:bg-purple-600/40 text-slate-300 hover:text-white border border-slate-700/80 transition cursor-pointer text-[11px] font-bold"
+                       title={isFa ? 'امکانات شاخه (پیوست تصویر، کپی AI، رنگ و...)' : 'Actions & Image'}
+                     >
+                       ⋮
+                     </button>
+                     {node.cardCount > 0 && <span className="px-1.5 py-0.5 rounded-md bg-black/40 text-slate-300 text-[10px] font-mono font-bold">{node.cardCount}</span>}
+                  </div>
                 </div>
+                {node.customImage && (
+                  <div
+                    onClick={(e) => { e.stopPropagation(); onViewImage?.(node.customImage!, node.title.fa || node.title.en || 'Node'); }}
+                    className="relative rounded-xl overflow-hidden border border-purple-500/40 bg-black/50 max-h-24 flex items-center justify-center cursor-zoom-in group/img mt-1"
+                  >
+                    <img src={node.customImage.url} alt="Attachment" className="w-full h-18 object-cover group-hover/img:scale-105 transition" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end justify-between p-1 text-[9.5px] text-white">
+                      <span className="truncate max-w-[85%] font-medium">{node.customImage.caption || 'Image'}</span>
+                      <ZoomIn className="w-3 h-3 text-cyan-300" />
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}

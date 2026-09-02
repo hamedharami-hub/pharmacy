@@ -17,7 +17,12 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: true,
     equivalentBrands: ['Panamax', 'Dymadon', 'Chemist Own Paracetamol'],
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-A', 'CAL-12'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'داروی ضددرد و تب‌بر انتخابی و کاملاً ایمن در تمام مراحل بارداری و شیردهی در دوزهای مجاز.',
+      en: 'Analgesic and antipyretic of choice in all trimesters of pregnancy and during breastfeeding at recommended doses.',
+    },
     indications: {
       en: 'Temporary relief of pain and fever in headaches, tension headaches, toothache, arthritis, and cold & flu symptoms.',
       fa: 'تسکین موقت درد و تب در سردرد، دندان‌درد، آرتروز و علائم سرماخوردگی و آنفلوآنزا.',
@@ -45,7 +50,12 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: true,
     equivalentBrands: ['OsteoMol 665', 'Chemist Own Osteo Relief'],
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-A', 'CAL-6', 'CAL-12'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'داروی ایمن در بارداری؛ قرص‌ها باید کامل بلعیده شوند و خرد نشوند.',
+      en: 'Safe in pregnancy; tablets must be swallowed whole and not crushed.',
+    },
     indications: {
       en: 'Persistent pain associated with osteoarthritis and musculoskeletal conditions.',
       fa: 'تسکین دردهای پایدار و مداوم ناشی از استئوآرتریت و آرتروز مفاصل.',
@@ -69,7 +79,12 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: true,
     equivalentBrands: ['Advil', 'Rafan', 'Chemist Own Ibuprofen'],
-    calLabels: ['CAL-1', 'CAL-10'],
+    calLabels: ['CAL-A', 'CAL-12'],
+    tgaPregnancyCategory: 'C',
+    pregnancyAdvice: {
+      fa: 'در سه‌ماهه اول و دوم با احتیاط؛ در سه‌ماهه سوم به دلیل خطر بسته شدن زودرس مجرای شریانی جنین (PDA) و اولیگوهیدرآمنیوس اکیداً ممنوع است (Category D).',
+      en: 'Avoid in pregnancy; strictly contraindicated in 3rd trimester due to premature closure of fetal ductus arteriosus and oligohydramnios (Category D).',
+    },
     indications: {
       en: 'Relief of mild to moderate pain, inflammation, headache, dental pain, backache, and dysmenorrhea.',
       fa: 'کاهش درد و التهاب خفیف تا متوسط، سردرد، دندان‌درد، کمردرد، دردهای عضلانی و دیسمنوره.',
@@ -97,7 +112,12 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: true,
     equivalentBrands: ['Diclofenac Sandoz', 'Chemist Own Diclofenac'],
-    calLabels: ['CAL-1', 'CAL-10'],
+    calLabels: ['CAL-A', 'CAL-12'],
+    tgaPregnancyCategory: 'C',
+    pregnancyAdvice: {
+      fa: 'منع مصرف در سه‌ماهه سوم بارداری (خطر مهار انقباضات رحمی، تاخیر زایمان و عوارض قلبی-عروقی جنین).',
+      en: 'Contraindicated in 3rd trimester of pregnancy (risk of ductus arteriosus closure, prolonged labour and renal dysfunction).',
+    },
     indications: {
       en: 'Short-term treatment of acute painful inflammatory conditions such as dental pain, sprains, and dysmenorrhea.',
       fa: 'درمان کوتاه‌مدت دردهای حاد التهابی، کشیدگی تاندون، دندان‌درد حاد و دردهای قاعدگی.',
@@ -120,7 +140,12 @@ export const SHELF_PRODUCTS: Product[] = [
     subcategoryId: 'sub-1-1',
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
-    calLabels: ['CAL-1', 'CAL-10'],
+    calLabels: ['CAL-A', 'CAL-C', 'CAL-12'],
+    tgaPregnancyCategory: 'C',
+    pregnancyAdvice: {
+      fa: 'به دلیل وجود جزء ایبوپروفن، در سه‌ماهه سوم بارداری اکیداً ممنوع است.',
+      en: 'Strictly contraindicated in the 3rd trimester of pregnancy due to the ibuprofen component.',
+    },
     indications: {
       en: 'Strong, synergistic relief of acute pain not responding to single active ingredient alone (dental, migraine).',
       fa: 'تسکین هم‌افزا و قوی دردهای حاد پس از دندانپزشکی، میگرن و دردهای اسکلتی-عضلانی شدید.',
@@ -143,7 +168,12 @@ export const SHELF_PRODUCTS: Product[] = [
     subcategoryId: 'sub-1-1',
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
-    calLabels: ['CAL-1', 'CAL-10'],
+    calLabels: ['CAL-7', 'CAL-A', 'CAL-12'],
+    tgaPregnancyCategory: 'C',
+    pregnancyAdvice: {
+      fa: 'دوزهای کامل ضددرد در سه‌ماهه سوم اکیداً ممنوع است (خطر خونریزی مادر و نوزاد و بسته شدن زودرس مجرای شریانی).',
+      en: 'Avoid full analgesic doses in pregnancy; strictly contraindicated in 3rd trimester (maternal/neonatal bleeding risk).',
+    },
     indications: {
       en: 'Relief of headache, sore throat, toothache, and fever in adults.',
       fa: 'تسکین سریع سردرد، گلودرد، دندان‌درد و تب در بزرگسالان.',
@@ -171,7 +201,12 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: true,
     equivalentBrands: ['Canesten Clotrimazole/Fluconazole', 'Chemist Own Fluconazole'],
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-12'],
+    tgaPregnancyCategory: 'D',
+    pregnancyAdvice: {
+      fa: 'رده D در بارداری؛ فلوکونازول خوراکی در بارداری ممنوع است. در کاندیدیاز واژینال بارداری، کلوتریمازول موضعی (Category A) خط اول درمان است.',
+      en: 'Category D. Oral fluconazole is contraindicated in pregnancy; use topical clotrimazole (Category A) instead.',
+    },
     indications: {
       en: 'Single-dose oral treatment for acute vaginal candidiasis (thrush).',
       fa: 'درمان خوراکی تک‌دوز عفونت قارچی کاندیدیازیس واژینال (برفک).',
@@ -200,6 +235,11 @@ export const SHELF_PRODUCTS: Product[] = [
     aFlagBioequivalent: true,
     equivalentBrands: ['Clonea', 'Chemist Own Clotrimazole'],
     calLabels: ['CAL-A'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'داروی انتخابی و ایمن (Category A) برای درمان عفونت‌های قارچی موضعی در دوران بارداری.',
+      en: 'First-line topical antifungal of choice in pregnancy (Category A).',
+    },
     indications: {
       en: 'Topical fungal skin infections: tinea pedis (athlete foot), tinea cruris (jock itch), and cutaneous candidiasis.',
       fa: 'عفونت‌های قارچی پوست: تینه‌آ پدیس (پای ورزشکاران)، تینه‌آ کروریس، تینه‌آ کورپوریس و برفک جلدی.',
@@ -224,6 +264,11 @@ export const SHELF_PRODUCTS: Product[] = [
     aFlagBioequivalent: true,
     equivalentBrands: ['SolvEasy Tinea', 'Chemist Own Terbinafine'],
     calLabels: ['CAL-A'],
+    tgaPregnancyCategory: 'B1',
+    pregnancyAdvice: {
+      fa: 'مصرف موضعی با جذب سیستمیک بسیار ناچیز؛ در بارداری با ارزیابی پزشک قابل استفاده است.',
+      en: 'Topical application has minimal systemic absorption; use with caution in pregnancy.',
+    },
     indications: {
       en: 'Fast fungicidal treatment of athlete foot, jock itch, and ringworm with short 7-day course.',
       fa: 'درمان قارچ‌کش سریع پای ورزشکاران و کچلی با دوره کوتاه ۷ روزه.',
@@ -247,6 +292,11 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
     calLabels: ['CAL-A'],
+    tgaPregnancyCategory: 'B3',
+    pregnancyAdvice: {
+      fa: 'به دلیل کمبود داده‌های ایمنی، در دوران بارداری و شیردهی توصیه نمی‌شود.',
+      en: 'Avoid in pregnancy and lactation due to limited clinical safety data.',
+    },
     indications: {
       en: 'Treatment of distal and lateral subungual onychomycosis affecting up to 2 nails without lunula involvement.',
       fa: 'درمان عفونت قارچی ناخن (انیکومایکوزیس) بدون درگیری ریشه ناخن (حداکثر تا ۲ ناخن).',
@@ -269,7 +319,12 @@ export const SHELF_PRODUCTS: Product[] = [
     subcategoryId: 'sub-1-2',
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-12'],
+    tgaPregnancyCategory: 'B3',
+    pregnancyAdvice: {
+      fa: 'در سه‌ماهه اول بارداری توصیه نمی‌شود؛ رعایت بهداشت دست‌ها و ناخن‌ها خط اول درمان است.',
+      en: 'Avoid in 1st trimester; strict hygiene measures are first-line during early pregnancy.',
+    },
     indications: {
       en: 'Treatment of threadworm (pinworm) infections in adults and children.',
       fa: 'درمان عفونت‌های ناشی از انگل اکسیور (کرمک یا Pinworm) در کودکان و بزرگسالان.',
@@ -297,7 +352,12 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: true,
     equivalentBrands: ['Combantrin-1 (Mebendazole)'],
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-12'],
+    tgaPregnancyCategory: 'B3',
+    pregnancyAdvice: {
+      fa: 'در بارداری به ویژه سه‌ماهه اول به دلیل پتانسیل تراتوژنیک در مطالعات حیوانی اکیداً ممنوع است.',
+      en: 'Contraindicated in pregnancy, especially 1st trimester (teratogenic in animal studies).',
+    },
     indications: {
       en: 'Single-dose treatment of threadworm (Enterobius vermicularis) in adults and children over 2 years.',
       fa: 'درمان تک‌دوز کرمک (اکسیور) و کرم‌های لوله‌ای در بزرگسالان و کودکان بالای ۲ سال.',
@@ -321,6 +381,11 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
     calLabels: ['CAL-A'],
+    tgaPregnancyCategory: 'B3',
+    pregnancyAdvice: {
+      fa: 'درمان خط اول و ایمن گال (Scabies) در دوران بارداری و شیردهی.',
+      en: 'First-line topical treatment for scabies during pregnancy and breastfeeding.',
+    },
     indications: {
       en: 'First-line treatment of scabies infestation and crab lice in adults and children over 2 months.',
       fa: 'خط اول درمان گال (اسکابیس) و شپش در بزرگسالان و اطفال بالای ۲ ماه.',
@@ -347,7 +412,12 @@ export const SHELF_PRODUCTS: Product[] = [
     subcategoryId: 'sub-1-3',
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
-    calLabels: ['CAL-4'],
+    calLabels: ['CAL-4', 'CAL-10', 'CAL-16'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'مصرف موضعی چشمی با جذب سیستمیک بسیار ناچیز در بارداری ایمن است (Category A).',
+      en: 'Topical ophthalmic administration has minimal systemic absorption and is Category A in pregnancy.',
+    },
     indications: {
       en: 'Treatment of acute bacterial conjunctivitis in adults and children aged 2 years and older.',
       fa: 'درمان کونژونکتیویت باکتریایی حاد در بزرگسالان و کودکان بالای ۲ سال.',
@@ -374,7 +444,12 @@ export const SHELF_PRODUCTS: Product[] = [
     subcategoryId: 'sub-1-3',
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-16'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'اشک مصنوعی؛ کاملاً ایمن در بارداری و شیردهی.',
+      en: 'Artificial tears; completely safe throughout pregnancy and lactation.',
+    },
     indications: {
       en: 'Fast, long-lasting relief from dry eye symptoms, burning, irritation, and screen fatigue.',
       fa: 'تسکین سریع و ماندگار خشکی چشم، سوزش، احساس شن‌ریزه و خستگی ناشی از مانیتور.',
@@ -397,7 +472,12 @@ export const SHELF_PRODUCTS: Product[] = [
     subcategoryId: 'sub-1-3',
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-16'],
+    tgaPregnancyCategory: 'B1',
+    pregnancyAdvice: {
+      fa: 'در بارداری با ارزیابی سود به زیان بالینی مصرف شود.',
+      en: 'Use with caution in pregnancy only if clinically needed.',
+    },
     indications: {
       en: 'Treatment of seasonal and perennial allergic conjunctivitis (itchy, watery, red eyes).',
       fa: 'تسکین و پیشگیری از خارش، قرمزی و آبریزش چشم ناشی از آلرژی فصلی (رینیت آلرژیک چشم).',
@@ -421,6 +501,11 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
     calLabels: ['CAL-A'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'قطره موم گوش؛ کاملاً ایمن در بارداری در صورت سلامت پرده صماخ.',
+      en: 'Ear wax drop; safe during pregnancy with intact tympanic membrane.',
+    },
     indications: {
       en: 'Cerumenolytic agent to soften and facilitate natural clearance of hardened ear wax plugs.',
       fa: 'نرم‌کننده و حل‌کننده توده‌های فشرده و خشک‌شده موم گوش (جرم گوش).',
@@ -444,6 +529,11 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
     calLabels: ['CAL-A'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'ایمن در بارداری؛ در پرده گوش پاره یا ملتهب مصرف نشود.',
+      en: 'Safe in pregnancy; do not use in perforated or acutely inflamed ear drums.',
+    },
     indications: {
       en: 'Prevention and supportive drying aid for swimmer ear (otitis externa) after swimming or showering.',
       fa: 'پیشگیری و خشک‌کننده رطوبت گوش پس از شنا جهت جلوگیری از عفونت گوش شناگران (اوتیت خارجی).',
@@ -471,7 +561,12 @@ export const SHELF_PRODUCTS: Product[] = [
     subcategoryId: 'sub-1-4',
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-14', 'CAL-12'],
+    tgaPregnancyCategory: 'B2',
+    pregnancyAdvice: {
+      fa: 'در سه‌ماهه اول به دلیل خطر نقص دیواره شکم جنین (Gastroschisis) ممنوع است و در کل بارداری توصیه نمی‌شود.',
+      en: 'Avoid throughout pregnancy, especially in 1st trimester due to vascular disruption and gastroschisis risks.',
+    },
     indications: {
       en: 'Fast, effective relief from sinus and nasal congestion due to colds, flu, and allergies.',
       fa: 'تسکین سریع احتقان بینی و سینوس‌ها ناشی از سرماخوردگی، آنفلوآنزا و آلرژی.',
@@ -499,7 +594,12 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: true,
     equivalentBrands: ['Xergic', 'Fexo 180', 'Chemist Own Fexofenadine'],
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-12'],
+    tgaPregnancyCategory: 'B2',
+    pregnancyAdvice: {
+      fa: 'در بارداری آنتی‌هیستامین‌های رده A مانند ستیریزین یا لوراتادین ارجح هستند.',
+      en: 'Category B2; Category A antihistamines (loratadine or cetirizine) are preferred in pregnancy.',
+    },
     indications: {
       en: '24-hour non-drowsy relief of seasonal allergic rhinitis (hayfever) and chronic idiopathic urticaria.',
       fa: 'تسکین ۲۴ ساعته و بدون خواب‌آلودگی علائم رینیت آلرژیک (تب یونجه) و کهیر مزمن.',
@@ -523,7 +623,12 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: true,
     equivalentBrands: ['Alerid', 'Chemist Own Cetirizine'],
-    calLabels: ['CAL-2'],
+    calLabels: ['CAL-3', 'CAL-12'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'داروی انتخابی و ایمن (Category A) برای رینیت آلرژیک و کهیر در دوران بارداری.',
+      en: 'Antihistamine of choice in pregnancy for allergic rhinitis and urticaria (Category A).',
+    },
     indications: {
       en: 'Rapid relief of hayfever, sneezing, itchy runny nose, itchy watery eyes, and hives.',
       fa: 'تسکین سریع عطسه، خارش و آبریزش بینی، اشک‌ریزش و کهیر ناشی از آلرژی.',
@@ -546,7 +651,12 @@ export const SHELF_PRODUCTS: Product[] = [
     subcategoryId: 'sub-1-4',
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-17'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'کورتیکواستروئید بینی انتخابی و کاملاً ایمن در بارداری برای کنترل تب یونجه (Category A).',
+      en: 'Intranasal corticosteroid of choice in pregnancy for allergic rhinitis (Category A).',
+    },
     indications: {
       en: 'Prevention and treatment of moderate-to-severe allergic rhinitis and nasal polyps.',
       fa: 'پیشگیری و درمان خط اول رینیت آلرژیک فصلی و دائمی و پولیپ بینی.',
@@ -569,7 +679,12 @@ export const SHELF_PRODUCTS: Product[] = [
     subcategoryId: 'sub-1-4',
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-12'],
+    tgaPregnancyCategory: 'B1',
+    pregnancyAdvice: {
+      fa: 'حداکثر ۳ تا ۵ روز متوالی؛ در بارداری قطره‌های سالین نمکی ارجح هستند.',
+      en: 'Limit use to maximum 3-5 days to avoid rhinitis medicamentosa; saline spray preferred in pregnancy.',
+    },
     indications: {
       en: 'Fast temporary nasal decongestion for acute blocked nose due to common cold or sinusitis.',
       fa: 'بازکننده فوری گرفتگی و احتقان بینی ناشی از سرماخوردگی و سینوزیت حاد.',
@@ -592,7 +707,12 @@ export const SHELF_PRODUCTS: Product[] = [
     subcategoryId: 'sub-1-4',
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
-    calLabels: ['CAL-2'],
+    calLabels: ['CAL-1', 'CAL-2', 'CAL-12'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'در دوزهای مجاز در بارداری قابل مصرف است (Category A).',
+      en: 'Acceptable for short-term use at recommended therapeutic doses in pregnancy (Category A).',
+    },
     indications: {
       en: 'Cough suppressant for non-productive, dry irritating tickly coughs.',
       fa: 'ضدسرفه مرکزی برای سرفه‌های خشک، تحریکی و بدون خلط.',
@@ -639,7 +759,12 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: true,
     equivalentBrands: ['Asmol 100'],
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-17'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'برونکودیلاتور نجات‌بخش و انتخابی در تمام مراحل بارداری و حملات حاد آسم (Category A).',
+      en: 'Reliever of choice; completely safe and essential in all trimesters of pregnancy for asthma control (Category A).',
+    },
     indications: {
       en: 'Short-acting beta-2 agonist (SABA) for rapid relief of acute asthma symptoms, bronchospasm, and wheezing.',
       fa: 'برونکودیلاتور سریع‌الاثر (SABA) برای تسکین فوری حملات آسم، تنگی نفس و خس‌خس سینه.',
@@ -662,7 +787,12 @@ export const SHELF_PRODUCTS: Product[] = [
     subcategoryId: 'sub-1-4',
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-12'],
+    tgaPregnancyCategory: 'D',
+    pregnancyAdvice: {
+      fa: 'روش‌های غیردارویی ترک سیگار در بارداری اولویت دارند؛ اما NRT خوراکی کوتاه‌اثر نسبت به ادامه مصرف سیگار بسیار کم‌خطرتر است.',
+      en: 'Non-pharmacological cessation preferred; oral short-acting NRT is substantially safer than continued tobacco smoking in pregnancy.',
+    },
     indications: {
       en: 'Nicotine replacement therapy (NRT) for smoking cessation in smokers of >20 cigarettes/day.',
       fa: 'درمان جایگزین نیکوتین (NRT) برای ترک سیگار در افراد با مصرف بیش از ۲۰ نخ در روز.',
@@ -690,7 +820,12 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: true,
     equivalentBrands: ['Somac Heartburn Relief (Pantoprazole)', 'Chemist Own Esomeprazole'],
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-6', 'CAL-B'],
+    tgaPregnancyCategory: 'B3',
+    pregnancyAdvice: {
+      fa: 'در صورت عدم پاسخ به آنتی‌اسیدها و H2RAها در بارداری با نظر پزشک مصرف شود.',
+      en: 'Second-line after antacids and H2-receptor antagonists for severe refractory reflux in pregnancy.',
+    },
     indications: {
       en: 'Lasting relief of frequent heartburn, acid regurgitation, and gastro-oesophageal reflux disease (GORD).',
       fa: 'تسکین پایدار سوزش سر دل مکرر، برگشت اسید معده و ریفلاکس گوارشی (GORD).',
@@ -714,6 +849,11 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
     calLabels: ['CAL-A'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'آنتی‌اسید آلژینات خط اول و کاملاً ایمن برای سوزش سر دل در تمام مراحل بارداری (Category A).',
+      en: 'First-line alginate barrier therapy; safe throughout all trimesters of pregnancy (Category A).',
+    },
     indications: {
       en: 'Fast soothing raft formation to block acid reflux and neutralise excess gastric acid in heartburn and indigestion.',
       fa: 'ایجاد لایه ژلی محافظ شناور روی محتویات معده و خنثی‌سازی سریع اسید در سوزش سر دل و سوءهاضمه.',
@@ -737,7 +877,12 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: true,
     equivalentBrands: ['Imodium', 'Chemist Own Loperamide'],
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-12'],
+    tgaPregnancyCategory: 'B3',
+    pregnancyAdvice: {
+      fa: 'آبرسانی و ORS خط اول است؛ لوپرامید در دوران بارداری توصیه نمی‌شود مگر با ضرورت قطعی بالینی.',
+      en: 'Oral rehydration is first-line; avoid loperamide in pregnancy unless clinically essential.',
+    },
     indications: {
       en: 'Symptomatic control of acute non-specific diarrhea in adults and children 12 years and over.',
       fa: 'مهار علامتی اسهال حاد غیرعفونی و غیرخونی در افراد بالای ۱۲ سال.',
@@ -764,7 +909,12 @@ export const SHELF_PRODUCTS: Product[] = [
     subcategoryId: 'sub-1-5',
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-7'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'محلول آبرسانی الکترولیتی؛ کاملاً ایمن و ضروری در بارداری، شیردهی و اطفال.',
+      en: 'Oral rehydration solution; completely safe and essential during pregnancy, lactation and pediatrics.',
+    },
     indications: {
       en: 'Rapid rehydration and electrolyte replenishment during diarrhea, vomiting, fever, and heat exhaustion.',
       fa: 'جایگزینی سریع آب و الکترولیت‌های از دست رفته در اسهال، استفراغ، تب و گرمازدگی.',
@@ -788,7 +938,12 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: true,
     equivalentBrands: ['Osmolax', 'Coloxyl & Senna'],
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-7'],
+    tgaPregnancyCategory: 'B1',
+    pregnancyAdvice: {
+      fa: 'ملین اسمزی انتخابی و ایمن خط اول برای یبوست بارداری (به دلیل عدم جذب سیستمیک).',
+      en: 'Osmotic laxative of choice in pregnancy due to negligible systemic absorption.',
+    },
     indications: {
       en: 'Effective, gentle osmotic treatment of chronic and acute constipation and faecal impaction.',
       fa: 'درمان ملایم و اسموتیک یبوست حاد و مزمن و انسداد مدفوعی بدون ایجاد تنبلی روده.',
@@ -812,7 +967,12 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: true,
     equivalentBrands: ['Chemist Own Bisacodyl'],
-    calLabels: ['CAL-10'],
+    calLabels: ['CAL-6', 'CAL-B'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'ملین محرک خط دوم؛ برای مصرف کوتاه‌مدت در بارداری در صورت عدم پاسخ به ملین‌های فیبری و اسمزی.',
+      en: 'Stimulant laxative for short-term use in pregnancy if bulk-forming/osmotic laxatives are ineffective.',
+    },
     indications: {
       en: 'Stimulant laxative for predictable overnight relief of acute constipation.',
       fa: 'ملین محرک برای تسکین شبانه یبوست حاد طی ۶ تا ۱۲ ساعت.',
@@ -837,6 +997,11 @@ export const SHELF_PRODUCTS: Product[] = [
     aFlagBioequivalent: true,
     equivalentBrands: ['Chemist Own Hyoscine'],
     calLabels: ['CAL-A'],
+    tgaPregnancyCategory: 'B2',
+    pregnancyAdvice: {
+      fa: 'در بارداری فقط با نظر و دستور مستقیم پزشک مصرف شود.',
+      en: 'Use only under direct medical advice during pregnancy.',
+    },
     indications: {
       en: 'Targeted antispasmodic relief for abdominal cramps, IBS spasms, and painful period cramps.',
       fa: 'ضداسپاسم عضلات صاف دستگاه گوارش برای دردهای کولیکی شکم و سندرم روده تحریک‌پذیر (IBS).',
@@ -860,6 +1025,11 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
     calLabels: ['CAL-1', 'CAL-2'],
+    tgaPregnancyCategory: 'B2',
+    pregnancyAdvice: {
+      fa: 'به دلیل ترکیبات سه‌گانه در بارداری توصیه نمی‌شود؛ ویتامین B6 (پیریدوکسین) یا زنجبیل برای تهوع بارداری ارجح است.',
+      en: 'Avoid combination in pregnancy; pyridoxine (vitamin B6) or ginger is preferred for pregnancy nausea.',
+    },
     indications: {
       en: 'Prevention and treatment of motion sickness (car, sea, air travel) and nausea.',
       fa: 'پیشگیری و درمان بیماری حرکت (ماشین‌گرفتگی، دریازدگی و سفرهای هوایی) و تهوع.',
@@ -888,6 +1058,11 @@ export const SHELF_PRODUCTS: Product[] = [
     aFlagBioequivalent: true,
     equivalentBrands: ['Sigmacort 1%', 'Chemist Own Hydrocortisone'],
     calLabels: ['CAL-A'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'کورتیکواستروئید موضعی خفیف خط اول و ایمن در بارداری برای اگزمای پوستی (Category A).',
+      en: 'Mild topical corticosteroid of choice in pregnancy for eczema and dermatitis (Category A).',
+    },
     indications: {
       en: 'Temporary relief of itching, redness, and inflammation associated with mild eczema, dermatitis, and insect bites.',
       fa: 'تسکین موقت خارش، قرمزی و التهاب در اگزمای خفیف، درماتیت، گزیدگی حشرات و آفتاب‌سوختگی.',
@@ -911,6 +1086,11 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
     calLabels: ['CAL-A'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'کرم نرم‌کننده و امولینت پایه؛ کاملاً ایمن در تمام دوران بارداری و شیردهی.',
+      en: 'Emollient barrier moisturizer; completely safe throughout pregnancy and breastfeeding.',
+    },
     indications: {
       en: 'Rich moisturising barrier cream for relief and daily management of dry skin, eczema, psoriasis, and dermatitis.',
       fa: 'کرم نرم‌کننده و بازسازی‌کننده لایه چربی محافظ پوست برای مدیریت روزانه خشکی پوست، اگزما و پسوریازیس.',
@@ -934,6 +1114,11 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
     calLabels: ['CAL-A'],
+    tgaPregnancyCategory: 'B1',
+    pregnancyAdvice: {
+      fa: 'درمان موضعی آکنه با جذب بسیار ناچیز؛ جایگزین ایمن برای رتینوئیدها در دوران بارداری.',
+      en: 'Topical acne therapy with minimal systemic absorption; safe alternative to retinoids in pregnancy.',
+    },
     indications: {
       en: 'Topical antibacterial and keratolytic treatment for mild-to-moderate acne vulgaris.',
       fa: 'درمان آنتی‌باکتریال و لایه‌بردار موضعی برای آکنه ولگاریس و جوش‌های سرسیاه و سرسفید.',
@@ -958,6 +1143,11 @@ export const SHELF_PRODUCTS: Product[] = [
     aFlagBioequivalent: true,
     equivalentBrands: ['Chemist Own Antiviral Cold Sore Cream'],
     calLabels: ['CAL-A'],
+    tgaPregnancyCategory: 'B3',
+    pregnancyAdvice: {
+      fa: 'آسیکلوویر موضعی با جذب سیستمیک ناچیز در بارداری برای تبخال لب قابل مصرف است.',
+      en: 'Topical aciclovir has negligible systemic absorption and can be used in pregnancy.',
+    },
     indications: {
       en: 'Treatment of herpes labialis (cold sores) on the lips and face.',
       fa: 'درمان تبخال لب و صورت (ویروس هرپس سیمپلکس).',
@@ -981,6 +1171,11 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
     calLabels: ['CAL-A'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'پماد محافظتی زینک؛ کاملاً ایمن در بارداری و برای ادرارسوختگی نوزادان.',
+      en: 'Zinc barrier cream; completely safe during pregnancy and for infant nappy rash.',
+    },
     indications: {
       en: 'Soothing protective barrier cream for nappy rash, cuts, grazes, minor burns, and pressure areas.',
       fa: 'کرم محافظ و التیام‌بخش برای ادرار سوختگی پای نوزاد (Nappy Rash)، بریدگی‌های جزئی و خراش‌های پوستی.',
@@ -1008,7 +1203,12 @@ export const SHELF_PRODUCTS: Product[] = [
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: true,
     equivalentBrands: ['NorLevo-1', 'Escapelle', 'Chemist Own Levonorgestrel'],
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-12'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'قرص اورژانسی هورمونی؛ در صورت وجود بارداری مستقر قبلی به جنین آسیبی نمی‌زند و سقط‌آور نیست.',
+      en: 'Emergency contraception; does not harm an established pregnancy or act as an abortifacient.',
+    },
     indications: {
       en: 'Emergency contraception within 72 hours (3 days) of unprotected sexual intercourse or contraceptive failure.',
       fa: 'پیشگیری اضطراری از بارداری تا حداکثر ۷۲ ساعت (۳ روز) پس از نزدیکی محافظت‌نشده.',
@@ -1031,7 +1231,12 @@ export const SHELF_PRODUCTS: Product[] = [
     subcategoryId: 'sub-1-7',
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-12'],
+    tgaPregnancyCategory: 'B3',
+    pregnancyAdvice: {
+      fa: 'در صورت شک به بارداری مستقر منع مصرف دارد؛ در صورت شیردهی، تا ۱ هفته شیر دوشیده و دور ریخته شود.',
+      en: 'Contraindicated in established pregnancy; express and discard breast milk for 7 days post-dose.',
+    },
     indications: {
       en: 'Emergency contraception within 120 hours (5 days) of unprotected intercourse (preferred if between 72-120 hours or higher BMI).',
       fa: 'پیشگیری اضطراری از بارداری تا ۱۲۰ ساعت (۵ روز) پس از نزدیکی (انتخاب ارجح در فواصل ۷۲ تا ۱۲۰ ساعت یا BMI بالا).',
@@ -1054,7 +1259,12 @@ export const SHELF_PRODUCTS: Product[] = [
     subcategoryId: 'sub-1-7',
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-7'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'در سوزش ادرار بارداری قابل مصرف است اما علائم UTI در بارداری نیازمند ارجاع فوری به GP جهت درمان آنتی‌بیوتیکی است.',
+      en: 'Safe in pregnancy (Category A); however, any urinary infection symptoms in pregnancy require urgent GP referral.',
+    },
     indications: {
       en: 'Symptomatic relief of burning and stinging pain associated with acute urinary tract infections (cystitis).',
       fa: 'تسکین فوری سوزش، تکرر و درد ناشی از عفونت مجاری ادراری (سیستیت) با قلیایی کردن ادرار.',
@@ -1079,6 +1289,11 @@ export const SHELF_PRODUCTS: Product[] = [
     aFlagBioequivalent: true,
     equivalentBrands: ['Clonea 1 Day', 'Chemist Own Thrush 1-Day'],
     calLabels: ['CAL-A'],
+    tgaPregnancyCategory: 'A',
+    pregnancyAdvice: {
+      fa: 'درمان خط اول و ایمن کاندیدیاز واژینال بارداری؛ با دست جاگذاری شود و از اپلیکاتور عمیق استفاده نشود.',
+      en: 'First-line vaginal candidiasis treatment in pregnancy (Category A); insert manually without deep applicator.',
+    },
     indications: {
       en: 'Single-dose local treatment for vaginal candidiasis (thrush). Safe in pregnancy (insert pessary manually without applicator).',
       fa: 'درمان موضعی تک‌دوز کاندیدیازیس و برفک واژینال. در بارداری ایمن است (پژاری بدون اپلیکاتور با دست قرار داده شود).',
@@ -1101,7 +1316,12 @@ export const SHELF_PRODUCTS: Product[] = [
     subcategoryId: 'sub-1-7',
     isNarrowTherapeuticIndex: false,
     aFlagBioequivalent: false,
-    calLabels: ['CAL-A'],
+    calLabels: ['CAL-12'],
+    tgaPregnancyCategory: 'C',
+    pregnancyAdvice: {
+      fa: 'در سه‌ماهه سوم بارداری منع مصرف دارد؛ در کودکان زیر ۱۶ سال به دلیل خطر سندرم ری ممنوع است.',
+      en: 'Avoid in 3rd trimester; contraindicated in children <16 years (Reye syndrome risk).',
+    },
     indications: {
       en: 'Pain relief and antiseptic soothing for mouth ulcers, denture sores, and infant teething.',
       fa: 'تسکین درد و ضدعفونی‌کننده آفت دهان، زخم ناشی از پروتز و دندان درآوردن کودکان بالای ۴ ماه.',
