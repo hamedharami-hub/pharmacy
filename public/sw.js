@@ -1,12 +1,12 @@
 /**
  * Progressive Web App (PWA) Service Worker
- * Australian Pharmacy Simulator (AU Pharmacy)
- * Full Offline Support & Caching Engine
+ * Australian Pharmacy Practice Simulator (AU Pharmacy)
+ * High-Performance Offline Caching Engine
  */
 
-const CACHE_NAME = 'au-pharmacy-offline-v1';
+const CACHE_NAME = 'au-pharmacy-offline-v2';
 
-// Critical core assets to pre-cache on install
+// Core Application Shell Assets to Pre-cache immediately on install
 const PRECACHE_ASSETS = [
   '/',
   '/manifest.json',
@@ -14,39 +14,40 @@ const PRECACHE_ASSETS = [
   '/icons/icon-512.svg',
 ];
 
-// 1. INSTALL EVENT: Pre-cache app shell
+// 1. INSTALL EVENT: Pre-cache core shell & activate immediately
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_ASSETS).catch((err) => {
-        console.warn('[SW] Pre-cache partial failure:', err);
-      });
-    }).then(() => {
-      // Force the waiting service worker to become the active service worker
-      return self.skipWaiting();
-    })
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => {
+        return cache.addAll(PRECACHE_ASSETS).catch((err) => {
+          console.warn('[SW] Pre-cache initial warning:', err);
+        });
+      })
+      .then(() => self.skipWaiting())
   );
 });
 
-// 2. ACTIVATE EVENT: Clean up stale caches
+// 2. ACTIVATE EVENT: Remove outdated caches & claim clients
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
-      // Take control of all open client tabs immediately
-      return self.clients.claim();
-    })
+    caches
+      .keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== CACHE_NAME) {
+              console.log('[SW] Purging outdated cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+      .then(() => self.clients.claim())
   );
 });
 
-// 3. FETCH EVENT: Stale-While-Revalidate & Offline Fallback Strategy
+// 3. FETCH EVENT: Intelligent Caching Strategies
 self.addEventListener('fetch', (event) => {
   const request = event.request;
 
@@ -55,10 +56,30 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
 
-  // Ignore cross-origin requests from chrome extensions or non-http protocols
+  // Ignore non-HTTP protocols (browser extensions, etc.)
   if (!url.protocol.startsWith('http')) return;
 
-  // For Next.js navigation (HTML pages): Network-First, fallback to Cache
+  // A. AI & Backend API routes: Network-First with offline JSON fallback
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(
+      fetch(request).catch(() => {
+        return new Response(
+          JSON.stringify({
+            offline: true,
+            error: 'شما در حالت آفلاین هستید. قابلیت‌های هوش مصنوعی نیازمند اتصال به اینترنت هستند.',
+            message: 'You are currently offline. AI features require an internet connection.',
+          }),
+          {
+            status: 503,
+            headers: { 'Content-Type': 'application/json; charset=utf-8' },
+          }
+        );
+      })
+    );
+    return;
+  }
+
+  // B. Next.js Page Navigation (HTML): Network-First, fallback to cached '/' shell
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
@@ -72,16 +93,25 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(async () => {
-          // If offline or network fails, retrieve cached root page
-          const cachedResponse = await caches.match(request);
-          if (cachedResponse) return cachedResponse;
-          return caches.match('/');
+          // Match current request ignoring query params (e.g. ?module=1, ?source=pwa)
+          const cachedSpecific = await caches.match(request, { ignoreSearch: true });
+          if (cachedSpecific) return cachedSpecific;
+
+          // Fallback to cached root shell
+          const cachedRoot = await caches.match('/', { ignoreSearch: true });
+          if (cachedRoot) return cachedRoot;
+
+          return new Response(
+            '<!DOCTYPE html><html><head><meta charset="utf-8"><title>آفلاین | AU Pharmacy</title></head><body style="font-family:sans-serif;text-align:center;padding:50px;background:#09090B;color:#fafafa"><h2>شما در حالت آفلاین هستید</h2><p>لطفاً اتصال اینترنت خود را بررسی کنید یا صفحه اصلی را بارگذاری مجدد فرمایید.</p></body></html>',
+            { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+          );
         })
     );
     return;
   }
 
-  // For static assets (JS, CSS, SVGs, Fonts, Images): Cache-First with background revalidation
+  // C. Static Assets (Next.js JS Chunks, CSS, Icons, Fonts, Images)
+  // Strategy: Stale-While-Revalidate (Fast response from cache, background update)
   if (
     url.pathname.startsWith('/_next/static/') ||
     url.pathname.startsWith('/icons/') ||
@@ -89,7 +119,11 @@ self.addEventListener('fetch', (event) => {
     url.pathname.endsWith('.css') ||
     url.pathname.endsWith('.svg') ||
     url.pathname.endsWith('.png') ||
-    url.pathname.endsWith('.woff2')
+    url.pathname.endsWith('.jpg') ||
+    url.pathname.endsWith('.jpeg') ||
+    url.pathname.endsWith('.webp') ||
+    url.pathname.endsWith('.woff2') ||
+    url.pathname.endsWith('.woff')
   ) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
@@ -104,7 +138,7 @@ self.addEventListener('fetch', (event) => {
             return networkResponse;
           })
           .catch(() => {
-            // Offline - no network
+            // Silently swallow network errors if offline
           });
 
         return cachedResponse || fetchPromise;
@@ -113,7 +147,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Default strategy: Try Network, fall back to Cache
+  // D. General Requests: Network with Cache fallback
   event.respondWith(
     fetch(request)
       .then((networkResponse) => {
@@ -125,8 +159,23 @@ self.addEventListener('fetch', (event) => {
         }
         return networkResponse;
       })
-      .catch(() => {
-        return caches.match(request);
-      })
+      .catch(() => caches.match(request))
   );
+});
+
+// 4. MESSAGE EVENT: Handle client triggers (Skip waiting, manual pre-cache)
+self.addEventListener('message', (event) => {
+  if (!event.data) return;
+
+  if (event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+
+  if (event.data.type === 'CACHE_URLS' && Array.isArray(event.data.urls)) {
+    caches.open(CACHE_NAME).then((cache) => {
+      cache.addAll(event.data.urls).catch((err) => {
+        console.warn('[SW] Manual CACHE_URLS partial failure:', err);
+      });
+    });
+  }
 });

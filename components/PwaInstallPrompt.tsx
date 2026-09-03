@@ -59,12 +59,24 @@ export const PwaInstallPrompt: React.FC<PwaInstallPromptProps> = ({ language }) 
       window.addEventListener('online', handleOnline);
       window.addEventListener('offline', handleOffline);
 
-      // 3. Register Service Worker
-      if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+      // 3. Register Service Worker with Auto-Update & Offline Pre-cache
+      if ('serviceWorker' in navigator) {
         navigator.serviceWorker
           .register('/sw.js')
           .then((reg) => {
             console.log('[PWA] Service Worker registered with scope:', reg.scope);
+
+            // Notify user/update if new SW installed
+            reg.onupdatefound = () => {
+              const installingWorker = reg.installing;
+              if (installingWorker) {
+                installingWorker.onstatechange = () => {
+                  if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('[PWA] New version installed and cached.');
+                  }
+                };
+              }
+            };
           })
           .catch((err) => {
             console.warn('[PWA] Service Worker registration failed:', err);

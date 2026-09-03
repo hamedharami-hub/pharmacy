@@ -204,6 +204,20 @@ export default function Home() {
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const [isInitialCloudLoad, setIsInitialCloudLoad] = useState(false);
 
+  // 0. Parse initial URL parameters (e.g. PWA Shortcuts /?module=1..5)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const modParam = params.get('module');
+      if (modParam) {
+        const modNum = parseInt(modParam, 10);
+        if (modNum >= 1 && modNum <= 6) {
+          setActiveMainModule(modNum as 1 | 2 | 3 | 4 | 5 | 6);
+        }
+      }
+    }
+  }, []);
+
   // 1. Firebase Auth listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
