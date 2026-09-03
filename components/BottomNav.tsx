@@ -5,6 +5,7 @@ import {
   Stethoscope,
   Boxes,
   Monitor,
+  Dna,
   Brain,
 } from 'lucide-react';
 import { Language } from '@/types/pharmacy';
@@ -45,12 +46,20 @@ export const BottomNav: React.FC<BottomNavProps> = ({
       glowColor: 'bg-sky-500 shadow-sky-500/50',
     },
     {
-      id: 4 as const,
+      id: 3 as const,
       label: { fa: 'نسخه‌پیچی', en: 'Dispense' },
       icon: Monitor,
       activeColor: 'text-teal-500 dark:text-teal-400',
       activeBg: 'bg-teal-500/12 text-teal-700 dark:text-teal-300 border-teal-500/30 shadow-xs shadow-teal-950/20',
       glowColor: 'bg-teal-500 shadow-teal-500/50',
+    },
+    {
+      id: 4 as const,
+      label: { fa: 'دانش', en: 'Knowledge' },
+      icon: Dna,
+      activeColor: 'text-indigo-500 dark:text-indigo-400',
+      activeBg: 'bg-indigo-500/12 text-indigo-700 dark:text-indigo-300 border-indigo-500/30 shadow-xs shadow-indigo-950/20',
+      glowColor: 'bg-indigo-500 shadow-indigo-500/50',
     },
     {
       id: 5 as const,

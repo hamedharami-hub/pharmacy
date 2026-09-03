@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Language } from '@/types/pharmacy';
 import {
   Monitor,
@@ -69,6 +69,11 @@ const PbsClaimingArchivePanel = dynamic(
 
 const ProjectStopModal = dynamic(
   () => import('@/components/shelf/ProjectStopModal').then((mod) => mod.ProjectStopModal),
+  { ssr: false }
+);
+
+const SafeScriptAlertModal = dynamic(
+  () => import('@/components/shelf/SafeScriptAlertModal').then((mod) => mod.SafeScriptAlertModal),
   { ssr: false }
 );
 
@@ -374,6 +379,44 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
   const [psCounselingCompleted, setPsCounselingCompleted] = useState(false);
   const [psIsApproved, setPsIsApproved] = useState<boolean | null>(null);
   const [psApprovalCode, setPsApprovalCode] = useState<string>('');
+  const [isSafeScriptModalOpen, setIsSafeScriptModalOpen] = useState(false);
+
+  const scenario = SCRIPT_SCENARIOS.find((s) => s.id === selectedScenarioId) || SCRIPT_SCENARIOS[0];
+
+  const safeScriptDetails = useMemo(() => {
+    if (scenario.schedule !== 'S8') return undefined;
+    return {
+      drugName: scenario.prescribedDrug,
+      brandName: 'OxyContin',
+      schedule: 'S8' as const,
+      patientName: scenario.patientName,
+      patientDob: scenario.patientDob,
+      prescriberName: scenario.prescriberName,
+      alertLevel: 'RED' as const,
+      omedDose: 120,
+      dispenseHistory: [
+        { date: '01/01/2026', drug: 'OxyContin 10mg CR (Qty: 28)', quantity: 28, prescriber: 'Dr. Helen Davis', pharmacy: 'Sydney Community Pharmacy' },
+        { date: '15/12/2025', drug: 'Endone 5mg (Qty: 20)', quantity: 20, prescriber: 'Dr. Mark Taylor', pharmacy: 'Chemist Warehouse Bondi' },
+        { date: '28/11/2025', drug: 'Normison 10mg (Temazepam) (Qty: 25)', quantity: 25, prescriber: 'Dr. John Watson', pharmacy: 'Priceline Pharmacy Manly' },
+      ],
+      reasons: {
+        fa: [
+          'نسخه بیش از ۶ ماه از تاریخ نگارش گذشته و فاقد اعتبار قانونی تحویل است.',
+          'شاخص معادل مورفین روزانه (OMED) بیمار ۱۲۰mg/day است (فراتر از آستانه هشدار قرمز ۱۰۰mg/day).',
+          'مصرف همزمان اوپیوئید و بنزودیازپین در ۹۰ روز گذشته ثبت شده است.',
+        ],
+        en: [
+          'Prescription date exceeds legal 6-month validity for S8 medicines.',
+          'Calculated Oral Morphine Equivalent Dose (OMED) is 120mg/day (exceeds 100mg/day high-risk threshold).',
+          'Concurrent supply of opioid and benzodiazepine in the previous 90-day window.',
+        ],
+      },
+      pharmacistActionRequired: {
+        fa: 'داروساز طبق مقررات سموم استرالیا موظف است با پزشک تماس گرفته و استعلام ضرورت بالینی را اخذ کند و سپس نتیجه را در دفتر ثبت نماید.',
+        en: 'Pharmacist is legally required to consult the prescriber before supply. If verified, record clinical notes in dispensary system.',
+      },
+    };
+  }, [scenario]);
 
   const handleVerifyProjectStop = (e: React.FormEvent) => {
     e.preventDefault();
@@ -391,8 +434,6 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
       setPsApprovalCode(code);
     }
   };
-
-  const scenario = SCRIPT_SCENARIOS.find((s) => s.id === selectedScenarioId) || SCRIPT_SCENARIOS[0];
   const activeVisualizerTab = SCENARIO_TO_VISUALIZER_TAB[scenario.id];
   const activeStep = FRED_STEP_OPTIONS.find((step) => step.id === viewMode);
   const normalizedStepSearchTerm = stepSearchTerm.trim().toLowerCase();
@@ -607,14 +648,10 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
   };
 
   const handleProcessDispense = () => {
-    // Validate Expiry
-    if (scenario.isExpiredS8 || scenario.schedule === 'S8') {
-      // S8 legal expiry is 6 months
-      if (scenario.isExpiredS8) {
-        setDispenseSuccess(false);
-        setDispenseError(isFa ? 'این نسخه مربوط به داروی S8 است که بیش از ۶ ماه از تاریخ نگارش آن گذشته و اعتبار قانونی تحویل در استرالیا ندارد.' : 'This S8 prescription is over 6 months old and is legally void for supply under Australian scheduling rules.');
-        return;
-      }
+    // S8 SafeScript RTPM mandatory check
+    if (scenario.schedule === 'S8') {
+      setIsSafeScriptModalOpen(true);
+      return;
     }
 
     // Launch Pharmacist Final Check Audit Modal
@@ -652,15 +689,28 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
         accent="teal"
         language={language}
         actions={
-          <button
-            type="button"
-            onClick={() => setIsProjectStopOpen(true)}
-            className="px-3 py-1.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/40 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-            title={isFa ? 'استعلام هویت خریدار سودوافدرین و قوانین S3' : 'Project STOP Pseudoephedrine verification'}
-          >
-            <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
-            <span>Project STOP (S3)</span>
-          </button>
+          <div className="flex items-center gap-2">
+            {scenario.schedule === 'S8' && (
+              <button
+                type="button"
+                onClick={() => setIsSafeScriptModalOpen(true)}
+                className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-600/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer animate-pulse"
+                title={isFa ? 'بررسی مانیتورینگ SafeScript RTPM' : 'Review SafeScript RTPM'}
+              >
+                <ShieldAlert className="w-3.5 h-3.5" />
+                <span>SafeScript RTPM</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setIsProjectStopOpen(true)}
+              className="px-3 py-1.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/40 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+              title={isFa ? 'استعلام هویت خریدار سودوافدرین و قوانین S3' : 'Project STOP Pseudoephedrine verification'}
+            >
+              <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+              <span>Project STOP (S3)</span>
+            </button>
+          </div>
         }
       />
 
@@ -1440,6 +1490,26 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
         approvalCode={psApprovalCode}
         onVerify={handleVerifyProjectStop}
         onClose={() => setIsProjectStopOpen(false)}
+      />
+
+      {/* SAFESCRIPT RTPM SIMULATOR MODAL */}
+      <SafeScriptAlertModal
+        isOpen={isSafeScriptModalOpen}
+        onClose={() => setIsSafeScriptModalOpen(false)}
+        drugDetails={safeScriptDetails}
+        language={language}
+        onConfirmDispense={() => {
+          if (scenario.isExpiredS8) {
+            setDispenseSuccess(false);
+            setDispenseError(
+              isFa
+                ? 'این نسخه مربوط به داروی S8 است که بیش از ۶ ماه از تاریخ نگارش آن گذشته و اعتبار قانونی تحویل در استرالیا ندارد.'
+                : 'This S8 prescription is over 6 months old and is legally void for supply under Australian scheduling rules.'
+            );
+          } else {
+            setIsFinalCheckModalOpen(true);
+          }
+        }}
       />
     </div>
   );

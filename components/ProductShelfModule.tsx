@@ -87,6 +87,16 @@ const DiseaseDetailModal = dynamic(
   { ssr: false }
 );
 
+const PsaSchedule3ProtocolModal = dynamic(
+  () => import('./shelf/PsaSchedule3ProtocolModal').then((mod) => mod.PsaSchedule3ProtocolModal),
+  { ssr: false }
+);
+
+const SafeScriptAlertModal = dynamic(
+  () => import('./shelf/SafeScriptAlertModal').then((mod) => mod.SafeScriptAlertModal),
+  { ssr: false }
+);
+
 import {
   Search,
   Stethoscope,
@@ -98,6 +108,8 @@ import {
   Activity,
   BookOpen,
   ShieldCheck,
+  ShieldAlert,
+  ClipboardCheck,
   Filter,
 } from 'lucide-react';
 
@@ -126,12 +138,16 @@ export type {
 
 interface ProductShelfModuleProps {
   language: Language;
+  targetContext?: string | null;
+  onClearTargetContext?: () => void;
   onNavigateToModule?: (moduleNumber: 1 | 2 | 3 | 4 | 5 | 6, contextId?: string) => void;
   onOpenAiLeitner?: (text: string, module: 1 | 2 | 4, category?: string, topic?: string) => void;
 }
 
 export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
   language,
+  targetContext,
+  onClearTargetContext,
   onNavigateToModule,
   onOpenAiLeitner,
 }) => {
@@ -149,6 +165,96 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
   const [activeShelfView, setActiveShelfView] = useState<'shelf' | 'diseases' | 'matrices'>('shelf');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProjectStopOpen, setIsProjectStopOpen] = useState(false);
+
+  // PSA S3 Protocol Modal State
+  const [isPsaProtocolOpen, setIsPsaProtocolOpen] = useState(false);
+  const [selectedPsaProtocol, setSelectedPsaProtocol] = useState<'triptan' | 'emergency_contraception' | 'chloramphenicol' | 'ppi' | 'salbutamol'>('triptan');
+
+  // SafeScript RTPM Modal State
+  const [isSafeScriptOpen, setIsSafeScriptOpen] = useState(false);
+  const [safeScriptData, setSafeScriptData] = useState<any>(null);
+
+  // Handle cross-module target context from OTC triage
+  React.useEffect(() => {
+    if (!targetContext) return;
+    const ctx = targetContext.toLowerCase();
+    if (ctx.includes('cough')) {
+      setSelectedDomainId('cat-1');
+      setSelectedSubCatId('sub-1-2');
+      setSearchQuery('cough');
+      setSearchInputText('cough');
+    } else if (ctx.includes('migraine') || ctx.includes('triptan')) {
+      setSelectedDomainId('cat-1');
+      setSelectedSubCatId('sub-1-1');
+      setSearchQuery('sumatriptan');
+      setSearchInputText('sumatriptan');
+      setSelectedPsaProtocol('triptan');
+    } else if (ctx.includes('ibuprofen') || ctx.includes('pain') || ctx.includes('nurofen')) {
+      setSelectedDomainId('cat-1');
+      setSelectedSubCatId('sub-1-1');
+      setSearchQuery('ibuprofen');
+      setSearchInputText('ibuprofen');
+    } else if (ctx.includes('reflux') || ctx.includes('gerd') || ctx.includes('heartburn') || ctx.includes('ppi')) {
+      setSelectedDomainId('cat-1');
+      setSelectedSubCatId('sub-1-3');
+      setSearchQuery('esomeprazole');
+      setSearchInputText('esomeprazole');
+      setSelectedPsaProtocol('ppi');
+    } else if (ctx.includes('thrush') || ctx.includes('contraception') || ctx.includes('ella') || ctx.includes('postinor')) {
+      setSelectedDomainId('cat-1');
+      setSelectedSubCatId('sub-1-5');
+      setSearchQuery('ella');
+      setSearchInputText('ella');
+      setSelectedPsaProtocol('emergency_contraception');
+    } else if (ctx.includes('eye') || ctx.includes('chlorsig') || ctx.includes('conjunctivitis')) {
+      setSelectedDomainId('cat-1');
+      setSelectedSubCatId('sub-1-6');
+      setSearchQuery('chloramphenicol');
+      setSearchInputText('chloramphenicol');
+      setSelectedPsaProtocol('chloramphenicol');
+    } else if (ctx.includes('asthma') || ctx.includes('salbutamol') || ctx.includes('ventolin')) {
+      setSelectedDomainId('cat-1');
+      setSelectedSubCatId('sub-1-2');
+      setSearchQuery('salbutamol');
+      setSearchInputText('salbutamol');
+      setSelectedPsaProtocol('salbutamol');
+    }
+  }, [targetContext]);
+
+  const handleOpenSafeScriptDemo = (drugName = 'Endone 5mg (Oxycodone HCl)') => {
+    setSafeScriptData({
+      drugName,
+      brandName: 'Endone',
+      schedule: 'S8',
+      patientName: 'David Miller',
+      patientDob: '14/08/1968',
+      prescriberName: 'Dr. Sarah Smith',
+      alertLevel: 'RED',
+      omedDose: 110,
+      dispenseHistory: [
+        { date: '01/08/2026', drug: 'Endone 5mg Tabs (Qty: 20)', quantity: 20, prescriber: 'Dr. Sarah Smith', pharmacy: 'Chemist Warehouse Sydney' },
+        { date: '18/07/2026', drug: 'OxyContin 20mg CR (Qty: 28)', quantity: 28, prescriber: 'Dr. John Watson', pharmacy: 'Priceline Pharmacy Bondi' },
+        { date: '05/07/2026', drug: 'Valium 5mg (Diazepam) (Qty: 50)', quantity: 50, prescriber: 'Dr. Alan Ross', pharmacy: 'TerryWhite Chemmart' },
+      ],
+      reasons: {
+        fa: [
+          'دوز تجمیعی معادل مورفین روزانه (OMED) بیمار ۱۱۰ میلی‌گرم است که از حد بحرانی ۱۰۰mg/day فراتر رفته است.',
+          'مصرف همزمان اوپیوئید (Oxycodone) و بنزودیازپین (Diazepam) در ۳۰ روز گذشته که ریسک سرکوب تنفسی مرگبار را به شدت افزایش می‌دهد.',
+          'بیمار طی ۹۰ روز گذشته به ۳ پزشک مختلف و ۳ داروخانه متفاوت مراجعه نموده است (چندپزشکی / Multi-prescriber).',
+        ],
+        en: [
+          'Calculated Oral Morphine Equivalent Dose (OMED) is 110mg/day (exceeds high risk threshold of 100mg/day).',
+          'Concurrent supply of an opioid and a benzodiazepine within the last 30 days (severe respiratory depression risk).',
+          'Prescriptions issued by 3 different medical prescribers across 3 different pharmacies in the last 90 days.',
+        ],
+      },
+      pharmacistActionRequired: {
+        fa: 'طبق مقررات ایالتی استرالیا، تحویل دارو پیش از تماس تلفنی با پزشک و اطمینان از تایید دوز و هماهنگی پزشکان ممنوع است. پس از تایید تلفنی، شماره تماس و شرح گفتگو باید به عنوان یادداشت بالینی ثبت گردد.',
+        en: 'Pharmacist is legally obligated to consult the prescriber before supply. If prescriber confirms clinical necessity, document discussion in dispensary records before dispensing.',
+      },
+    });
+    setIsSafeScriptOpen(true);
+  };
 
   // Domain & SubCategory Tree State
   const [selectedDomainId, setSelectedDomainId] = useState<string>('cat-1');
@@ -488,6 +594,26 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>{isFa ? 'ماتریکس پروتکل‌ها' : 'Clinical Protocols & Matrices'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsPsaProtocolOpen(true)}
+            className="px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer border bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border-indigo-500/40 shadow-xs"
+            title={isFa ? 'پروتکل‌های رسمی انجمن داروسازی استرالیا برای تحویل داروهای S3' : 'PSA Schedule 3 Pharmacist-Only Protocols'}
+          >
+            <ClipboardCheck className="w-3.5 h-3.5 text-indigo-400" />
+            <span>{isFa ? 'پروتکل‌های S3 بورد (PSA)' : 'S3 Protocols'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleOpenSafeScriptDemo()}
+            className="px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer border bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border-rose-500/40 shadow-xs"
+            title={isFa ? 'شبیه‌ساز رسمی مانیتورینگ آنلاین SafeScript / QScript' : 'National Real-Time Prescription Monitoring Simulation'}
+          >
+            <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+            <span>{isFa ? 'سامانه SafeScript RTPM' : 'SafeScript RTPM'}</span>
           </button>
         </div>
 
@@ -897,6 +1023,22 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
           onClose={() => setSelectedDisease(null)}
         />
       )}
+
+      {/* PSA SCHEDULE 3 PROTOCOL CHECKLIST MODAL */}
+      <PsaSchedule3ProtocolModal
+        isOpen={isPsaProtocolOpen}
+        onClose={() => setIsPsaProtocolOpen(false)}
+        protocolType={selectedPsaProtocol}
+        language={language}
+      />
+
+      {/* SAFESCRIPT RTPM SIMULATOR MODAL */}
+      <SafeScriptAlertModal
+        isOpen={isSafeScriptOpen}
+        onClose={() => setIsSafeScriptOpen(false)}
+        drugDetails={safeScriptData}
+        language={language}
+      />
 
     </div>
   );

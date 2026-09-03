@@ -24,6 +24,7 @@ import {
   Search,
   Maximize2,
   Minimize2,
+  Dna,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -121,23 +122,32 @@ export const Header: React.FC<HeaderProps> = ({
       id: 2 as const,
       shortTitle: { fa: '۲. قفسه S2/S3', en: '2. S2/S3 Shelf' },
       fullTitle: { fa: 'ماژول ۲: قفسه داروهای S2/S3', en: 'Module 2: Product Shelf' },
-      desc: { fa: 'طبقه‌بندی و Project Stop', en: 'S2/S3 & Project Stop' },
+      desc: { fa: 'طبقه‌بندی، CAL و Project Stop', en: 'S2/S3 & Project Stop' },
       icon: Boxes,
       activeColor: 'bg-sky-600 text-white border-sky-500 shadow-md shadow-sky-950/20',
       badgeBg: 'bg-sky-500/15 text-sky-400 border-sky-500/30',
     },
     {
-      id: 4 as const,
-      shortTitle: { fa: '۴. نسخه پیچی', en: '4. Dispensing' },
-      fullTitle: { fa: 'ماژول ۴: نسخه پیچی و نرم‌افزار Fred', en: 'Module 4: Prescription Dispensing' },
+      id: 3 as const,
+      shortTitle: { fa: '۳. نسخه‌پیچی', en: '3. Dispensing' },
+      fullTitle: { fa: 'ماژول ۳: نسخه‌پیچی و شبیه‌ساز Fred', en: 'Module 3: Prescription Dispensing' },
       desc: { fa: 'نرم‌افزار Fred، قوانین PBS و بررسی نسخه', en: 'Fred Dispense & PBS Rules' },
       icon: Monitor,
       activeColor: 'bg-teal-600 text-white border-teal-500 shadow-md shadow-teal-950/20',
       badgeBg: 'bg-teal-500/15 text-teal-400 border-teal-500/30',
     },
     {
+      id: 4 as const,
+      shortTitle: { fa: '۴. دانش بالینی', en: '4. Knowledge' },
+      fullTitle: { fa: 'ماژول ۴: بانک دانش و ماتریس‌های بالینی', en: 'Module 4: Clinical Knowledge & CYP' },
+      desc: { fa: 'سرفصل‌های KAPS و ماتریس تداخلات CYP450', en: 'KAPS Cards & CYP450 Matrix' },
+      icon: Dna,
+      activeColor: 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-950/20',
+      badgeBg: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30',
+    },
+    {
       id: 5 as const,
-      shortTitle: { fa: '۵. مرور و نقشه ذهنی', en: '5. Leitner & Mind Map' },
+      shortTitle: { fa: '۵. مرور و نقشه', en: '5. Leitner & Map' },
       fullTitle: { fa: 'ماژول ۵: جعبه لایتنر، مرور هوشمند و نقشه ذهنی', en: 'Module 5: Leitner Deck & Mind Map' },
       desc: {
         fa: leitnerDueCount > 0 ? `${leitnerDueCount} کارت موعد امروز` : 'مرور FSRS / SM-2 و درخت دانش',

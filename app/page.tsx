@@ -135,6 +135,17 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState<string>('ALL');
   const [flagFilter, setFlagFilter] = useState<FlagColor | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [shelfTargetContext, setShelfTargetContext] = useState<string | null>(null);
+
+  const handleNavigateToModule = useCallback(
+    (modNum: 1 | 2 | 3 | 4 | 5 | 6, contextId?: string) => {
+      if (modNum === 2 && contextId) {
+        setShelfTargetContext(contextId);
+      }
+      setActiveMainModule(modNum);
+    },
+    []
+  );
 
   // User Progress State
   const [flags, setFlags] = useState<Record<string, FlagColor>>({});
@@ -755,11 +766,8 @@ export default function Home() {
         {activeMainModule === 1 && (
           <OtcTriageModule
             language={language}
-            onNavigateToModule={(modNum) => setActiveMainModule(modNum as 1 | 2 | 3 | 4 | 5 | 6)}
-            onNavigateToFred={() => {
-              setActiveMainModule(4);
-              setActiveModule('software');
-            }}
+            onNavigateToModule={handleNavigateToModule}
+            onNavigateToFred={() => setActiveMainModule(3)}
             onOpenAiLeitner={handleOpenAiLeitner}
           />
         )}
@@ -767,12 +775,19 @@ export default function Home() {
         {activeMainModule === 2 && (
           <ProductShelfModule
             language={language}
-            onNavigateToModule={(modNum) => setActiveMainModule(modNum as 1 | 2 | 3 | 4 | 5 | 6)}
+            targetContext={shelfTargetContext}
+            onClearTargetContext={() => setShelfTargetContext(null)}
+            onNavigateToModule={handleNavigateToModule}
             onOpenAiLeitner={handleOpenAiLeitner}
           />
         )}
 
-        {activeMainModule === 3 && <FredDispenseModule language={language} />}
+        {activeMainModule === 3 && (
+          <FredDispenseModule
+            language={language}
+            onNavigateToModule={handleNavigateToModule}
+          />
+        )}
 
         {activeMainModule === 4 && (
           <ClinicalKnowledgeModule
@@ -797,7 +812,7 @@ export default function Home() {
             onSaveNote={handleSaveNote}
             onDeleteNote={handleDeleteNote}
             layoutMode={layoutMode}
-            onNavigateToModule={(modNum) => setActiveMainModule(modNum as 1 | 2 | 3 | 4 | 5 | 6)}
+            onNavigateToModule={handleNavigateToModule}
             onOpenAiLeitner={handleOpenAiLeitner}
           />
         )}
@@ -808,6 +823,34 @@ export default function Home() {
             cards={leitnerCards}
             initialTab={leitnerInitialTab}
             onUpdateCards={handleSaveLeitnerCards}
+            onOpenAiLeitner={handleOpenAiLeitner}
+          />
+        )}
+
+        {activeMainModule === 6 && (
+          <ClinicalKnowledgeModule
+            language={language}
+            activeModule="mod6"
+            onSelectModule={handleSelectClinicalModule}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            activeCategory={activeCategory}
+            onSelectCategory={setActiveCategory}
+            flagFilter={flagFilter}
+            onSelectFlagFilter={setFlagFilter}
+            flags={flags}
+            deleted={deleted}
+            customEdits={customEdits}
+            reviewedCards={reviewedCards}
+            savedNotes={savedNotes}
+            onToggleReview={handleToggleReview}
+            onSetFlag={handleSetFlag}
+            onEditCard={setEditingCardId}
+            onDeleteCard={handleDeleteCard}
+            onSaveNote={handleSaveNote}
+            onDeleteNote={handleDeleteNote}
+            layoutMode={layoutMode}
+            onNavigateToModule={handleNavigateToModule}
             onOpenAiLeitner={handleOpenAiLeitner}
           />
         )}

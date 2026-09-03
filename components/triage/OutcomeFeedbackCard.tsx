@@ -125,11 +125,11 @@ export const OutcomeFeedbackCard: React.FC<OutcomeFeedbackCardProps> = ({
             {onNavigateToModule && (
               <button
                 type="button"
-                onClick={() => onNavigateToModule(4)}
+                onClick={() => onNavigateToModule(3)}
                 className="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-teal-600/30 cursor-pointer"
               >
                 <span>🖥️</span>
-                <span>{isFa ? 'تمرین نسخه در Fred (Module 4)' : 'Fred Dispense Simulator (Mod 4)'}</span>
+                <span>{isFa ? 'تمرین نسخه در Fred (ماژول ۳)' : 'Fred Dispense Simulator (Mod 3)'}</span>
               </button>
             )}
           </div>
