@@ -537,7 +537,7 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
     <div
       ref={containerRef}
       onWheel={handleWheel}
-      className={`relative w-full h-[720px] rounded-3xl border border-slate-800/90 overflow-hidden select-none transition-all duration-300 bg-slate-950 text-slate-100 touch-none ${
+      className={`relative w-full h-[62vh] min-h-[460px] sm:h-[720px] rounded-3xl border border-slate-800/90 overflow-hidden select-none transition-all duration-300 bg-slate-950 text-slate-100 touch-none ${
         isFullscreen ? 'fixed inset-0 z-50 h-screen w-screen rounded-none p-4' : ''
       }`}
       style={{
