@@ -98,6 +98,18 @@ export interface LeitnerMindMapPanelProps {
 
 export type { MindMapNode };
 
+// Pure recursive search helper
+function findNodeAndPath(root: MindMapNode, targetId: string): { node: MindMapNode | null; path: MindMapNode[] } {
+  if (root.id === targetId) return { node: root, path: [root] };
+  for (const child of root.children) {
+    const res = findNodeAndPath(child, targetId);
+    if (res.node) {
+      return { node: res.node, path: [root, ...res.path] };
+    }
+  }
+  return { node: null, path: [] };
+}
+
 // Storage keys
 const NODE_ALIASES_STORAGE_KEY = 'AU_PHARMACY_NODE_ALIASES_V2';
 const NODE_COLORS_STORAGE_KEY = 'AU_PHARMACY_NODE_COLORS_V2';
@@ -1054,22 +1066,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
     });
 
     return rootNode;
-  }, [filteredCards, perspective]);
-
-  // Find node helper
-  const findNodeAndPath = useCallback(
-    (root: MindMapNode, targetId: string): { node: MindMapNode | null; path: MindMapNode[] } => {
-      if (root.id === targetId) return { node: root, path: [root] };
-      for (const child of root.children) {
-        const res = findNodeAndPath(child, targetId);
-        if (res.node) {
-          return { node: res.node, path: [root, ...res.path] };
-        }
-      }
-      return { node: null, path: [] };
-    },
-    []
-  );
+  }, [filteredCards, perspective, nodeImages]);
 
   // Compute Breadcrumb Trail and Effective Active MindMap Root Node
   const { mindMapTree, breadcrumbs } = useMemo(() => {
@@ -1094,7 +1091,7 @@ export const LeitnerMindMapPanel: React.FC<LeitnerMindMapPanelProps> = ({
     }));
 
     return { mindMapTree: clonedFocalRoot, breadcrumbs: trail };
-  }, [fullMindMapTree, focalNodeId, findNodeAndPath]);
+  }, [fullMindMapTree, focalNodeId]);
 
   // Memoized recursive card mapping for high-performance matrix and outliner rendering (prevents UI freeze)
   const nodeCardsMap = useMemo(() => {

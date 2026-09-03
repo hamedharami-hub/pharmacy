@@ -19,6 +19,8 @@ interface StarredPhrasesModalProps {
   copiedPhraseId: string | null;
 }
 
+const emptySubscribe = () => () => {};
+
 export const StarredPhrasesModal: React.FC<StarredPhrasesModalProps> = ({
   language,
   showStarredModal,
@@ -31,10 +33,9 @@ export const StarredPhrasesModal: React.FC<StarredPhrasesModalProps> = ({
   removeStarredPhrase,
   copiedPhraseId,
 }) => {
-  const [mounted, setMounted] = useState<boolean>(false);
+  const isMounted = React.useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   useEffect(() => {
-    setMounted(true);
     if (!showStarredModal) return;
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -54,7 +55,7 @@ export const StarredPhrasesModal: React.FC<StarredPhrasesModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showStarredModal, onClose]);
 
-  if (!showStarredModal || !mounted || typeof document === 'undefined') return null;
+  if (!showStarredModal || !isMounted || typeof document === 'undefined') return null;
   const isFa = language === 'fa';
 
   const term = starredSearchTerm.toLowerCase().trim();

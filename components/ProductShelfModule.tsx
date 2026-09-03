@@ -174,9 +174,38 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
   const [isSafeScriptOpen, setIsSafeScriptOpen] = useState(false);
   const [safeScriptData, setSafeScriptData] = useState<any>(null);
 
-  // Handle cross-module target context from OTC triage
-  React.useEffect(() => {
-    if (!targetContext) return;
+  // Domain & SubCategory Tree State
+  const [selectedDomainId, setSelectedDomainId] = useState<string>('cat-1');
+  const [selectedSubCatId, setSelectedSubCatId] = useState<string>('sub-1-1');
+  const [sortOrder, setSortOrder] = useState<'SUBCATEGORY' | 'MECHANISM' | 'ALPHABETICAL' | 'SCHEDULE'>('SUBCATEGORY');
+
+  // Search Scope States
+  const [searchDomainScope, setSearchDomainScope] = useState<string>('ALL');
+  const [searchSubCatScope, setSearchSubCatScope] = useState<string>('ALL');
+
+  // Multi-Attribute Tag Filters
+  const [activeScheduleTags, setActiveScheduleTags] = useState<string[]>([]);
+  const [activeCalTags, setActiveCalTags] = useState<string[]>([]);
+  const [activeSafetyTags, setActiveSafetyTags] = useState<string[]>([]);
+  const [substitutionFilter, setSubstitutionFilter] = useState<'ALL' | 'A_FLAG' | 'NTI'>('ALL');
+  const [activeMechanismFilter, setActiveMechanismFilter] = useState<string>('ALL');
+  const [isGroupedByMechanism, setIsGroupedByMechanism] = useState<boolean>(false);
+
+  // 3 Accordion Expand/Collapse States (Collapsed by default)
+  const [isSubcategoriesAccordionOpen, setIsSubcategoriesAccordionOpen] = useState<boolean>(false);
+  const [isGroupingAccordionOpen, setIsGroupingAccordionOpen] = useState<boolean>(false);
+  const [isCommonMechanismAccordionOpen, setIsCommonMechanismAccordionOpen] = useState<boolean>(false);
+
+  // Selected Detail Modal Data
+  const [selectedConceptId, setSelectedConceptId] = useState<string | null>(null);
+  const [selectedDisease, setSelectedDisease] = useState<DiseaseInfo | null>(null);
+  const [selectedMechanismInfo, setSelectedMechanismInfo] = useState<DrugMechanismInfo | null>(null);
+  const [selectedCalInfo, setSelectedCalInfo] = useState<CalLabelInfo | null>(null);
+
+  // Handle cross-module target context from OTC triage (render-time prop sync)
+  const [prevTargetContext, setPrevTargetContext] = useState<string | null | undefined>(null);
+  if (targetContext && targetContext !== prevTargetContext) {
+    setPrevTargetContext(targetContext);
     const ctx = targetContext.toLowerCase();
     if (ctx.includes('cough')) {
       setSelectedDomainId('cat-1');
@@ -219,7 +248,7 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
       setSearchInputText('salbutamol');
       setSelectedPsaProtocol('salbutamol');
     }
-  }, [targetContext]);
+  }
 
   const handleOpenSafeScriptDemo = (drugName = 'Endone 5mg (Oxycodone HCl)') => {
     setSafeScriptData({
@@ -255,34 +284,6 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
     });
     setIsSafeScriptOpen(true);
   };
-
-  // Domain & SubCategory Tree State
-  const [selectedDomainId, setSelectedDomainId] = useState<string>('cat-1');
-  const [selectedSubCatId, setSelectedSubCatId] = useState<string>('sub-1-1');
-  const [sortOrder, setSortOrder] = useState<'SUBCATEGORY' | 'MECHANISM' | 'ALPHABETICAL' | 'SCHEDULE'>('SUBCATEGORY');
-
-  // Search Scope States
-  const [searchDomainScope, setSearchDomainScope] = useState<string>('ALL');
-  const [searchSubCatScope, setSearchSubCatScope] = useState<string>('ALL');
-
-  // Multi-Attribute Tag Filters
-  const [activeScheduleTags, setActiveScheduleTags] = useState<string[]>([]);
-  const [activeCalTags, setActiveCalTags] = useState<string[]>([]);
-  const [activeSafetyTags, setActiveSafetyTags] = useState<string[]>([]);
-  const [substitutionFilter, setSubstitutionFilter] = useState<'ALL' | 'A_FLAG' | 'NTI'>('ALL');
-  const [activeMechanismFilter, setActiveMechanismFilter] = useState<string>('ALL');
-  const [isGroupedByMechanism, setIsGroupedByMechanism] = useState<boolean>(false);
-
-  // 3 Accordion Expand/Collapse States (Collapsed by default)
-  const [isSubcategoriesAccordionOpen, setIsSubcategoriesAccordionOpen] = useState<boolean>(false);
-  const [isGroupingAccordionOpen, setIsGroupingAccordionOpen] = useState<boolean>(false);
-  const [isCommonMechanismAccordionOpen, setIsCommonMechanismAccordionOpen] = useState<boolean>(false);
-
-  // Selected Detail Modal Data
-  const [selectedConceptId, setSelectedConceptId] = useState<string | null>(null);
-  const [selectedDisease, setSelectedDisease] = useState<DiseaseInfo | null>(null);
-  const [selectedMechanismInfo, setSelectedMechanismInfo] = useState<DrugMechanismInfo | null>(null);
-  const [selectedCalInfo, setSelectedCalInfo] = useState<CalLabelInfo | null>(null);
   // State Storage Tester
   const [selectedState, setSelectedState] = useState<string>('NSW');
 

@@ -21,6 +21,8 @@ interface ReferralLetterModalProps {
   isCopied: boolean;
 }
 
+const emptySubscribe = () => () => {};
+
 export const ReferralLetterModal: React.FC<ReferralLetterModalProps> = ({
   language,
   showReferralModal,
@@ -36,10 +38,9 @@ export const ReferralLetterModal: React.FC<ReferralLetterModalProps> = ({
   onCopyLetter,
   isCopied,
 }) => {
-  const [mounted, setMounted] = useState<boolean>(false);
+  const isMounted = React.useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   useEffect(() => {
-    setMounted(true);
     if (!showReferralModal) return;
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -59,7 +60,7 @@ export const ReferralLetterModal: React.FC<ReferralLetterModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showReferralModal, onClose]);
 
-  if (!showReferralModal || !mounted || typeof document === 'undefined') return null;
+  if (!showReferralModal || !isMounted || typeof document === 'undefined') return null;
   const isFa = language === 'fa';
 
   return createPortal(

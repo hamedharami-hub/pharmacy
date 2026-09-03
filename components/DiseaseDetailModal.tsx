@@ -178,6 +178,8 @@ export function parseTextToBulletList(rawText?: string): string[] {
     .filter((s) => s.length > 1);
 }
 
+const emptySubscribe = () => () => {};
+
 export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
   disease,
   language,
@@ -185,11 +187,12 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
   onNavigateToModule,
 }) => {
   const isFa = language === 'fa';
-  const [mounted, setMounted] = useState<boolean>(false);
+  const isMounted = React.useSyncExternalStore(emptySubscribe, () => true, () => false);
   const [expandedMedIds, setExpandedMedIds] = useState<Record<number, boolean>>({});
+  const [isSynonymsOpen, setIsSynonymsOpen] = useState<boolean>(false);
+  const [activePhaseTab, setActivePhaseTab] = useState<'profile' | 'treatment' | 'medicines'>('profile');
 
   useEffect(() => {
-    setMounted(true);
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
@@ -213,7 +216,7 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
     setExpandedMedIds((prev) => ({ ...prev, [idx]: !prev[idx] }));
   };
 
-  if (!disease) return null;
+  if (!disease || !isMounted || typeof document === 'undefined') return null;
 
   const category =
     DISEASE_CATEGORIES.find((c) => c.id === disease.categoryId) || DISEASE_CATEGORIES[0];
@@ -227,8 +230,6 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
   // Resolve medicines & monograph data (from disease object or fallback helper)
   const fallbackGuide = findHandbookGuide(disease);
   const baseMedicines: OTCDrugInfo[] = disease.medicines || fallbackGuide?.medicines || [];
-
-  const [isSynonymsOpen, setIsSynonymsOpen] = useState<boolean>(false);
 
   // Full Clean Primary Display Name (Complete name without truncated words or broken text)
   let diseaseTitle = '';
@@ -489,10 +490,6 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
       pharmacistInstructions = disease.nonPharmAdvice.map((a, i) => `${i + 1}) ${a}`).join('\n');
     }
   }
-
-  const [activePhaseTab, setActivePhaseTab] = useState<'profile' | 'treatment' | 'medicines'>('profile');
-
-  if (!mounted || typeof document === 'undefined') return null;
 
   return createPortal(
     <div

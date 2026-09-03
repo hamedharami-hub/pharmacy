@@ -21,30 +21,35 @@ interface PwaInstallPromptProps {
 export const PwaInstallPrompt: React.FC<PwaInstallPromptProps> = ({ language }) => {
   const isFa = language === 'fa';
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isStandalone, setIsStandalone] = useState<boolean>(false);
-  const [isOnline, setIsOnline] = useState<boolean>(true);
+  const [isStandalone, setIsStandalone] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return (
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as any).standalone === true
+      );
+    }
+    return false;
+  });
+  const [isOnline, setIsOnline] = useState<boolean>(() => {
+    if (typeof navigator !== 'undefined') {
+      return navigator.onLine;
+    }
+    return true;
+  });
   const [showOfflineToast, setShowOfflineToast] = useState<boolean>(false);
   const [showInstallBanner, setShowInstallBanner] = useState<boolean>(false);
-  const [isIos, setIsIos] = useState<boolean>(false);
+  const [isIos, setIsIos] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      return /iphone|ipad|ipod/.test(userAgent);
+    }
+    return false;
+  });
   const [showIosGuide, setShowIosGuide] = useState<boolean>(false);
   const [installSuccess, setInstallSuccess] = useState<boolean>(false);
 
   useEffect(() => {
-    // 1. Check Standalone Display Mode (Installed App)
     if (typeof window !== 'undefined') {
-      const isStandaloneMode =
-        window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as any).standalone === true;
-      setIsStandalone(isStandaloneMode);
-
-      // Check iOS
-      const userAgent = window.navigator.userAgent.toLowerCase();
-      const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
-      setIsIos(isIosDevice);
-
-      // 2. Online / Offline Status
-      setIsOnline(navigator.onLine);
-
       const handleOnline = () => {
         setIsOnline(true);
         setShowOfflineToast(true);
@@ -89,7 +94,10 @@ export const PwaInstallPrompt: React.FC<PwaInstallPromptProps> = ({ language }) 
         setDeferredPrompt(e);
         // Show banner after 3 seconds if not already installed and not dismissed in session
         const dismissed = sessionStorage.getItem('pwa_banner_dismissed');
-        if (!dismissed && !isStandaloneMode) {
+        const isAlreadyStandalone =
+          window.matchMedia('(display-mode: standalone)').matches ||
+          (window.navigator as any).standalone === true;
+        if (!dismissed && !isAlreadyStandalone) {
           setShowInstallBanner(true);
         }
       };

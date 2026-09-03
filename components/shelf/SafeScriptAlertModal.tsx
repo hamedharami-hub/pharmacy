@@ -63,12 +63,12 @@ export const SafeScriptAlertModal: React.FC<SafeScriptAlertModalProps> = ({
   drugDetails,
   onConfirmDispense,
 }) => {
-  if (!isOpen || !drugDetails) return null;
-
   const isFa = language === 'fa';
   const [activeTab, setActiveTab] = useState<'overview' | 'history' | 'protocol'>('overview');
   const [acknowledged, setAcknowledged] = useState(false);
   const [gpContactNote, setGpContactNote] = useState('');
+
+  if (!isOpen || !drugDetails) return null;
 
   const isRed = drugDetails.alertLevel === 'RED';
   const isAmber = drugDetails.alertLevel === 'AMBER';

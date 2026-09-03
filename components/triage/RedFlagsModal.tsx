@@ -15,6 +15,8 @@ interface RedFlagsModalProps {
   onToggleStarRedFlags: () => void;
 }
 
+const emptySubscribe = () => () => {};
+
 export const RedFlagsModal: React.FC<RedFlagsModalProps> = ({
   language,
   scenario,
@@ -23,10 +25,9 @@ export const RedFlagsModal: React.FC<RedFlagsModalProps> = ({
   isQnaStarred,
   onToggleStarRedFlags,
 }) => {
-  const [mounted, setMounted] = useState<boolean>(false);
+  const isMounted = React.useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   useEffect(() => {
-    setMounted(true);
     if (!showRedFlagsModal) return;
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -46,7 +47,7 @@ export const RedFlagsModal: React.FC<RedFlagsModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showRedFlagsModal, onClose]);
 
-  if (!showRedFlagsModal || !mounted || typeof document === 'undefined') return null;
+  if (!showRedFlagsModal || !isMounted || typeof document === 'undefined') return null;
   const isFa = language === 'fa';
   const isStarred = isQnaStarred(`[Red Flags Check] ${scenario.title.en}`);
 

@@ -40,6 +40,8 @@ interface ClinicalHandbookDrawerProps {
   className?: string;
 }
 
+const emptySubscribe = () => () => {};
+
 export const ClinicalHandbookDrawer: React.FC<ClinicalHandbookDrawerProps> = ({
   language,
   isOpen,
@@ -48,20 +50,19 @@ export const ClinicalHandbookDrawer: React.FC<ClinicalHandbookDrawerProps> = ({
   className = '',
 }) => {
   const isFa = language === 'fa';
+  const isMounted = React.useSyncExternalStore(emptySubscribe, () => true, () => false);
 
-  // Find initial guide
+  // Helper to resolve initial selection safely
   const getInitialGuide = (): OTCDiseaseGuide => {
     if (!initialDiseaseIdOrGuide) return ALL_OTC_HANDBOOK_DISEASES[0];
-    if (typeof initialDiseaseIdOrGuide === 'object') {
-      if ('condition' in initialDiseaseIdOrGuide && 'medicines' in initialDiseaseIdOrGuide) {
-        return initialDiseaseIdOrGuide as OTCDiseaseGuide;
-      }
-      const matched = findHandbookGuide(initialDiseaseIdOrGuide);
-      if (matched) return matched;
-      return ALL_OTC_HANDBOOK_DISEASES[0];
+    if (typeof initialDiseaseIdOrGuide === 'object' && 'id' in initialDiseaseIdOrGuide) {
+      const found = ALL_OTC_HANDBOOK_DISEASES.find((d) => d.id === initialDiseaseIdOrGuide.id);
+      return found || ALL_OTC_HANDBOOK_DISEASES[0];
     }
     const found = ALL_OTC_HANDBOOK_DISEASES.find(
-      (d) => d.id.toLowerCase() === initialDiseaseIdOrGuide.toLowerCase()
+      (d) =>
+        d.id === initialDiseaseIdOrGuide ||
+        d.condition.toLowerCase() === String(initialDiseaseIdOrGuide).toLowerCase()
     );
     return found || ALL_OTC_HANDBOOK_DISEASES[0];
   };
@@ -73,10 +74,8 @@ export const ClinicalHandbookDrawer: React.FC<ClinicalHandbookDrawerProps> = ({
   const [activeTab, setActiveTab] = useState<'medicines' | 'nonpharm' | 'referral' | 'notes'>('medicines');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedMedIds, setExpandedMedIds] = useState<Record<number, boolean>>({});
-  const [mounted, setMounted] = useState<boolean>(false);
 
   useEffect(() => {
-    setMounted(true);
     if (!isOpen) return;
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -226,7 +225,7 @@ ${guide.clinicalNotes.map((c) => `• ${c}`).join('\n')}
     printWindow.document.close();
   };
 
-  if (!isOpen || !mounted || typeof document === 'undefined') return null;
+  if (!isOpen || !isMounted || typeof document === 'undefined') return null;
 
   return createPortal(
     <div

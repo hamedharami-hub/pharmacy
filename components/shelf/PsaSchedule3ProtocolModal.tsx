@@ -364,11 +364,11 @@ export const PsaSchedule3ProtocolModal: React.FC<PsaSchedule3ProtocolModalProps>
   protocolType,
   onSupplyApproved,
 }) => {
-  if (!isOpen) return null;
-
   const isFa = language === 'fa';
   const protocol = PSA_S3_PROTOCOLS[protocolType] || PSA_S3_PROTOCOLS.triptan;
   const [checkedMap, setCheckedMap] = useState<Record<string, boolean>>({});
+
+  if (!isOpen) return null;
 
   const toggleCheck = (id: string) => {
     setCheckedMap((prev) => ({ ...prev, [id]: !prev[id] }));

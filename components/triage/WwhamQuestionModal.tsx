@@ -21,6 +21,8 @@ interface WwhamQuestionModalProps {
   ) => void;
 }
 
+const emptySubscribe = () => () => {};
+
 export const WwhamQuestionModal: React.FC<WwhamQuestionModalProps> = ({
   language,
   scenario,
@@ -29,10 +31,9 @@ export const WwhamQuestionModal: React.FC<WwhamQuestionModalProps> = ({
   isQnaStarred,
   onToggleStarQna,
 }) => {
-  const [mounted, setMounted] = useState<boolean>(false);
+  const isMounted = React.useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   useEffect(() => {
-    setMounted(true);
     if (!activeWwhamQuestion) return;
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -51,7 +52,7 @@ export const WwhamQuestionModal: React.FC<WwhamQuestionModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  if (!activeWwhamQuestion || !mounted || typeof document === 'undefined') return null;
+  if (!activeWwhamQuestion || !isMounted || typeof document === 'undefined') return null;
   const isFa = language === 'fa';
   const isStarred = isQnaStarred(activeWwhamQuestion.question.en);
 

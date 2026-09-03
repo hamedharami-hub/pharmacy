@@ -69,6 +69,8 @@ interface SettingsModalProps {
   onSaveAiConfig: (cfg: UserAiConfig) => void;
 }
 
+const emptySubscribe = () => () => {};
+
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   language,
   onToggleLanguage,
@@ -92,10 +94,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 }) => {
   const isFa = language === 'fa';
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [mounted, setMounted] = useState<boolean>(false);
+  const isMounted = React.useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   useEffect(() => {
-    setMounted(true);
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
@@ -380,7 +381,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const allModels = localAiConfig.customModels || [];
 
-  if (!mounted || typeof document === 'undefined') return null;
+  if (!isMounted || typeof document === 'undefined') return null;
 
   return createPortal(
     <div

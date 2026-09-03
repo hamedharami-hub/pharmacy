@@ -199,10 +199,15 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
     type: 'clinical_pearl',
   });
 
-  // Reset timer on card change
+  // Reset timer on card change via render-time sync
+  const [prevQueueIndexForTimer, setPrevQueueIndexForTimer] = useState(studyQueueIndex);
+  if (studyQueueIndex !== prevQueueIndexForTimer) {
+    setPrevQueueIndexForTimer(studyQueueIndex);
+    setTimeLeft(studySettings.countdownTimer);
+  }
+
   useEffect(() => {
     if (studySettings.countdownTimer > 0 && !isAnswerRevealed && !sessionCompleted) {
-      setTimeLeft(studySettings.countdownTimer);
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
@@ -258,7 +263,14 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
 
     // Apply Queue Ordering
     if (studySettings.cardOrder === 'random') {
-      filtered = [...filtered].sort(() => Math.random() - 0.5);
+      // Deterministic stable shuffle based on card ID hash (avoids impure Math.random in render)
+      filtered = [...filtered].sort((a, b) => {
+        let ha = 0;
+        let hb = 0;
+        for (let i = 0; i < a.id.length; i++) ha = (Math.imul(31, ha) + a.id.charCodeAt(i)) | 0;
+        for (let i = 0; i < b.id.length; i++) hb = (Math.imul(31, hb) + b.id.charCodeAt(i)) | 0;
+        return ha - hb;
+      });
     } else if (studySettings.cardOrder === 'hardest_first') {
       filtered = [...filtered].sort((a, b) => (a.box - b.box) || ((a.fsrsStability || 1) - (b.fsrsStability || 1)));
     } else if (studySettings.cardOrder === 'due_first') {

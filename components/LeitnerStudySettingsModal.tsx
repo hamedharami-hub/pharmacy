@@ -124,15 +124,17 @@ export const LeitnerStudySettingsModal: React.FC<LeitnerStudySettingsModalProps>
   const [activeTab, setActiveTab] = useState<'study' | 'fsrs' | 'display' | 'advanced' | 'backup'>(initialTab || 'study');
   const [localSettings, setLocalSettings] = useState<LeitnerStudySettings>(settings);
 
-  useEffect(() => {
+  const [prevSettings, setPrevSettings] = useState<LeitnerStudySettings>(settings);
+  if (settings !== prevSettings) {
+    setPrevSettings(settings);
     setLocalSettings(settings);
-  }, [settings]);
+  }
 
-  useEffect(() => {
-    if (initialTab) {
-      setActiveTab(initialTab);
-    }
-  }, [initialTab]);
+  const [prevInitialTab, setPrevInitialTab] = useState(initialTab);
+  if (initialTab && initialTab !== prevInitialTab) {
+    setPrevInitialTab(initialTab);
+    setActiveTab(initialTab);
+  }
 
   if (!isOpen) return null;
 

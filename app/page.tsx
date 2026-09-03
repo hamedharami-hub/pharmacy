@@ -128,7 +128,19 @@ export default function Home() {
   const [displayMode, setDisplayMode] = useState<DisplayMode>('both');
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('window-grid');
 
-  const [activeMainModule, setActiveMainModule] = useState<1 | 2 | 3 | 4 | 5 | 6>(4);
+  const [activeMainModule, setActiveMainModule] = useState<1 | 2 | 3 | 4 | 5 | 6>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const modParam = params.get('module');
+      if (modParam) {
+        const modNum = parseInt(modParam, 10);
+        if (modNum >= 1 && modNum <= 6) {
+          return modNum as 1 | 2 | 3 | 4 | 5 | 6;
+        }
+      }
+    }
+    return 4;
+  });
   const [leitnerInitialTab, setLeitnerInitialTab] = useState<'leitner' | 'mindmap'>('leitner');
   const [activeMode, setActiveMode] = useState<StudyMode>('accordion');
   const [activeModule, setActiveModule] = useState<ModuleId>('software');
@@ -203,20 +215,6 @@ export default function Home() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const [isInitialCloudLoad, setIsInitialCloudLoad] = useState(false);
-
-  // 0. Parse initial URL parameters (e.g. PWA Shortcuts /?module=1..5)
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const modParam = params.get('module');
-      if (modParam) {
-        const modNum = parseInt(modParam, 10);
-        if (modNum >= 1 && modNum <= 6) {
-          setActiveMainModule(modNum as 1 | 2 | 3 | 4 | 5 | 6);
-        }
-      }
-    }
-  }, []);
 
   // 1. Firebase Auth listener
   useEffect(() => {
