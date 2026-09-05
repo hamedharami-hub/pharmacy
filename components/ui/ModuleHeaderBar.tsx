@@ -13,7 +13,7 @@ export interface ModuleHeaderBarProps {
   icon: LucideIcon;
   title: LocalizedText;
   subtitle?: LocalizedText;
-  accent?: 'teal' | 'sky' | 'emerald' | 'purple';
+  accent?: 'teal' | 'sky' | 'emerald' | 'purple' | 'indigo';
   badge?: React.ReactNode;
   actions?: React.ReactNode;
   language: Language;
@@ -24,6 +24,7 @@ const ACCENT_STYLES: Record<NonNullable<ModuleHeaderBarProps['accent']>, string>
   sky: 'bg-sky-500/10 text-sky-500',
   emerald: 'bg-emerald-500/10 text-emerald-500',
   purple: 'bg-purple-500/10 text-purple-500',
+  indigo: 'bg-indigo-500/10 text-indigo-500',
 };
 
 export const ModuleHeaderBar: React.FC<ModuleHeaderBarProps> = ({

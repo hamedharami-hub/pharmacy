@@ -7,6 +7,7 @@ import { LeitnerCard } from '@/types/leitner';
 import { LeitnerDeckModule } from '@/components/LeitnerDeckModule';
 import { INITIAL_SAMPLE_LEITNER_CARDS } from '@/lib/sample-leitner-cards';
 import { Layers, Network, Sparkles } from 'lucide-react';
+import { ModuleHeaderBar } from '@/components/ui';
 
 const LeitnerMindMapPanel = dynamic(
   () => import('@/components/LeitnerMindMapPanel').then((mod) => mod.LeitnerMindMapPanel),
@@ -42,21 +43,26 @@ export const LearningToolsModule: React.FC<LearningToolsModuleProps> = ({
 
   return (
     <div className="space-y-2.5 min-w-0" dir={isFa ? 'rtl' : 'ltr'}>
-      {/* Pure Dual-Shape Switcher Bar (Icons Only - Ultra Minimal) */}
-      <div className="flex items-center justify-end max-w-3xl mx-auto w-full">
-        <div className="flex items-center gap-1 bg-slate-900/90 backdrop-blur-md p-1 rounded-2xl border app-border shadow-xs">
-          {/* Shape 1: Flashcard / Review Icon */}
+      <ModuleHeaderBar
+        icon={Sparkles}
+        accent="purple"
+        title={{ fa: 'ماژول ۵: ابزارهای یادگیری', en: 'Module 5: Learning Tools' }}
+        subtitle={{ fa: 'مرور فلش‌کارت‌ها و نقشه ذهنی', en: 'Flashcard review and mind map' }}
+        language={language}
+        actions={
+          <div className="app-card app-border rounded-full border p-1 flex items-center gap-1">
           <button
             type="button"
             onClick={() => setActiveTab('leitner')}
-            className={`p-2 rounded-xl transition flex items-center justify-center cursor-pointer relative ${
+            className={`rounded-full px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer relative ${
               activeTab === 'leitner'
-                ? 'bg-purple-600 text-white shadow-xs ring-1 ring-purple-400/40'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                ? 'bg-purple-600 text-white'
+                : 'app-muted hover:opacity-80'
             }`}
             title={isFa ? 'مرور فلش‌کارت‌ها (Review)' : 'Flashcard Review'}
           >
             <Layers className="w-4 h-4" />
+            <span>{isFa ? 'مرور' : 'Review'}</span>
             {dueCount > 0 && (
               <span className="absolute -top-1 -end-1 px-1 min-w-3.5 h-3.5 text-[8.5px] font-mono font-black rounded-full bg-amber-400 text-slate-950 flex items-center justify-center shadow-xs">
                 {dueCount > 99 ? '99+' : dueCount}
@@ -68,17 +74,19 @@ export const LearningToolsModule: React.FC<LearningToolsModuleProps> = ({
           <button
             type="button"
             onClick={() => setActiveTab('mindmap')}
-            className={`p-2 rounded-xl transition flex items-center justify-center cursor-pointer ${
+            className={`rounded-full px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'mindmap'
-                ? 'bg-linear-to-r from-purple-600 to-indigo-600 text-white shadow-xs ring-1 ring-indigo-400/40'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                ? 'bg-purple-600 text-white'
+                : 'app-muted hover:opacity-80'
             }`}
             title={isFa ? 'نقشه ذهنی (Mind Map)' : 'Mind Map'}
           >
-            <Network className="w-4 h-4 text-cyan-300" />
+            <Network className="w-4 h-4" />
+            <span>{isFa ? 'نقشه ذهنی' : 'Mind Map'}</span>
           </button>
         </div>
-      </div>
+        }
+      />
 
       {/* Active Tab View */}
       {activeTab === 'leitner' && (
