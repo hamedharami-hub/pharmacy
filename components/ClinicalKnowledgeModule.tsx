@@ -257,7 +257,11 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
                       </span>
                     )}
                     {isSelected && (
-                      <div className="w-4 h-4 rounded-full bg-teal-500 text-white flex items-center justify-center shadow-xs">
+                      <div
+                        className={`w-4 h-4 rounded-full ${
+                          chip.isSoftware ? 'bg-teal-500' : 'bg-indigo-500'
+                        } text-white flex items-center justify-center shadow-xs`}
+                      >
                         <Check className="w-2.5 h-2.5 stroke-[3]" />
                       </div>
                     )}
@@ -296,6 +300,10 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
               <EmptyState
                 icon={FolderOpen}
                 title={{
+                  fa: 'نتیجه‌ای یافت نشد',
+                  en: 'No results found',
+                }}
+                description={{
                   fa: 'هیچ سرفصلی مطابق با فیلترها و جستجوی شما یافت نشد.',
                   en: 'No study topics found matching your search criteria.',
                 }}
