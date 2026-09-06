@@ -6,6 +6,7 @@ import { RotateCw, ChevronLeft, ChevronRight, Zap, CheckCircle2, Shuffle, Bot } 
 import { useStudyTrackerContext } from './study/StudyTrackerContext';
 import { StudyStatusBadge } from './study/StudyStatusBadge';
 import { formatBidiText } from '@/lib/bidiFormatter';
+import { sanitizeHtml } from '@/lib/sanitizeHtml';
 
 interface FlashcardViewProps {
   cards: PharmacyCard[];
@@ -196,9 +197,9 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
               <div
                 className="text-xs app-text space-y-2 max-h-48 overflow-y-auto pr-1"
                 dangerouslySetInnerHTML={{
-                  __html: typeof currentCard.detailsHtml === 'object' && currentCard.detailsHtml
+                  __html: sanitizeHtml(typeof currentCard.detailsHtml === 'object' && currentCard.detailsHtml
                     ? (isFa ? (currentCard.detailsHtml.fa || currentCard.detailsHtml.en) : (currentCard.detailsHtml.en || currentCard.detailsHtml.fa))
-                    : String(currentCard.detailsHtml || ''),
+                    : String(currentCard.detailsHtml || '')),
                 }}
               />
             </div>

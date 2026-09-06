@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { PharmacyCard, FlagColor, Language, CustomCardEdit, ChatMessage } from '@/types/pharmacy';
 import { getClientAiConfig } from '@/lib/aiConfigStorage';
+import { sanitizeHtml } from '@/lib/sanitizeHtml';
 import { useStudyTrackerContext } from './study/StudyTrackerContext';
 import { StudyStatusBadge } from './study/StudyStatusBadge';
 import {
@@ -332,7 +333,7 @@ export const StudyCard: React.FC<StudyCardProps> = ({
           {/* HTML Details Content */}
           <div
             className="app-text leading-relaxed text-xs space-y-2 overflow-x-auto pt-1"
-            dangerouslySetInnerHTML={{ __html: details }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(details) }}
           />
 
           {/* Window Footer Toolbar */}

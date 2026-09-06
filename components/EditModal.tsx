@@ -3,6 +3,7 @@
 
 import React, { useState, useRef } from 'react';
 import { PharmacyCard, Language, CustomCardEdit } from '@/types/pharmacy';
+import { sanitizeHtml } from '@/lib/sanitizeHtml';
 import {
   X,
   Save,
@@ -116,17 +117,6 @@ function parseCardContent(html: string): {
   } catch (err) {
     console.error('Error parsing card content:', err);
     return { baseHtml: html, images: [], tableData: null };
-  }
-}
-
-function sanitizeHtml(html: string): string {
-  if (typeof window === 'undefined') return html;
-  try {
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    doc.querySelectorAll('script, iframe, object, embed, form').forEach(el => el.remove());
-    return doc.body.innerHTML;
-  } catch (e) {
-    return html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '').replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '');
   }
 }
 
