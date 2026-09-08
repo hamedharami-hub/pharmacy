@@ -25,6 +25,7 @@ import {
   Maximize2,
   Minimize2,
   Dna,
+  TrendingUp,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -39,6 +40,7 @@ interface HeaderProps {
   layoutMode: LayoutMode;
   onChangeLayoutMode: (mode: LayoutMode) => void;
   onOpenSettings: () => void;
+  onOpenAnalytics?: () => void;
   flaggedCount: number;
   user: User | null;
   onOpenAuth: () => void;
@@ -57,6 +59,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   language,
   onOpenSettings,
+  onOpenAnalytics,
   user,
   activeMainModule,
   onSelectMainModule,
@@ -241,6 +244,23 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-300 group-hover:scale-110 transition-transform animate-pulse" />
                 <span className="text-[11px] whitespace-nowrap">{isFa ? 'هوش مصنوعی' : 'AI Tutor'}</span>
+              </button>
+            )}
+
+            {/* Analytics Dashboard Button */}
+            {onOpenAnalytics && (
+              <button
+                type="button"
+                onClick={() => {
+                  haptic.medium();
+                  onOpenAnalytics();
+                }}
+                className="px-2 sm:px-2.5 py-1.5 rounded-xl border app-border app-bg hover:bg-slate-800 text-emerald-400 hover:text-emerald-300 transition flex items-center gap-1.5 cursor-pointer text-xs font-semibold shadow-sm active:scale-95 duration-100"
+                title={isFa ? 'داشبورد نمودارهای تحلیلی تسلط و روند آزمون' : 'Study Mastery & Quiz Trend Charts'}
+                aria-label={isFa ? 'نمودارهای تحلیلی' : 'Analytics Charts'}
+              >
+                <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-[11px] hidden md:inline">{isFa ? 'آمار تسلط' : 'Mastery'}</span>
               </button>
             )}
 

@@ -38,6 +38,7 @@ import { SidebarNav } from '@/components/SidebarNav';
 import { INITIAL_SAMPLE_LEITNER_CARDS } from '@/lib/sample-leitner-cards';
 import { StudyTrackerProvider } from '@/components/study/StudyTrackerContext';
 import { ResumeStudyBanner } from '@/components/study/ResumeStudyBanner';
+import { StatsBar } from '@/components/StatsBar';
 import { FolderOpen, Bot, Sparkles } from 'lucide-react';
 
 // Dynamic lazy-loaded modules for optimized initial bundle loading
@@ -172,7 +173,18 @@ export default function Home() {
   // Modal States
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settingsInitialTab, setSettingsInitialTab] = useState<'general' | 'ai' | 'about' | 'analytics'>('general');
   const [aiConfig, setAiConfig] = useState<UserAiConfig>(() => getClientAiConfig());
+
+  const handleOpenAnalytics = () => {
+    setSettingsInitialTab('analytics');
+    setIsSettingsOpen(true);
+  };
+
+  const handleOpenSettings = (tab: 'general' | 'ai' | 'about' | 'analytics' = 'general') => {
+    setSettingsInitialTab(tab);
+    setIsSettingsOpen(true);
+  };
 
   // Leitner Spaced Repetition Box State
   const [leitnerCards, setLeitnerCards] = useState<LeitnerCard[]>([]);
@@ -740,7 +752,8 @@ export default function Home() {
         onSelectMode={setActiveMode}
         layoutMode={layoutMode}
         onChangeLayoutMode={setLayoutMode}
-        onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenSettings={() => handleOpenSettings('general')}
+        onOpenAnalytics={handleOpenAnalytics}
         flaggedCount={flaggedCount}
         user={user}
         onOpenAuth={() => setIsAuthOpen(true)}
@@ -772,6 +785,16 @@ export default function Home() {
           language={language}
           currentModuleId={activeMainModule}
           onResume={handleResumeStudy}
+        />
+
+        {/* Real-time Study & Quiz Summary Bar with Quick Analytics Access */}
+        <StatsBar
+          language={language}
+          totalCards={ALL_PHARMACY_CARDS.length}
+          reviewedCount={reviewedCount}
+          flaggedCount={flaggedCount}
+          quizScorePct={quizMasteryPct}
+          onOpenAnalytics={handleOpenAnalytics}
         />
 
         {/* Dynamic Main Module View Router */}
@@ -963,7 +986,10 @@ export default function Home() {
             savedNotes,
           }}
           onImportProgress={handleImportProgress}
-          onClose={() => setIsSettingsOpen(false)}
+          onClose={() => {
+            setIsSettingsOpen(false);
+            setSettingsInitialTab('general');
+          }}
           user={user}
           isSyncing={isSyncing}
           lastSyncedAt={lastSyncedAt}
@@ -977,6 +1003,8 @@ export default function Home() {
             setAiConfig(newCfg);
             saveClientAiConfig(newCfg, user?.uid);
           }}
+          initialTab={settingsInitialTab}
+          leitnerCards={leitnerCards}
         />
       )}
 

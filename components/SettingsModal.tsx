@@ -3,8 +3,10 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { VisualTheme, FontSize, Language, UserProgress, LayoutMode, UserAiConfig, AiProvider, AiModelOption } from '@/types/pharmacy';
+import { LeitnerCard } from '@/types/leitner';
 import { User } from '@/lib/firebase';
 import { useStudyTracker } from '@/components/study/StudyTrackerContext';
+import { StudyMasteryDashboard } from '@/components/analytics/StudyMasteryDashboard';
 import {
   Settings,
   X,
@@ -45,6 +47,7 @@ import {
   Scale,
   Info,
   Heart,
+  TrendingUp,
 } from 'lucide-react';
 
 interface SettingsModalProps {
@@ -67,6 +70,8 @@ interface SettingsModalProps {
   onOpenLeitnerBox?: () => void;
   aiConfig: UserAiConfig;
   onSaveAiConfig: (cfg: UserAiConfig) => void;
+  initialTab?: 'general' | 'ai' | 'about' | 'analytics';
+  leitnerCards?: LeitnerCard[];
 }
 
 const emptySubscribe = () => () => {};
@@ -91,6 +96,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onOpenLeitnerBox,
   aiConfig,
   onSaveAiConfig,
+  initialTab,
+  leitnerCards,
 }) => {
   const isFa = language === 'fa';
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -128,8 +135,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const leitnerActions = Object.keys(completedMap).filter((k) => k.startsWith('leitner-') || k.startsWith('card-')).length;
 
   // Local state for settings modal tabs
-  // Local state for settings modal tabs
-  const [activeTab, setActiveTab] = useState<'general' | 'ai' | 'about'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'ai' | 'about' | 'analytics'>(initialTab || 'general');
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
   const [localAiConfig, setLocalAiConfig] = useState<UserAiConfig>(aiConfig);
   const [showAddCustomModel, setShowAddCustomModel] = useState(false);
   const [customModelForm, setCustomModelForm] = useState<{
@@ -409,6 +421,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             >
               <Settings className="w-3.5 h-3.5" />
               <span>{isFa ? 'عمومی' : 'General'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('analytics')}
+              className={`px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer ${
+                activeTab === 'analytics'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
+                  : 'app-muted hover:app-text'
+              }`}
+            >
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-300" />
+              <span>{isFa ? 'آمار و تسلط' : 'Mastery & Stats'}</span>
             </button>
             <button
               type="button"
@@ -1163,6 +1187,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <span>{isFa ? 'مشاهده جعبه و کارت‌های لایتنر' : 'Open Leitner Box'}</span>
                 </button>
               )}
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('analytics')}
+                className="w-full py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 transition cursor-pointer"
+              >
+                <TrendingUp className="w-4 h-4 text-emerald-200" />
+                <span>{isFa ? 'مشاهده نمودارهای تحلیلی تسلط و روند آزمون' : 'View Study Mastery & Quiz Trend Analytics'}</span>
+              </button>
             </div>
 
             {/* User Account & Cloud Sync Section */}
@@ -1823,6 +1856,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </span>
             </div>
           </div>
+        )}
+
+        {/* TAB 4: STUDY MASTERY & QUIZ HISTORY DASHBOARD (RECHARTS) */}
+        {activeTab === 'analytics' && (
+          <StudyMasteryDashboard
+            language={language}
+            userProgress={userProgress}
+            leitnerCards={leitnerCards}
+            onOpenLeitnerBox={() => {
+              onClose();
+              onOpenLeitnerBox?.();
+            }}
+          />
         )}
       </div>
     </div>,
