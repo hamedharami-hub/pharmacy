@@ -16,6 +16,7 @@ import {
   UserAiConfig,
 } from '@/types/pharmacy';
 import { getClientAiConfig, saveClientAiConfig, syncAiConfigFromCloud } from '@/lib/aiConfigStorage';
+import { DEFAULT_AI_CONFIG } from '@/lib/aiService';
 import { ALL_PHARMACY_CARDS } from '@/lib/pharmacy-data';
 import {
   auth,
@@ -41,31 +42,12 @@ import { ResumeStudyBanner } from '@/components/study/ResumeStudyBanner';
 import { StatsBar } from '@/components/StatsBar';
 import { FolderOpen, Bot, Sparkles } from 'lucide-react';
 
-// Dynamic lazy-loaded modules for optimized initial bundle loading
-const OtcTriageModule = dynamic(
-  () => import('@/components/OtcTriageModule').then((mod) => mod.OtcTriageModule),
-  { ssr: false }
-);
-
-const ProductShelfModule = dynamic(
-  () => import('@/components/ProductShelfModule').then((mod) => mod.ProductShelfModule),
-  { ssr: false }
-);
-
-const FredDispenseModule = dynamic(
-  () => import('@/components/FredDispenseModule').then((mod) => mod.FredDispenseModule),
-  { ssr: false }
-);
-
-const ClinicalKnowledgeModule = dynamic(
-  () => import('@/components/ClinicalKnowledgeModule').then((mod) => mod.ClinicalKnowledgeModule),
-  { ssr: false }
-);
-
-const LearningToolsModule = dynamic(
-  () => import('@/components/LearningToolsModule').then((mod) => mod.LearningToolsModule),
-  { ssr: false }
-);
+// Core clinical modules imported directly for rock-solid SSR & zero dynamic chunk loading failures
+import { OtcTriageModule } from '@/components/OtcTriageModule';
+import { ProductShelfModule } from '@/components/ProductShelfModule';
+import { FredDispenseModule } from '@/components/FredDispenseModule';
+import { ClinicalKnowledgeModule } from '@/components/ClinicalKnowledgeModule';
+import { LearningToolsModule } from '@/components/LearningToolsModule';
 
 const TextSelectionLeitnerTrigger = dynamic(
   () => import('@/components/TextSelectionLeitnerTrigger').then((mod) => mod.TextSelectionLeitnerTrigger),
@@ -129,19 +111,8 @@ export default function Home() {
   const [displayMode, setDisplayMode] = useState<DisplayMode>('both');
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('window-grid');
 
-  const [activeMainModule, setActiveMainModule] = useState<1 | 2 | 3 | 4 | 5 | 6>(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const modParam = params.get('module');
-      if (modParam) {
-        const modNum = parseInt(modParam, 10);
-        if (modNum >= 1 && modNum <= 6) {
-          return modNum as 1 | 2 | 3 | 4 | 5 | 6;
-        }
-      }
-    }
-    return 4;
-  });
+  // Initialized to 4 on both SSR and client for consistent initial tree; synced on mount
+  const [activeMainModule, setActiveMainModule] = useState<1 | 2 | 3 | 4 | 5 | 6>(4);
   const [leitnerInitialTab, setLeitnerInitialTab] = useState<'leitner' | 'mindmap'>('leitner');
   const [activeMode, setActiveMode] = useState<StudyMode>('accordion');
   const [activeModule, setActiveModule] = useState<ModuleId>('software');
@@ -149,6 +120,22 @@ export default function Home() {
   const [flagFilter, setFlagFilter] = useState<FlagColor | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [shelfTargetContext, setShelfTargetContext] = useState<string | null>(null);
+
+  // Sync module query parameter on mount without hydration mismatch
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const modParam = params.get('module');
+      if (modParam) {
+        const modNum = parseInt(modParam, 10);
+        if (modNum >= 1 && modNum <= 6) {
+          setActiveMainModule(modNum as 1 | 2 | 3 | 4 | 5 | 6);
+        }
+      }
+    } catch {
+      // Ignore URL parsing errors
+    }
+  }, []);
 
   const handleNavigateToModule = useCallback(
     (modNum: 1 | 2 | 3 | 4 | 5 | 6, contextId?: string) => {
@@ -174,7 +161,12 @@ export default function Home() {
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsInitialTab, setSettingsInitialTab] = useState<'general' | 'ai' | 'about' | 'analytics'>('general');
-  const [aiConfig, setAiConfig] = useState<UserAiConfig>(() => getClientAiConfig());
+  const [aiConfig, setAiConfig] = useState<UserAiConfig>(DEFAULT_AI_CONFIG);
+
+  // Load AI configuration on mount
+  useEffect(() => {
+    setAiConfig(getClientAiConfig());
+  }, []);
 
   const handleOpenAnalytics = () => {
     setSettingsInitialTab('analytics');

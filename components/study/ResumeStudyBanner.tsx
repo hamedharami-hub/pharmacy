@@ -32,7 +32,7 @@ export const ResumeStudyBanner: React.FC<ResumeStudyBannerProps> = ({
   // Do not show resume banner on module 5 (Learning Tools & Mind Map)
   if (currentModuleId === 5 || currentModuleId === (6 as any)) return null;
 
-  if (!activeLastStudied || isDismissed) return null;
+  if (!tracker?.isLoaded || !activeLastStudied || isDismissed) return null;
 
   const lastStudied = activeLastStudied;
 

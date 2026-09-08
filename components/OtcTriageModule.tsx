@@ -83,16 +83,19 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
   const [selectedDisease, setSelectedDisease] = useState<DiseaseInfo | null>(null);
   const [isChatExpanded, setIsChatExpanded] = useState(false);
 
-  // Starred phrases state & persistence with lazy initialization
-  const [starredPhrases, setStarredPhrases] = useState<StarredPhrase[]>(() => {
-    if (typeof window === 'undefined') return [];
+  // Starred phrases state & persistence (loaded on mount to prevent SSR hydration mismatch)
+  const [starredPhrases, setStarredPhrases] = useState<StarredPhrase[]>([]);
+
+  useEffect(() => {
     try {
       const saved = localStorage.getItem('otc_triage_starred_phrases');
-      return saved ? JSON.parse(saved) : [];
+      if (saved) {
+        setStarredPhrases(JSON.parse(saved));
+      }
     } catch {
-      return [];
+      // Ignore localStorage errors
     }
-  });
+  }, []);
   const [showStarredModal, setShowStarredModal] = useState(false);
   const [showStarredBelow, setShowStarredBelow] = useState(false);
   const [starredSearchTerm, setStarredSearchTerm] = useState('');
