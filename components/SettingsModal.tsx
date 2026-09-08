@@ -136,12 +136,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   // Local state for settings modal tabs
   const [activeTab, setActiveTab] = useState<'general' | 'ai' | 'about' | 'analytics'>(initialTab || 'general');
-
-  useEffect(() => {
+  const [prevInitialTab, setPrevInitialTab] = useState(initialTab);
+  if (initialTab !== prevInitialTab) {
+    setPrevInitialTab(initialTab);
     if (initialTab) {
       setActiveTab(initialTab);
     }
-  }, [initialTab]);
+  }
   const [localAiConfig, setLocalAiConfig] = useState<UserAiConfig>(aiConfig);
   const [showAddCustomModel, setShowAddCustomModel] = useState(false);
   const [customModelForm, setCustomModelForm] = useState<{

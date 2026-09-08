@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo, useSyncExternalStore } from 'react';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -61,22 +61,19 @@ export const StudyMasteryDashboard: React.FC<StudyMasteryDashboardProps> = ({
 }) => {
   const isFa = language === 'fa';
   const tracker = useStudyTracker();
-  const [isMounted, setIsMounted] = useState(false);
+  const isMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const [selectedTimeframe, setSelectedTimeframe] = useState<'7d' | '30d' | 'all'>('30d');
   const [activeChartTab, setActiveChartTab] = useState<'trends' | 'modules' | 'leitner'>('trends');
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // 1. Gather raw data from study tracker
-  const completedMap = tracker?.studyState?.completedMap || {};
-  const viewedMap = tracker?.studyState?.viewedMap || {};
 
   const totalLeitnerCards = leitnerCards.length;
 
   // Breakdown by clinical modules
   const moduleMasteryData = useMemo(() => {
+    const completedMap = tracker?.studyState?.completedMap || {};
     const modulesDef = [
       {
         id: 'mod1',
@@ -148,7 +145,7 @@ export const StudyMasteryDashboard: React.FC<StudyMasteryDashboardProps> = ({
         fill: m.color,
       };
     });
-  }, [completedMap, isFa, leitnerCards, totalLeitnerCards, userProgress.reviewedCards]);
+  }, [isFa, leitnerCards, totalLeitnerCards, tracker?.studyState?.completedMap, userProgress.reviewedCards]);
 
   // Overall study mastery percentage calculation
   const overallMasteryPct = useMemo(() => {
@@ -183,19 +180,17 @@ export const StudyMasteryDashboard: React.FC<StudyMasteryDashboardProps> = ({
   }, [isFa, leitnerCards]);
 
   // 2. Chronological Quiz Performance Trend Data
-  const [quizHistory, setQuizHistory] = useState<QuizHistoryRecord[]>([]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
+  const quizHistory = useMemo<QuizHistoryRecord[]>(() => {
     let historyRecords: QuizHistoryRecord[] = [];
-    try {
-      const stored = localStorage.getItem(STORAGE_QUIZ_HISTORY_KEY);
-      if (stored) {
-        historyRecords = JSON.parse(stored);
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(STORAGE_QUIZ_HISTORY_KEY);
+        if (stored) {
+          historyRecords = JSON.parse(stored);
+        }
+      } catch {
+        historyRecords = [];
       }
-    } catch {
-      historyRecords = [];
     }
 
     // Extract history entries from leitnerCards if present
@@ -276,7 +271,7 @@ export const StudyMasteryDashboard: React.FC<StudyMasteryDashboardProps> = ({
 
     // Sort chronologically ascending
     historyRecords.sort((a, b) => a.date.localeCompare(b.date));
-    setQuizHistory(historyRecords);
+    return historyRecords;
   }, [leitnerCards, userProgress.quizScores]);
 
   // Filtered Quiz History based on timeframe

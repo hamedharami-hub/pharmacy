@@ -129,7 +129,10 @@ export default function Home() {
       if (modParam) {
         const modNum = parseInt(modParam, 10);
         if (modNum >= 1 && modNum <= 6) {
-          setActiveMainModule(modNum as 1 | 2 | 3 | 4 | 5 | 6);
+          const timer = setTimeout(() => {
+            setActiveMainModule(modNum as 1 | 2 | 3 | 4 | 5 | 6);
+          }, 0);
+          return () => clearTimeout(timer);
         }
       }
     } catch {
@@ -165,7 +168,10 @@ export default function Home() {
 
   // Load AI configuration on mount
   useEffect(() => {
-    setAiConfig(getClientAiConfig());
+    const timer = setTimeout(() => {
+      setAiConfig(getClientAiConfig());
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleOpenAnalytics = () => {

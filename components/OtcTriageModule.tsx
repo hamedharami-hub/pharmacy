@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { OTC_SCENARIOS, Scenario, WwhamQuestion, DialogueOption, ConversationMode } from '@/data/otcScenarios';
 import { DiseaseInfo, DISEASES_REGISTRY, findDiseaseGuide } from '@/data/diseasesRegistry';
@@ -90,7 +90,11 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
     try {
       const saved = localStorage.getItem('otc_triage_starred_phrases');
       if (saved) {
-        setStarredPhrases(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        const timer = setTimeout(() => {
+          setStarredPhrases(parsed);
+        }, 0);
+        return () => clearTimeout(timer);
       }
     } catch {
       // Ignore localStorage errors
