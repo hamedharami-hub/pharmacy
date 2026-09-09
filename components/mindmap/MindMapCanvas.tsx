@@ -699,7 +699,7 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                 {
                   id: 'en',
                   label: isFa ? '🇬🇧 فقط انگلیسی' : '🇬🇧 English Only',
-                  desc: isFa ? 'اصطلاحات تخصصی آزمون KAPS' : 'Medical English focus',
+                  desc: isFa ? 'اصطلاحات تخصصی داروسازی' : 'Medical English focus',
                 },
               ].map((opt) => (
                 <button

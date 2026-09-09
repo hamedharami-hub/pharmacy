@@ -536,7 +536,7 @@ export const CypInteractionMatrixPanel: React.FC<CypInteractionMatrixPanelProps>
                 <div className="space-y-2 pt-2 border-t border-slate-800">
                   <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{isFa ? 'نکات طلایی آزمون‌های بورد استرالیا (KAPS & Intern High-Yield Pearls):' : 'Australian Board High-Yield Pearls:'}</span>
+                    <span>{isFa ? 'نکات کلیدی بالینی و حرفه‌ای:' : 'Clinical and professional learning points:'}</span>
                   </span>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">

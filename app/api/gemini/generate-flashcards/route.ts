@@ -78,7 +78,7 @@ CORE CLINICAL DIRECTIVES:
    - When a student reviews this card months later in Leitner spaced repetition, the question MUST be 100% standalone, clear, and context-independent.
    - You MUST explicitly state the EXACT drug name (e.g. "متوترکسات (Methotrexate)", "وارفارین (Warfarin)", "آمپی‌سیلین (Ampicillin)"), the specific clinical condition/indication (e.g. "در درمان آرتریت روماتوئید", "در نارسایی کلیوی"), and the specific clinical challenge.
    - STRICTLY PROHIBITED: NEVER use vague or referential phrases like "این مبحث", "در این مورد", "متن فوق", "این بیماری", "این دارو", "در این سناریو" without explicitly stating the exact drug and topic name!
-   - Construct authentic Australian Clinical Pharmacy Board (KAPS/OPRA/PSA) questions that can be understood in isolation.
+   - Construct practical Australian clinical pharmacy questions that can be understood in isolation.
 3. MANDATORY 100% BILINGUAL COMPLETION: Every single flashcard MUST have BOTH fluent, accurate Persian ('fa') and precise Australian clinical English ('en') for EVERY field:
    - question: { fa: "...", en: "..." }
    - answer: { fa: "...", en: "..." }

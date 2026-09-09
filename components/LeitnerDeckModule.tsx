@@ -190,7 +190,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
     pearl: string;
     type: LeitnerCardType;
   }>({
-    domain: 'داروسازی بالینی OPRA',
+    domain: 'داروسازی بالینی',
     system: 'قلب و عروق (Cardiovascular)',
     subsystem: 'داروهای فشار خون و نارسایی قلبی',
     question: '',
@@ -335,7 +335,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
   const getTypeBadge = (type: LeitnerCardType) => {
     const map: Record<string, { label: string; bg: string; icon: any }> = {
       mcq: {
-        label: isFa ? '📝 تست ۴ گزینه‌ای OPRA' : '📝 OPRA MCQ',
+        label: isFa ? '📝 تست ۴ گزینه‌ای' : '📝 Multiple-choice question',
         bg: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
         icon: HelpCircle,
       },
@@ -392,7 +392,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
     cards.forEach((c) => {
       const dName = c.knowledgeTree?.domain
         ? isFa ? c.knowledgeTree.domain.fa || c.knowledgeTree.domain.en : c.knowledgeTree.domain.en || c.knowledgeTree.domain.fa
-        : c.category || (isFa ? 'داروسازی بالینی OPRA' : 'Clinical Knowledge');
+        : c.category || (isFa ? 'داروسازی بالینی' : 'Clinical Knowledge');
       if (dName) set.add(dName);
     });
     return Array.from(set);
@@ -404,7 +404,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
       if (managerFilterDomain !== 'ALL') {
         const domainText = c.knowledgeTree?.domain
           ? isFa ? c.knowledgeTree.domain.fa || c.knowledgeTree.domain.en : c.knowledgeTree.domain.en || c.knowledgeTree.domain.fa
-          : c.category || (isFa ? 'داروسازی بالینی OPRA' : 'Clinical Knowledge');
+        : c.category || (isFa ? 'داروسازی بالینی' : 'Clinical Knowledge');
         if (domainText !== managerFilterDomain) return false;
       }
       if (managerFilterBox !== 'ALL' && c.box !== managerFilterBox) return false;
@@ -481,7 +481,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
 
       const dName = card.knowledgeTree?.domain
         ? isFa ? card.knowledgeTree.domain.fa || card.knowledgeTree.domain.en : card.knowledgeTree.domain.en || card.knowledgeTree.domain.fa
-        : card.category || (isFa ? 'داروسازی بالینی OPRA' : 'Clinical Knowledge');
+        : card.category || (isFa ? 'داروسازی بالینی' : 'Clinical Knowledge');
 
       const sName = card.knowledgeTree?.system
         ? isFa ? card.knowledgeTree.system.fa || card.knowledgeTree.system.en : card.knowledgeTree.system.en || card.knowledgeTree.system.fa
@@ -862,7 +862,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
     e.preventDefault();
     if (!newCardForm.question.trim() || !newCardForm.answer.trim()) return;
 
-    const domainName = newCardForm.domain.trim() || (isFa ? 'داروسازی بالینی OPRA' : 'Clinical Knowledge');
+    const domainName = newCardForm.domain.trim() || (isFa ? 'داروسازی بالینی' : 'Clinical Knowledge');
     const systemName = newCardForm.system.trim() || (isFa ? 'مباحث بالینی عمومی' : 'General Clinical');
     const subName = newCardForm.subsystem.trim() || (isFa ? 'نکات کلیدی و داروها' : 'Key Concepts & Drugs');
 

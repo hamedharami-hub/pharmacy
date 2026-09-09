@@ -56,7 +56,7 @@ export const i18n = {
     storageRules: { fa: 'شرایط نگهداری و انبارداری', en: 'Storage & Handling Rules' },
   },
   sidebar: {
-    kapsModules: { fa: 'ماژول‌های آموزشی KAPS', en: 'KAPS Learning Modules' },
+    kapsModules: { fa: 'ماژول‌های آموزشی', en: 'Learning Modules' },
   }
 } as const;
 

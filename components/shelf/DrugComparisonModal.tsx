@@ -235,7 +235,7 @@ export const DrugComparisonModal: React.FC<DrugComparisonModalProps> = ({
                       {/* Pharmacist Counseling Points */}
                       <div>
                         <span className="text-[11px] font-bold text-slate-400 block mb-1">
-                          {isFa ? 'نکات مشاوره داروساز (OPRA Recalls):' : 'Pharmacist Counseling & Recalls:'}
+                          {isFa ? 'نکات مشاوره داروساز:' : 'Pharmacist counseling points:'}
                         </span>
                         <ul className="space-y-1">
                           {prod.counselingPoints.map((cp, idx) => (

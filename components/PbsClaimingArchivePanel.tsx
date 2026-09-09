@@ -279,7 +279,7 @@ export const PbsClaimingArchivePanel: React.FC<PbsClaimingArchivePanelProps> = (
         ? `رسید تحویل صندوق به شماره ${receipt} صادر گردید. کلیه فرآیندهای نسخه‌پیچی، بایگانی PBS، امحای PII و ثبت S8 تایید شدند.`
         : `POS Dispatch Token ${receipt} issued. Dispense audit complete, PBS claim assigned, and safe hand-over enabled.`,
       ruleTip: isFa
-        ? 'استاندارد داروسازی استرالیا (PSA/OPRA Standards): تحویل نهایی دارو مستلزم احراز صلاحیت ۵ مرحله‌ای مهارتی داروساز است.'
+        ? 'استاندارد داروسازی استرالیا: تحویل نهایی دارو مستلزم احراز صلاحیت ۵ مرحله‌ای مهارتی داروساز است.'
         : 'PSA Standards: Final POS release represents complete clinical, legal, and PBS compliance sign-off by the pharmacist.',
     });
 

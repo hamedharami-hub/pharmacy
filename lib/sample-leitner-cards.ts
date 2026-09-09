@@ -227,8 +227,8 @@ export const INITIAL_SAMPLE_LEITNER_CARDS: LeitnerCard[] = [
       en: '1. Must be stored in a dedicated steel safe (minimum 10mm steel plate construction) securely bolted to the concrete floor/wall. 2. S8 prescriptions have a strict maximum legal validity of 6 months from the date of prescribing (unlike S4 which is 12 months). 3. Every receipt, supply, and discard must be immediately documented in the Controlled Drugs Register with running balance reconciliation.',
     },
     pearl: {
-      fa: 'تله امتحانی OPRA: در صورت وجود تکرار (Repeats) در نسخه S8، اصل نسخه و تمام فرم‌های تکرار باید در همان داروخانه‌ای که اولین بار تحویل داده شده نگهداری شوند (مگر با مجوز رسمی یا شرایط انتقال خاص ایالتی).',
-      en: 'OPRA Exam Trap: S8 repeat authorizations must remain retained at the pharmacy where the initial dispensing took place (inter-pharmacy transfers strictly regulated by state poisons legislation).',
+      fa: 'نکته قانونی: در صورت وجود تکرار در نسخه S8، اصل نسخه و تمام فرم‌های تکرار باید در همان داروخانه‌ای که اولین بار تحویل داده شده نگهداری شوند، مگر با مجوز رسمی یا شرایط انتقال خاص ایالتی.',
+      en: 'Legal note: S8 repeat authorisations must remain retained at the pharmacy where the initial dispensing took place, except where state legislation permits transfer.',
     },
     type: 'scheduling_legal',
     box: 1,

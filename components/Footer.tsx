@@ -28,13 +28,13 @@ export const Footer: React.FC<FooterProps> = ({ language }) => {
             </div>
             <p className="app-muted text-[11px] leading-relaxed">
               {isFa
-                ? 'پلتفرم پیشرفته آماده‌سازی آزمون‌های KAPS و ارزیابی صلاحیت‌های داروسازی استرالیا بر اساس آخرین سرفصل‌های PBA، قوانین دارویی و راهنماهای بالینی PSA & SHPA.'
-                : 'Interactive study, clinical decision support, and KAPS examination preparation portal strictly aligned with Australian Pharmacy Board standards.'}
+                ? 'پلتفرم یادگیری تعاملی داروسازی استرالیا بر پایهٔ قوانین دارویی و راهنماهای بالینی PSA و SHPA.'
+                : 'Interactive Australian pharmacy study and clinical decision-support portal aligned with professional standards.'}
             </p>
             <div className="flex items-center gap-2 pt-1">
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-mono font-bold text-[10px] border border-emerald-500/30 flex items-center gap-1">
                 <ShieldCheck className="w-3 h-3" />
-                {isFa ? 'منطبق با KAPS 2026' : 'KAPS 2026 Ready'}
+                {isFa ? 'به‌روز برای ۲۰۲۶' : 'Updated for 2026'}
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-400 font-mono font-bold text-[10px] border border-sky-500/30">
                 v4.5 Pro Website
@@ -131,7 +131,7 @@ export const Footer: React.FC<FooterProps> = ({ language }) => {
             <p className="app-muted text-[10.5px] leading-relaxed">
               {isFa
                 ? 'محتوای ارائه شده صرفاً جهت آمادگی در آزمون‌های ارزیابی داروسازی و مرور آموزشی است. برای تصمیم‌گیری‌های بالینی واقعی، همیشه به آخرین نسخه AMH و Therapeutic Guidelines مراجعه نمایید.'
-                : 'Content is designed solely for Australian pharmacy registration examination preparation (KAPS). Always consult the latest AMH and official state poisons legislation for clinical decision-making.'}
+                : 'Content is educational. Always consult the latest AMH and official state poisons legislation for clinical decision-making.'}
             </p>
           </div>
         </div>
@@ -139,7 +139,7 @@ export const Footer: React.FC<FooterProps> = ({ language }) => {
         {/* Bottom Bar */}
         <div className="pt-4 border-t app-border flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] app-muted">
           <div className="flex items-center gap-1">
-            <span>© {new Date().getFullYear()} Australian Pharmacy Practice & KAPS Portal.</span>
+            <span>© {new Date().getFullYear()} Australian Pharmacy Learning Portal.</span>
             <span className="hidden sm:inline">|</span>
             <span className="hidden sm:inline">{isFa ? 'طراحی شده با استاندارد وبسایت‌های مدرن' : 'Designed with Modern Web Standards'}</span>
           </div>

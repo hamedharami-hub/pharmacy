@@ -203,13 +203,13 @@ export const StudyCard: React.FC<StudyCardProps> = ({
   const cardQuickPrompts = isFa
     ? [
         `این سرفصل (${title}) را به زبان ساده‌تر توضیح بده`,
-        `نکات کلیدی برای مشاوره بیمار و آزمون KAPS از این مطلب چیست؟`,
+        `نکات کلیدی برای مشاوره بیمار از این مطلب چیست؟`,
         `۲ سوال تمرینی چهارگزینه‌ای همراه با پاسخ از این مبحث طراحی کن`,
       ]
     : [
         `Explain ${title} in plain clinical terms`,
         `What are key exam and counseling points for this topic?`,
-        `Generate 2 practice KAPS questions based on this content`,
+        `Generate 2 practice questions based on this content`,
       ];
 
   const handleSelectFlag = (col: FlagColor) => {

@@ -143,7 +143,7 @@ export const Header: React.FC<HeaderProps> = ({
       id: 4 as const,
       shortTitle: { fa: '۴. دانش بالینی', en: '4. Knowledge' },
       fullTitle: { fa: 'ماژول ۴: بانک دانش و ماتریس‌های بالینی', en: 'Module 4: Clinical Knowledge & CYP' },
-      desc: { fa: 'سرفصل‌های KAPS و ماتریس تداخلات CYP450', en: 'KAPS Cards & CYP450 Matrix' },
+      desc: { fa: 'سرفصل‌های بالینی و ماتریس تداخلات CYP450', en: 'Clinical cards & CYP450 matrix' },
       icon: Dna,
       activeColor: 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-950/20',
       badgeBg: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30',
@@ -178,7 +178,7 @@ export const Header: React.FC<HeaderProps> = ({
                 {isFa ? 'شبیه‌ساز جامع داروخانه استرالیا' : 'AU Pharmacy Practice Simulator'}
               </h1>
               <p className="text-[10px] app-muted truncate hidden xs:block">
-                {isFa ? 'آزمون‌های OPRA & KAPS و استانداردهای TGA/PBS' : 'OPRA & KAPS Exam Knowledge Matrix'}
+                {isFa ? 'دانش بالینی و استانداردهای TGA/PBS' : 'Clinical knowledge and TGA/PBS standards'}
               </p>
             </div>
           </div>
@@ -240,7 +240,7 @@ export const Header: React.FC<HeaderProps> = ({
                   onOpenAiTutor();
                 }}
                 className="px-2.5 py-1.5 rounded-xl border border-sky-500/40 bg-gradient-to-r from-sky-600/25 via-indigo-600/30 to-purple-600/25 hover:from-sky-600/40 hover:via-indigo-600/45 hover:to-purple-600/40 text-sky-200 transition flex items-center gap-1.5 cursor-pointer text-xs font-bold shadow-sm group hover:border-sky-400 ring-1 ring-sky-500/20 active:scale-95 duration-100"
-                title={isFa ? 'دستیار بالینی و حل سناریوی آزمون هوش مصنوعی' : 'AI Clinical Tutor & OPRA Assistant'}
+                title={isFa ? 'دستیار بالینی هوش مصنوعی' : 'AI Clinical Tutor'}
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-300 group-hover:scale-110 transition-transform animate-pulse" />
                 <span className="text-[11px] whitespace-nowrap">{isFa ? 'هوش مصنوعی' : 'AI Tutor'}</span>

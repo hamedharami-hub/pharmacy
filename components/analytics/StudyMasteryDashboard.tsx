@@ -106,8 +106,8 @@ export const StudyMasteryDashboard: React.FC<StudyMasteryDashboardProps> = ({
       {
         id: 'mod4',
         num: 4,
-        nameFa: 'فارماکولوژی بالینی و آزمون KAPS',
-        nameEn: 'Clinical Pharmacology / KAPS',
+        nameFa: 'فارماکولوژی بالینی',
+        nameEn: 'Clinical Pharmacology',
         prefix: 'card-',
         estimatedTotal: 65,
         color: '#4f46e5',
@@ -285,8 +285,8 @@ export const StudyMasteryDashboard: React.FC<StudyMasteryDashboardProps> = ({
             </div>
             <p className="text-[11px] text-slate-400">
               {isFa
-                ? 'ارزیابی دقیق مهارت‌های بالینی، آزمون‌های KAPS، تریاژ سرپایی و نگهداری حافظه لایتنر'
-                : 'Real-time analytics for Australian Pharmacy practice, KAPS exam readiness & Leitner retention.'}
+                ? 'ارزیابی دقیق مهارت‌های بالینی، تریاژ سرپایی و نگهداری حافظه لایتنر'
+                : 'Real-time analytics for Australian Pharmacy practice and Leitner retention.'}
             </p>
           </div>
 
@@ -341,7 +341,7 @@ export const StudyMasteryDashboard: React.FC<StudyMasteryDashboardProps> = ({
               </span>
               <span className="text-[9px] text-emerald-400/80 block">
                 {overallMasteryPct >= 75
-                  ? isFa ? '✓ در حد قبولی KAPS' : '✓ Exam Ready'
+                  ? isFa ? '✓ تسلط خوب' : '✓ Strong mastery'
                   : isFa ? 'نیاز به تثبیت بیشتر' : 'Building Mastery'}
               </span>
             </div>
@@ -410,6 +410,7 @@ export const StudyMasteryDashboard: React.FC<StudyMasteryDashboardProps> = ({
         language={language}
         leitnerCards={leitnerCards}
         onExamComplete={() => setPlannerRevision((revision) => revision + 1)}
+        onOpenLeitnerBox={onOpenLeitnerBox}
       />
 
       {/* 2. Visual View Switcher (Tabs for different Recharts Views) */}
@@ -465,8 +466,8 @@ export const StudyMasteryDashboard: React.FC<StudyMasteryDashboardProps> = ({
               </h4>
               <p className="text-[10px] text-slate-400">
                 {isFa
-                  ? 'خط‌چین سبز نشان‌دهنده استاندارد قبولی در ارزیابی‌های KAPS استرالیا (۷۵٪) می‌باشد.'
-                  : 'Dashed line marks the 75% passing threshold required by Australian pharmacy boards.'}
+                  ? 'خط‌چین سبز یک هدف پیشنهادی ۷۵٪ برای مطالعه است.'
+                  : 'The dashed line marks a suggested 75% study target.'}
               </p>
             </div>
 

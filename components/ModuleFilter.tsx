@@ -116,7 +116,7 @@ export const ModuleFilter: React.FC<ModuleFilterProps> = ({
             <div className="text-[11px] font-bold app-muted flex items-center justify-between">
               <span>{isFa ? 'انتخاب ماژول آموزشی:' : 'Select Learning Module:'}</span>
               <span className="text-[10px] opacity-70 font-mono">
-                {isFa ? 'مباحث آزمون KAPS' : 'KAPS Exam Content'}
+                {isFa ? 'مباحث آموزشی' : 'Learning content'}
               </span>
             </div>
 

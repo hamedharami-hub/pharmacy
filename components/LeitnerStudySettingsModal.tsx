@@ -456,7 +456,7 @@ export const LeitnerStudySettingsModal: React.FC<LeitnerStudySettingsModalProps>
                     },
                     {
                       id: 'kaps_mastery' as FSRSPresetProfile,
-                      title: isFa ? '🚀 تسلط آزمون KAPS و بورد' : '🚀 KAPS Exam Mastery',
+                      title: isFa ? '🚀 تسلط پیشرفته' : '🚀 Advanced mastery',
                       desc: isFa ? 'نرخ ۹۳٪ • مرور مکررتر و دقت بالا برای امتحانات' : '93% Retention • Strict intervals for exams',
                       ret: 93,
                       max: 180,
@@ -534,8 +534,8 @@ export const LeitnerStudySettingsModal: React.FC<LeitnerStudySettingsModalProps>
                 <p className="text-[11px] app-muted leading-relaxed">
                   {currentRetentionPercent >= 93
                     ? isFa
-                      ? '🎯 نرخ بالا (۹۳٪+): مناسب آمادگی آزمون‌های حساس مانند KAPS و بورد استرالیا؛ فواصل مرور کوتاه‌تر و اطمینان از عدم فراموشی بالاتر خواهد بود.'
-                      : 'High Retention (93%+): Perfect for high-stakes exams (KAPS). Shorter intervals, maximum recall.'
+                      ? '🎯 نرخ بالا (۹۳٪+): فواصل مرور کوتاه‌تر و اطمینان بیشتر از تثبیت دانسته‌ها را فراهم می‌کند.'
+                      : 'High retention (93%+): shorter intervals and stronger recall reinforcement.'
                     : currentRetentionPercent <= 85
                     ? isFa
                       ? '⚡ نرخ کمتر (۸۵٪): فواصل مرور طولانی‌تر شده و تعداد کارت‌های روزانه کمتر می‌شود.'
@@ -679,7 +679,7 @@ export const LeitnerStudySettingsModal: React.FC<LeitnerStudySettingsModalProps>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   {[
                     { id: 'bilingual', label: isFa ? 'دوزبانه کامل (Fa + En)' : 'Bilingual (Both)', desc: isFa ? 'فارسی و انگلیسی با هم' : 'Both languages shown' },
-                    { id: 'en_only', label: isFa ? 'فقط انگلیسی تخصصی' : 'English Only', desc: isFa ? 'مناسب آزمون KAPS و استرالیا' : 'Medical English focus' },
+                    { id: 'en_only', label: isFa ? 'فقط انگلیسی تخصصی' : 'English Only', desc: isFa ? 'تمرکز بر انگلیسی تخصصی داروسازی' : 'Medical English focus' },
                     { id: 'fa_only', label: isFa ? 'فقط فارسی' : 'Farsi Only', desc: isFa ? 'تمرکز کامل روی متن فارسی' : 'Farsi translation focus' },
                   ].map((lang) => (
                     <button

@@ -1745,7 +1745,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     {isFa ? 'شبیه‌ساز جامع داروخانه استرالیا' : 'AU Pharmacy Study & Practice Simulator'}
                   </h3>
                   <p className="text-[11px] app-muted truncate">
-                    {isFa ? 'پلتفرم جامع آمادگی آزمون‌های KAPS، OPRA و کارآموزی داروسازی' : 'Comprehensive KAPS & OPRA Exam Preparation Suite'}
+                    {isFa ? 'پلتفرم جامع یادگیری و کارآموزی داروسازی' : 'Comprehensive Pharmacy Learning Suite'}
                   </p>
                 </div>
               </div>
@@ -1753,7 +1753,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="flex items-center gap-2 flex-wrap pt-1">
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-mono font-bold text-[10px] border border-emerald-500/30 flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3" />
-                  {isFa ? 'منطبق بر KAPS & OPRA 2026' : 'KAPS & OPRA 2026 Ready'}
+                  {isFa ? 'به‌روز برای ۲۰۲۶' : 'Updated for 2026'}
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-400 font-mono font-bold text-[10px] border border-sky-500/30">
                   v4.5 PWA Native
@@ -1844,8 +1844,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
               <p className="text-[10.5px] text-slate-300/90 leading-relaxed">
                 {isFa
-                  ? 'محتوا و سناریوهای شبیه‌سازی شده در این نرم‌افزار صرفاً جنبه آموزشی و آمادگی برای آزمون‌های ارزیابی صلاحیت داروسازی استرالیا (KAPS و OPRA) دارد. برای هرگونه تصمیم‌گیری دارویی و درمانی بالینی بر روی بیماران واقعی، حتماً به آخرین نسخه‌های رسمی Australian Medicines Handbook (AMH)، Therapeutic Guidelines و استانداردهای ایالتی استرالیا مراجعه شود.'
-                  : 'All scenarios, protocols, and flashcards provided are solely for educational purposes and registration exam preparation (KAPS/OPRA). Always refer to current editions of the AMH and official state poisons legislation for clinical practice.'}
+                  ? 'محتوا و سناریوهای این نرم‌افزار صرفاً جنبه آموزشی دارند. برای هرگونه تصمیم‌گیری دارویی و درمانی بالینی روی بیماران واقعی، به آخرین نسخه‌های رسمی Australian Medicines Handbook، Therapeutic Guidelines و استانداردهای ایالتی استرالیا مراجعه شود.'
+                  : 'All scenarios, protocols, and flashcards are educational. Always refer to current editions of the AMH and official state poisons legislation for clinical practice.'}
               </p>
             </div>
 

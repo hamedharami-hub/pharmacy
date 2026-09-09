@@ -61,8 +61,8 @@ export const AiTutorDrawer: React.FC<AiTutorDrawerProps> = ({
         id: 'welcome',
         role: 'assistant',
         content: isFa
-          ? 'سلام! من دستیار هوشمند بالینی و استاد راهنمای داروسازی استرالیا (OPRA & KAPS) هستم. می‌توانید هرگونه سوال درباره تداخلات دارویی، دوزاژ، پروتکل‌های تریاژ OTC، قوانین استرالیا (AMH/eTG/APF) یا آزمون‌های بورد را از من بپرسید.'
-          : 'Hello! I am your Australian Clinical Pharmacy AI Tutor & OPRA/KAPS Exam Specialist. Ask me anything about pharmacotherapy, drug interactions, OTC triage protocols, or Australian guidelines (AMH/eTG/APF).',
+          ? 'سلام! من دستیار هوشمند بالینی و راهنمای داروسازی استرالیا هستم. می‌توانید درباره تداخلات دارویی، دوزاژ، پروتکل‌های تریاژ OTC و راهنماهای استرالیا سوال بپرسید.'
+          : 'Hello! I am your Australian clinical pharmacy AI tutor. Ask about pharmacotherapy, drug interactions, OTC triage protocols, or Australian guidelines.',
         timestamp: '08:00',
       },
     ];
@@ -98,10 +98,10 @@ export const AiTutorDrawer: React.FC<AiTutorDrawerProps> = ({
         : 'Analyze the clinical interaction between ACE Inhibitors and Potassium supplements/Spironolactone according to Australian Medicines Handbook (AMH) standards.',
     },
     {
-      label: { fa: '🩺 حل سناریوی آزمون OPRA', en: '🩺 Solve OPRA Exam Case' },
+      label: { fa: '🩺 حل سناریوی بالینی', en: '🩺 Solve clinical case' },
       prompt: isFa
-        ? 'یک سوال چندگزینه‌ای دشوار بالینی به سبک آزمون OPRA استرالیا همراه با تحلیل گام به گام و تله‌های تستی طراحی و حل کن.'
-        : 'Generate a high-yield OPRA clinical scenario with multiple choices, rationale, and exam traps.',
+        ? 'یک سناریوی بالینی چندگزینه‌ای همراه با تحلیل گام‌به‌گام و منطق پاسخ طراحی و حل کن.'
+        : 'Generate a clinical scenario with multiple choices, rationale, and learning points.',
     },
     {
       label: { fa: '🤰 ایمنی در بارداری و شیردهی', en: '🤰 Pregnancy & Lactation Safety' },
@@ -235,7 +235,7 @@ export const AiTutorDrawer: React.FC<AiTutorDrawerProps> = ({
                   {isFa ? 'استاد راهنمای هوش مصنوعی (AI Clinical Tutor)' : 'AI Clinical Pharmacy Tutor'}
                 </h3>
                 <span className="text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
-                  AMH / eTG / OPRA
+                  AMH / eTG / PBS
                 </span>
               </div>
               <p className="text-[10px] text-slate-400 truncate">
@@ -445,7 +445,7 @@ export const AiTutorDrawer: React.FC<AiTutorDrawerProps> = ({
                 rows={2}
                 placeholder={
                   isFa
-                    ? 'سوال بالینی، تداخل دارویی، سناریو یا کیس آزمون OPRA را بنویسید...'
+                    ? 'سوال بالینی، تداخل دارویی یا سناریوی خود را بنویسید...'
                     : 'Ask a clinical question, dosage problem, or exam scenario...'
                 }
                 className="w-full bg-transparent text-slate-100 placeholder-slate-500 text-xs p-1.5 focus:outline-none resize-none custom-scrollbar"

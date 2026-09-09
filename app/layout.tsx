@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'شبیه‌ساز جامع داروخانه استرالیا | AU Pharmacy Practice Simulator',
-  description: 'شبیه‌ساز جامع آزمون‌های KAPS و OPRA، تریاژ سرپایی، نسخه‌پیچی Fred و جعبه لایتنر هوشمند',
+  description: 'سامانه جامع یادگیری داروسازی استرالیا، تریاژ سرپایی، نسخه‌پیچی Fred و جعبه لایتنر هوشمند',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,

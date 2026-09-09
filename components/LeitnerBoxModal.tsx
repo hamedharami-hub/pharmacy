@@ -136,7 +136,7 @@ export const LeitnerBoxModal: React.FC<LeitnerBoxModalProps> = ({
   const getTypeBadge = (type: LeitnerCardType) => {
     const map: Record<string, { label: string; bg: string; icon: any }> = {
       mcq: {
-        label: isFa ? '📝 تست چهارگزینه‌ای' : '📝 OPRA MCQ',
+        label: isFa ? '📝 تست چهارگزینه‌ای' : '📝 Multiple-choice question',
         bg: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
         icon: HelpCircle,
       },
@@ -428,7 +428,7 @@ export const LeitnerBoxModal: React.FC<LeitnerBoxModalProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `kaps-leitner-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `pharmacy-leitner-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -1254,7 +1254,7 @@ export const LeitnerBoxModal: React.FC<LeitnerBoxModalProps> = ({
                   className="w-full p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-200 focus:outline-none focus:border-purple-500"
                 >
                   <option value="ALL">{isFa ? 'همه فرمت‌های کارت' : 'All Card Types'}</option>
-                  <option value="mcq">{isFa ? '📝 تست چهارگزینه‌ای (MCQ)' : '📝 OPRA MCQ'}</option>
+                  <option value="mcq">{isFa ? '📝 تست چهارگزینه‌ای (MCQ)' : '📝 Multiple-choice question'}</option>
                   <option value="triage_redflag">{isFa ? '🚨 تریاژ رد فلگ (Red Flags)' : '🚨 OTC Red Flag'}</option>
                   <option value="calculation">{isFa ? '🧮 محاسبات دوزاژ (Calculation)' : '🧮 Dosage Calculation'}</option>
                   <option value="cal_warning">{isFa ? '⚠️ برچسب‌های احتیاطی CAL' : '⚠️ Australian CAL'}</option>
