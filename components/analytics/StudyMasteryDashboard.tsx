@@ -28,7 +28,7 @@ import {
 import { Language, UserProgress } from '@/types/pharmacy';
 import { LeitnerCard } from '@/types/leitner';
 import { useStudyTracker } from '@/components/study/StudyTrackerContext';
-import { ALL_PHARMACY_CARDS } from '@/lib/pharmacy-data';
+import { StudyPlannerPanel } from './StudyPlannerPanel';
 
 interface StudyMasteryDashboardProps {
   language: Language;
@@ -68,6 +68,7 @@ export const StudyMasteryDashboard: React.FC<StudyMasteryDashboardProps> = ({
   );
   const [selectedTimeframe, setSelectedTimeframe] = useState<'7d' | '30d' | 'all'>('30d');
   const [activeChartTab, setActiveChartTab] = useState<'trends' | 'modules' | 'leitner'>('trends');
+  const [plannerRevision, setPlannerRevision] = useState(0);
 
   const totalLeitnerCards = leitnerCards.length;
 
@@ -227,52 +228,10 @@ export const StudyMasteryDashboard: React.FC<StudyMasteryDashboardProps> = ({
       });
     }
 
-    // Include the current main quiz scores from userProgress
-    const mainScore = userProgress.quizScores?.main;
-    const mainScorePct =
-      mainScore && mainScore.total > 0
-        ? Math.round((mainScore.correct / mainScore.total) * 100)
-        : 80;
-
-    // If history is still sparse, generate realistic historical progression
-    // to give the user immediate, insightful visualization of their study trajectory
-    if (historyRecords.length < 5) {
-      const now = new Date();
-      const initialProgression = [
-        { daysAgo: 14, score: Math.max(55, mainScorePct - 25), total: 10, correct: 6, mins: 12 },
-        { daysAgo: 11, score: Math.max(60, mainScorePct - 18), total: 12, correct: 8, mins: 15 },
-        { daysAgo: 8, score: Math.max(68, mainScorePct - 12), total: 15, correct: 11, mins: 18 },
-        { daysAgo: 5, score: Math.max(74, mainScorePct - 6), total: 15, correct: 12, mins: 16 },
-        { daysAgo: 3, score: Math.max(78, mainScorePct - 2), total: 20, correct: 16, mins: 22 },
-        { daysAgo: 1, score: mainScorePct, total: Math.max(10, mainScore?.total || 15), correct: Math.max(8, mainScore?.correct || 12), mins: 17 },
-      ];
-
-      initialProgression.forEach((item, index) => {
-        const d = new Date(now);
-        d.setDate(now.getDate() - item.daysAgo);
-        const isoDate = d.toISOString().slice(0, 10);
-        const display = `${d.getMonth() + 1}/${d.getDate()}`;
-
-        if (!historyRecords.some((r) => r.date === isoDate)) {
-          historyRecords.push({
-            id: `baseline-session-${index}`,
-            sessionName: `Clinical Practice #${index + 1}`,
-            sessionNameFa: `آزمون جامع بالینی #${index + 1}`,
-            date: isoDate,
-            displayDate: display,
-            totalQuestions: item.total,
-            correctAnswers: item.correct,
-            scorePct: item.score,
-            timeSpentMinutes: item.mins,
-          });
-        }
-      });
-    }
-
     // Sort chronologically ascending
     historyRecords.sort((a, b) => a.date.localeCompare(b.date));
     return historyRecords;
-  }, [leitnerCards, userProgress.quizScores]);
+  }, [leitnerCards, plannerRevision]);
 
   // Filtered Quiz History based on timeframe
   const filteredQuizHistory = useMemo(() => {
@@ -446,6 +405,12 @@ export const StudyMasteryDashboard: React.FC<StudyMasteryDashboardProps> = ({
           </div>
         </div>
       </div>
+
+      <StudyPlannerPanel
+        language={language}
+        leitnerCards={leitnerCards}
+        onExamComplete={() => setPlannerRevision((revision) => revision + 1)}
+      />
 
       {/* 2. Visual View Switcher (Tabs for different Recharts Views) */}
       <div className="flex items-center gap-1.5 border-b border-slate-800 pb-2 overflow-x-auto custom-scrollbar">

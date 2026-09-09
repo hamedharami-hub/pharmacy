@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence, type Variants } from 'motion/react';
 import {
   Language,
@@ -11,8 +12,6 @@ import {
 } from '@/types/pharmacy';
 import { ALL_PHARMACY_CARDS } from '@/lib/pharmacy-data';
 import { StudyCard } from '@/components/StudyCard';
-import { FredDispenseModule } from '@/components/FredDispenseModule';
-import { CypInteractionMatrixPanel } from '@/components/CypInteractionMatrixPanel';
 import { useStudyTrackerContext } from './study/StudyTrackerContext';
 import { ResumeStudyBanner } from './study/ResumeStudyBanner';
 import {
@@ -23,6 +22,28 @@ import {
   Sparkles,
   Dna,
 } from 'lucide-react';
+
+// These tools include their own sizeable teaching datasets. Loading them only
+// after the learner chooses the corresponding tab keeps the knowledge browser
+// responsive on slower mobile connections.
+const FredDispenseModule = dynamic(
+  () => import('@/components/FredDispenseModule').then((mod) => mod.FredDispenseModule),
+  { loading: () => <ModuleLoadingState /> }
+);
+
+const CypInteractionMatrixPanel = dynamic(
+  () => import('@/components/CypInteractionMatrixPanel').then((mod) => mod.CypInteractionMatrixPanel),
+  { loading: () => <ModuleLoadingState /> }
+);
+
+function ModuleLoadingState() {
+  return (
+    <div className="p-8 text-center app-card border app-border rounded-2xl">
+      <div className="w-7 h-7 mx-auto border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+      <p className="mt-3 text-xs app-muted">Loading learning tool…</p>
+    </div>
+  );
+}
 
 interface ClinicalKnowledgeModuleProps {
   language: Language;

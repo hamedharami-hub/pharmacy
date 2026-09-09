@@ -112,11 +112,12 @@ export default function Home() {
   const [displayMode, setDisplayMode] = useState<DisplayMode>('both');
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('window-grid');
 
-  // Initialized to 4 on both SSR and client for consistent initial tree; synced on mount
-  const [activeMainModule, setActiveMainModule] = useState<1 | 2 | 3 | 4 | 5 | 6>(4);
+  // Start with the compact triage module. Other teaching datasets are fetched
+  // only when their module is selected, which reduces the first mobile load.
+  const [activeMainModule, setActiveMainModule] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
   const [leitnerInitialTab, setLeitnerInitialTab] = useState<'leitner' | 'mindmap'>('leitner');
   const [activeMode, setActiveMode] = useState<StudyMode>('accordion');
-  const [activeModule, setActiveModule] = useState<ModuleId>('software');
+  const [activeModule, setActiveModule] = useState<ModuleId>('ALL');
   const [activeCategory, setActiveCategory] = useState<string>('ALL');
   const [flagFilter, setFlagFilter] = useState<FlagColor | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
