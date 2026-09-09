@@ -16,6 +16,7 @@ import {
   getDoc,
   setDoc,
   onSnapshot,
+  deleteField,
 } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
@@ -115,8 +116,18 @@ export async function saveUserAiConfigToFirestore(userId: string, aiConfig: any)
   if (!userId) return;
   try {
     const userDocRef = doc(db, 'users', userId, 'data', 'aiConfig');
+    const {
+      geminiApiKey: _geminiApiKey,
+      groqApiKey: _groqApiKey,
+      xaiApiKey: _xaiApiKey,
+      ...safeConfig
+    } = aiConfig || {};
     await setDoc(userDocRef, {
-      ...aiConfig,
+      ...safeConfig,
+      // Remove credentials written by older app versions as soon as config syncs.
+      geminiApiKey: deleteField(),
+      groqApiKey: deleteField(),
+      xaiApiKey: deleteField(),
       updatedAt: new Date().toISOString(),
     }, { merge: true });
   } catch (error) {

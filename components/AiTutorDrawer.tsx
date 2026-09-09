@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Language, UserAiConfig, AiProvider } from '@/types/pharmacy';
+import { getAiRequestHeaders } from '@/lib/aiClient';
 import {
   Bot,
   X,
@@ -150,7 +151,7 @@ export const AiTutorDrawer: React.FC<AiTutorDrawerProps> = ({
 
       const res = await fetch('/api/gemini/tutor', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await getAiRequestHeaders(),
         body: JSON.stringify({
           prompt: text,
           conversationHistory: history,

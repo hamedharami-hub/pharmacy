@@ -453,6 +453,10 @@ export const FredDispenseModule: React.FC<FredDispenseModuleProps> = ({
 
   // Automatically record viewed progress for currently active scenario
   useEffect(() => {
+    // Merely rendering the default Fred panel is not a study interaction.
+    // Wait until the user opens a workflow step before creating resume history.
+    if (!viewMode) return;
+
     markItemViewed(
       3,
       scenario.id,

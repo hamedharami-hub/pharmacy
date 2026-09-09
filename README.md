@@ -14,6 +14,10 @@ https://ai.studio/apps/2efe8ef8-d3fc-4014-8fd8-6f8d8d9398c4
 
 1. Install dependencies:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+2. Copy `.env.example` to `.env.local`, set the AI provider key, and configure the Firebase Admin service account variables for protected AI routes. In Firebase App Hosting, use the default service identity instead.
 3. Run the app:
    `npm run dev`
+
+## Clinical-content governance
+
+The portal is for study only, not patient-specific clinical decision-making. Every release that changes clinical, PBS, scheduling, or legal content must be reviewed against the source register in [`docs/CLINICAL_CONTENT_GOVERNANCE.md`](docs/CLINICAL_CONTENT_GOVERNANCE.md), with the source version and review date recorded before deployment.

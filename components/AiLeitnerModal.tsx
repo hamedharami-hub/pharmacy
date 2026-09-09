@@ -10,6 +10,7 @@ import {
   McqOption,
 } from '@/types/leitner';
 import { getClientAiConfig } from '@/lib/aiConfigStorage';
+import { getAiRequestHeaders } from '@/lib/aiClient';
 import {
   Sparkles,
   X,
@@ -164,7 +165,7 @@ const AiLeitnerModalContent: React.FC<AiLeitnerModalInnerProps> = ({
 
         const res = await fetch('/api/gemini/generate-flashcards', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: await getAiRequestHeaders(),
           body: JSON.stringify({
             contextSnippet: textToUse,
             moduleNumber: mod,

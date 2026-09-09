@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { PharmacyCard, FlagColor, Language, CustomCardEdit, ChatMessage } from '@/types/pharmacy';
 import { getClientAiConfig } from '@/lib/aiConfigStorage';
+import { getAiRequestHeaders } from '@/lib/aiClient';
 import { sanitizeHtml } from '@/lib/sanitizeHtml';
 import { useStudyTrackerContext } from './study/StudyTrackerContext';
 import { StudyStatusBadge } from './study/StudyStatusBadge';
@@ -153,7 +154,7 @@ export const StudyCard: React.FC<StudyCardProps> = ({
 
       const res = await fetch('/api/gemini/tutor', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await getAiRequestHeaders(),
         body: JSON.stringify({
           prompt: textToSend,
           language,

@@ -40,14 +40,15 @@ import { INITIAL_SAMPLE_LEITNER_CARDS } from '@/lib/sample-leitner-cards';
 import { StudyTrackerProvider } from '@/components/study/StudyTrackerContext';
 import { ResumeStudyBanner } from '@/components/study/ResumeStudyBanner';
 import { StatsBar } from '@/components/StatsBar';
+import { Footer } from '@/components/Footer';
 import { FolderOpen, Bot, Sparkles } from 'lucide-react';
 
-// Core clinical modules imported directly for rock-solid SSR & zero dynamic chunk loading failures
-import { OtcTriageModule } from '@/components/OtcTriageModule';
-import { ProductShelfModule } from '@/components/ProductShelfModule';
-import { FredDispenseModule } from '@/components/FredDispenseModule';
-import { ClinicalKnowledgeModule } from '@/components/ClinicalKnowledgeModule';
-import { LearningToolsModule } from '@/components/LearningToolsModule';
+// Large learning modules are loaded only when a learner opens them.
+const OtcTriageModule = dynamic(() => import('@/components/OtcTriageModule').then((mod) => mod.OtcTriageModule));
+const ProductShelfModule = dynamic(() => import('@/components/ProductShelfModule').then((mod) => mod.ProductShelfModule));
+const FredDispenseModule = dynamic(() => import('@/components/FredDispenseModule').then((mod) => mod.FredDispenseModule));
+const ClinicalKnowledgeModule = dynamic(() => import('@/components/ClinicalKnowledgeModule').then((mod) => mod.ClinicalKnowledgeModule));
+const LearningToolsModule = dynamic(() => import('@/components/LearningToolsModule').then((mod) => mod.LearningToolsModule));
 
 const TextSelectionLeitnerTrigger = dynamic(
   () => import('@/components/TextSelectionLeitnerTrigger').then((mod) => mod.TextSelectionLeitnerTrigger),
@@ -449,6 +450,7 @@ export default function Home() {
     document.documentElement.style.setProperty('--font-scale', activeSize);
     document.body.style.fontSize = activeSize;
     document.documentElement.dir = language === 'fa' ? 'rtl' : 'ltr';
+    document.documentElement.lang = language;
 
     // 3. Dynamic Mobile Status Bar & Browser Chrome Color Integration
     const themeColorMap: Record<VisualTheme, { color: string; appleStyle: string }> = {
@@ -900,6 +902,7 @@ export default function Home() {
           setIsAiTutorOpen(true);
         }}
       />
+      <Footer language={language} />
 
       {/* Text Selection Floating Trigger for Spaced Repetition Leitner */}
       <TextSelectionLeitnerTrigger

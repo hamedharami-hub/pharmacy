@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { VisualTheme, FontSize, Language, UserProgress, LayoutMode, UserAiConfig, AiProvider, AiModelOption } from '@/types/pharmacy';
 import { LeitnerCard } from '@/types/leitner';
 import { User } from '@/lib/firebase';
+import { getAiRequestHeaders } from '@/lib/aiClient';
 import { useStudyTracker } from '@/components/study/StudyTrackerContext';
 import { StudyMasteryDashboard } from '@/components/analytics/StudyMasteryDashboard';
 import {
@@ -178,7 +179,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
       const res = await fetch('/api/ai/test', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await getAiRequestHeaders(),
         body: JSON.stringify({
           provider: testProvider,
           model: testModel,
@@ -221,7 +222,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     try {
       const response = await fetch('/api/ai/models', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await getAiRequestHeaders(),
         body: JSON.stringify({
           geminiApiKey: localAiConfig.geminiApiKey,
           groqApiKey: localAiConfig.groqApiKey,

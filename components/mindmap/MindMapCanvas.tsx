@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import {
   MindMapNode,
   MindMapLayoutItem,
@@ -1105,7 +1106,7 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                       onClick={(e) => { e.stopPropagation(); onViewImage?.(node.customImage!, node.title.fa || node.title.en || 'Node'); }}
                       className="relative rounded-xl overflow-hidden border border-purple-500/40 bg-black/50 max-h-20 flex items-center justify-center cursor-zoom-in group/img"
                     >
-                      <img src={node.customImage.url} alt="Attachment" className="w-full h-16 object-cover group-hover/img:scale-105 transition" />
+                      <Image src={node.customImage.url} alt="Attachment" fill unoptimized sizes="320px" className="object-cover group-hover/img:scale-105 transition" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end justify-between p-1 text-[9px] text-white">
                         <span className="truncate max-w-[85%]">{node.customImage.caption || 'Image'}</span>
                         <ZoomIn className="w-3 h-3 text-cyan-300" />
@@ -1188,7 +1189,7 @@ export const MindMapCanvas: React.FC<MindMapCanvasProps> = ({
                     onClick={(e) => { e.stopPropagation(); onViewImage?.(node.customImage!, node.title.fa || node.title.en || 'Node'); }}
                     className="relative rounded-xl overflow-hidden border border-purple-500/40 bg-black/50 max-h-24 flex items-center justify-center cursor-zoom-in group/img mt-1"
                   >
-                    <img src={node.customImage.url} alt="Attachment" className="w-full h-18 object-cover group-hover/img:scale-105 transition" />
+                    <Image src={node.customImage.url} alt="Attachment" fill unoptimized sizes="320px" className="object-cover group-hover/img:scale-105 transition" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end justify-between p-1 text-[9.5px] text-white">
                       <span className="truncate max-w-[85%] font-medium">{node.customImage.caption || 'Image'}</span>
                       <ZoomIn className="w-3 h-3 text-cyan-300" />

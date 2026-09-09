@@ -67,9 +67,10 @@ export async function syncAiConfigFromCloud(userId: string): Promise<UserAiConfi
       const local = getClientAiConfig();
       const merged: UserAiConfig = {
         preferredProvider: cloudConfig.preferredProvider || local.preferredProvider || 'gemini',
-        geminiApiKey: cloudConfig.geminiApiKey || local.geminiApiKey || '',
-        groqApiKey: cloudConfig.groqApiKey || local.groqApiKey || '',
-        xaiApiKey: cloudConfig.xaiApiKey || local.xaiApiKey || '',
+        // API keys are device-local secrets and are never restored from Firestore.
+        geminiApiKey: local.geminiApiKey || '',
+        groqApiKey: local.groqApiKey || '',
+        xaiApiKey: local.xaiApiKey || '',
         flashcardModel: cloudConfig.flashcardModel || local.flashcardModel || '',
         tutorModel: cloudConfig.tutorModel || local.tutorModel || '',
         temperature: typeof cloudConfig.temperature === 'number' ? cloudConfig.temperature : local.temperature,

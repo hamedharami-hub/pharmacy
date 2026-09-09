@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
 import { executeAiInference } from '@/lib/aiService';
 import { robustJsonParse } from '@/lib/robustJsonParser';
+import { authenticateAiRequest, clampNumber, cleanString, parseAiProvider, parseGuardedJson, publicAiError } from '@/lib/apiRequestGuard';
 
-// TODO: Add rate limiting and authentication for production
+// TODO: Require verified Firebase authentication before using server-owned keys in production.
 export async function POST(req: Request) {
   try {
-    let body;
-    try {
-      body = await req.json();
-    } catch (err) {
-      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
-    }
+    const auth = await authenticateAiRequest(req);
+    if (auth instanceof NextResponse) return auth;
+    const parsedRequest = await parseGuardedJson(req, 'ai-flashcards', auth.uid);
+    if ('response' in parsedRequest) return parsedRequest.response;
+    const body = parsedRequest.body;
     const {
       topic = 'Clinical Pharmacy',
       category = 'Pharmacotherapy',
@@ -25,6 +25,19 @@ export async function POST(req: Request) {
       temperature = 0.2,
       customPrompt,
     } = body;
+
+    const safeProvider = parseAiProvider(provider);
+    const safeModel = cleanString(model, 120);
+    const safeCount = Math.round(clampNumber(count, 3, 1, 12));
+    const safeTemperature = clampNumber(temperature, 0.2, 0.1, 0.3);
+    const safeTopic = cleanString(topic, 200) || 'Clinical Pharmacy';
+    const safeCategory = cleanString(category, 200) || 'Pharmacotherapy';
+    const safeModuleName = cleanString(moduleName, 120) || 'Clinical Module';
+    const safeModuleNumber = Math.round(clampNumber(moduleNumber, 1, 1, 6));
+
+    if (!safeProvider || !safeModel) {
+      return NextResponse.json({ error: 'Invalid AI provider or model' }, { status: 400 });
+    }
 
     const modeInstructionsMap: Record<string, string> = {
       mcq: `MODE: MULTIPLE-CHOICE CLINICAL QUESTIONS (Australian Pharmacy Practice).
@@ -54,7 +67,8 @@ Focus on severe pharmacokinetic/pharmacodynamic interactions, CYP enzymes, and l
 Generate a rich, balanced mix of therapeutic pearls, clinical scenarios, cautionary guidance, and high-yield decision points.`,
     };
 
-    const specificModeInstruction = modeInstructionsMap[generationMode] || modeInstructionsMap.auto;
+    const safeGenerationMode = cleanString(generationMode, 40);
+    const specificModeInstruction = modeInstructionsMap[safeGenerationMode] || modeInstructionsMap.auto;
 
     const systemInstruction = `You are a Principal Clinical Pharmacist and Medical Educator in Australia specializing in Australian Pharmacy Standards (AMH, Therapeutic Guidelines eTG, APF 26, PBS, and SUSMP Scheduling).
 
@@ -105,9 +119,9 @@ JSON STRUCTURE:
         "en": "Key clinical pearl in English"
       },
       "type": "clinical_pearl",
-      "category": "${category || 'Clinical Pharmacy'}",
-      "topic": "${topic || 'Pharmacology'}",
-      "module": ${moduleNumber},
+      "category": "${safeCategory}",
+      "topic": "${safeTopic}",
+      "module": ${safeModuleNumber},
       "mcqOptions": [
         { "id": "A", "text": { "fa": "گزینه اول", "en": "Option A" }, "isCorrect": true, "explanation": { "fa": "استدلال بالینی صحت گزینه", "en": "Clinical rationale" } },
         { "id": "B", "text": { "fa": "گزینه دوم", "en": "Option B" }, "isCorrect": false, "explanation": { "fa": "علت تمایز بالینی", "en": "Why incorrect" } },
@@ -119,29 +133,29 @@ JSON STRUCTURE:
         "en": "Comparative analysis of distractor options"
       },
       "knowledgeTree": {
-        "domain": { "fa": "${category || 'داروسازی بالینی استرالیا'}", "en": "${category || 'Australian Clinical Pharmacy'}" },
-        "system": { "fa": "${topic || 'سیستم دارودرمانی'}", "en": "${topic || 'Pharmacotherapy System'}" },
+        "domain": { "fa": "${safeCategory}", "en": "${safeCategory}" },
+        "system": { "fa": "${safeTopic}", "en": "${safeTopic}" },
         "subsystem": { "fa": "رده درمانی و بیماری‌ها", "en": "Therapeutic Class & Conditions" },
         "subClass": { "fa": "رده دارویی تخصصی", "en": "Specific Drug SubClass" },
         "microTopic": { "fa": "نکته بالینی و تداخل", "en": "Clinical Pearls & Safety" },
         "path": {
-          "fa": ["${category || 'داروسازی بالینی استرالیا'}", "${topic || 'سیستم دارودرمانی'}", "رده درمانی و بیماری‌ها", "رده دارویی تخصصی", "نکته بالینی و تداخل"],
-          "en": ["${category || 'Australian Clinical Pharmacy'}", "${topic || 'Pharmacotherapy System'}", "Therapeutic Class & Conditions", "Specific Drug SubClass", "Clinical Pearls & Safety"]
+          "fa": ["${safeCategory}", "${safeTopic}", "رده درمانی و بیماری‌ها", "رده دارویی تخصصی", "نکته بالینی و تداخل"],
+          "en": ["${safeCategory}", "${safeTopic}", "Therapeutic Class & Conditions", "Specific Drug SubClass", "Clinical Pearls & Safety"]
         }
       },
-      "tags": ["${category || 'Clinical'}", "${topic || 'Pharmacy'}"]
+      "tags": ["${safeCategory}", "${safeTopic}"]
     }
   ]
 }`;
 
-    const safeCustomPrompt = customPrompt ? String(customPrompt).slice(0, 1500).replace(/```/g, '') : '';
-    const safeContextSnippet = contextSnippet ? String(contextSnippet).slice(0, 6000).replace(/```/g, '') : '';
+    const safeCustomPrompt = cleanString(customPrompt, 1500).replace(/```/g, '');
+    const safeContextSnippet = cleanString(contextSnippet, 6000).replace(/```/g, '');
 
     const prompt = `PRIMARY CLINICAL DOMAIN:
-- Topic / Medicine / Disease: ${topic || 'Clinical Pharmacology'}
-- Therapeutic Category: ${category || 'Clinical Pharmacy'}
-- Active Practice Module: Module ${moduleNumber} (${moduleName})
-- Target Flashcard Count: ${count}
+- Topic / Medicine / Disease: ${safeTopic}
+- Therapeutic Category: ${safeCategory}
+- Active Practice Module: Module ${safeModuleNumber} (${safeModuleName})
+- Target Flashcard Count: ${safeCount}
 
 ${safeCustomPrompt ? `SPECIFIC USER DIRECTIVE:\n${safeCustomPrompt}\n` : ''}
 ${safeContextSnippet ? `CLINICAL SOURCE CONTEXT (Selected Study Text / Clinical Guide):
@@ -151,20 +165,20 @@ ${safeContextSnippet}
 CRITICAL INSTRUCTION FOR CONTEXT:
 1. Deeply analyze the provided Clinical Source Context above.
 2. Extract the high-yield therapeutic facts, clinical pearls, scheduling rules (SUSMP S2/S3/S4/S8), Cautionary Advisory Labels (CALs), and red flag symptoms directly described or implied in this context.
-3. Synthesize cards that test real-world clinical decision-making, patient consultation protocols, and pharmacology principles directly grounded in this specific topic (${topic}) and context.
-` : `Generate high-yield cards specifically on the clinical topic "${topic}" within category "${category}".`}
+3. Synthesize cards that test real-world clinical decision-making, patient consultation protocols, and pharmacology principles directly grounded in this specific topic (${safeTopic}) and context.
+` : `Generate high-yield cards specifically on the clinical topic "${safeTopic}" within category "${safeCategory}".`}
 
-Generate exactly ${count} high-yield, professionally formatted clinical flashcards in valid JSON matching the exact schema above.
+Generate exactly ${safeCount} high-yield, professionally formatted clinical flashcards in valid JSON matching the exact schema above.
 Start your response directly with { and end with }.`;
 
     const rawOutput = await executeAiInference({
-      provider,
-      model,
-      userApiKey: apiKey,
+      provider: safeProvider,
+      model: safeModel,
+      userApiKey: cleanString(apiKey, 512),
       prompt,
       systemInstruction,
       responseFormat: 'json',
-      temperature: Math.min(0.3, Math.max(0.1, temperature || 0.2)),
+      temperature: safeTemperature,
     });
 
     let parsed: any;
@@ -222,9 +236,9 @@ Start your response directly with { and end with }.`;
         answer: { fa: aFa || `پاسخ تشریحی ${idx + 1}`, en: aEn || `Detailed Answer ${idx + 1}` },
         pearl: { fa: pFa, en: pEn },
         type: c.type || 'clinical_pearl',
-        category: c.category || category || 'Clinical Pharmacy',
-        topic: c.topic || topic || 'Pharmacology',
-        module: moduleNumber,
+        category: c.category || safeCategory,
+        topic: c.topic || safeTopic,
+        module: safeModuleNumber,
         mcqOptions: Array.isArray(c.mcqOptions) ? c.mcqOptions : undefined,
         distractorRationale: c.distractorRationale || undefined,
         calculationFormula: c.calculationFormula || undefined,
@@ -241,8 +255,8 @@ Start your response directly with { and end with }.`;
           clinicalAspect: { fa: ktMicroFa, en: ktMicroEn },
           path: { fa: ktPathFa, en: ktPathEn },
         },
-        tags: Array.isArray(c.tags) && c.tags.length > 0 ? c.tags : [category, topic],
-        sourceSnippet: contextSnippet || c.sourceSnippet || undefined,
+        tags: Array.isArray(c.tags) && c.tags.length > 0 ? c.tags : [safeCategory, safeTopic],
+        sourceSnippet: safeContextSnippet || c.sourceSnippet || undefined,
       };
     });
 
@@ -250,7 +264,7 @@ Start your response directly with { and end with }.`;
   } catch (error: any) {
     console.error('Error generating Leitner flashcards:', error);
     return NextResponse.json(
-      { error: error?.message || 'خطا در ارتباط با سرویس هوش مصنوعی' },
+      { error: publicAiError(error, 'خطا در ارتباط با سرویس هوش مصنوعی') },
       { status: 500 }
     );
   }

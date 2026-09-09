@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server';
 import { AiModelOption } from '@/types/pharmacy';
+import { authenticateAiRequest, cleanString, parseGuardedJson } from '@/lib/apiRequestGuard';
 
-// TODO: Add rate limiting and authentication for production
+// TODO: Require verified Firebase authentication before using server-owned keys in production.
 export async function POST(req: Request) {
   try {
-    let body;
-    try {
-      body = await req.json();
-    } catch (err) {
-      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
-    }
+    const auth = await authenticateAiRequest(req);
+    if (auth instanceof NextResponse) return auth;
+    const parsedRequest = await parseGuardedJson(req, 'ai-models', auth.uid);
+    if ('response' in parsedRequest) return parsedRequest.response;
+    const body = parsedRequest.body;
     const { geminiApiKey, groqApiKey, xaiApiKey } = body;
 
     const discoveredModels: AiModelOption[] = [];
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     };
 
     // 1. Fetch live models from Google Gemini API
-    const effectiveGeminiKey = (geminiApiKey || process.env.GEMINI_API_KEY || '').trim();
+    const effectiveGeminiKey = cleanString(geminiApiKey, 512) || (process.env.GEMINI_API_KEY || '').trim();
     const fetchGemini = async () => {
       if (effectiveGeminiKey) {
         try {
@@ -87,7 +87,7 @@ export async function POST(req: Request) {
     };
 
     // 2. Fetch live models from Groq API
-    const effectiveGroqKey = (groqApiKey || process.env.GROQ_API_KEY || '').trim();
+    const effectiveGroqKey = cleanString(groqApiKey, 512) || (process.env.GROQ_API_KEY || '').trim();
     const fetchGroq = async () => {
       if (effectiveGroqKey) {
         try {
@@ -147,7 +147,7 @@ export async function POST(req: Request) {
     };
 
     // 3. Fetch live models from xAI Grok API
-    const effectiveXaiKey = (xaiApiKey || process.env.XAI_API_KEY || '').trim();
+    const effectiveXaiKey = cleanString(xaiApiKey, 512) || (process.env.XAI_API_KEY || '').trim();
     const fetchXai = async () => {
       if (effectiveXaiKey) {
         try {

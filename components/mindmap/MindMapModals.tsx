@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useMemo } from 'react';
+import Image from 'next/image';
 import { LeitnerCard } from '@/types/leitner';
 import { Language } from '@/types/pharmacy';
 import { MindMapNode, NodeCustomImage } from '@/types/mindmap';
@@ -406,7 +407,7 @@ Create a structured diagram with color-coded comparison boxes, clinical pearls, 
               onClick={() => onViewImage?.(cardImage)}
               className="relative rounded-xl overflow-hidden border border-purple-500/40 bg-black/60 max-h-48 flex items-center justify-center cursor-zoom-in group/cardimg"
             >
-              <img src={cardImage.url} alt="Attached" className="w-full max-h-48 object-contain group-hover/cardimg:scale-102 transition" />
+              <Image src={cardImage.url} alt="Attached" fill unoptimized sizes="640px" className="object-contain group-hover/cardimg:scale-102 transition" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-between p-2 text-xs text-white">
                 <span className="truncate max-w-[80%]">{cardImage.caption || (isFa ? 'برای بزرگنمایی کلیک کنید' : 'Click to zoom')}</span>
                 <ZoomIn className="w-4 h-4 text-cyan-300" />
@@ -1172,10 +1173,13 @@ export const NodeImageModal: React.FC<NodeImageModalProps> = ({
           <div className="space-y-1.5 pt-1">
             <span className="text-xs text-slate-400 font-bold">{isFa ? 'پیش‌نمایش تصویر:' : 'Preview:'}</span>
             <div className="relative rounded-2xl overflow-hidden border border-slate-700 max-h-48 bg-black/40 flex items-center justify-center">
-              <img
+              <Image
                 src={imageUrl}
                 alt={caption || 'Branch Attachment'}
-                className="max-h-48 w-auto object-contain rounded-xl"
+                fill
+                unoptimized
+                sizes="640px"
+                className="object-contain rounded-xl"
                 onError={() => setUploadError(isFa ? 'خطا در بارگذاری تصویر از آدرس وارد شده.' : 'Failed to load image from URL.')}
               />
             </div>
@@ -1267,11 +1271,14 @@ export const ImageViewerModal: React.FC<ImageViewerModalProps> = ({
         </div>
 
         {/* Main Image */}
-        <div className="rounded-2xl overflow-hidden border border-slate-700 bg-slate-950/80 max-h-[80vh] flex items-center justify-center">
-          <img
+        <div className="relative rounded-2xl overflow-hidden border border-slate-700 bg-slate-950/80 h-[80vh] flex items-center justify-center">
+          <Image
             src={image.url}
             alt={image.caption || title}
-            className="max-h-[78vh] w-auto object-contain rounded-xl"
+            fill
+            unoptimized
+            sizes="100vw"
+            className="object-contain rounded-xl"
           />
         </div>
       </div>
