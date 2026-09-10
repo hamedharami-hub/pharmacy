@@ -208,7 +208,18 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
   if (targetContext && targetContext !== prevTargetContext) {
     setPrevTargetContext(targetContext);
     const ctx = targetContext.toLowerCase();
-    if (ctx.includes('cough')) {
+    if (ctx.startsWith('disease:')) {
+      const diseaseQuery = targetContext.slice(targetContext.indexOf(':') + 1);
+      setActiveShelfView('diseases');
+      setDiseaseSearchQuery(diseaseQuery);
+      setSearchQuery('');
+      setSearchInputText('');
+    } else if (ctx.startsWith('product:')) {
+      const productQuery = targetContext.slice(targetContext.indexOf(':') + 1);
+      setActiveShelfView('shelf');
+      setSearchQuery(productQuery);
+      setSearchInputText(productQuery);
+    } else if (ctx.includes('cough')) {
       setSelectedDomainId('cat-1');
       setSelectedSubCatId('sub-1-2');
       setSearchQuery('cough');

@@ -44,6 +44,7 @@ import { StudyTrackerProvider } from '@/components/study/StudyTrackerContext';
 import { ResumeStudyBanner } from '@/components/study/ResumeStudyBanner';
 import { Footer } from '@/components/Footer';
 import { FolderOpen, Bot, Sparkles } from 'lucide-react';
+import { ClinicalSearchResult } from '@/lib/clinicalSearch';
 
 // Large learning modules are loaded only when a learner opens them.
 const OtcTriageModule = dynamic(() => import('@/components/OtcTriageModule').then((mod) => mod.OtcTriageModule));
@@ -152,6 +153,22 @@ export default function Home() {
     },
     []
   );
+
+  const handleSelectClinicalEntity = useCallback((entity: ClinicalSearchResult) => {
+    const context = entity.type === 'disease'
+      ? `disease:${entity.title.en}`
+      : entity.type === 'product' || entity.type === 'medicine'
+        ? `product:${entity.title.en}`
+        : entity.sourceId || entity.title.en;
+    if (entity.type === 'disease' || entity.type === 'product' || entity.type === 'medicine') {
+      handleNavigateToModule(2, context);
+    } else if (entity.type === 'triage-scenario') {
+      handleNavigateToModule(1, context);
+    } else {
+      handleNavigateToModule(4, context);
+    }
+    setIsCommandPaletteOpen(false);
+  }, [handleNavigateToModule]);
 
   // User Progress State
   const [flags, setFlags] = useState<Record<string, FlagColor>>({});
@@ -1052,6 +1069,7 @@ export default function Home() {
           setIsAiTutorOpen(true);
         }}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onSelectClinicalEntity={handleSelectClinicalEntity}
       />
 
       {/* PWA Offline Manager & Install Prompt for Android & Windows */}

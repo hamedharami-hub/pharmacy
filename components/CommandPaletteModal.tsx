@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Language, PharmacyCard } from '@/types/pharmacy';
 import { ALL_PHARMACY_CARDS } from '@/lib/pharmacy-data';
+import { searchClinicalEntities, ClinicalSearchResult } from '@/lib/clinicalSearch';
 
 interface CommandPaletteModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ interface CommandPaletteModalProps {
   onOpenAiTutor: (prompt?: string) => void;
   onOpenSettings: () => void;
   onSelectCard?: (cardId: string) => void;
+  onSelectClinicalEntity?: (entity: ClinicalSearchResult) => void;
 }
 
 export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
@@ -38,6 +40,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
   onOpenAiTutor,
   onOpenSettings,
   onSelectCard,
+  onSelectClinicalEntity,
 }) => {
   const isFa = language === 'fa';
   const [query, setQuery] = useState('');
@@ -202,19 +205,37 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
     }));
 
     return [...matchedActions, ...matchedCards];
-  }, [query, quickActions, onSelectModule, onSelectCard, onClose]);
+  }, [query, quickActions, onSelectModule, onSelectCard, onSelectClinicalEntity, onClose]);
+
+  const clinicalResults = useMemo(() => {
+    if (!query.trim()) return [];
+    return searchClinicalEntities(query, 18).map((entity) => ({
+      id: `clinical:${entity.id}`,
+      type: 'clinical' as const,
+      title: entity.title,
+      category: { fa: entity.category || 'موجودیت بالینی', en: entity.category || 'Clinical entity' },
+      icon: entity.type === 'medicine' || entity.type === 'product' ? Boxes : entity.type === 'disease' || entity.type === 'triage-scenario' ? Stethoscope : BookOpen,
+      entity,
+      action: () => {
+        onSelectClinicalEntity?.(entity);
+        onClose();
+      },
+    }));
+  }, [query, onSelectClinicalEntity, onClose]);
+
+  const resultsWithClinical = query.trim() ? [...filteredResults, ...clinicalResults] : filteredResults;
 
   // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown') {
+      if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev < filteredResults.length - 1 ? prev + 1 : 0));
+      setSelectedIndex((prev) => (prev < resultsWithClinical.length - 1 ? prev + 1 : 0));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : filteredResults.length - 1));
-    } else if (e.key === 'Enter' && filteredResults[selectedIndex]) {
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : resultsWithClinical.length - 1));
+    } else if (e.key === 'Enter' && resultsWithClinical[selectedIndex]) {
       e.preventDefault();
-      filteredResults[selectedIndex].action();
+      resultsWithClinical[selectedIndex].action();
     }
   };
 
@@ -268,7 +289,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
 
         {/* Results List */}
         <div className="flex-1 overflow-y-auto p-2 space-y-1 divide-y divide-slate-800/40">
-          {filteredResults.length === 0 ? (
+          {resultsWithClinical.length === 0 ? (
             <div className="py-12 text-center text-xs text-slate-400 space-y-1">
               <Search className="w-8 h-8 mx-auto text-slate-600 mb-2" />
               <p className="font-bold">{isFa ? 'موردی یافت نشد' : 'No results found'}</p>
@@ -277,7 +298,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
               </p>
             </div>
           ) : (
-            filteredResults.map((item, idx) => {
+            resultsWithClinical.map((item, idx) => {
               const Icon = item.icon;
               const isSelected = selectedIndex === idx;
 
