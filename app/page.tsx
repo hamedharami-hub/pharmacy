@@ -52,19 +52,6 @@ const ProductShelfModule = dynamic(() => import('@/components/ProductShelfModule
 const FredDispenseModule = dynamic(() => import('@/components/FredDispenseModule').then((mod) => mod.FredDispenseModule));
 const ClinicalKnowledgeModule = dynamic(() => import('@/components/ClinicalKnowledgeModule').then((mod) => mod.ClinicalKnowledgeModule));
 const LearningToolsModule = dynamic(() => import('@/components/LearningToolsModule').then((mod) => mod.LearningToolsModule));
-const StudyMasteryDashboard = dynamic(
-  () => import('@/components/analytics/StudyMasteryDashboard').then((mod) => mod.StudyMasteryDashboard),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="p-6 text-center app-card border app-border rounded-2xl">
-        <div className="w-6 h-6 mx-auto border-2 border-sky-400 border-t-transparent rounded-full animate-spin" />
-        <p className="mt-2 text-xs app-muted">Loading dashboard…</p>
-      </div>
-    ),
-  }
-);
-
 const TextSelectionLeitnerTrigger = dynamic(
   () => import('@/components/TextSelectionLeitnerTrigger').then((mod) => mod.TextSelectionLeitnerTrigger),
   { ssr: false }
@@ -137,7 +124,6 @@ export default function Home() {
   const [flagFilter, setFlagFilter] = useState<FlagColor | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [shelfTargetContext, setShelfTargetContext] = useState<string | null>(null);
-  const [isDashboardOpen, setIsDashboardOpen] = useState(false);
 
   // Sync module query parameter on mount without hydration mismatch
   useEffect(() => {
@@ -193,7 +179,7 @@ export default function Home() {
   }, []);
 
   const handleOpenAnalytics = () => {
-    setIsDashboardOpen(true);
+    handleOpenSettings('analytics');
   };
 
   const handleOpenSettings = (tab: 'general' | 'ai' | 'about' | 'analytics' = 'general') => {
@@ -815,34 +801,8 @@ export default function Home() {
           onOpenAnalytics={handleOpenAnalytics}
         />
 
-        {isDashboardOpen && (
-          <section className="space-y-3 animate-fadeIn" aria-label={language === 'fa' ? 'داشبورد پیشرفت' : 'Progress dashboard'}>
-            <div className="flex items-center justify-between gap-2">
-              <h2 className="text-sm sm:text-base font-black app-text">
-                {language === 'fa' ? 'داشبورد پیشرفت مطالعه' : 'Study Progress Dashboard'}
-              </h2>
-              <button
-                type="button"
-                onClick={() => setIsDashboardOpen(false)}
-                className="px-2.5 py-1.5 rounded-xl border app-border app-bg app-muted hover:app-text text-xs font-bold transition"
-              >
-                {language === 'fa' ? 'بازگشت به اپ' : 'Back to app'}
-              </button>
-            </div>
-            <StudyMasteryDashboard
-              language={language}
-              userProgress={{ flags, deleted, customEdits, reviewedCards, quizScores, savedNotes }}
-              leitnerCards={leitnerCards}
-              onOpenLeitnerBox={() => {
-                setIsDashboardOpen(false);
-                setActiveMainModule(5);
-              }}
-            />
-          </section>
-        )}
-
         {/* Dynamic Main Module View Router */}
-        <div className={isDashboardOpen ? 'hidden' : 'contents'}>
+        <div className="contents">
         {activeMainModule === 1 && (
           <OtcTriageModule
             language={language}
@@ -943,12 +903,7 @@ export default function Home() {
       <BottomNav
         language={language}
         activeModule={activeMainModule}
-        onSelectModule={(module) => {
-          setIsDashboardOpen(false);
-          setActiveMainModule(module);
-        }}
-        onOpenDashboard={() => setIsDashboardOpen(true)}
-        isDashboardOpen={isDashboardOpen}
+        onSelectModule={setActiveMainModule}
         leitnerDueCount={isMounted ? leitnerDueCount : 0}
         onOpenAiTutor={() => {
           setAiTutorPrompt('');
