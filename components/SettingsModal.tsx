@@ -9,6 +9,7 @@ import { getAiRequestHeaders } from '@/lib/aiClient';
 import { useStudyTracker } from '@/components/study/StudyTrackerContext';
 import { StudyMasteryDashboard } from '@/components/analytics/StudyMasteryDashboard';
 import { StatsBar } from '@/components/StatsBar';
+import { ClinicalRelationsReviewPanel } from '@/components/ClinicalRelationsReviewPanel';
 import { DEFAULT_FLAG_DEFINITIONS, FlagDefinitions, getFlagDefinitions, saveFlagDefinitions } from '@/lib/flagDefinitions';
 import {
   Settings,
@@ -52,6 +53,7 @@ import {
   Heart,
   TrendingUp,
   Flag,
+  Link2,
 } from 'lucide-react';
 
 interface SettingsModalProps {
@@ -74,7 +76,7 @@ interface SettingsModalProps {
   onOpenLeitnerBox?: () => void;
   aiConfig: UserAiConfig;
   onSaveAiConfig: (cfg: UserAiConfig) => void;
-  initialTab?: 'general' | 'ai' | 'about' | 'analytics';
+  initialTab?: 'general' | 'ai' | 'about' | 'analytics' | 'relations';
   leitnerCards?: LeitnerCard[];
   totalCards?: number;
   reviewedCount?: number;
@@ -175,7 +177,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const leitnerActions = Object.keys(completedMap).filter((k) => k.startsWith('leitner-') || k.startsWith('card-')).length;
 
   // Local state for settings modal tabs
-  const [activeTab, setActiveTab] = useState<'general' | 'ai' | 'about' | 'analytics'>(initialTab || 'general');
+  const [activeTab, setActiveTab] = useState<'general' | 'ai' | 'about' | 'analytics' | 'relations'>(initialTab || 'general');
   const [prevInitialTab, setPrevInitialTab] = useState(initialTab);
   if (initialTab !== prevInitialTab) {
     setPrevInitialTab(initialTab);
@@ -486,6 +488,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             >
               <Bot className="w-3.5 h-3.5 text-amber-300" />
               <span>{isFa ? 'هوش مصنوعی' : 'AI Engine'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('relations')}
+              className={`flex-1 min-w-[124px] justify-center px-2.5 sm:px-3 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${
+                activeTab === 'relations'
+                  ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-md'
+                  : 'app-muted hover:app-text'
+              }`}
+            >
+              <Link2 className="w-3.5 h-3.5 text-amber-300" />
+              <span>{isFa ? 'ارتباطات علمی' : 'Clinical Links'}</span>
             </button>
             <button
               type="button"
@@ -1949,6 +1963,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               onOpenLeitnerBox?.();
             }}
           />
+        )}
+
+        {/* TAB 5: CLINICAL RELATION REVIEW */}
+        {activeTab === 'relations' && (
+          <ClinicalRelationsReviewPanel language={language} />
         )}
       </div>
     </div>,
