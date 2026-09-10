@@ -15,6 +15,7 @@ import {
   Minimize2,
   RotateCcw,
 } from 'lucide-react';
+import { StudyFlagButton } from '@/components/study/StudyFlagButton';
 
 interface ChatFeedProps {
   language: Language;
@@ -247,7 +248,7 @@ export const ChatFeed: React.FC<ChatFeedProps> = ({
                       : 'bg-slate-950/70 border-slate-800 text-slate-300'
                   }`}
                 >
-                  <p className="font-semibold">{text}</p>
+                  <div className="flex items-start gap-2"><p className="font-semibold flex-1">{text}</p><StudyFlagButton itemId={`otc:${scenario.id}:message:${msg.id}`} language={language} /></div>
                 </div>
               );
             }
@@ -305,6 +306,7 @@ export const ChatFeed: React.FC<ChatFeedProps> = ({
                         </span>
                       )}
                     </span>
+                    <StudyFlagButton itemId={`otc:${scenario.id}:message:${msg.id}`} language={language} />
 
                     {/* Star Toggle Button */}
                     <button

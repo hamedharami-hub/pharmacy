@@ -9,6 +9,7 @@ import { getOtcClinicalTranslation, translateMedicineAttribute, translateClinica
 import { resolveDrugMonographDetails, extractSpecificAlternativeDrug } from '@/lib/clinicalDrugEnricher';
 import { useStudyTrackerContext } from './study/StudyTrackerContext';
 import { StudyStatusBadge } from './study/StudyStatusBadge';
+import { StudyFlagButton } from './study/StudyFlagButton';
 import {
   X,
   Stethoscope,
@@ -533,6 +534,7 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                 )}
               </button>
 
+              <StudyFlagButton itemId={`knowledge:disease:${disease.id}`} language={language} />
               <StudyStatusBadge
                 language={language}
                 viewed={viewed}
@@ -1160,5 +1162,4 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
     document.body
   );
 };
-
 

@@ -16,6 +16,7 @@ import {
   Stethoscope,
   Activity,
 } from 'lucide-react';
+import { StudyFlagButton } from '@/components/study/StudyFlagButton';
 
 interface ShelfSubcategoriesAccordionProps {
   activeDomain: ClinicalDomain;
@@ -65,6 +66,7 @@ export const ShelfSubcategoriesAccordion: React.FC<ShelfSubcategoriesAccordionPr
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            <StudyFlagButton itemId={`shelf:subcategory:${activeSubCat.id}`} language={language} />
             <div className="px-2 py-1 rounded-lg bg-sky-500/15 text-sky-600 dark:text-sky-400 text-[11px] font-bold flex items-center gap-1 transition">
               <span>{isOpen ? (isFa ? 'بستن' : 'Close') : (isFa ? 'تغییر زیرمجموعه' : 'Change')}</span>
               <ChevronDown
@@ -113,6 +115,7 @@ export const ShelfSubcategoriesAccordion: React.FC<ShelfSubcategoriesAccordionPr
                         {sub.titleEn}
                       </div>
                     </div>
+                    <StudyFlagButton itemId={`shelf:subcategory:${sub.id}`} language={language} />
                   </button>
                 );
               })}
@@ -142,6 +145,7 @@ export const ShelfSubcategoriesAccordion: React.FC<ShelfSubcategoriesAccordionPr
                 </p>
               </div>
             </div>
+            <StudyFlagButton itemId={`shelf:profile:${activeSubCat.id}`} language={language} />
             <span className="text-xs text-sky-500 dark:text-sky-400 font-mono font-bold px-2.5 py-1 rounded-lg bg-sky-500/10 border border-sky-500/30">
               {activeSubCat.id}
             </span>
@@ -172,6 +176,7 @@ export const ShelfSubcategoriesAccordion: React.FC<ShelfSubcategoriesAccordionPr
                       <div className="flex-1 leading-relaxed">
                         <FormattedClinicalText text={pearl} />
                       </div>
+                      <StudyFlagButton itemId={`shelf:profile:${activeSubCat.id}:pearl:${idx}`} language={language} />
                     </div>
                   )
                 )}
@@ -190,9 +195,7 @@ export const ShelfSubcategoriesAccordion: React.FC<ShelfSubcategoriesAccordionPr
                 </span>
               </div>
               <div className="p-3 rounded-xl app-card border border-indigo-500/20 text-xs sm:text-sm app-text leading-relaxed shadow-xs">
-                <FormattedClinicalText
-                  text={isFa ? activeSubCat.schedulingRulesFa : activeSubCat.schedulingRulesEn}
-                />
+                <div className="flex items-start gap-2"><div className="flex-1"><FormattedClinicalText text={isFa ? activeSubCat.schedulingRulesFa : activeSubCat.schedulingRulesEn} /></div><StudyFlagButton itemId={`shelf:profile:${activeSubCat.id}:rules`} language={language} /></div>
               </div>
             </div>
 
@@ -218,6 +221,7 @@ export const ShelfSubcategoriesAccordion: React.FC<ShelfSubcategoriesAccordionPr
                     <div className="flex-1 leading-relaxed">
                       <FormattedClinicalText text={flag} />
                     </div>
+                    <StudyFlagButton itemId={`shelf:profile:${activeSubCat.id}:redflag:${idx}`} language={language} />
                   </div>
                 ))}
               </div>

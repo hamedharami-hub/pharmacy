@@ -982,7 +982,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
   return (
     <div className="space-y-3 min-w-0" dir={isFa ? 'rtl' : 'ltr'}>
       {/* 1. TOP HEADER & SWITCH BAR (Minimal, Centered & Clean) */}
-      <div className="max-w-3xl mx-auto w-full flex items-center justify-between gap-2 p-1 bg-slate-900/60 backdrop-blur-md rounded-2xl border app-border shadow-xs">
+      <div className="max-w-3xl mx-auto w-full min-w-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-1 bg-slate-900/60 backdrop-blur-md rounded-2xl border app-border shadow-xs overflow-hidden">
         {/* Left Side: Deck Scope Indicator / Title */}
         <div className="flex items-center gap-2 px-2 min-w-0">
           <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse shrink-0" />
@@ -992,7 +992,7 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
         </div>
 
         {/* View Switcher: Single Unified Tab Row with Settings Gear Button */}
-        <div className="flex items-center gap-1 app-bg p-1 rounded-xl border app-border overflow-x-auto no-scrollbar shrink-0">
+        <div className="flex w-full sm:w-auto max-w-full min-w-0 items-center gap-1 app-bg p-1 rounded-xl border app-border overflow-x-auto no-scrollbar">
           <button
             type="button"
             onClick={() => setCurrentView('anki_study')}
@@ -1037,11 +1037,11 @@ export const LeitnerDeckModule: React.FC<LeitnerDeckModuleProps> = ({
                 setSettingsInitialTab('fsrs');
                 setIsStudySettingsOpen(true);
               }}
-              className="px-2.5 py-1.5 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/40 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+              className="max-w-[148px] sm:max-w-none px-2.5 py-1.5 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/40 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap overflow-hidden"
               title={isFa ? 'پیکربندی دقیق و پیشرفته الگوریتم FSRS v5 (هدف یادآوری، ضرایب و فواصل)' : 'Configure FSRS v5 Algorithm Parameters'}
             >
               <Brain className="w-3.5 h-3.5 text-purple-400" />
-              <span className="font-mono text-[11px]">
+                <span className="font-mono text-[11px] truncate">
                 FSRS ({Math.round((studySettings.fsrsConfig?.requestRetention || 0.90) * 100)}%)
               </span>
             </button>

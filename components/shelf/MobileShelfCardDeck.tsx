@@ -9,6 +9,7 @@ import { getDiseasesForSubCategory, getConceptsForSubCategory } from '@/data/she
 import { getCategoryMechanism, getProductMechanism } from '@/data/mechanismsRegistry';
 import { ShelfDrugCard } from './ShelfDrugCard';
 import { haptic } from '@/lib/haptics';
+import { StudyFlagButton } from '@/components/study/StudyFlagButton';
 import {
   Lightbulb,
   ShieldCheck,
@@ -584,6 +585,7 @@ export const MobileShelfCardDeck: React.FC<MobileShelfCardDeckProps> = ({
                           </div>
                         </div>
 
+                        <StudyFlagButton itemId={`shelf:disease:${d.id}`} language={language} />
                         <div className="px-2.5 py-1 rounded-lg bg-emerald-600/20 text-emerald-300 text-[11px] font-bold shrink-0 flex items-center gap-1 group-hover:bg-emerald-600 group-hover:text-white transition">
                           <span>{isFa ? 'پروتکل' : 'View'}</span>
                           <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-0 rotate-180" />

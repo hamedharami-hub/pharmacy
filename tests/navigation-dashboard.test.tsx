@@ -4,6 +4,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { BottomNav } from '@/components/BottomNav';
 import { StatsBar } from '@/components/StatsBar';
 import { SettingsModal } from '@/components/SettingsModal';
+import { StudyFlagButton } from '@/components/study/StudyFlagButton';
+
+const setItemFlagMock = vi.hoisted(() => vi.fn());
 
 vi.mock('next/dynamic', () => ({
   default: () => () => null,
@@ -16,6 +19,8 @@ vi.mock('@/components/study/StudyTrackerContext', () => ({
   useStudyTrackerContext: () => ({
     isLoaded: true,
     getOverallStats: () => ({ viewedCount: 4, completedCount: 12, flaggedCount: 3 }),
+    getItemFlag: () => null,
+    setItemFlag: setItemFlagMock,
   }),
 }));
 
@@ -118,6 +123,13 @@ describe('progress dashboard', () => {
     expect(screen.getByRole('textbox', { name: 'red flag label' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'blue flag description' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save & sync flags' })).toBeInTheDocument();
+  });
+
+  it('exposes one shared flag control that can be used by any module item', () => {
+    setItemFlagMock.mockClear();
+    render(<StudyFlagButton itemId="knowledge:cyp:CYP3A4:inhibitor:warfarin" language="en" />);
+    fireEvent.click(screen.getByRole('button', { name: /Flag knowledge:cyp/i }));
+    expect(setItemFlagMock).toHaveBeenCalledWith('knowledge:cyp:CYP3A4:inhibitor:warfarin', 'red');
   });
 
   it('renders KPI summary and responsive chart tabs', async () => {

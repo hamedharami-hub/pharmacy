@@ -5,6 +5,7 @@ import { Language } from '@/types/pharmacy';
 import { Check, ChevronDown, Layers } from 'lucide-react';
 import { haptic } from '@/lib/haptics';
 import { MatrixTopic } from './MatrixSectionSelector';
+import { StudyFlagButton } from '@/components/study/StudyFlagButton';
 
 export interface MatrixTopicsAccordionProps {
   topics: MatrixTopic[];
@@ -85,6 +86,7 @@ export const MatrixTopicsAccordion: React.FC<MatrixTopicsAccordionProps> = ({
                         {topic.titleEn}
                       </div>
                     </div>
+                    <StudyFlagButton itemId={`knowledge:topic:${topic.id}`} language={language} />
                   </button>
                 );
               })}

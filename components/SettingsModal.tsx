@@ -449,12 +449,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       >
         
         {/* Header with Navigation Tabs */}
-        <div className="flex items-start justify-between gap-2 border-b app-border pb-3">
-          <div className="flex flex-1 items-center gap-1 bg-black/20 p-1 rounded-2xl border app-border flex-wrap shadow-inner">
+        <div className="relative flex flex-col gap-2 border-b app-border pb-3">
+          <div className="flex w-full items-stretch gap-1 bg-black/20 p-1 rounded-2xl border app-border overflow-x-auto no-scrollbar shadow-inner">
             <button
               type="button"
               onClick={() => setActiveTab('general')}
-              className={`px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer ${
+              className={`flex-1 min-w-[92px] justify-center px-2.5 sm:px-3 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${
                 activeTab === 'general'
                   ? 'bg-sky-600 text-white shadow-md'
                   : 'app-muted hover:app-text'
@@ -466,7 +466,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <button
               type="button"
               onClick={() => setActiveTab('analytics')}
-              className={`px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer ${
+              className={`flex-1 min-w-[112px] justify-center px-2.5 sm:px-3 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${
                 activeTab === 'analytics'
                   ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
                   : 'app-muted hover:app-text'
@@ -478,7 +478,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <button
               type="button"
               onClick={() => setActiveTab('ai')}
-              className={`px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer ${
+              className={`flex-1 min-w-[100px] justify-center px-2.5 sm:px-3 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${
                 activeTab === 'ai'
                   ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
                   : 'app-muted hover:app-text'
@@ -490,7 +490,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <button
               type="button"
               onClick={() => setActiveTab('about')}
-              className={`px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer ${
+              className={`flex-1 min-w-[92px] justify-center px-2.5 sm:px-3 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap ${
                 activeTab === 'about'
                   ? 'bg-emerald-600 text-white shadow-md'
                   : 'app-muted hover:app-text'
@@ -501,7 +501,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </button>
           </div>
 
-          <button onClick={onClose} className="app-muted hover:app-text p-1.5 rounded-lg hover:bg-black/20 cursor-pointer">
+          <button onClick={onClose} className="absolute -top-1 end-0 app-muted hover:app-text p-1.5 rounded-lg hover:bg-black/20 cursor-pointer bg-black/10">
             <X className="w-4 h-4" />
           </button>
         </div>

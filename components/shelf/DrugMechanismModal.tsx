@@ -5,6 +5,7 @@ import { Product } from '@/types/shelf';
 import { DrugMechanismInfo, getProductMechanism } from '@/data/mechanismsRegistry';
 import { Language } from '@/types/pharmacy';
 import { Dna, FlaskConical, Target, Zap, Lightbulb, Pill, Layers, X } from 'lucide-react';
+import { StudyFlagButton } from '@/components/study/StudyFlagButton';
 
 interface DrugMechanismModalProps {
   selectedMechanismInfo: DrugMechanismInfo | null;
@@ -63,6 +64,7 @@ export const DrugMechanismModal: React.FC<DrugMechanismModalProps> = ({
                 <h3 className="text-base sm:text-lg font-bold text-white truncate">
                   {isFa ? selectedMechanismInfo.classNameFa : selectedMechanismInfo.classNameEn}
                 </h3>
+                <StudyFlagButton itemId={`shelf:mechanism:${selectedMechanismInfo.classCode}`} language={language} />
                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/40 font-mono font-bold shrink-0">
                   {selectedMechanismInfo.actionClassification}
                 </span>

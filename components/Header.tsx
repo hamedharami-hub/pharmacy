@@ -164,7 +164,7 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-40 app-glass-header shadow-xs w-full max-w-full overflow-x-clip pt-[env(safe-area-inset-top,0px)] transition-all duration-300">
+    <header className="sticky top-0 z-40 app-glass-header shadow-xs w-full max-w-full overflow-x-clip app-safe-top transition-all duration-300">
       <div className="max-w-[1700px] mx-auto px-1.5 sm:px-2.5 md:px-3 lg:px-4 py-2">
         {/* Top Bar: Title & Settings */}
         <div className="flex items-center justify-between gap-3 mb-2.5">

@@ -6,6 +6,7 @@ import { Scenario } from '@/data/otcScenarios';
 import { getScenarioMode } from './types';
 import { Check, ChevronDown, Layers, MessageSquare } from 'lucide-react';
 import { haptic } from '@/lib/haptics';
+import { StudyFlagButton } from '@/components/study/StudyFlagButton';
 
 export interface ScenarioListAccordionProps {
   scenario: Scenario;
@@ -126,6 +127,7 @@ export const ScenarioListAccordion: React.FC<ScenarioListAccordionProps> = ({
                       </div>
 
                       <div className="shrink-0 pt-0.5">
+                        <StudyFlagButton itemId={`otc:${sc.id}`} language={language} className="mb-1" />
                         {isSelected ? (
                           <div className="w-5 h-5 rounded-full bg-sky-500 text-black flex items-center justify-center font-bold shadow-sm">
                             <Check className="w-3 h-3 stroke-[3]" />

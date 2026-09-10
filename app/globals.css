@@ -147,6 +147,15 @@
     padding-top: var(--sat);
   }
 
+  /* Keep header controls below camera cutouts in immersive/fullscreen mode. */
+  .app-safe-top {
+    padding-top: max(0.75rem, var(--sat));
+  }
+
+  .is-immersive-fullscreen .app-safe-top {
+    padding-top: max(1rem, var(--sat));
+  }
+
   .mobile-safe-bottom {
     padding-bottom: var(--sab);
   }

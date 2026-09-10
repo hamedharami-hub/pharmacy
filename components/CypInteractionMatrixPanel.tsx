@@ -27,6 +27,7 @@ import {
   Pill,
 } from 'lucide-react';
 import { haptic } from '@/lib/haptics';
+import { StudyFlagButton } from '@/components/study/StudyFlagButton';
 
 export interface CypInteractionMatrixPanelProps {
   language: Language;
@@ -430,6 +431,7 @@ export const CypInteractionMatrixPanel: React.FC<CypInteractionMatrixPanelProps>
                         >
                           <div className="flex items-center justify-between gap-1">
                             <span className="font-mono font-bold text-xs text-white">{d.name}</span>
+                            <StudyFlagButton itemId={`knowledge:cyp:${profile.id}:inhibitor:${d.name}`} language={language} />
                             <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300">
                               {d.category === 'strong_inhibitor' ? 'Strong' : 'Mod'}
                             </span>
@@ -471,6 +473,7 @@ export const CypInteractionMatrixPanel: React.FC<CypInteractionMatrixPanelProps>
                         >
                           <div className="flex items-center justify-between gap-1">
                             <span className="font-mono font-bold text-xs text-white">{d.name}</span>
+                            <StudyFlagButton itemId={`knowledge:cyp:${profile.id}:inducer:${d.name}`} language={language} />
                             <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300">
                               {d.category === 'strong_inducer' ? 'Strong' : 'Mod'}
                             </span>
@@ -512,6 +515,7 @@ export const CypInteractionMatrixPanel: React.FC<CypInteractionMatrixPanelProps>
                         >
                           <div className="flex items-center justify-between gap-1">
                             <span className="font-mono font-bold text-xs text-white">{d.name}</span>
+                            <StudyFlagButton itemId={`knowledge:cyp:${profile.id}:substrate:${d.name}`} language={language} />
                             {d.category === 'narrow_therapeutic_substrate' && (
                               <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">
                                 🛑 NTI
@@ -549,7 +553,7 @@ export const CypInteractionMatrixPanel: React.FC<CypInteractionMatrixPanelProps>
                           <span className="font-bold text-white">
                             {isFa ? rule.titleFa : rule.titleEn}
                           </span>
-                          {getSeverityBadge(rule.severity)}
+                          <div className="flex items-center gap-1.5"> <StudyFlagButton itemId={`knowledge:cyp:${profile.id}:rule:${idx}`} language={language} />{getSeverityBadge(rule.severity)}</div>
                         </div>
                         <p className="text-slate-300 leading-relaxed text-[11.5px]">
                           <strong className="text-slate-200">{isFa ? 'مکانیسم: ' : 'Mechanism: '}</strong>
