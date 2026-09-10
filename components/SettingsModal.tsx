@@ -438,19 +438,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 animate-fadeIn"
+      className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 animate-fadeIn"
       onClick={onClose}
     >
       <div 
-        className="app-card border app-border p-4 sm:p-5 rounded-3xl max-w-xl sm:max-w-2xl w-full space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar"
+        className="app-card border app-border p-3 sm:p-5 rounded-[1.75rem] max-w-xl sm:max-w-3xl w-full space-y-4 shadow-2xl shadow-slate-950/30 max-h-[92vh] overflow-y-auto custom-scrollbar"
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
       >
         
         {/* Header with Navigation Tabs */}
-        <div className="flex items-center justify-between border-b app-border pb-3">
-          <div className="flex items-center gap-1 bg-black/30 p-1 rounded-2xl border app-border flex-wrap">
+        <div className="flex items-start justify-between gap-2 border-b app-border pb-3">
+          <div className="flex flex-1 items-center gap-1 bg-black/20 p-1 rounded-2xl border app-border flex-wrap shadow-inner">
             <button
               type="button"
               onClick={() => setActiveTab('general')}
@@ -1179,10 +1179,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* TAB 2: GENERAL SETTINGS */}
         {activeTab === 'general' && (
             <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-black app-text">{isFa ? 'خلاصه پیشرفت مطالعه' : 'Study progress summary'}</h3>
-                  <span className="text-[10px] app-muted">{isFa ? 'در صورت نیاز' : 'Available when needed'}</span>
+              <div className="space-y-2.5 rounded-3xl border app-border bg-gradient-to-br from-sky-500/[0.07] via-transparent to-violet-500/[0.07] p-2.5 sm:p-3">
+                <div className="flex items-center justify-between gap-2 px-1">
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.18em] app-muted">{isFa ? 'مرکز کنترل' : 'Control center'}</p>
+                    <h3 className="text-sm font-black app-text">{isFa ? 'خلاصه پیشرفت مطالعه' : 'Study progress summary'}</h3>
+                  </div>
+                  <span className="rounded-full border border-sky-400/20 bg-sky-500/10 px-2 py-1 text-[9px] font-bold text-sky-300">{isFa ? 'زنده' : 'Live'}</span>
                 </div>
                 <StatsBar
                   language={language}
@@ -1194,7 +1197,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 />
               </div>
 
-            <div className="p-3.5 rounded-3xl app-card border app-border space-y-3 shadow-lg shadow-slate-950/10">
+            <div className="p-3.5 rounded-3xl app-card border app-border space-y-3 shadow-lg shadow-slate-950/10 bg-gradient-to-br from-rose-500/[0.06] via-transparent to-sky-500/[0.05]">
               <div className="flex items-center justify-between gap-2">
                 <div>
                   <h3 className="text-sm font-black app-text tracking-tight">{isFa ? 'تعریف فلگ‌های مطالعه' : 'Study flag definitions'}</h3>
@@ -1217,7 +1220,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
             
             {/* TODAY'S STUDY ACTIVITY & PROGRESS CARD */}
-            <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-950/35 via-slate-900 to-indigo-950/35 border border-amber-500/30 space-y-2.5 shadow-md">
+            <div className="p-3.5 rounded-3xl bg-gradient-to-br from-amber-500/[0.10] via-slate-900/60 to-indigo-500/[0.10] border border-amber-400/25 space-y-2.5 shadow-lg shadow-amber-950/10">
               <div className="flex items-center justify-between border-b border-amber-500/20 pb-2">
                 <div className="flex items-center gap-1.5 font-bold text-amber-300 text-xs sm:text-sm">
                   <Trophy className="w-4 h-4 text-amber-400 shrink-0" />
