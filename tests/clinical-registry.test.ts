@@ -40,4 +40,19 @@ describe('central clinical registry', () => {
       expect(getClinicalEntity(relation.toId)).toBeTruthy();
     }
   });
+
+  it('records Disease–Triage candidates as suggested relations with an audit reason', () => {
+    const diseaseTriageSuggestions = CLINICAL_RELATIONS.filter((relation) => {
+      const from = getClinicalEntity(relation.fromId);
+      const to = getClinicalEntity(relation.toId);
+      return relation.type === 'triages'
+        && relation.confidence === 'suggested'
+        && ((from?.type === 'triage-scenario' && to?.type === 'disease')
+          || (from?.type === 'disease' && to?.type === 'triage-scenario'));
+    });
+
+    expect(diseaseTriageSuggestions.length).toBeGreaterThan(0);
+    expect(diseaseTriageSuggestions.every((relation) => Boolean(relation.reason))).toBe(true);
+    expect(diseaseTriageSuggestions.every((relation) => relation.source.includes('scenario'))).toBe(true);
+  });
 });
