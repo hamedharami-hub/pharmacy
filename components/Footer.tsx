@@ -12,7 +12,7 @@ export const Footer: React.FC<FooterProps> = ({ language }) => {
   const isFa = language === 'fa';
 
   return (
-    <footer className="mt-12 border-t app-border bg-black/20 text-xs app-text pt-8 pb-10">
+    <footer className="hidden md:block mt-12 border-t app-border bg-black/20 text-xs app-text pt-8 pb-10">
       <div className="max-w-6xl mx-auto px-4 space-y-8">
         {/* Top Grid Sections */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">

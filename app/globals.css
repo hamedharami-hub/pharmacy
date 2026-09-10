@@ -2335,3 +2335,21 @@ bdi, [dir="ltr"] bdi, [dir="rtl"] bdi {
   display: inline-block;
   vertical-align: baseline;
 }
+
+/* Analytics dashboard explicitly follows the Settings theme. */
+.dashboard-surface { color-scheme: dark; }
+body.theme-day .dashboard-surface,
+body.theme-reader-day .dashboard-surface { color-scheme: light; }
+body.theme-night .dashboard-surface,
+body.theme-reader-night .dashboard-surface { color-scheme: dark; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-surface *,
+  .dashboard-surface *::before,
+  .dashboard-surface *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

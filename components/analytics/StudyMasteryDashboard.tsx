@@ -269,7 +269,7 @@ export const StudyMasteryDashboard: React.FC<StudyMasteryDashboardProps> = ({
   }
 
   return (
-    <div className="space-y-4 text-start min-w-0">
+    <div className="dashboard-surface space-y-4 text-start min-w-0" data-theme-aware="true">
       {/* 1. Header Banner & High-Level KPIs */}
       <div className="p-4 rounded-3xl bg-slate-900/90 border border-slate-700/80 shadow-lg space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
