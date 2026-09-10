@@ -8,12 +8,14 @@ import {
   getClinicalRelations,
 } from '@/data/clinicalRegistry';
 import { Language } from '@/types/pharmacy';
+import { ClinicalGraphPanel } from './ClinicalGraphPanel';
 
 interface ClinicalRelationsPanelProps {
   entityId: string;
   language: Language;
   onOpenTriage?: (scenarioId: string) => void;
   onOpenDisease?: (diseaseId: string) => void;
+  onOpenEntity?: (entity: ReturnType<typeof getClinicalEntity>) => void;
 }
 
 const labels = {
@@ -58,7 +60,7 @@ function relationLabel(type: string, language: Language) {
   return fa ? labels.fa.disease : labels.en.disease;
 }
 
-export function ClinicalRelationsPanel({ entityId, language, onOpenTriage, onOpenDisease }: ClinicalRelationsPanelProps) {
+export function ClinicalRelationsPanel({ entityId, language, onOpenTriage, onOpenDisease, onOpenEntity }: ClinicalRelationsPanelProps) {
   const [expanded, setExpanded] = useState(true);
   const isFa = language === 'fa';
   const text = isFa ? labels.fa : labels.en;
@@ -89,6 +91,10 @@ export function ClinicalRelationsPanel({ entityId, language, onOpenTriage, onOpe
 
       {expanded && (
         <div className="px-3.5 sm:px-4 pb-3.5 space-y-2 border-t border-violet-500/15 pt-2.5">
+          <ClinicalGraphPanel entityId={entityId} language={language} onOpenEntity={(id) => {
+            const entity = getClinicalEntity(id);
+            if (entity) onOpenEntity?.(entity);
+          }} />
           {visibleRelations.map((relation) => {
             const relatedId = relation.fromId === entityId ? relation.toId : relation.fromId;
             const entity = getClinicalEntity(relatedId);
@@ -109,7 +115,11 @@ export function ClinicalRelationsPanel({ entityId, language, onOpenTriage, onOpe
                       {isSuggested ? text.suggested : text.verified}
                     </span>
                   </div>
-                  <div className="text-xs sm:text-sm font-black app-text leading-snug mt-0.5" dir="auto">{title}</div>
+                  {onOpenEntity ? (
+                    <button type="button" onClick={() => onOpenEntity(entity)} className="text-xs sm:text-sm font-black app-text leading-snug mt-0.5 text-start hover:text-violet-600 dark:hover:text-violet-300 transition" dir="auto">{title}</button>
+                  ) : (
+                    <div className="text-xs sm:text-sm font-black app-text leading-snug mt-0.5" dir="auto">{title}</div>
+                  )}
                   {isSuggested && <div className="text-[10px] text-amber-700/80 dark:text-amber-200/70 mt-1">{relation.reason || text.review}</div>}
                 </div>
                 {isTriage && onOpenTriage && (
@@ -127,6 +137,11 @@ export function ClinicalRelationsPanel({ entityId, language, onOpenTriage, onOpe
                     onClick={() => onOpenDisease(entity.sourceId)}
                     className="shrink-0 inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-[10px] font-black text-violet-700 dark:text-violet-200 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/25 transition"
                   >
+                    {text.open}<ArrowUpRight className="w-3 h-3" />
+                  </button>
+                )}
+                {onOpenEntity && !isDisease && !isTriage && (
+                  <button type="button" onClick={() => onOpenEntity(entity)} className="shrink-0 inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-[10px] font-black text-violet-700 dark:text-violet-200 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/25 transition">
                     {text.open}<ArrowUpRight className="w-3 h-3" />
                   </button>
                 )}

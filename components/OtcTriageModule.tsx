@@ -557,6 +557,11 @@ REFERRING PHARMACIST:
       <ClinicalRelationsPanel
         entityId={`triage:${scenario.id}`}
         language={language}
+        onOpenEntity={(entity) => {
+          if (!entity || !onNavigateToModule) return;
+          const targetModule = entity.type === 'triage-scenario' ? 1 : entity.type === 'clinical-concept' || entity.type === 'cyp-enzyme' || entity.type === 'mechanism' ? 4 : 2;
+          onNavigateToModule(targetModule, entity.title.en);
+        }}
         onOpenDisease={(diseaseId) => {
           const disease = DISEASES_REGISTRY.find((item) => item.id === diseaseId);
           if (disease) setSelectedDisease(disease);
