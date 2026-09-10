@@ -7,6 +7,7 @@ import { LeitnerCard } from '@/types/leitner';
 import { LeitnerDeckModule } from '@/components/LeitnerDeckModule';
 import { INITIAL_SAMPLE_LEITNER_CARDS } from '@/lib/sample-leitner-cards';
 import { Layers, Network, Sparkles } from 'lucide-react';
+import { useStudyTrackerContext } from '@/components/study/StudyTrackerContext';
 
 const LeitnerMindMapPanel = dynamic(
   () => import('@/components/LeitnerMindMapPanel').then((mod) => mod.LeitnerMindMapPanel),
@@ -29,7 +30,12 @@ export const LearningToolsModule: React.FC<LearningToolsModuleProps> = ({
   initialTab = 'leitner',
 }) => {
   const [activeTab, setActiveTab] = useState<'leitner' | 'mindmap'>(initialTab);
+  const [unreadOnly, setUnreadOnly] = useState(false);
   const isFa = language === 'fa';
+  const { isViewed } = useStudyTrackerContext();
+  const stableId = (card: LeitnerCard) => `leitner:${card.id}`;
+  const unreadCount = cards.filter((card) => !isViewed(stableId(card))).length;
+  const visibleCards = unreadOnly ? cards.filter((card) => !isViewed(stableId(card))) : cards;
 
   const dueCount = cards.filter((c) => {
     if (!c.nextReviewDate) return true;
@@ -45,6 +51,9 @@ export const LearningToolsModule: React.FC<LearningToolsModuleProps> = ({
       {/* Pure Dual-Shape Switcher Bar (Icons Only - Ultra Minimal) */}
       <div className="flex items-center justify-end max-w-3xl mx-auto w-full">
         <div className="flex items-center gap-1 bg-slate-900/90 backdrop-blur-md p-1 rounded-2xl border app-border shadow-xs">
+          <button type="button" onClick={() => setUnreadOnly((value) => !value)} aria-pressed={unreadOnly} className={`px-2 py-1.5 rounded-xl text-[10px] font-bold ${unreadOnly ? 'bg-indigo-600 text-white' : 'app-muted'}`}>
+            {isFa ? `نخوانده (${unreadCount})` : `Unread (${unreadCount})`}
+          </button>
           {/* Shape 1: Flashcard / Review Icon */}
           <button
             type="button"
@@ -84,7 +93,7 @@ export const LearningToolsModule: React.FC<LearningToolsModuleProps> = ({
       {activeTab === 'leitner' && (
         <LeitnerDeckModule
           language={language}
-          cards={cards}
+          cards={visibleCards}
           initialView="anki_study"
           onUpdateCards={onUpdateCards}
           onOpenAiLeitner={() => onOpenAiLeitner?.('', 4)}
@@ -94,7 +103,7 @@ export const LearningToolsModule: React.FC<LearningToolsModuleProps> = ({
       {activeTab === 'mindmap' && (
         <LeitnerMindMapPanel
           language={language}
-          cards={cards}
+          cards={visibleCards}
           showLeitnerGrading={false}
           onStartStudyBranch={({ title, cardIds }) => {
             setActiveTab('leitner');
