@@ -181,6 +181,7 @@ export const StudyMasteryDashboard: React.FC<StudyMasteryDashboardProps> = ({
 
   // 2. Chronological Quiz Performance Trend Data
   const quizHistory = useMemo<QuizHistoryRecord[]>(() => {
+    void plannerRevision;
     let historyRecords: QuizHistoryRecord[] = [];
     if (typeof window !== 'undefined') {
       try {

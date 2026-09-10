@@ -29,19 +29,20 @@ vi.mock('@/lib/firebase', () => ({
 }));
 
 vi.mock('recharts', () => {
-  const Stub = ({ children }: { children?: React.ReactNode }) => <div>{children}</div>;
+  const SvgStub = ({ children }: { children?: React.ReactNode }) => <svg>{children}</svg>;
+  const DivStub = ({ children }: { children?: React.ReactNode }) => <div>{children}</div>;
   return {
-    ResponsiveContainer: Stub,
-    AreaChart: Stub,
-    Area: Stub,
-    BarChart: Stub,
-    Bar: Stub,
-    XAxis: Stub,
-    YAxis: Stub,
-    CartesianGrid: Stub,
-    Tooltip: Stub,
-    Cell: Stub,
-    ReferenceLine: Stub,
+    ResponsiveContainer: DivStub,
+    AreaChart: SvgStub,
+    Area: SvgStub,
+    BarChart: SvgStub,
+    Bar: SvgStub,
+    XAxis: SvgStub,
+    YAxis: SvgStub,
+    CartesianGrid: SvgStub,
+    Tooltip: DivStub,
+    Cell: SvgStub,
+    ReferenceLine: SvgStub,
   };
 });
 

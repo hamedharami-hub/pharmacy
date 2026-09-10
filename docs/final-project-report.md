@@ -42,20 +42,16 @@ TypeScript: successful
 Static page generation: successful
 ```
 
-در تست داشبورد، React Testing Library چند هشدار مربوط به tagهای SVG مانند `stop`، `linearGradient` و `defs` نمایش داد؛ این هشدارها باعث شکست تست یا build نشدند.
+در تست داشبورد، هشدارهای مربوط به عناصر SVG با بهبود mock کامپوننت AreaChart در محیط آزمون برطرف شدند و اجرای تست‌ها کاملاً بدون هشدار انجام می‌شود.
 
 ## وضعیت lint
 
-`npm run lint` هنوز کاملاً پاک نیست و با **۳ خطای موجود در StudyPlannerPanel و یک warning** متوقف می‌شود. خطاهای باقی‌مانده مربوط به الگوهای قدیمی این کامپوننت هستند:
-
-| فایل | موضوع |
-|---|---|
-| `components/analytics/StudyPlannerPanel.tsx:65` | setState مستقیم برای بارگذاری localStorage داخل effect |
-| `components/analytics/StudyPlannerPanel.tsx:119` | استفاده از `Date.now()` داخل useMemo |
-| `components/analytics/StudyPlannerPanel.tsx:187` | پایان آزمون با setState مستقیم داخل effect |
-| `components/analytics/StudyMasteryDashboard.tsx:233` | dependency اضافی در useMemo |
-
-این موارد مانع build تولیدی نمی‌شوند، اما برای رسیدن به lint کاملاً سبز باید در یک refactor مستقل اصلاح شوند. در این مرحله منطق بالینی و قابلیت‌های جدید بدون خطای TypeScript build شده‌اند.
+دستور `npm run lint` با **۰ خطا و ۰ هشدار** کاملاً پاک است:
+- بارگذاری localStorage در `StudyPlannerPanel` به مقداردهی تنبل (`useState(() => ...)`) منتقل شد.
+- وابستگی ناخالص `Date.now()` در `useMemo` رفع شد.
+- اتمام آزمون به رویداد تایمر فاصله‌ای منتقل شد تا از setState در effect جلوگیری شود.
+- وابستگی `plannerRevision` در `StudyMasteryDashboard` به درستی به کار گرفته شد.
+- شناسه‌های تکراری محصولات Shelf و ارجاعات بیماری‌ها کاملاً اصلاح شدند.
 
 ## تصمیم‌های ایمنی داده
 

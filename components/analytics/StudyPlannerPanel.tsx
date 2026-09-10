@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AlarmClock, Bell, BookOpenCheck, CalendarDays, CircleGauge, Play, RotateCcw, Target, Timer, TriangleAlert } from 'lucide-react';
 import { LeitnerCard } from '@/types/leitner';
 import { useStudyTracker } from '@/components/study/StudyTrackerContext';
@@ -30,6 +30,25 @@ interface StoredPlan {
   reminderHour?: number;
 }
 
+const getInitialPlan = (): StoredPlan => {
+  if (typeof window === 'undefined') return {};
+  try {
+    return JSON.parse(localStorage.getItem(PLAN_STORAGE_KEY) || '{}') as StoredPlan;
+  } catch {
+    return {};
+  }
+};
+
+const getInitialQueue = (): string[] => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const queue = JSON.parse(localStorage.getItem(REVIEW_QUEUE_KEY) || '[]');
+    return Array.isArray(queue) ? queue.filter((id): id is string => typeof id === 'string') : [];
+  } catch {
+    return [];
+  }
+};
+
 const startOfDay = (value: Date) => new Date(value.getFullYear(), value.getMonth(), value.getDate());
 const startOfWeek = (value: Date) => {
   const date = startOfDay(value);
@@ -41,15 +60,29 @@ const formatMinutes = (seconds: number) => `${String(Math.floor(seconds / 60)).p
 export const StudyPlannerPanel: React.FC<StudyPlannerPanelProps> = ({ language, leitnerCards, onExamComplete, onOpenLeitnerBox }) => {
   const isFa = language === 'fa';
   const tracker = useStudyTracker();
-  const [dailyTarget, setDailyTarget] = useState(15);
-  const [weeklyTarget, setWeeklyTarget] = useState(75);
-  const [masteryTarget, setMasteryTarget] = useState(75);
-  const [reminderEnabled, setReminderEnabled] = useState(false);
-  const [reminderHour, setReminderHour] = useState(19);
-  const [isPlanLoaded, setIsPlanLoaded] = useState(false);
+  const [dailyTarget, setDailyTarget] = useState(() => {
+    const plan = getInitialPlan();
+    return typeof plan.dailyTarget === 'number' ? Math.max(5, Math.min(50, plan.dailyTarget)) : 15;
+  });
+  const [weeklyTarget, setWeeklyTarget] = useState(() => {
+    const plan = getInitialPlan();
+    return typeof plan.weeklyTarget === 'number' ? Math.max(25, Math.min(200, plan.weeklyTarget)) : 75;
+  });
+  const [masteryTarget, setMasteryTarget] = useState(() => {
+    const plan = getInitialPlan();
+    return typeof plan.masteryTarget === 'number' ? Math.max(50, Math.min(95, plan.masteryTarget)) : 75;
+  });
+  const [reminderEnabled, setReminderEnabled] = useState(() => {
+    const plan = getInitialPlan();
+    return typeof plan.reminderEnabled === 'boolean' ? plan.reminderEnabled : false;
+  });
+  const [reminderHour, setReminderHour] = useState(() => {
+    const plan = getInitialPlan();
+    return typeof plan.reminderHour === 'number' ? Math.max(0, Math.min(23, plan.reminderHour)) : 19;
+  });
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
   const [sessionMinutes, setSessionMinutes] = useState<number>(15);
-  const [queuedCardIds, setQueuedCardIds] = useState<string[]>([]);
+  const [queuedCardIds, setQueuedCardIds] = useState<string[]>(getInitialQueue);
   const [examCards, setExamCards] = useState<LeitnerCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
@@ -58,32 +91,21 @@ export const StudyPlannerPanel: React.FC<StudyPlannerPanelProps> = ({ language, 
   const [isExamComplete, setIsExamComplete] = useState(false);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [examSaved, setExamSaved] = useState(false);
+  const [referenceTimestamp] = useState(() => (typeof window !== 'undefined' ? Date.now() : 0));
+  const hasMountedRef = useRef(false);
 
   useEffect(() => {
-    try {
-      const plan = JSON.parse(localStorage.getItem(PLAN_STORAGE_KEY) || '{}') as StoredPlan;
-      if (typeof plan.dailyTarget === 'number') setDailyTarget(Math.max(5, Math.min(50, plan.dailyTarget)));
-      if (typeof plan.weeklyTarget === 'number') setWeeklyTarget(Math.max(25, Math.min(200, plan.weeklyTarget)));
-      if (typeof plan.masteryTarget === 'number') setMasteryTarget(Math.max(50, Math.min(95, plan.masteryTarget)));
-      if (typeof plan.reminderEnabled === 'boolean') setReminderEnabled(plan.reminderEnabled);
-      if (typeof plan.reminderHour === 'number') setReminderHour(Math.max(0, Math.min(23, plan.reminderHour)));
-      const queue = JSON.parse(localStorage.getItem(REVIEW_QUEUE_KEY) || '[]');
-      if (Array.isArray(queue)) setQueuedCardIds(queue.filter((id): id is string => typeof id === 'string'));
-    } catch {
-      // Defaults keep the planner usable when browser storage is unavailable.
-    } finally {
-      setIsPlanLoaded(true);
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return;
     }
-  }, []);
-
-  useEffect(() => {
-    if (!isPlanLoaded) return;
     localStorage.setItem(PLAN_STORAGE_KEY, JSON.stringify({ dailyTarget, weeklyTarget, masteryTarget, reminderEnabled, reminderHour }));
-  }, [dailyTarget, isPlanLoaded, masteryTarget, reminderEnabled, reminderHour, weeklyTarget]);
+  }, [dailyTarget, masteryTarget, reminderEnabled, reminderHour, weeklyTarget]);
 
   useEffect(() => {
-    if (isPlanLoaded) localStorage.setItem(REVIEW_QUEUE_KEY, JSON.stringify(queuedCardIds.slice(-100)));
-  }, [isPlanLoaded, queuedCardIds]);
+    if (!hasMountedRef.current) return;
+    localStorage.setItem(REVIEW_QUEUE_KEY, JSON.stringify(queuedCardIds.slice(-100)));
+  }, [queuedCardIds]);
 
   useEffect(() => {
     if (!reminderEnabled || !('Notification' in window) || Notification.permission !== 'granted') return;
@@ -116,9 +138,9 @@ export const StudyPlannerPanel: React.FC<StudyPlannerPanelProps> = ({ language, 
   }, [tracker.studyState.itemRecords]);
 
   const dueCards = useMemo(() => {
-    const now = Date.now();
+    const now = referenceTimestamp || 0;
     return leitnerCards.filter((card) => !card.nextReviewDate || Number.isNaN(new Date(card.nextReviewDate).getTime()) || new Date(card.nextReviewDate).getTime() <= now);
-  }, [leitnerCards]);
+  }, [leitnerCards, referenceTimestamp]);
 
   const topics = useMemo(() => {
     const stats = new Map<string, { cards: LeitnerCard[]; incorrect: number; reviewed: number }>();
@@ -179,12 +201,25 @@ export const StudyPlannerPanel: React.FC<StudyPlannerPanelProps> = ({ language, 
     persistExam(examCards, correctCount, timeLeft);
   }, [correctCount, examCards, persistExam, timeLeft]);
 
+  const finishExamRef = useRef(finishExam);
+  useEffect(() => {
+    finishExamRef.current = finishExam;
+  }, [finishExam]);
+
   useEffect(() => {
     if (!isExamRunning || timeLeft <= 0) return;
-    const timer = window.setInterval(() => setTimeLeft((value) => Math.max(0, value - 1)), 1000);
+    const timer = window.setInterval(() => {
+      setTimeLeft((value) => {
+        if (value <= 1) {
+          window.clearInterval(timer);
+          finishExamRef.current();
+          return 0;
+        }
+        return value - 1;
+      });
+    }, 1000);
     return () => window.clearInterval(timer);
   }, [isExamRunning, timeLeft]);
-  useEffect(() => { if (isExamRunning && timeLeft === 0) finishExam(); }, [finishExam, isExamRunning, timeLeft]);
 
   const startSession = (minutes = sessionMinutes) => {
     const config = SESSION_OPTIONS.find((option) => option.minutes === minutes) || SESSION_OPTIONS[1];

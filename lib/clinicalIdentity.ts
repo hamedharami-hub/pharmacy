@@ -47,27 +47,26 @@ export const diseaseIdentityId = (disease: Pick<DiseaseInfo, 'id'>) => `disease:
 
 const unique = (values: string[]) => Array.from(new Set(values.filter(Boolean)));
 
-export const MEDICINE_IDENTITIES: MedicineIdentity[] = Array.from(
-  new Map(SHELF_PRODUCTS.map((product) => {
-    const id = medicineIdentityId(product);
-    const existing = new Map<string, MedicineIdentity>().get(id);
-    return [id, {
+const medicineMap = new Map<string, MedicineIdentity>();
+for (const product of SHELF_PRODUCTS) {
+  const id = medicineIdentityId(product);
+  const existing = medicineMap.get(id);
+  const productAliases = [product.genericName, product.activeIngredients, product.brandName, ...(product.equivalentBrands || [])];
+  if (existing) {
+    existing.productIds = unique([...existing.productIds, product.id]);
+    existing.aliases = unique([...existing.aliases, ...productAliases]);
+  } else {
+    medicineMap.set(id, {
       id,
       canonicalName: canonicalMedicineName(product),
       displayName: product.genericName,
-      aliases: unique([product.genericName, product.activeIngredients, product.brandName, ...(product.equivalentBrands || [])]),
+      aliases: unique(productAliases),
       productIds: [product.id],
-    } satisfies MedicineIdentity];
-  })).values()
-);
-
-// Merge products that resolve to the same medicine identity while preserving every product source id.
-for (const product of SHELF_PRODUCTS) {
-  const medicine = MEDICINE_IDENTITIES.find((item) => item.id === medicineIdentityId(product));
-  if (!medicine) continue;
-  medicine.productIds = unique([...medicine.productIds, product.id]);
-  medicine.aliases = unique([...medicine.aliases, product.genericName, product.activeIngredients, product.brandName, ...(product.equivalentBrands || [])]);
+    });
+  }
 }
+
+export const MEDICINE_IDENTITIES: MedicineIdentity[] = Array.from(medicineMap.values());
 
 export const CLINICAL_IDENTITY_ALIASES: IdentityAlias[] = [
   ...DISEASES_REGISTRY.flatMap((disease) => [disease.name.en, disease.name.fa, disease.id, ...disease.synonyms].map((alias) => ({

@@ -3349,7 +3349,7 @@ export const SHELF_PRODUCTS: Product[] = [
     ],
   },
   {
-    id: 'prod-ventolin-inhaler',
+    id: 'prod-ventolin-asmol-100',
     brandName: 'Ventolin / Asmol 100mcg CFC-Free Inhaler',
     genericName: 'Salbutamol Sulfate 100mcg/actuation',
     activeIngredients: 'Salbutamol sulfate 100 micrograms per metered actuation',
@@ -3445,7 +3445,7 @@ export const SHELF_PRODUCTS: Product[] = [
 
   // Gastrointestinal: GORD & Reflux (sub-1-4 Gastrointestinal)
   {
-    id: 'prod-nexium-24hr',
+    id: 'prod-nexium-24hr-28tab',
     brandName: 'Nexium 24HR 20mg Tablets',
     genericName: 'Esomeprazole 20mg (as magnesium trihydrate)',
     activeIngredients: 'Esomeprazole 20mg enteric-coated tablets',

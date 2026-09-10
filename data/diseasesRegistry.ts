@@ -297,7 +297,7 @@ const CORE_CLINICAL_DISEASES: DiseaseInfo[] = [
       'Maintain an up-to-date Written Asthma Action Plan.'
     ],
     clinicalNotes: ['If patient uses SABA >2 days per week (excluding pre-exercise), asthma is poorly controlled and requires GP review for preventer step-up.'],
-    relatedShelfProducts: ['prod-ventolin-s3', 'prod-spacer-device'],
+    relatedShelfProducts: ['prod-ventolin-inhaler'],
   },
   {
     id: 'dis-copd',
@@ -381,7 +381,7 @@ const CORE_CLINICAL_DISEASES: DiseaseInfo[] = [
       'Avoid sudden exposure to cold air and indoor smoke/pollutants.'
     ],
     clinicalNotes: ['Patients with frequent exacerbations require triple therapy (ICS/LABA/LAMA) under specialist/GP guidance.'],
-    relatedShelfProducts: ['prod-spiriva-s4', 'prod-nicorette-gum'],
+    relatedShelfProducts: ['prod-ventolin-inhaler', 'prod-nicorette-gum-4mg'],
   },
   {
     id: 'dis-hypertension',
@@ -1098,7 +1098,7 @@ const CORE_CLINICAL_DISEASES: DiseaseInfo[] = [
       'Avoid NO-HARM: No Heat, No Alcohol, No Running/Exercise, No Massage in the first 48-72 hours.'
     ],
     clinicalNotes: ['Topical NSAIDs have comparable efficacy to oral NSAIDs for acute sprains with significantly reduced systemic GI adverse effects.'],
-    relatedShelfProducts: ['prod-voltaren-gel', 'prod-panadol-500'],
+    relatedShelfProducts: ['prod-voltaren-rapid-25', 'prod-panadol-500', 'prod-panadol-osteo'],
   },
   {
     id: 'dis-osteoporosis',

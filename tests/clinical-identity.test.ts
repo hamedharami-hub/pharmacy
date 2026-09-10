@@ -30,10 +30,10 @@ describe('clinical canonical identities', () => {
     expect(genericMatches.some((match) => match.entityId.startsWith('medicine:'))).toBe(true);
   });
 
-  it('reports duplicate source products without collapsing their study records', () => {
+  it('verifies that all product source ids are unique without duplicates', () => {
     const stats = getIdentityStats();
     expect(stats.products).toBeGreaterThan(0);
     expect(stats.medicines).toBeGreaterThan(0);
-    expect(stats.duplicateProductSourceIds).toBe(2);
+    expect(stats.duplicateProductSourceIds).toBe(0);
   });
 });
