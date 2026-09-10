@@ -48,7 +48,7 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
   onOpenAiLeitner,
 }) => {
   const isFa = language === 'fa';
-  const { markItemViewed, setItemCompleted, getItemFlag, setItemFlag } = useStudyTrackerContext();
+  const { markItemViewed, setItemCompleted, getItemFlag, setItemFlag, isViewed } = useStudyTrackerContext();
 
   // Mode and scenario state
   const [selectedConversationMode, setSelectedConversationMode] = useState<ConversationMode | 'ALL'>('MODE_B_SLANG');
@@ -56,6 +56,7 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [scenarioSearchTerm, setScenarioSearchTerm] = useState('');
   const [isBrowseOpen, setIsBrowseOpen] = useState(false);
+  const [unreadOnly, setUnreadOnly] = useState(false);
 
   // Current active scenario
   const scenario = useMemo(() => {
@@ -160,8 +161,9 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
           s.category.en.toLowerCase().includes(term)
       );
     }
+    if (unreadOnly) list = list.filter((s) => !isViewed(`otc:${s.id}`));
     return list;
-  }, [selectedConversationMode, scenarioSearchTerm]);
+  }, [selectedConversationMode, scenarioSearchTerm, unreadOnly, isViewed]);
 
   // Linked handbook disease
   const linkedHandbookDisease = useMemo(() => {
@@ -528,7 +530,12 @@ REFERRING PHARMACIST:
         modeCCount={modeCCount}
       />
       <div className="flex items-center justify-between gap-2 px-1 text-[11px]">
-        <span className="app-muted">{isFa ? 'وضعیت سناریو' : 'Scenario status'}</span>
+        <div className="flex items-center gap-1.5">
+          <span className="app-muted">{isFa ? `${OTC_SCENARIOS.length} سناریو` : `${OTC_SCENARIOS.length} scenarios`}</span>
+          <button type="button" onClick={() => setUnreadOnly((value) => !value)} aria-pressed={unreadOnly} className={`px-2 py-1 rounded-lg border font-bold ${unreadOnly ? 'bg-indigo-600 text-white border-indigo-500' : 'app-bg app-muted app-border'}`}>
+            {isFa ? `نخوانده (${OTC_SCENARIOS.filter((s) => !isViewed(`otc:${s.id}`)).length})` : `Unread (${OTC_SCENARIOS.filter((s) => !isViewed(`otc:${s.id}`)).length})`}
+          </button>
+        </div>
         <button
           type="button"
           onClick={() => {

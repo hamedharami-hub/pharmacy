@@ -5,7 +5,7 @@ import { StudyCatalogItem, MainStudyModuleId } from '@/types/studyTrack';
 
 const moduleNumber = (moduleId: string): MainStudyModuleId => Number(moduleId.replace('mod', '')) as MainStudyModuleId;
 
-export const STUDY_CATALOG: StudyCatalogItem[] = [
+const RAW_STUDY_CATALOG: StudyCatalogItem[] = [
   ...ALL_PHARMACY_CARDS.map((card) => ({
     id: card.id,
     type: 'topic' as const,
@@ -29,7 +29,17 @@ export const STUDY_CATALOG: StudyCatalogItem[] = [
   })),
 ];
 
+// FRED/Dispense is intentionally excluded. Deduplication prevents duplicate
+// shelf records from sharing one viewed or flag key.
+export const STUDY_CATALOG: StudyCatalogItem[] = Array.from(
+  new Map(RAW_STUDY_CATALOG.map((item) => [item.id, item])).values()
+);
+
 export const STUDY_CATALOG_BY_ID = new Map(STUDY_CATALOG.map((item) => [item.id, item]));
+
+export function getCatalogItems(moduleId?: MainStudyModuleId) {
+  return moduleId ? STUDY_CATALOG.filter((item) => item.moduleId === moduleId) : STUDY_CATALOG;
+}
 
 export function getCatalogStats(state: {
   viewedMap: Record<string, boolean>;
@@ -37,7 +47,7 @@ export function getCatalogStats(state: {
   flagMap: Record<string, string>;
 }) {
   return [1, 2, 3, 4, 5, 6].map((moduleId) => {
-    const items = STUDY_CATALOG.filter((item) => item.moduleId === moduleId);
+    const items = getCatalogItems(moduleId as MainStudyModuleId);
     const completed = items.filter((item) => state.completedMap[item.id]).length;
     const viewed = items.filter((item) => state.viewedMap[item.id]).length;
     const flagged = items.filter((item) => state.flagMap[item.id]).length;
@@ -47,6 +57,7 @@ export function getCatalogStats(state: {
       completed,
       viewed,
       flagged,
+      unread: items.length - viewed,
       completionPct: items.length ? Math.round((completed / items.length) * 100) : 0,
     };
   });

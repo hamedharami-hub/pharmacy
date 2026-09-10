@@ -304,6 +304,29 @@ export function useStudyTracker({ user, initialCloudState }: UseStudyTrackerProp
     [studyState.completedMap]
   );
 
+  /** Explicitly sets the independent read/viewed state without changing mastery. */
+  const setItemViewed = useCallback(
+    (moduleId: MainStudyModuleId, itemId: string, viewed: boolean) => {
+      if (!itemId) return;
+      const now = new Date().toISOString();
+      commitState((prev) => ({
+        ...prev,
+        viewedMap: { ...prev.viewedMap, [itemId]: viewed },
+        itemRecords: {
+          ...prev.itemRecords,
+          [itemId]: {
+            ...(prev.itemRecords[itemId] || { completed: !!prev.completedMap[itemId], moduleId }),
+            viewed,
+            viewedAt: viewed ? (prev.itemRecords[itemId]?.viewedAt || now) : undefined,
+            moduleId,
+          },
+        },
+        updatedAt: now,
+      }));
+    },
+    [commitState]
+  );
+
   const setItemFlag = useCallback(
     (itemId: string, flag: FlagColor) => {
       if (!itemId) return;
@@ -376,6 +399,7 @@ export function useStudyTracker({ user, initialCloudState }: UseStudyTrackerProp
     setItemCompleted,
     isViewed,
     isCompleted,
+    setItemViewed,
     setItemFlag,
     getItemFlag,
     getLastStudied,

@@ -46,6 +46,7 @@ const DEFAULT_FALLBACK_TRACKER: StudyTrackerContextValue = {
   setItemCompleted: () => {},
   isViewed: () => false,
   isCompleted: () => false,
+  setItemViewed: () => {},
   setItemFlag: () => {},
   getItemFlag: () => null,
   getLastStudied: () => null,

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence, type Variants } from 'motion/react';
 import {
@@ -138,7 +138,8 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
   onOpenAiLeitner,
 }) => {
   const isFa = language === 'fa';
-  const { getLastStudied } = useStudyTrackerContext();
+  const { getLastStudied, isViewed } = useStudyTrackerContext();
+  const [unreadOnly, setUnreadOnly] = useState(false);
   const lastStudiedInMod4 = getLastStudied(4);
 
   // Category chips: First chip is "نرم‌افزار" (Fred Dispense), second is "ماتریس CYP450", then other clinical categories
@@ -167,6 +168,7 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
     if (activeCategory !== 'ALL' && item.category[language] !== activeCategory) return false;
     if (flagFilter !== 'ALL' && flags[item.id] !== flagFilter) return false;
     if (activeMode === 'flagged' && !flags[item.id]) return false;
+    if (unreadOnly && isViewed(item.id)) return false;
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -178,6 +180,8 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
 
     return true;
   });
+  const knowledgeCards = ALL_PHARMACY_CARDS.filter((item) => !deleted.includes(item.id) && item.module !== 'mod3');
+  const unreadCount = knowledgeCards.filter((item) => !isViewed(item.id)).length;
 
   return (
     <div className="space-y-5">
@@ -257,6 +261,9 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
         {activeModule !== 'software' && activeModule !== 'cyp_matrix' && (
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar text-[10px]">
             <span className="app-muted font-semibold whitespace-nowrap">{isFa ? 'فلگ:' : 'Flags:'}</span>
+            <button type="button" onClick={() => setUnreadOnly((value) => !value)} aria-pressed={unreadOnly} className={`shrink-0 rounded-full border px-2 py-1 font-bold transition ${unreadOnly ? 'bg-indigo-600 text-white border-indigo-500' : 'app-bg app-muted app-border'}`}>
+              {isFa ? `نخوانده‌ها (${unreadCount})` : `Unread (${unreadCount})`}
+            </button>
             {(['ALL', 'red', 'yellow', 'green', 'blue'] as const).map((color) => {
               const selected = flagFilter === color;
               const colorClass = color === 'red' ? 'bg-rose-500' : color === 'yellow' ? 'bg-amber-400' : color === 'green' ? 'bg-emerald-500' : 'bg-sky-400';

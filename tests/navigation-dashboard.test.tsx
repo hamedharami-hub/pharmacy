@@ -56,6 +56,22 @@ describe('mobile navigation', () => {
     expect(onSelectModule).toHaveBeenCalledWith(4);
     expect(screen.getByRole('button', { name: 'تریاژ' })).toHaveAttribute('aria-current', 'page');
   });
+
+  it('keeps an app-like fixed bottom bar at narrow and wide viewport widths', () => {
+    const { container } = render(<BottomNav language="en" activeModule={2} onSelectModule={vi.fn()} />);
+    const nav = container.querySelector('nav');
+    expect(nav).toHaveClass('fixed', 'bottom-0', 'md:hidden');
+    expect(nav?.querySelectorAll('button')).toHaveLength(4);
+    expect(Array.from(nav?.querySelectorAll('button') || []).every((button) => button.className.includes('h-11'))).toBe(true);
+
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 360, writable: true });
+    window.dispatchEvent(new Event('resize'));
+    expect(nav).toHaveClass('inset-x-0');
+
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 768, writable: true });
+    window.dispatchEvent(new Event('resize'));
+    expect(nav).toHaveClass('md:hidden');
+  });
 });
 
 describe('progress dashboard', () => {

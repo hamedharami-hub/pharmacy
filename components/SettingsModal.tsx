@@ -8,6 +8,7 @@ import { User } from '@/lib/firebase';
 import { getAiRequestHeaders } from '@/lib/aiClient';
 import { useStudyTracker } from '@/components/study/StudyTrackerContext';
 import { StudyMasteryDashboard } from '@/components/analytics/StudyMasteryDashboard';
+import { DEFAULT_FLAG_DEFINITIONS, FlagDefinitions, getFlagDefinitions, saveFlagDefinitions } from '@/lib/flagDefinitions';
 import {
   Settings,
   X,
@@ -49,6 +50,7 @@ import {
   Info,
   Heart,
   TrendingUp,
+  Flag,
 } from 'lucide-react';
 
 interface SettingsModalProps {
@@ -103,6 +105,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const isFa = language === 'fa';
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMounted = React.useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const [flagDefinitions, setFlagDefinitions] = useState<FlagDefinitions>(DEFAULT_FLAG_DEFINITIONS);
+
+  useEffect(() => {
+    setFlagDefinitions(getFlagDefinitions());
+  }, []);
+
+  const updateFlagDefinition = (color: keyof FlagDefinitions, field: 'label' | 'description', value: string) => {
+    setFlagDefinitions((current) => ({
+      ...current,
+      [color]: { ...current[color], [field]: value },
+    }));
+  };
 
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
@@ -1139,7 +1153,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* TAB 2: GENERAL SETTINGS */}
         {activeTab === 'general' && (
-          <div className="space-y-4">
+            <div className="space-y-4">
+
+            <div className="p-3.5 rounded-2xl app-card border app-border space-y-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-xs font-black app-text">{isFa ? 'تعریف فلگ‌های مطالعه' : 'Study flag definitions'}</h3>
+                  <p className="text-[10px] app-muted">{isFa ? 'عنوان و کاربرد هر رنگ را برای همه ماژول‌ها تنظیم کنید.' : 'Customize the meaning of each flag across every module.'}</p>
+                </div>
+                <Flag className="w-4 h-4 text-rose-400" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {(Object.keys(flagDefinitions) as Array<keyof FlagDefinitions>).map((color) => (
+                  <div key={color} className="rounded-xl border app-border p-2 space-y-1.5">
+                    <label className={`text-[10px] font-bold capitalize text-${color}-400`}>{color}</label>
+                    <input value={flagDefinitions[color].label} onChange={(e) => updateFlagDefinition(color, 'label', e.target.value)} className="w-full rounded-lg px-2 py-1 text-xs app-bg app-text border app-border" aria-label={`${color} flag label`} />
+                    <input value={flagDefinitions[color].description} onChange={(e) => updateFlagDefinition(color, 'description', e.target.value)} className="w-full rounded-lg px-2 py-1 text-[10px] app-bg app-muted border app-border" aria-label={`${color} flag description`} />
+                  </div>
+                ))}
+              </div>
+              <button type="button" onClick={() => saveFlagDefinitions(flagDefinitions)} className="w-full rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold py-2 transition">
+                {isFa ? 'ذخیره تعریف فلگ‌ها' : 'Save flag definitions'}
+              </button>
+            </div>
             
             {/* TODAY'S STUDY ACTIVITY & PROGRESS CARD */}
             <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-950/35 via-slate-900 to-indigo-950/35 border border-amber-500/30 space-y-2.5 shadow-md">

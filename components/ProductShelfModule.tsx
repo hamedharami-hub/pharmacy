@@ -164,6 +164,7 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
   // Main View Switcher ('shelf' | 'diseases' | 'matrices')
   const [activeShelfView, setActiveShelfView] = useState<'shelf' | 'diseases' | 'matrices'>('shelf');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [unreadOnly, setUnreadOnly] = useState(false);
   const [isProjectStopOpen, setIsProjectStopOpen] = useState(false);
 
   // PSA S3 Protocol Modal State
@@ -368,9 +369,12 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
     }
   };
 
+  const { studyState, markItemViewed, getItemFlag, setItemFlag } = useStudyTrackerContext();
+
   // Products Filtering & Sorting Engine
   const filteredProducts = useMemo(() => {
     return SHELF_PRODUCTS.filter((prod) => {
+      if (unreadOnly && studyState?.viewedMap[`shelf:${prod.id}`]) return false;
       // Schedule top tab
       if (selectedSchedule !== 'ALL' && prod.schedule !== selectedSchedule) return false;
 
@@ -487,11 +491,13 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
     selectedSubCatId,
     sortOrder,
     searchQuery,
+    unreadOnly,
+    studyState?.viewedMap,
   ]);
 
   const isMobile = useIsMobile();
   const [isMobileSelectorCollapsed, setIsMobileSelectorCollapsed] = useState(false);
-  const { studyState, markItemViewed, getItemFlag, setItemFlag } = useStudyTrackerContext();
+  const shelfUnreadCount = SHELF_PRODUCTS.filter((prod) => !studyState?.viewedMap[`shelf:${prod.id}`]).length;
   const activeSearchValue =
     activeShelfView === 'shelf'
       ? searchQuery
@@ -903,14 +909,19 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
                         </h3>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => setIsGroupingAccordionOpen((prev) => !prev)}
-                        className="text-xs px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold transition flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <Filter className="w-3.5 h-3.5 text-sky-400" />
-                        <span>{isFa ? 'مرتب‌سازی و فیلترها' : 'Sorting & Filters'}</span>
-                      </button>
+                      <div className="flex items-center gap-1.5">
+                        <button type="button" onClick={() => setUnreadOnly((value) => !value)} aria-pressed={unreadOnly} className={`text-[10px] px-2 py-1.5 rounded-xl border font-bold transition ${unreadOnly ? 'bg-indigo-600 text-white border-indigo-500' : 'app-bg app-muted app-border'}`}>
+                          {isFa ? `نخوانده (${shelfUnreadCount})` : `Unread (${shelfUnreadCount})`}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsGroupingAccordionOpen((prev) => !prev)}
+                          className="text-xs px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold transition flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Filter className="w-3.5 h-3.5 text-sky-400" />
+                          <span>{isFa ? 'مرتب‌سازی و فیلترها' : 'Sorting & Filters'}</span>
+                        </button>
+                      </div>
                     </div>
 
                     {isGroupingAccordionOpen && (
