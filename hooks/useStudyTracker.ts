@@ -117,6 +117,7 @@ export function useStudyTracker({ user, initialCloudState }: UseStudyTrackerProp
       const now = new Date().toISOString();
 
       commitState((prev) => {
+        if (prev.viewedMap[itemId] && prev.itemRecords[itemId]?.viewed) return prev;
         const currentRecord = prev.itemRecords[itemId] || {
           viewed: false,
           completed: false,
@@ -246,6 +247,7 @@ export function useStudyTracker({ user, initialCloudState }: UseStudyTrackerProp
       const now = new Date().toISOString();
 
       commitState((prev) => {
+        if (prev.completedMap[itemId] === completed && prev.viewedMap[itemId]) return prev;
         const currentRecord = prev.itemRecords[itemId] || {
           viewed: true,
           completed: false,
@@ -309,7 +311,9 @@ export function useStudyTracker({ user, initialCloudState }: UseStudyTrackerProp
     (moduleId: MainStudyModuleId, itemId: string, viewed: boolean) => {
       if (!itemId) return;
       const now = new Date().toISOString();
-      commitState((prev) => ({
+      commitState((prev) => {
+        if (prev.viewedMap[itemId] === viewed) return prev;
+        return {
         ...prev,
         viewedMap: { ...prev.viewedMap, [itemId]: viewed },
         itemRecords: {
@@ -322,7 +326,8 @@ export function useStudyTracker({ user, initialCloudState }: UseStudyTrackerProp
           },
         },
         updatedAt: now,
-      }));
+        };
+      });
     },
     [commitState]
   );
@@ -331,6 +336,7 @@ export function useStudyTracker({ user, initialCloudState }: UseStudyTrackerProp
     (itemId: string, flag: FlagColor) => {
       if (!itemId) return;
       commitState((prev) => {
+        if ((prev.flagMap[itemId] || null) === flag) return prev;
         const nextFlags = { ...prev.flagMap };
         if (flag) nextFlags[itemId] = flag;
         else delete nextFlags[itemId];

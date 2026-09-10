@@ -2,6 +2,8 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { BottomNav } from '@/components/BottomNav';
+import { StatsBar } from '@/components/StatsBar';
+import { SettingsModal } from '@/components/SettingsModal';
 
 vi.mock('next/dynamic', () => ({
   default: () => () => null,
@@ -11,6 +13,14 @@ vi.mock('@/components/study/StudyTrackerContext', () => ({
   useStudyTracker: () => ({
     studyState: { viewedMap: {}, completedMap: {}, flagMap: {} },
   }),
+  useStudyTrackerContext: () => ({
+    isLoaded: true,
+    getOverallStats: () => ({ viewedCount: 4, completedCount: 12, flaggedCount: 3 }),
+  }),
+}));
+
+vi.mock('@/lib/firebase', () => ({
+  saveFlagDefinitionsToFirestore: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('recharts', () => {
@@ -75,6 +85,41 @@ describe('mobile navigation', () => {
 });
 
 describe('progress dashboard', () => {
+  it('renders the modern stats cards with values and analytics affordances', () => {
+    render(<StatsBar language="en" totalCards={189} reviewedCount={0} flaggedCount={0} quizScorePct={86} onOpenAnalytics={vi.fn()} />);
+
+    expect(screen.getByText('Study Progress')).toBeInTheDocument();
+    expect(screen.getByText('189')).toBeInTheDocument();
+    expect(screen.getByText('Flagged Notes')).toBeInTheDocument();
+    expect(screen.getByText('86%')).toBeInTheDocument();
+    expect(screen.getAllByRole('button')).toHaveLength(4);
+  });
+
+  it('renders editable flag settings fields in Settings', () => {
+    render(
+      <SettingsModal
+        language="en"
+        theme="day"
+        onSetTheme={vi.fn()}
+        fontSize="md"
+        onSetFontSize={vi.fn()}
+        layoutMode="window-grid"
+        onChangeLayoutMode={vi.fn()}
+        onReset={vi.fn()}
+        userProgress={{ flags: {}, deleted: [], customEdits: {}, reviewedCards: {}, quizScores: {}, savedNotes: {} }}
+        onImportProgress={vi.fn()}
+        onClose={vi.fn()}
+        aiConfig={{ preferredProvider: 'gemini', geminiApiKey: '', groqApiKey: '', flashcardModel: '', tutorModel: '', temperature: 0.7, customModels: [] }}
+        onSaveAiConfig={vi.fn()}
+      />
+    );
+
+    expect(screen.getByRole('heading', { name: 'Study flag definitions' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'red flag label' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'blue flag description' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save & sync flags' })).toBeInTheDocument();
+  });
+
   it('renders KPI summary and responsive chart tabs', async () => {
     const { StudyMasteryDashboard } = await import('@/components/analytics/StudyMasteryDashboard');
     render(
