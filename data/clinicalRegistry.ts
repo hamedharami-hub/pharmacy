@@ -13,6 +13,7 @@ import {
   productIdentityId,
 } from '@/lib/clinicalIdentity';
 import { TRIAGE_CLINICAL_LINKS } from '@/lib/triageClinicalLinks';
+import { KNOWLEDGE_CLINICAL_LINKS } from '@/lib/knowledgeClinicalLinks';
 
 export type ClinicalEntityType =
   | 'disease'
@@ -195,6 +196,15 @@ SHELF_PRODUCTS.forEach((product) => addRelation({
   type: 'has-medicine',
   confidence: 'verified',
   source: 'Product.genericName canonical identity',
+}));
+
+KNOWLEDGE_CLINICAL_LINKS.forEach((link) => addRelation({
+  fromId: link.fromId,
+  toId: link.toId,
+  type: link.type,
+  confidence: link.confidence,
+  source: link.source,
+  reason: link.reason,
 }));
 
 export const CLINICAL_RELATIONS = relations;

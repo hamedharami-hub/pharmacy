@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { haptic } from '@/lib/haptics';
 import { StudyFlagButton } from '@/components/study/StudyFlagButton';
+import { ClinicalRelationsPanel } from '@/components/ClinicalRelationsPanel';
 
 export interface CypInteractionMatrixPanelProps {
   language: Language;
@@ -83,6 +84,7 @@ export const CypInteractionMatrixPanel: React.FC<CypInteractionMatrixPanelProps>
     }
     return [CYP_ENZYMES_DATABASE[activeEnzyme]];
   }, [activeEnzyme]);
+  const activeCypEntityId = activeEnzyme === 'ALL' ? null : `cyp:${activeEnzyme}`;
 
   // Filtered drug items based on search and type
   const filterDrugEntries = (entries: CypDrugEntry[]) => {
@@ -376,6 +378,7 @@ export const CypInteractionMatrixPanel: React.FC<CypInteractionMatrixPanelProps>
       </div>
 
       {/* 4. ENZYME PROFILES & DRUG MATRICES */}
+      {activeCypEntityId && <ClinicalRelationsPanel entityId={activeCypEntityId} language={language} />}
       <div className="space-y-6">
         {currentEnzymes.map((profile) => {
           const filteredInhibitors = filterDrugEntries(profile.inhibitors);

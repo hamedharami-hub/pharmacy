@@ -6,6 +6,7 @@ import { DrugMechanismInfo, getProductMechanism } from '@/data/mechanismsRegistr
 import { Language } from '@/types/pharmacy';
 import { Dna, FlaskConical, Target, Zap, Lightbulb, Pill, Layers, X } from 'lucide-react';
 import { StudyFlagButton } from '@/components/study/StudyFlagButton';
+import { ClinicalRelationsPanel } from '@/components/ClinicalRelationsPanel';
 
 interface DrugMechanismModalProps {
   selectedMechanismInfo: DrugMechanismInfo | null;
@@ -97,6 +98,10 @@ export const DrugMechanismModal: React.FC<DrugMechanismModalProps> = ({
               {isFa ? selectedMechanismInfo.descriptionFa : selectedMechanismInfo.descriptionEn}
             </p>
           </div>
+          <ClinicalRelationsPanel
+            entityId={`mechanism:${selectedMechanismInfo.classCode}`}
+            language={language}
+          />
 
           {/* Target & Effect in a concise 2-column strip */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
