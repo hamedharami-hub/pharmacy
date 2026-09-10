@@ -6,6 +6,12 @@ import { DRUG_MECHANISMS_REGISTRY } from '@/data/mechanismsRegistry';
 import { CLINICAL_CONCEPTS_REGISTRY } from '@/data/shelf/clinicalConcepts';
 import { getConceptsForProduct } from '@/data/shelf/diseaseHelpers';
 import { ClinicalConcept, Product } from '@/types/shelf';
+import {
+  diseaseIdentityId,
+  getProductMedicineId,
+  MEDICINE_IDENTITIES,
+  productIdentityId,
+} from '@/lib/clinicalIdentity';
 
 export type ClinicalEntityType =
   | 'disease'
@@ -68,7 +74,7 @@ const localized = (en: string, fa = en): LocalizedText => ({ en, fa });
 
 export const CLINICAL_ENTITIES: ClinicalEntity[] = [
   ...DISEASES_REGISTRY.map((disease) => ({
-    id: `disease:${disease.id}`,
+    id: diseaseIdentityId(disease),
     type: 'disease' as const,
     title: disease.name,
     source: 'data/diseasesRegistry.ts',
@@ -77,13 +83,21 @@ export const CLINICAL_ENTITIES: ClinicalEntity[] = [
     metadata: { hasOtcTreatment: Boolean(disease.treatment.otcOptions.en), hasShelfLinks: Boolean(disease.relatedShelfProducts?.length) },
   })),
   ...SHELF_PRODUCTS.map((product) => ({
-    id: `product:${product.id}`,
+    id: productIdentityId(product),
     type: 'product' as const,
     title: localized(product.brandName),
     source: 'data/shelf/shelfProducts.ts',
     sourceId: product.id,
     category: product.subcategoryId,
-    metadata: { genericName: product.genericName, schedule: product.schedule },
+    metadata: { genericName: product.genericName, medicineId: getProductMedicineId(product), schedule: product.schedule },
+  })),
+  ...MEDICINE_IDENTITIES.map((medicine) => ({
+    id: medicine.id,
+    type: 'medicine' as const,
+    title: { fa: medicine.displayName, en: medicine.displayName },
+    source: 'lib/clinicalIdentity.ts',
+    sourceId: medicine.id,
+    metadata: { productCount: medicine.productIds.length, aliasCount: medicine.aliases.length },
   })),
   ...OTC_SCENARIOS.map((scenario) => ({
     id: `triage:${scenario.id}`,
@@ -136,7 +150,7 @@ const addRelation = (relation: Omit<ClinicalRelation, 'id'>) => {
 DISEASES_REGISTRY.forEach((disease) => {
   (disease.relatedShelfProducts || []).forEach((productId) => {
     if (CLINICAL_ENTITY_BY_ID.has(`product:${productId}`)) {
-      addRelation({ fromId: `disease:${disease.id}`, toId: `product:${productId}`, type: 'has-product', confidence: 'verified', source: 'DiseaseInfo.relatedShelfProducts' });
+      addRelation({ fromId: diseaseIdentityId(disease), toId: productIdentityId({ id: productId } as Product), type: 'has-product', confidence: 'verified', source: 'DiseaseInfo.relatedShelfProducts' });
     }
   });
 });
@@ -147,11 +161,11 @@ SHELF_PRODUCTS.forEach((product) => {
   DISEASES_REGISTRY.forEach((disease) => {
     const terms = [disease.id.replace(/^(otc|dis)-/, '').replaceAll('_', ' '), ...disease.synonyms.map(normalize)].filter((term) => term.length >= 4);
     if (terms.some((term) => productText.includes(term))) {
-      addRelation({ fromId: `product:${product.id}`, toId: `disease:${disease.id}`, type: 'used-for', confidence: 'suggested', source: 'product indications and disease names', reason: 'Normalized term match; requires clinical review.' });
+      addRelation({ fromId: productIdentityId(product), toId: diseaseIdentityId(disease), type: 'used-for', confidence: 'suggested', source: 'product indications and disease names', reason: 'Normalized term match; requires clinical review.' });
     }
   });
   getConceptsForProduct(product).forEach((concept) => addRelation({
-    fromId: `product:${product.id}`, toId: `concept:${concept.id}`, type: 'explains', confidence: 'suggested', source: 'getConceptsForProduct', reason: 'Explicit conceptIds or keyword detection.'
+    fromId: productIdentityId(product), toId: `concept:${concept.id}`, type: 'explains', confidence: 'suggested', source: 'getConceptsForProduct', reason: 'Explicit conceptIds or keyword detection.'
   }));
 });
 
@@ -161,7 +175,7 @@ OTC_SCENARIOS.forEach((scenario) => {
   DISEASES_REGISTRY.forEach((disease) => {
     const terms = [disease.id.replace(/^(otc|dis)-/, '').replaceAll('_', ' '), disease.name.en, ...disease.synonyms.map(normalize)].map(normalize).filter((term) => term.length >= 4);
     if (terms.some((term) => scenarioText.includes(term))) {
-      addRelation({ fromId: `triage:${scenario.id}`, toId: `disease:${disease.id}`, type: 'triages', confidence: 'suggested', source: 'scenario text and disease terms', reason: 'Candidate link; requires clinical review.' });
+      addRelation({ fromId: `triage:${scenario.id}`, toId: diseaseIdentityId(disease), type: 'triages', confidence: 'suggested', source: 'scenario text and disease terms', reason: 'Candidate link; requires clinical review.' });
     }
   });
 });
@@ -171,8 +185,16 @@ SHELF_PRODUCTS.forEach((product) => {
   const mechanism = product.mechanism;
   if (!mechanism) return;
   const mechanismKey = Object.entries(DRUG_MECHANISMS_REGISTRY).find(([, value]) => value.classCode === mechanism.classCode)?.[0];
-  if (mechanismKey) addRelation({ fromId: `product:${product.id}`, toId: `mechanism:${mechanismKey}`, type: 'explains', confidence: 'verified', source: 'Product.mechanism.classCode' });
+  if (mechanismKey) addRelation({ fromId: productIdentityId(product), toId: `mechanism:${mechanismKey}`, type: 'explains', confidence: 'verified', source: 'Product.mechanism.classCode' });
 });
+
+SHELF_PRODUCTS.forEach((product) => addRelation({
+  fromId: productIdentityId(product),
+  toId: getProductMedicineId(product),
+  type: 'has-medicine',
+  confidence: 'verified',
+  source: 'Product.genericName canonical identity',
+}));
 
 export const CLINICAL_RELATIONS = relations;
 export const CLINICAL_RELATIONS_BY_FROM = new Map<string, ClinicalRelation[]>();
