@@ -4,7 +4,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { VisualTheme, FontSize, Language, UserProgress, LayoutMode, UserAiConfig, AiProvider, AiModelOption } from '@/types/pharmacy';
 import { LeitnerCard } from '@/types/leitner';
-import { User } from '@/lib/firebase';
+import { User, saveFlagDefinitionsToFirestore } from '@/lib/firebase';
 import { getAiRequestHeaders } from '@/lib/aiClient';
 import { useStudyTracker } from '@/components/study/StudyTrackerContext';
 import { StudyMasteryDashboard } from '@/components/analytics/StudyMasteryDashboard';
@@ -106,6 +106,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMounted = React.useSyncExternalStore(emptySubscribe, () => true, () => false);
   const [flagDefinitions, setFlagDefinitions] = useState<FlagDefinitions>(DEFAULT_FLAG_DEFINITIONS);
+  const [flagSaveStatus, setFlagSaveStatus] = useState<'idle' | 'saved' | 'syncing' | 'error'>('idle');
 
   useEffect(() => {
     setFlagDefinitions(getFlagDefinitions());
@@ -116,6 +117,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       ...current,
       [color]: { ...current[color], [field]: value },
     }));
+  };
+
+  const handleSaveFlagDefinitions = async () => {
+    saveFlagDefinitions(flagDefinitions);
+    if (!user?.uid) {
+      setFlagSaveStatus('saved');
+      return;
+    }
+    setFlagSaveStatus('syncing');
+    try {
+      await saveFlagDefinitionsToFirestore(user.uid, flagDefinitions);
+      setFlagSaveStatus('saved');
+    } catch {
+      setFlagSaveStatus('error');
+    }
   };
 
   useEffect(() => {
@@ -1155,25 +1171,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         {activeTab === 'general' && (
             <div className="space-y-4">
 
-            <div className="p-3.5 rounded-2xl app-card border app-border space-y-2.5">
+            <div className="p-3.5 rounded-3xl app-card border app-border space-y-3 shadow-lg shadow-slate-950/10">
               <div className="flex items-center justify-between gap-2">
                 <div>
-                  <h3 className="text-xs font-black app-text">{isFa ? 'تعریف فلگ‌های مطالعه' : 'Study flag definitions'}</h3>
+                  <h3 className="text-sm font-black app-text tracking-tight">{isFa ? 'تعریف فلگ‌های مطالعه' : 'Study flag definitions'}</h3>
                   <p className="text-[10px] app-muted">{isFa ? 'عنوان و کاربرد هر رنگ را برای همه ماژول‌ها تنظیم کنید.' : 'Customize the meaning of each flag across every module.'}</p>
                 </div>
-                <Flag className="w-4 h-4 text-rose-400" />
+                <span className="rounded-xl bg-rose-500/10 border border-rose-500/20 p-2"><Flag className="w-4 h-4 text-rose-400" /></span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {(Object.keys(flagDefinitions) as Array<keyof FlagDefinitions>).map((color) => (
-                  <div key={color} className="rounded-xl border app-border p-2 space-y-1.5">
-                    <label className={`text-[10px] font-bold capitalize text-${color}-400`}>{color}</label>
-                    <input value={flagDefinitions[color].label} onChange={(e) => updateFlagDefinition(color, 'label', e.target.value)} className="w-full rounded-lg px-2 py-1 text-xs app-bg app-text border app-border" aria-label={`${color} flag label`} />
-                    <input value={flagDefinitions[color].description} onChange={(e) => updateFlagDefinition(color, 'description', e.target.value)} className="w-full rounded-lg px-2 py-1 text-[10px] app-bg app-muted border app-border" aria-label={`${color} flag description`} />
+                  <div key={color} className={`rounded-2xl border p-2.5 space-y-1.5 shadow-sm transition hover:-translate-y-0.5 ${color === 'red' ? 'border-rose-400/30 bg-rose-500/5' : color === 'yellow' ? 'border-amber-400/30 bg-amber-500/5' : color === 'green' ? 'border-emerald-400/30 bg-emerald-500/5' : 'border-sky-400/30 bg-sky-500/5'}`}>
+                    <div className="flex items-center gap-1.5"><span className={`w-2.5 h-2.5 rounded-full ${color === 'red' ? 'bg-rose-500' : color === 'yellow' ? 'bg-amber-400' : color === 'green' ? 'bg-emerald-500' : 'bg-sky-400'}`} /><label className="text-[10px] font-bold capitalize app-text">{color}</label></div>
+                    <input value={flagDefinitions[color].label} onChange={(e) => updateFlagDefinition(color, 'label', e.target.value)} className="w-full rounded-xl px-2.5 py-2 text-xs app-bg app-text border app-border outline-none focus:ring-2 focus:ring-sky-400/40" aria-label={`${color} flag label`} />
+                    <input value={flagDefinitions[color].description} onChange={(e) => updateFlagDefinition(color, 'description', e.target.value)} className="w-full rounded-xl px-2.5 py-2 text-[10px] app-bg app-muted border app-border outline-none focus:ring-2 focus:ring-sky-400/40" aria-label={`${color} flag description`} />
                   </div>
                 ))}
               </div>
-              <button type="button" onClick={() => saveFlagDefinitions(flagDefinitions)} className="w-full rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold py-2 transition">
-                {isFa ? 'ذخیره تعریف فلگ‌ها' : 'Save flag definitions'}
+              <button type="button" onClick={handleSaveFlagDefinitions} disabled={flagSaveStatus === 'syncing'} className="w-full rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 disabled:opacity-60 text-white text-xs font-bold py-2.5 transition shadow-lg shadow-sky-900/20">
+                {flagSaveStatus === 'syncing' ? (isFa ? 'در حال همگام‌سازی…' : 'Syncing…') : flagSaveStatus === 'saved' ? (isFa ? 'ذخیره شد' : 'Saved') : flagSaveStatus === 'error' ? (isFa ? 'ذخیره محلی شد؛ سینک ناموفق بود' : 'Saved locally; cloud sync failed') : (isFa ? 'ذخیره و همگام‌سازی فلگ‌ها' : 'Save & sync flags')}
               </button>
             </div>
             

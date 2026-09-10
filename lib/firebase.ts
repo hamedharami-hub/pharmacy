@@ -46,6 +46,7 @@ export type { User };
 
 import { LeitnerCard } from '@/types/leitner';
 import { UserStudyState } from '@/types/studyTrack';
+import { FlagDefinitions } from '@/lib/flagDefinitions';
 
 // User data state shape saved in Firestore
 export interface CloudUserData {
@@ -62,6 +63,7 @@ export interface CloudUserData {
   savedNotes?: Record<string, string[]>;
   leitnerCards?: LeitnerCard[];
   studyTracker?: UserStudyState;
+  flagDefinitions?: FlagDefinitions;
   updatedAt?: string;
 }
 
@@ -78,6 +80,11 @@ export async function saveUserDataToFirestore(userId: string, data: CloudUserDat
     console.error('Error saving data to Firestore:', error);
     throw error;
   }
+}
+
+export async function saveFlagDefinitionsToFirestore(userId: string, definitions: FlagDefinitions): Promise<void> {
+  if (!userId) return;
+  await saveUserDataToFirestore(userId, { flagDefinitions: definitions });
 }
 
 // Save Leitner cards specifically
