@@ -38,7 +38,6 @@ import { ShelfSubcategoriesAccordion } from './shelf/ShelfSubcategoriesAccordion
 import { ShelfCommonMechanismAccordion } from './shelf/ShelfCommonMechanismAccordion';
 import { ShelfGroupingAccordion } from './shelf/ShelfGroupingAccordion';
 import { FormattedClinicalText } from './shelf/FormattedClinicalText';
-import { DiseaseCategoryExplorer } from './DiseaseCategoryExplorer';
 import { ModuleSearchField, StageEnterButton, StageSelectorCard } from './ui';
 
 // Dynamically imported modals & heavy drawers
@@ -156,13 +155,12 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
   // Core Filter & Search States
   const [selectedSchedule, setSelectedSchedule] = useState<'ALL' | 'Unscheduled' | 'S2' | 'S3' | 'S4' | 'S8'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
-  const [diseaseSearchQuery, setDiseaseSearchQuery] = useState('');
   const [matricesSearchQuery, setMatricesSearchQuery] = useState('');
   const [searchInputText, setSearchInputText] = useState('');
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
 
-  // Main View Switcher ('shelf' | 'diseases' | 'matrices')
-  const [activeShelfView, setActiveShelfView] = useState<'shelf' | 'diseases' | 'matrices'>('shelf');
+  // Main View Switcher ('shelf' | 'matrices')
+  const [activeShelfView, setActiveShelfView] = useState<'shelf' | 'matrices'>('shelf');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [unreadOnly, setUnreadOnly] = useState(false);
   const [isProjectStopOpen, setIsProjectStopOpen] = useState(false);
@@ -210,10 +208,9 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
     const ctx = targetContext.toLowerCase();
     if (ctx.startsWith('disease:')) {
       const diseaseQuery = targetContext.slice(targetContext.indexOf(':') + 1);
-      setActiveShelfView('diseases');
-      setDiseaseSearchQuery(diseaseQuery);
-      setSearchQuery('');
-      setSearchInputText('');
+      if (onNavigateToModule) {
+        onNavigateToModule(1, `disease:${diseaseQuery}`);
+      }
     } else if (ctx.startsWith('product:')) {
       const productQuery = targetContext.slice(targetContext.indexOf(':') + 1);
       setActiveShelfView('shelf');
@@ -512,12 +509,9 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
   const activeSearchValue =
     activeShelfView === 'shelf'
       ? searchQuery
-      : activeShelfView === 'diseases'
-        ? diseaseSearchQuery
-        : matricesSearchQuery;
+      : matricesSearchQuery;
   const setActiveSearchValue = (value: string) => {
     if (activeShelfView === 'shelf') setSearchQuery(value);
-    else if (activeShelfView === 'diseases') setDiseaseSearchQuery(value);
     else setMatricesSearchQuery(value);
   };
 
@@ -597,19 +591,6 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
 
           <button
             type="button"
-            onClick={() => setActiveShelfView('diseases')}
-            className={`px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer border ${
-              activeShelfView === 'diseases'
-                ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm ring-1 ring-emerald-400/40'
-                : 'app-bg app-border app-muted hover:app-text hover:bg-slate-800/60'
-            }`}
-          >
-            <Stethoscope className="w-3.5 h-3.5 text-emerald-400" />
-            <span>{isFa ? 'راهنمای بیماری‌ها' : 'Clinical Diseases'}</span>
-          </button>
-
-          <button
-            type="button"
             onClick={() => setActiveShelfView('matrices')}
             className={`px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer border ${
               activeShelfView === 'matrices'
@@ -651,15 +632,11 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
             fa:
               activeShelfView === 'shelf'
                 ? 'جستجوی آنی در نام برند، نام ژنریک، دوز، اندیکاسیون‌ها، کدهای PBS و نکات بالینی...'
-                : activeShelfView === 'diseases'
-                  ? 'جستجوی نام بیماری، علائم یا نام‌های رایج...'
-                  : 'جستجوی پاتوژن، پروتکل پایش، واکسن یا دارو...',
+                : 'جستجوی پاتوژن، پروتکل پایش، واکسن یا دارو...',
             en:
               activeShelfView === 'shelf'
                 ? 'Real-time quick search across brand names, generics, indications, PBS codes & CAL labels...'
-                : activeShelfView === 'diseases'
-                  ? 'Search disease names, symptoms or common names...'
-                  : 'Search pathogens, monitoring protocols, vaccines or drugs...',
+                : 'Search pathogens, monitoring protocols, vaccines or drugs...',
           }}
           trailing={activeShelfView === 'shelf' ? (
             <button
@@ -692,16 +669,6 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
             setSelectedConceptId(conceptId);
             setActiveShelfView('shelf');
           }}
-        />
-      )}
-
-      {/* VIEW 2: INTERACTIVE DISEASES & TREATMENT EXPLORER PANEL */}
-      {activeShelfView === 'diseases' && (
-        <DiseaseCategoryExplorer
-          language={language}
-          onSelectDisease={(disease) => setSelectedDisease(disease)}
-          searchQuery={diseaseSearchQuery}
-          onSearchQueryChange={setDiseaseSearchQuery}
         />
       )}
 

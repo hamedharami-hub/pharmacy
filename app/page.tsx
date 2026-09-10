@@ -125,6 +125,7 @@ export default function Home() {
   const [flagFilter, setFlagFilter] = useState<FlagColor | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [shelfTargetContext, setShelfTargetContext] = useState<string | null>(null);
+  const [triageTargetContext, setTriageTargetContext] = useState<string | null>(null);
 
   // Sync module query parameter on mount without hydration mismatch
   useEffect(() => {
@@ -147,7 +148,9 @@ export default function Home() {
 
   const handleNavigateToModule = useCallback(
     (modNum: 1 | 2 | 3 | 4 | 5 | 6, contextId?: string) => {
-      if (modNum === 2 && contextId) {
+      if (modNum === 1 && contextId) {
+        setTriageTargetContext(contextId);
+      } else if (modNum === 2 && contextId) {
         setShelfTargetContext(contextId);
       }
       setActiveMainModule(modNum);
@@ -161,10 +164,10 @@ export default function Home() {
       : entity.type === 'product' || entity.type === 'medicine'
         ? `product:${entity.title.en}`
         : entity.sourceId || entity.title.en;
-    if (entity.type === 'disease' || entity.type === 'product' || entity.type === 'medicine') {
-      handleNavigateToModule(2, context);
-    } else if (entity.type === 'triage-scenario') {
+    if (entity.type === 'disease' || entity.type === 'triage-scenario') {
       handleNavigateToModule(1, context);
+    } else if (entity.type === 'product' || entity.type === 'medicine') {
+      handleNavigateToModule(2, context);
     } else {
       handleNavigateToModule(4, context);
     }
@@ -812,6 +815,8 @@ export default function Home() {
         {activeMainModule === 1 && (
           <OtcTriageModule
             language={language}
+            targetContext={triageTargetContext}
+            onClearTargetContext={() => setTriageTargetContext(null)}
             onNavigateToModule={handleNavigateToModule}
             onNavigateToFred={() => setActiveMainModule(3)}
             onOpenAiLeitner={handleOpenAiLeitner}

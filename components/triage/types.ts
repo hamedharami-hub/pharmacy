@@ -7,6 +7,8 @@ export interface OtcTriageModuleProps {
   onNavigateToFred?: (scenarioId?: string) => void;
   onNavigateToModule?: (moduleNumber: 1 | 2 | 3 | 4 | 5 | 6, contextId?: string) => void;
   onOpenAiLeitner?: (text: string, module: 1 | 2 | 4, category?: string, topic?: string) => void;
+  targetContext?: string | null;
+  onClearTargetContext?: () => void;
 }
 
 export interface ChatMessage {

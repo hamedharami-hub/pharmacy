@@ -114,9 +114,9 @@ export const Header: React.FC<HeaderProps> = ({
   const modulesList = [
     {
       id: 1 as const,
-      shortTitle: { fa: '۱. تریاژ OTC', en: '1. OTC Triage' },
-      fullTitle: { fa: 'ماژول ۱: تریاژ سرپایی و OTC', en: 'Module 1: OTC Triage' },
-      desc: { fa: 'پروتکل‌های WWHAM و Red Flags', en: 'WWHAM & Red Flags' },
+      shortTitle: { fa: '۱. بیماری‌ها و تریاژ', en: '1. Diseases & Triage' },
+      fullTitle: { fa: 'ماژول ۱: بیماری‌ها و تریاژ بالینی', en: 'Module 1: Clinical Diseases & Triage' },
+      desc: { fa: 'راهنمای بالینی بیماری‌ها، پروتکل‌های WWHAM و سناریوهای تریاژ', en: 'Disease guides, WWHAM protocols & triage' },
       icon: Stethoscope,
       activeColor: 'bg-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-950/20',
       badgeBg: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',

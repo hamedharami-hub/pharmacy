@@ -12,8 +12,12 @@ import {
   ModeSelectorBar,
   TriageStepDeck,
 } from './triage';
+import { UnifiedCategorySelector } from './triage/UnifiedCategorySelector';
+import { UnifiedDiseaseExplorer } from './triage/UnifiedDiseaseExplorer';
+import { SPECIAL_TRIAGE_CATEGORIES, hasTriageScenario, getDiseaseForScenario } from '@/lib/diseaseTriageBridge';
+import { matchDiseaseToSubcategory } from '@/lib/diseaseSubcategories';
 import { haptic } from '@/lib/haptics';
-import { Flag } from 'lucide-react';
+import { ArrowLeft, BookOpen, Flag, Sparkles, Stethoscope } from 'lucide-react';
 import { useStudyTrackerContext } from './study/StudyTrackerContext';
 import { ClinicalRelationsPanel } from './ClinicalRelationsPanel';
 
@@ -47,11 +51,22 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
   onNavigateToFred,
   onNavigateToModule,
   onOpenAiLeitner,
+  targetContext,
+  onClearTargetContext,
 }) => {
   const isFa = language === 'fa';
   const { markItemViewed, setItemCompleted, getItemFlag, setItemFlag, isViewed } = useStudyTrackerContext();
 
-  // Mode and scenario state
+  // Module View: 'diseases' (catalog of clinical diseases & special categories) or 'simulator' (interactive case dialogue)
+  const [activeView, setActiveView] = useState<'diseases' | 'simulator'>('diseases');
+
+  // Disease exploration state
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('ALL');
+  const [selectedSubCatId, setSelectedSubCatId] = useState<string>('ALL');
+  const [triageOnlyFilter, setTriageOnlyFilter] = useState<boolean>(false);
+  const [diseaseSearchQuery, setDiseaseSearchQuery] = useState<string>('');
+
+  // Mode and scenario state for simulator
   const [selectedConversationMode, setSelectedConversationMode] = useState<ConversationMode | 'ALL'>('MODE_B_SLANG');
   const [selectedScenarioId, setSelectedScenarioId] = useState<string>(OTC_SCENARIOS[0].id);
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
@@ -59,17 +74,60 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
   const [isBrowseOpen, setIsBrowseOpen] = useState(false);
   const [unreadOnly, setUnreadOnly] = useState(false);
 
-  // Current active scenario
+  // Modals & UI controls
+  const [selectedDisease, setSelectedDisease] = useState<DiseaseInfo | null>(null);
+
+  // Handle incoming targetContext (render-time prop sync)
+  const [prevTargetContext, setPrevTargetContext] = useState<string | null | undefined>(null);
+  if (targetContext && targetContext !== prevTargetContext) {
+    setPrevTargetContext(targetContext);
+    if (targetContext.startsWith('disease:')) {
+      const clean = targetContext.replace(/^disease:/, '').toLowerCase();
+      const matched = DISEASES_REGISTRY.find(
+        (d) =>
+          d.id.toLowerCase() === clean ||
+          d.name.en.toLowerCase().includes(clean) ||
+          d.name.fa.toLowerCase().includes(clean)
+      );
+      if (matched) {
+        setSelectedDisease(matched);
+        setSelectedCategoryId(matched.categoryId);
+        setActiveView('diseases');
+      }
+    } else if (
+      targetContext.startsWith('triage:') ||
+      targetContext.startsWith('otc:') ||
+      targetContext.startsWith('slang-') ||
+      targetContext.startsWith('admin-')
+    ) {
+      const cleanId = targetContext.replace(/^(triage|otc):/, '');
+      const matchedScenario = OTC_SCENARIOS.find((s) => s.id === cleanId || s.id === targetContext);
+      if (matchedScenario) {
+        setSelectedScenarioId(matchedScenario.id);
+        setActiveView('simulator');
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (targetContext) {
+      onClearTargetContext?.();
+    }
+  }, [targetContext, onClearTargetContext]);
+
+  // Current active scenario in simulator
   const scenario = useMemo(() => {
     return OTC_SCENARIOS.find((s) => s.id === selectedScenarioId) || OTC_SCENARIOS[0];
   }, [selectedScenarioId]);
   const scenarioStudyId = `otc:${scenario.id}`;
 
   useEffect(() => {
-    markItemViewed(1, scenarioStudyId, scenario.title, { fa: 'تریاژ OTC', en: 'OTC Triage' }, { mode: getScenarioMode(scenario) });
-  }, [markItemViewed, scenario, scenarioStudyId]);
+    if (activeView === 'simulator') {
+      markItemViewed(1, scenarioStudyId, scenario.title, { fa: 'تریاژ بالینی', en: 'Clinical Triage' }, { mode: getScenarioMode(scenario) });
+    }
+  }, [activeView, markItemViewed, scenario, scenarioStudyId]);
 
-  // Triage state
+  // Triage simulator state
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => [
     {
       id: `init-pt-${OTC_SCENARIOS[0].id}`,
@@ -86,14 +144,12 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
   const [showOutcome, setShowOutcome] = useState(false);
   const [activeFrameworkTab, setActiveFrameworkTab] = useState<'wwham' | 'redflags' | 'decision'>('wwham');
 
-  // Modals & UI controls
   const [activeWwhamQuestion, setActiveWwhamQuestion] = useState<WwhamQuestion | null>(null);
   const [showRedFlagsModal, setShowRedFlagsModal] = useState(false);
   const [showReferralModal, setShowReferralModal] = useState(false);
-  const [selectedDisease, setSelectedDisease] = useState<DiseaseInfo | null>(null);
   const [isChatExpanded, setIsChatExpanded] = useState(false);
 
-  // Starred phrases state & persistence (loaded on mount to prevent SSR hydration mismatch)
+  // Starred phrases state & persistence
   const [starredPhrases, setStarredPhrases] = useState<StarredPhrase[]>([]);
 
   useEffect(() => {
@@ -166,10 +222,45 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
     return list;
   }, [selectedConversationMode, scenarioSearchTerm, unreadOnly, isViewed]);
 
-  // Linked handbook disease
+  // Linked handbook disease for current scenario
   const linkedHandbookDisease = useMemo(() => {
-    return findDiseaseGuide(scenario);
+    return findDiseaseGuide(scenario) || getDiseaseForScenario(scenario.id);
   }, [scenario]);
+
+  // Filtered diseases for the Diseases catalog view
+  const filteredDiseases = useMemo(() => {
+    return DISEASES_REGISTRY.filter((disease) => {
+      // 1. Category filter
+      if (selectedCategoryId !== 'ALL') {
+        if (disease.categoryId !== selectedCategoryId) return false;
+      }
+      // 2. Subcategory filter
+      if (selectedSubCatId !== 'ALL') {
+        if (!matchDiseaseToSubcategory(disease, selectedSubCatId)) return false;
+      }
+      // 3. Triage only checkbox filter
+      if (triageOnlyFilter) {
+        if (!hasTriageScenario(disease.id)) return false;
+      }
+      // 4. Search term
+      if (diseaseSearchQuery.trim()) {
+        const term = diseaseSearchQuery.toLowerCase();
+        return (
+          disease.name.en.toLowerCase().includes(term) ||
+          disease.name.fa.toLowerCase().includes(term) ||
+          disease.overview.en.toLowerCase().includes(term) ||
+          disease.overview.fa.toLowerCase().includes(term) ||
+          disease.synonyms.some((s) => s.toLowerCase().includes(term))
+        );
+      }
+      return true;
+    });
+  }, [selectedCategoryId, selectedSubCatId, triageOnlyFilter, diseaseSearchQuery]);
+
+  // Special category (Slang or Admin) if selected
+  const activeSpecialCategory = useMemo(() => {
+    return SPECIAL_TRIAGE_CATEGORIES.find((c) => c.id === selectedCategoryId) || null;
+  }, [selectedCategoryId]);
 
   const resetScenarioState = (targetScenario: Scenario) => {
     setAskedQuestions({});
@@ -195,11 +286,10 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
   const handleSelectScenario = (id: string) => {
     setSelectedScenarioId(id);
     const target = OTC_SCENARIOS.find((s) => s.id === id) || OTC_SCENARIOS[0];
-    markItemViewed(1, `otc:${target.id}`, target.title, { fa: 'تریاژ OTC', en: 'OTC Triage' }, { mode: getScenarioMode(target) });
+    markItemViewed(1, `otc:${target.id}`, target.title, { fa: 'تریاژ بالینی', en: 'Clinical Triage' }, { mode: getScenarioMode(target) });
     resetScenarioState(target);
   };
 
-  // Switch mode handler
   const handleSelectMode = (mode: ConversationMode | 'ALL') => {
     setSelectedConversationMode(mode);
     const firstInMode = OTC_SCENARIOS.find((s) => (mode === 'ALL' ? true : getScenarioMode(s) === mode));
@@ -209,7 +299,6 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
     }
   };
 
-  // Reset current scenario
   const handleReset = () => {
     setAskedQuestions({});
     setAskedRedFlagChecks({});
@@ -231,7 +320,23 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
     ]);
   };
 
-  // Starred phrase toggle and check helpers
+  // Launch triage directly from disease card
+  const handleStartTriageForDisease = (disease: DiseaseInfo, targetScenario: Scenario) => {
+    setSelectedScenarioId(targetScenario.id);
+    resetScenarioState(targetScenario);
+    setActiveView('simulator');
+    markItemViewed(1, `otc:${targetScenario.id}`, targetScenario.title, { fa: 'تریاژ بالینی', en: 'Clinical Triage' }, { mode: getScenarioMode(targetScenario) });
+  };
+
+  // Launch special slang/admin scenario
+  const handleStartSpecialScenario = (targetScenario: Scenario) => {
+    setSelectedScenarioId(targetScenario.id);
+    resetScenarioState(targetScenario);
+    setActiveView('simulator');
+    markItemViewed(1, `otc:${targetScenario.id}`, targetScenario.title, { fa: 'تریاژ ویژه', en: 'Special Triage' }, { mode: getScenarioMode(targetScenario) });
+  };
+
+  // Starred phrase helpers
   const isMessageStarred = (text: string) => {
     if (!text) return false;
     return starredPhrases.some(
@@ -417,7 +522,7 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
     setSelectedDialogueId(opt.id);
     setShowOutcome(true);
     if (opt.isCorrectAdvice) {
-      setItemCompleted(1, scenarioStudyId, true, scenario.title, { fa: 'تریاژ OTC', en: 'OTC Triage' });
+      setItemCompleted(1, scenarioStudyId, true, scenario.title, { fa: 'تریاژ بالینی', en: 'Clinical Triage' });
     }
 
     const optMsg: ChatMessage = {
@@ -429,7 +534,6 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
       badgeFa: opt.isCorrectAdvice ? 'اقدام توصیه شده' : 'اقدام نامناسب',
     };
 
-    // Filter out previous rx-decision messages so user changing answer cleanly replaces the bubble
     setChatMessages((prev) => [...prev.filter((m) => !m.id.startsWith('rx-decision-')), optMsg]);
   };
 
@@ -509,102 +613,213 @@ REFERRING PHARMACIST:
   const browseOpen = isBrowseOpen && !scenarioSearchTerm.trim();
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-12">
-      {/* 1. Mode Selector Bar & Scenario Switcher */}
-      <div className="space-y-2">
-      <ModeSelectorBar
-        language={language}
-        selectedConversationMode={selectedConversationMode}
-        onSelectMode={handleSelectMode}
-        selectedScenarioId={selectedScenarioId}
-        onSelectScenario={handleSelectScenario}
-        scenario={scenario}
-        filteredScenarios={filteredScenarios}
-        scenarioSearchTerm={scenarioSearchTerm}
-        setScenarioSearchTerm={setScenarioSearchTerm}
-        isAccordionOpen={isAccordionOpen}
-        setIsAccordionOpen={setIsAccordionOpen}
-        isBrowseOpen={isBrowseOpen}
-        setIsBrowseOpen={setIsBrowseOpen}
-        modeACount={modeACount}
-        modeBCount={modeBCount}
-        modeCCount={modeCCount}
-      />
-      <div className="flex items-center justify-between gap-2 px-1 text-[11px]">
-        <div className="flex items-center gap-1.5">
-          <span className="app-muted">{isFa ? `${OTC_SCENARIOS.length} سناریو` : `${OTC_SCENARIOS.length} scenarios`}</span>
-          <button type="button" onClick={() => setUnreadOnly((value) => !value)} aria-pressed={unreadOnly} className={`px-2 py-1 rounded-lg border font-bold ${unreadOnly ? 'bg-indigo-600 text-white border-indigo-500' : 'app-bg app-muted app-border'}`}>
-            {isFa ? `نخوانده (${OTC_SCENARIOS.filter((s) => !isViewed(`otc:${s.id}`)).length})` : `Unread (${OTC_SCENARIOS.filter((s) => !isViewed(`otc:${s.id}`)).length})`}
+    <div className="space-y-4 sm:space-y-5 animate-fadeIn pb-12">
+      {/* 1. TOP MODULE NAVIGATION: Diseases & Triage Hub vs Simulator Deck */}
+      <div className="flex items-center justify-between gap-2 p-1.5 bg-black/5 dark:bg-slate-900/60 rounded-2xl border app-border">
+        <div className="flex items-center gap-1.5 flex-1">
+          <button
+            type="button"
+            onClick={() => setActiveView('diseases')}
+            className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer border ${
+              activeView === 'diseases'
+                ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm ring-1 ring-emerald-400/30'
+                : 'app-bg app-border app-muted hover:app-text hover:bg-black/5 dark:hover:bg-slate-800/60'
+            }`}
+          >
+            <Stethoscope className="w-4 h-4" />
+            <span>{isFa ? 'دانشنامه بیماری‌ها و تریاژ' : 'Diseases & Triage Hub'}</span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-black/20 text-white">
+              {DISEASES_REGISTRY.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveView('simulator')}
+            className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer border ${
+              activeView === 'simulator'
+                ? 'bg-indigo-600 text-white border-indigo-500 shadow-sm ring-1 ring-indigo-400/30'
+                : 'app-bg app-border app-muted hover:app-text hover:bg-black/5 dark:hover:bg-slate-800/60'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-amber-300" />
+            <span>{isFa ? 'شبیه‌ساز تعاملی مکالمه تریاژ' : 'Interactive Triage Deck'}</span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-black/20 text-white">
+              {OTC_SCENARIOS.length}
+            </span>
           </button>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            const colors = [null, 'red', 'yellow', 'green', 'blue'] as const;
-            const current = getItemFlag(scenarioStudyId);
-            const next = colors[(colors.indexOf(current) + 1) % colors.length];
-            setItemFlag(scenarioStudyId, next);
-          }}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border app-border app-bg hover:app-text transition"
-          title={isFa ? 'تغییر فلگ سناریو' : 'Cycle scenario flag'}
-        >
-          <Flag className="w-3.5 h-3.5" />
-          <span>{getItemFlag(scenarioStudyId) || (isFa ? 'بدون فلگ' : 'No flag')}</span>
-        </button>
-      </div>
       </div>
 
-      <ClinicalRelationsPanel
-        entityId={`triage:${scenario.id}`}
-        language={language}
-        onOpenEntity={(entity) => {
-          if (!entity || !onNavigateToModule) return;
-          const targetModule = entity.type === 'triage-scenario' ? 1 : entity.type === 'clinical-concept' || entity.type === 'cyp-enzyme' || entity.type === 'mechanism' ? 4 : 2;
-          onNavigateToModule(targetModule, entity.title.en);
-        }}
-        onOpenDisease={(diseaseId) => {
-          const disease = DISEASES_REGISTRY.find((item) => item.id === diseaseId);
-          if (disease) setSelectedDisease(disease);
-        }}
-      />
+      {/* VIEW 1: UNIFIED DISEASES & TRIAGE EXPLORER */}
+      {activeView === 'diseases' && (
+        <div className="space-y-4 animate-fadeIn">
+          {/* Main Category & Subcategory Selector + Triage Only Switch */}
+          <UnifiedCategorySelector
+            selectedCategoryId={selectedCategoryId}
+            onSelectCategory={setSelectedCategoryId}
+            selectedSubCatId={selectedSubCatId}
+            onSelectSubCat={setSelectedSubCatId}
+            triageOnly={triageOnlyFilter}
+            onToggleTriageOnly={() => setTriageOnlyFilter((prev) => !prev)}
+            language={language}
+          />
 
-      {browseOpen && (
-        <TriageStepDeck
-          language={language}
-          scenario={scenario}
-          linkedHandbookDisease={linkedHandbookDisease}
-          onOpenDiseaseModal={setSelectedDisease}
-          activeFrameworkTab={activeFrameworkTab}
-          setActiveFrameworkTab={setActiveFrameworkTab}
-          wwhamCount={wwhamCount}
-          askedQuestions={askedQuestions}
-          isQnaStarred={isQnaStarred}
-          onAskWwhamQuestion={handleAskWwhamQuestion}
-          askedRedFlagChecks={askedRedFlagChecks}
-          onCheckRedFlags={handleCheckRedFlags}
-          allWwhamAsked={allWwhamAsked}
-          selectedDialogueId={selectedDialogueId}
-          selectedOption={selectedOption}
-          onSelectDialogueOption={handleSelectDialogueOption}
-          chatMessages={chatMessages}
-          isChatExpanded={isChatExpanded}
-          setIsChatExpanded={setIsChatExpanded}
-          starredPhrases={starredPhrases}
-          showStarredBelow={showStarredBelow}
-          setShowStarredBelow={setShowStarredBelow}
-          setShowStarredModal={setShowStarredModal}
-          toggleStarMessage={toggleStarMessage}
-          isMessageStarred={isMessageStarred}
-          removeStarredPhrase={removeStarredPhrase}
-          onCopySinglePhrase={handleCopySinglePhrase}
-          copiedPhraseId={copiedPhraseId}
-          onReset={handleReset}
-          showOutcome={showOutcome}
-          onOpenReferralModal={() => setShowReferralModal(true)}
-          onNavigateToFred={onNavigateToFred}
-          onNavigateToModule={onNavigateToModule}
-          onOpenAiLeitner={onOpenAiLeitner}
-        />
+          {/* Disease / Scenario Cards */}
+          <UnifiedDiseaseExplorer
+            language={language}
+            diseases={filteredDiseases}
+            specialCategory={activeSpecialCategory}
+            searchQuery={diseaseSearchQuery}
+            onSearchQueryChange={setDiseaseSearchQuery}
+            onSelectDisease={(disease) => setSelectedDisease(disease)}
+            onStartTriageForDisease={handleStartTriageForDisease}
+            onStartSpecialScenario={handleStartSpecialScenario}
+          />
+        </div>
+      )}
+
+      {/* VIEW 2: INTERACTIVE TRIAGE SIMULATOR DECK */}
+      {activeView === 'simulator' && (
+        <div className="space-y-5 animate-fadeIn">
+          {/* Top Quick Bar: Return to Disease Hub + Linked Monograph affordance */}
+          <div className="flex items-center justify-between gap-2 p-2 rounded-2xl bg-black/5 dark:bg-slate-900/60 border app-border">
+            <button
+              type="button"
+              onClick={() => setActiveView('diseases')}
+              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+              <span>{isFa ? 'بازگشت به فهرست بیماری‌ها' : 'Back to Disease Catalog'}</span>
+            </button>
+
+            {linkedHandbookDisease && (
+              <button
+                type="button"
+                onClick={() => setSelectedDisease(linkedHandbookDisease)}
+                className="px-3 py-1.5 rounded-xl bg-teal-500/15 text-teal-300 hover:bg-teal-500/25 border border-teal-500/30 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span className="truncate max-w-[200px]">
+                  {isFa ? `مونوگراف: ${linkedHandbookDisease.name.fa}` : `Guide: ${linkedHandbookDisease.name.en}`}
+                </span>
+              </button>
+            )}
+          </div>
+
+          {/* Mode Selector Bar & Scenario Switcher */}
+          <div className="space-y-2">
+            <ModeSelectorBar
+              language={language}
+              selectedConversationMode={selectedConversationMode}
+              onSelectMode={handleSelectMode}
+              selectedScenarioId={selectedScenarioId}
+              onSelectScenario={handleSelectScenario}
+              scenario={scenario}
+              filteredScenarios={filteredScenarios}
+              scenarioSearchTerm={scenarioSearchTerm}
+              setScenarioSearchTerm={setScenarioSearchTerm}
+              isAccordionOpen={isAccordionOpen}
+              setIsAccordionOpen={setIsAccordionOpen}
+              isBrowseOpen={isBrowseOpen}
+              setIsBrowseOpen={setIsBrowseOpen}
+              modeACount={modeACount}
+              modeBCount={modeBCount}
+              modeCCount={modeCCount}
+            />
+            <div className="flex items-center justify-between gap-2 px-1 text-[11px]">
+              <div className="flex items-center gap-1.5">
+                <span className="app-muted">
+                  {isFa ? `${OTC_SCENARIOS.length} سناریو` : `${OTC_SCENARIOS.length} scenarios`}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setUnreadOnly((value) => !value)}
+                  aria-pressed={unreadOnly}
+                  className={`px-2 py-1 rounded-lg border font-bold ${
+                    unreadOnly ? 'bg-indigo-600 text-white border-indigo-500' : 'app-bg app-muted app-border'
+                  }`}
+                >
+                  {isFa
+                    ? `نخوانده (${OTC_SCENARIOS.filter((s) => !isViewed(`otc:${s.id}`)).length})`
+                    : `Unread (${OTC_SCENARIOS.filter((s) => !isViewed(`otc:${s.id}`)).length})`}
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const colors = [null, 'red', 'yellow', 'green', 'blue'] as const;
+                  const current = getItemFlag(scenarioStudyId);
+                  const next = colors[(colors.indexOf(current) + 1) % colors.length];
+                  setItemFlag(scenarioStudyId, next);
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border app-border app-bg hover:app-text transition"
+                title={isFa ? 'تغییر فلگ سناریو' : 'Cycle scenario flag'}
+              >
+                <Flag className="w-3.5 h-3.5" />
+                <span>{getItemFlag(scenarioStudyId) || (isFa ? 'بدون فلگ' : 'No flag')}</span>
+              </button>
+            </div>
+          </div>
+
+          <ClinicalRelationsPanel
+            entityId={`triage:${scenario.id}`}
+            language={language}
+            onOpenEntity={(entity) => {
+              if (!entity || !onNavigateToModule) return;
+              const targetModule =
+                entity.type === 'triage-scenario'
+                  ? 1
+                  : entity.type === 'clinical-concept' || entity.type === 'cyp-enzyme' || entity.type === 'mechanism'
+                  ? 4
+                  : 2;
+              onNavigateToModule(targetModule, entity.title.en);
+            }}
+            onOpenDisease={(diseaseId) => {
+              const disease = DISEASES_REGISTRY.find((item) => item.id === diseaseId);
+              if (disease) setSelectedDisease(disease);
+            }}
+          />
+
+          {browseOpen && (
+            <TriageStepDeck
+              language={language}
+              scenario={scenario}
+              linkedHandbookDisease={linkedHandbookDisease}
+              onOpenDiseaseModal={setSelectedDisease}
+              activeFrameworkTab={activeFrameworkTab}
+              setActiveFrameworkTab={setActiveFrameworkTab}
+              wwhamCount={wwhamCount}
+              askedQuestions={askedQuestions}
+              isQnaStarred={isQnaStarred}
+              onAskWwhamQuestion={handleAskWwhamQuestion}
+              askedRedFlagChecks={askedRedFlagChecks}
+              onCheckRedFlags={handleCheckRedFlags}
+              allWwhamAsked={allWwhamAsked}
+              selectedDialogueId={selectedDialogueId}
+              selectedOption={selectedOption}
+              onSelectDialogueOption={handleSelectDialogueOption}
+              chatMessages={chatMessages}
+              isChatExpanded={isChatExpanded}
+              setIsChatExpanded={setIsChatExpanded}
+              starredPhrases={starredPhrases}
+              showStarredBelow={showStarredBelow}
+              setShowStarredBelow={setShowStarredBelow}
+              setShowStarredModal={setShowStarredModal}
+              toggleStarMessage={toggleStarMessage}
+              isMessageStarred={isMessageStarred}
+              removeStarredPhrase={removeStarredPhrase}
+              onCopySinglePhrase={handleCopySinglePhrase}
+              copiedPhraseId={copiedPhraseId}
+              onReset={handleReset}
+              showOutcome={showOutcome}
+              onOpenReferralModal={() => setShowReferralModal(true)}
+              onNavigateToFred={onNavigateToFred}
+              onNavigateToModule={onNavigateToModule}
+              onOpenAiLeitner={onOpenAiLeitner}
+            />
+          )}
+        </div>
       )}
 
       {/* GP Referral Letter Modal */}
@@ -667,6 +882,13 @@ REFERRING PHARMACIST:
           onNavigateToModule={(modNum, scId) => {
             if (modNum === 3 && onNavigateToFred) {
               onNavigateToFred(scId);
+            } else if (modNum === 1) {
+              // Direct start triage for this disease
+              const matchingScenarios = OTC_SCENARIOS.filter((s) => s.id === scId);
+              if (matchingScenarios[0]) {
+                handleStartTriageForDisease(selectedDisease, matchingScenarios[0]);
+                setSelectedDisease(null);
+              }
             }
           }}
         />

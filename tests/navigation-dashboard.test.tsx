@@ -56,7 +56,7 @@ describe('mobile navigation', () => {
       />
     );
 
-    expect(screen.getByRole('button', { name: 'Triage' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Diseases & Triage' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Shelf' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Knowledge' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Review' })).toBeInTheDocument();
@@ -70,7 +70,7 @@ describe('mobile navigation', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'دانش' }));
     expect(onSelectModule).toHaveBeenCalledWith(4);
-    expect(screen.getByRole('button', { name: 'تریاژ' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: 'بیماری‌ها و تریاژ' })).toHaveAttribute('aria-current', 'page');
   });
 
   it('keeps an app-like fixed bottom bar at narrow and wide viewport widths', () => {

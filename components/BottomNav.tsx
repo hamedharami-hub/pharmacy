@@ -22,7 +22,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   const isFa = language === 'fa';
 
   const navItems = [
-    { id: 1 as const, label: { fa: 'تریاژ', en: 'Triage' }, icon: Stethoscope, activeColor: 'text-emerald-500 dark:text-emerald-400', activeBg: 'bg-emerald-500/12 text-emerald-700 dark:text-emerald-300 border-emerald-500/30', glowColor: 'bg-emerald-500 shadow-emerald-500/50' },
+    { id: 1 as const, label: { fa: 'بیماری‌ها و تریاژ', en: 'Diseases & Triage' }, icon: Stethoscope, activeColor: 'text-emerald-500 dark:text-emerald-400', activeBg: 'bg-emerald-500/12 text-emerald-700 dark:text-emerald-300 border-emerald-500/30', glowColor: 'bg-emerald-500 shadow-emerald-500/50' },
     { id: 2 as const, label: { fa: 'قفسه', en: 'Shelf' }, icon: Boxes, activeColor: 'text-sky-500 dark:text-sky-400', activeBg: 'bg-sky-500/12 text-sky-700 dark:text-sky-300 border-sky-500/30', glowColor: 'bg-sky-500 shadow-sky-500/50' },
     { id: 4 as const, label: { fa: 'دانش', en: 'Knowledge' }, icon: Dna, activeColor: 'text-indigo-500 dark:text-indigo-400', activeBg: 'bg-indigo-500/12 text-indigo-700 dark:text-indigo-300 border-indigo-500/30', glowColor: 'bg-indigo-500 shadow-indigo-500/50' },
     { id: 5 as const, label: { fa: 'مرور', en: 'Review' }, icon: Brain, activeColor: 'text-purple-500 dark:text-purple-400', activeBg: 'bg-purple-500/12 text-purple-700 dark:text-purple-300 border-purple-500/30', glowColor: 'bg-purple-500 shadow-purple-500/50', badge: leitnerDueCount },
