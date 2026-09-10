@@ -42,7 +42,6 @@ import { SidebarNav } from '@/components/SidebarNav';
 import { INITIAL_SAMPLE_LEITNER_CARDS } from '@/lib/sample-leitner-cards';
 import { StudyTrackerProvider } from '@/components/study/StudyTrackerContext';
 import { ResumeStudyBanner } from '@/components/study/ResumeStudyBanner';
-import { StatsBar } from '@/components/StatsBar';
 import { Footer } from '@/components/Footer';
 import { FolderOpen, Bot, Sparkles } from 'lucide-react';
 
@@ -791,15 +790,6 @@ export default function Home() {
           onResume={handleResumeStudy}
         />
 
-        {/* Real-time Study & Quiz Summary Bar with Quick Analytics Access */}
-        <StatsBar
-          language={language}
-          totalCards={ALL_PHARMACY_CARDS.length + OTC_SCENARIOS.length + SHELF_PRODUCTS.length}
-          reviewedCount={reviewedCount}
-          flaggedCount={flaggedCount}
-          quizScorePct={quizMasteryPct}
-          onOpenAnalytics={handleOpenAnalytics}
-        />
 
         {/* Dynamic Main Module View Router */}
         <div className="contents">
@@ -1014,6 +1004,10 @@ export default function Home() {
           }}
           initialTab={settingsInitialTab}
           leitnerCards={leitnerCards}
+          totalCards={ALL_PHARMACY_CARDS.length + OTC_SCENARIOS.length + SHELF_PRODUCTS.length}
+          reviewedCount={reviewedCount}
+          flaggedCount={flaggedCount}
+          quizScorePct={quizMasteryPct}
         />
       )}
 

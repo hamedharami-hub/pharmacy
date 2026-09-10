@@ -8,6 +8,7 @@ import { User, saveFlagDefinitionsToFirestore } from '@/lib/firebase';
 import { getAiRequestHeaders } from '@/lib/aiClient';
 import { useStudyTracker } from '@/components/study/StudyTrackerContext';
 import { StudyMasteryDashboard } from '@/components/analytics/StudyMasteryDashboard';
+import { StatsBar } from '@/components/StatsBar';
 import { DEFAULT_FLAG_DEFINITIONS, FlagDefinitions, getFlagDefinitions, saveFlagDefinitions } from '@/lib/flagDefinitions';
 import {
   Settings,
@@ -75,6 +76,10 @@ interface SettingsModalProps {
   onSaveAiConfig: (cfg: UserAiConfig) => void;
   initialTab?: 'general' | 'ai' | 'about' | 'analytics';
   leitnerCards?: LeitnerCard[];
+  totalCards?: number;
+  reviewedCount?: number;
+  flaggedCount?: number;
+  quizScorePct?: number;
 }
 
 const emptySubscribe = () => () => {};
@@ -101,6 +106,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onSaveAiConfig,
   initialTab,
   leitnerCards,
+  totalCards = 0,
+  reviewedCount = 0,
+  flaggedCount = 0,
+  quizScorePct = 0,
 }) => {
   const isFa = language === 'fa';
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1170,6 +1179,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* TAB 2: GENERAL SETTINGS */}
         {activeTab === 'general' && (
             <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-black app-text">{isFa ? 'خلاصه پیشرفت مطالعه' : 'Study progress summary'}</h3>
+                  <span className="text-[10px] app-muted">{isFa ? 'در صورت نیاز' : 'Available when needed'}</span>
+                </div>
+                <StatsBar
+                  language={language}
+                  totalCards={totalCards}
+                  reviewedCount={reviewedCount}
+                  flaggedCount={flaggedCount}
+                  quizScorePct={quizScorePct}
+                  onOpenAnalytics={() => setActiveTab('analytics')}
+                />
+              </div>
 
             <div className="p-3.5 rounded-3xl app-card border app-border space-y-3 shadow-lg shadow-slate-950/10">
               <div className="flex items-center justify-between gap-2">
