@@ -117,6 +117,7 @@ export default function Home() {
   // Start with the compact triage module. Other teaching datasets are fetched
   // only when their module is selected, which reduces the first mobile load.
   const [activeMainModule, setActiveMainModule] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [leitnerInitialTab, setLeitnerInitialTab] = useState<'leitner' | 'mindmap'>('leitner');
   const [activeMode, setActiveMode] = useState<StudyMode>('accordion');
   const [activeModule, setActiveModule] = useState<ModuleId>('ALL');
@@ -224,8 +225,6 @@ export default function Home() {
   const [aiTutorPrompt, setAiTutorPrompt] = useState('');
 
   // Command Palette State (Ctrl+K)
-  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-
   // Global Ctrl+K / Cmd+K listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

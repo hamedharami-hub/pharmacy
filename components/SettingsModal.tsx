@@ -116,12 +116,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const isFa = language === 'fa';
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMounted = React.useSyncExternalStore(emptySubscribe, () => true, () => false);
-  const [flagDefinitions, setFlagDefinitions] = useState<FlagDefinitions>(DEFAULT_FLAG_DEFINITIONS);
+  const [flagDefinitions, setFlagDefinitions] = useState<FlagDefinitions>(() => getFlagDefinitions());
   const [flagSaveStatus, setFlagSaveStatus] = useState<'idle' | 'saved' | 'syncing' | 'error'>('idle');
-
-  useEffect(() => {
-    setFlagDefinitions(getFlagDefinitions());
-  }, []);
 
   const updateFlagDefinition = (color: keyof FlagDefinitions, field: 'label' | 'description', value: string) => {
     setFlagDefinitions((current) => ({

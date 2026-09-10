@@ -205,7 +205,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
     }));
 
     return [...matchedActions, ...matchedCards];
-  }, [query, quickActions, onSelectModule, onSelectCard, onSelectClinicalEntity, onClose]);
+  }, [query, quickActions, onSelectModule, onSelectCard, onClose]);
 
   const clinicalResults = useMemo(() => {
     if (!query.trim()) return [];
