@@ -1,3 +1,5 @@
+import { FlagColor } from './pharmacy';
+
 export type MainStudyModuleId = 1 | 2 | 3 | 4 | 5 | 6;
 
 export type StudyTrackId =
@@ -6,6 +8,14 @@ export type StudyTrackId =
   | 'track_3_oral_viva'
   | 'track_4_otc_pharma'
   | 'track_5_laws_dispense';
+
+export interface StudyCatalogItem {
+  id: string;
+  type: 'topic' | 'otc-scenario' | 'shelf-product' | 'fred-case' | 'leitner';
+  moduleId: MainStudyModuleId;
+  title: { fa: string; en: string };
+  category?: { fa: string; en: string };
+}
 
 export interface LastStudiedItem {
   itemId: string;
@@ -92,6 +102,7 @@ export interface StudyTrackDefinition {
 export interface UserStudyState {
   viewedMap: Record<string, boolean>; // itemId -> boolean
   completedMap: Record<string, boolean>; // itemId -> boolean
+  flagMap: Record<string, Exclude<FlagColor, null>>; // itemId -> shared flag color
   itemRecords: Record<string, ItemStudyRecord>; // itemId -> details
   lastStudiedGlobal: LastStudiedItem | null;
   lastStudiedByModule: Record<number, LastStudiedItem>;

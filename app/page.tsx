@@ -15,9 +15,12 @@ import {
   UserProgress,
   UserAiConfig,
 } from '@/types/pharmacy';
+import { UserStudyState } from '@/types/studyTrack';
 import { getClientAiConfig, saveClientAiConfig, syncAiConfigFromCloud } from '@/lib/aiConfigStorage';
 import { DEFAULT_AI_CONFIG } from '@/lib/aiService';
 import { ALL_PHARMACY_CARDS } from '@/lib/pharmacy-data';
+import { OTC_SCENARIOS } from '@/data/otcScenarios';
+import { SHELF_PRODUCTS } from '@/data/shelf/shelfProducts';
 import {
   auth,
   onAuthStateChanged,
@@ -49,6 +52,18 @@ const ProductShelfModule = dynamic(() => import('@/components/ProductShelfModule
 const FredDispenseModule = dynamic(() => import('@/components/FredDispenseModule').then((mod) => mod.FredDispenseModule));
 const ClinicalKnowledgeModule = dynamic(() => import('@/components/ClinicalKnowledgeModule').then((mod) => mod.ClinicalKnowledgeModule));
 const LearningToolsModule = dynamic(() => import('@/components/LearningToolsModule').then((mod) => mod.LearningToolsModule));
+const StudyMasteryDashboard = dynamic(
+  () => import('@/components/analytics/StudyMasteryDashboard').then((mod) => mod.StudyMasteryDashboard),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="p-6 text-center app-card border app-border rounded-2xl">
+        <div className="w-6 h-6 mx-auto border-2 border-sky-400 border-t-transparent rounded-full animate-spin" />
+        <p className="mt-2 text-xs app-muted">Loading dashboard…</p>
+      </div>
+    ),
+  }
+);
 
 const TextSelectionLeitnerTrigger = dynamic(
   () => import('@/components/TextSelectionLeitnerTrigger').then((mod) => mod.TextSelectionLeitnerTrigger),
@@ -122,6 +137,7 @@ export default function Home() {
   const [flagFilter, setFlagFilter] = useState<FlagColor | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [shelfTargetContext, setShelfTargetContext] = useState<string | null>(null);
+  const [isDashboardOpen, setIsDashboardOpen] = useState(false);
 
   // Sync module query parameter on mount without hydration mismatch
   useEffect(() => {
@@ -177,8 +193,7 @@ export default function Home() {
   }, []);
 
   const handleOpenAnalytics = () => {
-    setSettingsInitialTab('analytics');
-    setIsSettingsOpen(true);
+    setIsDashboardOpen(true);
   };
 
   const handleOpenSettings = (tab: 'general' | 'ai' | 'about' | 'analytics' = 'general') => {
@@ -227,6 +242,7 @@ export default function Home() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const [isInitialCloudLoad, setIsInitialCloudLoad] = useState(false);
+  const [initialCloudStudyState, setInitialCloudStudyState] = useState<UserStudyState | null>(null);
 
   // 1. Firebase Auth listener
   useEffect(() => {
@@ -259,6 +275,7 @@ export default function Home() {
         if (docSnap.exists()) {
           const cloudData = docSnap.data();
           if (cloudData) {
+            if (cloudData.studyTracker) setInitialCloudStudyState(cloudData.studyTracker as UserStudyState);
             if (cloudData.language) setLanguage(cloudData.language as Language);
             if (cloudData.theme) setTheme(cloudData.theme as VisualTheme);
             if (cloudData.fontSize) setFontSize(cloudData.fontSize as FontSize);
@@ -736,7 +753,7 @@ export default function Home() {
     : 0;
 
   return (
-    <StudyTrackerProvider userUid={user?.uid}>
+    <StudyTrackerProvider user={user} userUid={user?.uid} initialCloudState={initialCloudStudyState}>
       <div className="min-h-screen flex flex-col justify-between w-full max-w-full overflow-x-clip">
         {/* Notch / Status Bar Glass Shield for Mobile PWA */}
         <div className="app-notch-glass-shield" aria-hidden="true" />
@@ -791,14 +808,41 @@ export default function Home() {
         {/* Real-time Study & Quiz Summary Bar with Quick Analytics Access */}
         <StatsBar
           language={language}
-          totalCards={ALL_PHARMACY_CARDS.length}
+          totalCards={ALL_PHARMACY_CARDS.length + OTC_SCENARIOS.length + SHELF_PRODUCTS.length}
           reviewedCount={reviewedCount}
           flaggedCount={flaggedCount}
           quizScorePct={quizMasteryPct}
           onOpenAnalytics={handleOpenAnalytics}
         />
 
+        {isDashboardOpen && (
+          <section className="space-y-3 animate-fadeIn" aria-label={language === 'fa' ? 'داشبورد پیشرفت' : 'Progress dashboard'}>
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-sm sm:text-base font-black app-text">
+                {language === 'fa' ? 'داشبورد پیشرفت مطالعه' : 'Study Progress Dashboard'}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsDashboardOpen(false)}
+                className="px-2.5 py-1.5 rounded-xl border app-border app-bg app-muted hover:app-text text-xs font-bold transition"
+              >
+                {language === 'fa' ? 'بازگشت به اپ' : 'Back to app'}
+              </button>
+            </div>
+            <StudyMasteryDashboard
+              language={language}
+              userProgress={{ flags, deleted, customEdits, reviewedCards, quizScores, savedNotes }}
+              leitnerCards={leitnerCards}
+              onOpenLeitnerBox={() => {
+                setIsDashboardOpen(false);
+                setActiveMainModule(5);
+              }}
+            />
+          </section>
+        )}
+
         {/* Dynamic Main Module View Router */}
+        <div className={isDashboardOpen ? 'hidden' : 'contents'}>
         {activeMainModule === 1 && (
           <OtcTriageModule
             language={language}
@@ -836,6 +880,7 @@ export default function Home() {
             onSelectCategory={setActiveCategory}
             flagFilter={flagFilter}
             onSelectFlagFilter={setFlagFilter}
+            activeMode={activeMode}
             flags={flags}
             deleted={deleted}
             customEdits={customEdits}
@@ -874,6 +919,7 @@ export default function Home() {
             onSelectCategory={setActiveCategory}
             flagFilter={flagFilter}
             onSelectFlagFilter={setFlagFilter}
+            activeMode={activeMode}
             flags={flags}
             deleted={deleted}
             customEdits={customEdits}
@@ -890,13 +936,19 @@ export default function Home() {
             onOpenAiLeitner={handleOpenAiLeitner}
           />
         )}
+        </div>
       </main>
 
       {/* Mobile Bottom Navigation Bar (Fixed for Ergonomic Touch) */}
       <BottomNav
         language={language}
         activeModule={activeMainModule}
-        onSelectModule={setActiveMainModule}
+        onSelectModule={(module) => {
+          setIsDashboardOpen(false);
+          setActiveMainModule(module);
+        }}
+        onOpenDashboard={() => setIsDashboardOpen(true)}
+        isDashboardOpen={isDashboardOpen}
         leitnerDueCount={isMounted ? leitnerDueCount : 0}
         onOpenAiTutor={() => {
           setAiTutorPrompt('');
