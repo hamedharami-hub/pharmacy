@@ -506,7 +506,7 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* FIXED COMPACT TOP HEADER */}
-        <div className="flex items-center justify-between px-3.5 sm:px-6 py-2.5 sm:py-3 border-b app-border bg-slate-950/95 backdrop-blur-md shrink-0 z-20 gap-3">
+        <div className="flex items-center justify-between px-3.5 sm:px-6 pt-[max(0.625rem,env(safe-area-inset-top))] pb-2.5 sm:py-3 border-b app-border bg-slate-950/95 backdrop-blur-md shrink-0 z-20 gap-3">
           <div className="flex items-center gap-2.5 sm:gap-3 overflow-hidden min-w-0 flex-1">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
               <Stethoscope className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
