@@ -15,6 +15,7 @@ import {
 import { haptic } from '@/lib/haptics';
 import { Flag } from 'lucide-react';
 import { useStudyTrackerContext } from './study/StudyTrackerContext';
+import { ClinicalRelationsPanel } from './ClinicalRelationsPanel';
 
 const DiseaseDetailModal = dynamic(
   () => import('./DiseaseDetailModal').then((mod) => mod.DiseaseDetailModal),
@@ -552,6 +553,15 @@ REFERRING PHARMACIST:
         </button>
       </div>
       </div>
+
+      <ClinicalRelationsPanel
+        entityId={`triage:${scenario.id}`}
+        language={language}
+        onOpenDisease={(diseaseId) => {
+          const disease = DISEASES_REGISTRY.find((item) => item.id === diseaseId);
+          if (disease) setSelectedDisease(disease);
+        }}
+      />
 
       {browseOpen && (
         <TriageStepDeck

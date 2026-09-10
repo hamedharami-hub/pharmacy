@@ -13,6 +13,7 @@ interface ClinicalRelationsPanelProps {
   entityId: string;
   language: Language;
   onOpenTriage?: (scenarioId: string) => void;
+  onOpenDisease?: (diseaseId: string) => void;
 }
 
 const labels = {
@@ -26,6 +27,7 @@ const labels = {
     disease: 'بیماری',
     concept: 'نکته بالینی',
     mechanism: 'مکانیسم دارویی',
+    medicine: 'دارو',
     open: 'باز کردن',
     review: 'برای بررسی بالینی پیشنهاد شده',
     empty: 'هنوز ارتباطی برای این مورد ثبت نشده است.',
@@ -40,6 +42,7 @@ const labels = {
     disease: 'Disease',
     concept: 'Clinical concept',
     mechanism: 'Drug mechanism',
+    medicine: 'Medicine',
     open: 'Open',
     review: 'Suggested for clinical review',
     empty: 'No connections have been registered for this item yet.',
@@ -51,10 +54,11 @@ function relationLabel(type: string, language: Language) {
   if (type === 'triages' || type === 'conversation-about') return fa ? labels.fa.triage : labels.en.triage;
   if (type === 'has-product' || type === 'used-for') return fa ? labels.fa.product : labels.en.product;
   if (type === 'explains') return fa ? labels.fa.concept : labels.en.concept;
+  if (type === 'involves-medicine') return fa ? labels.fa.medicine : labels.en.medicine;
   return fa ? labels.fa.disease : labels.en.disease;
 }
 
-export function ClinicalRelationsPanel({ entityId, language, onOpenTriage }: ClinicalRelationsPanelProps) {
+export function ClinicalRelationsPanel({ entityId, language, onOpenTriage, onOpenDisease }: ClinicalRelationsPanelProps) {
   const [expanded, setExpanded] = useState(true);
   const isFa = language === 'fa';
   const text = isFa ? labels.fa : labels.en;
@@ -92,6 +96,7 @@ export function ClinicalRelationsPanel({ entityId, language, onOpenTriage }: Cli
             const title = isFa ? entity.title.fa : entity.title.en;
             const isSuggested = relation.confidence === 'suggested';
             const isTriage = entity.type === 'triage-scenario';
+            const isDisease = entity.type === 'disease';
             return (
               <div key={relation.id} className="flex items-start gap-2 rounded-xl app-bg border app-border px-2.5 py-2.5">
                 <span className={`mt-0.5 w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${isSuggested ? 'bg-amber-500/15 text-amber-600 dark:text-amber-300' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300'}`}>
@@ -111,6 +116,15 @@ export function ClinicalRelationsPanel({ entityId, language, onOpenTriage }: Cli
                   <button
                     type="button"
                     onClick={() => onOpenTriage(entity.sourceId)}
+                    className="shrink-0 inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-[10px] font-black text-violet-700 dark:text-violet-200 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/25 transition"
+                  >
+                    {text.open}<ArrowUpRight className="w-3 h-3" />
+                  </button>
+                )}
+                {isDisease && onOpenDisease && (
+                  <button
+                    type="button"
+                    onClick={() => onOpenDisease(entity.sourceId)}
                     className="shrink-0 inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-[10px] font-black text-violet-700 dark:text-violet-200 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/25 transition"
                   >
                     {text.open}<ArrowUpRight className="w-3 h-3" />

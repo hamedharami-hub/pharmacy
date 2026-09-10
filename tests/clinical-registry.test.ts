@@ -53,6 +53,6 @@ describe('central clinical registry', () => {
 
     expect(diseaseTriageSuggestions.length).toBeGreaterThan(0);
     expect(diseaseTriageSuggestions.every((relation) => Boolean(relation.reason))).toBe(true);
-    expect(diseaseTriageSuggestions.every((relation) => relation.source.includes('scenario'))).toBe(true);
+    expect(diseaseTriageSuggestions.every((relation) => relation.source.includes('triageClinicalLinks'))).toBe(true);
   });
 });

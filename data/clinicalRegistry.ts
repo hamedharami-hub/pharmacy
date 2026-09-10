@@ -12,6 +12,7 @@ import {
   MEDICINE_IDENTITIES,
   productIdentityId,
 } from '@/lib/clinicalIdentity';
+import { TRIAGE_CLINICAL_LINKS } from '@/lib/triageClinicalLinks';
 
 export type ClinicalEntityType =
   | 'disease'
@@ -28,6 +29,7 @@ export type ClinicalRelationType =
   | 'conversation-about'
   | 'explains'
   | 'interacts-with'
+  | 'involves-medicine'
   | 'has-product'
   | 'has-medicine';
 
@@ -169,16 +171,15 @@ SHELF_PRODUCTS.forEach((product) => {
   }));
 });
 
-// Triage scenarios are linked to disease candidates by normalized title, category and patient presentation.
-OTC_SCENARIOS.forEach((scenario) => {
-  const scenarioText = textOfScenario(scenario);
-  DISEASES_REGISTRY.forEach((disease) => {
-    const terms = [disease.id.replace(/^(otc|dis)-/, '').replaceAll('_', ' '), disease.name.en, ...disease.synonyms.map(normalize)].map(normalize).filter((term) => term.length >= 4);
-    if (terms.some((term) => scenarioText.includes(term))) {
-      addRelation({ fromId: `triage:${scenario.id}`, toId: diseaseIdentityId(disease), type: 'triages', confidence: 'suggested', source: 'scenario text and disease terms', reason: 'Candidate link; requires clinical review.' });
-    }
-  });
-});
+// Canonical Triage links are reviewable suggestions until a pharmacist accepts them.
+TRIAGE_CLINICAL_LINKS.forEach((link) => addRelation({
+  fromId: `triage:${link.scenarioId}`,
+  toId: link.targetId,
+  type: link.targetType === 'disease' ? 'triages' : 'involves-medicine',
+  confidence: link.confidence,
+  source: `triageClinicalLinks:${link.source}`,
+  reason: link.reason,
+}));
 
 // A product's detected mechanism is a navigational link to the mechanism popup.
 SHELF_PRODUCTS.forEach((product) => {
