@@ -363,7 +363,7 @@ export const ClinicalKnowledgeModule: React.FC<ClinicalKnowledgeModuleProps> = (
                           onClick={() => onNavigateToModule(1, 'cough-triage')}
                           className="px-2.5 py-1 rounded-lg bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold hover:bg-emerald-600 hover:text-white transition flex items-center gap-1 cursor-pointer"
                         >
-                          ⚡ {isFa ? 'اجرا در شبیه‌ساز تریاژ OTC (Module 1)' : 'Try in OTC Triage (Mod 1)'}
+                          ⚡ {isFa ? 'اجرا در شبیه‌ساز تریاژ (ماژول ۱)' : 'Try in Clinical Triage (Mod 1)'}
                         </button>
                       ) : null}
 

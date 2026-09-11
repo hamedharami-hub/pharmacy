@@ -1443,6 +1443,19 @@ export function findDiseaseGuide(
   target: string | { id?: string; name?: { en?: string; fa?: string }; title?: { en?: string; fa?: string }; category?: { en?: string; fa?: string }; patientProfile?: { presentation?: { en?: string; fa?: string } } } | null | undefined
 ): DiseaseInfo | null {
   if (!target) return null;
+
+  // 1. Exact ID match in DISEASES_REGISTRY takes highest precedence
+  if (typeof target === 'string') {
+    const clean = target.trim().toLowerCase();
+    const exact = DISEASES_REGISTRY.find((d) => d.id.toLowerCase() === clean);
+    if (exact) return exact;
+  } else if (target && typeof target === 'object' && target.id) {
+    const objId = target.id.trim().toLowerCase();
+    const exact = DISEASES_REGISTRY.find((d) => d.id.toLowerCase() === objId);
+    if (exact) return exact;
+  }
+
+  // 2. Scenario-to-Handbook fallback
   const guide = findHandbookGuide(target);
   if (guide) {
     const found = DISEASES_REGISTRY.find(
@@ -1450,14 +1463,15 @@ export function findDiseaseGuide(
     );
     if (found) return found;
   }
+
+  // 3. Substring name match
   if (typeof target === 'string') {
     const clean = target.trim().toLowerCase();
     return (
       DISEASES_REGISTRY.find(
-        (d) => d.id === clean || d.name.en.toLowerCase().includes(clean) || d.name.fa.toLowerCase().includes(clean)
+        (d) => d.name.en.toLowerCase().includes(clean) || d.name.fa.toLowerCase().includes(clean)
       ) || null
     );
   }
-  const objId = (target.id || '').trim().toLowerCase();
-  return DISEASES_REGISTRY.find((d) => d.id === objId) || null;
+  return null;
 }

@@ -322,7 +322,7 @@ export const MindMapSettingsModal: React.FC<MindMapSettingsModalProps> = ({
                     🌐 {isFa ? 'همه ماژول‌ها' : 'All Modules'}
                   </button>
                   {[
-                    { id: 1, label: isFa ? 'ماژول ۱: تریاژ OTC' : 'Module 1: OTC' },
+                    { id: 1, label: isFa ? 'ماژول ۱: بیماری‌ها و تریاژ' : 'Module 1: Diseases & Triage' },
                     { id: 2, label: isFa ? 'ماژول ۲: قفسه دارو' : 'Module 2: Shelf' },
                     { id: 3, label: isFa ? 'ماژول ۳: نسخه‌پیچی' : 'Module 3: Dispense' },
                     { id: 4, label: isFa ? 'ماژول ۴: فارماکولوژی' : 'Module 4: Clinical' },

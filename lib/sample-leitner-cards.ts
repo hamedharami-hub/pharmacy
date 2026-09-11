@@ -131,7 +131,7 @@ export const INITIAL_SAMPLE_LEITNER_CARDS: LeitnerCard[] = [
     id: 'sample-card-triage-cough-redflags',
     userId: 'guest-system',
     module: 1,
-    moduleName: { fa: 'ماژول ۱: تریاژ و شرح حال بیمار (OTC Roleplay)', en: 'Module 1: OTC Triage & Consultation' },
+    moduleName: { fa: 'ماژول ۱: بیماری‌ها و تریاژ بالینی', en: 'Module 1: Clinical Diseases & Triage' },
     category: 'تریاژ و علائم هشدار دهنده (Red Flags)',
     topic: 'تریاژ بالینی سرفه و ارجاع فوری (Cough Red Flags)',
     question: {

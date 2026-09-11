@@ -38,7 +38,7 @@ export const ResumeStudyBanner: React.FC<ResumeStudyBannerProps> = ({
 
   // Module Names dictionary
   const moduleNames: Record<number, { fa: string; en: string }> = {
-    1: { fa: 'ماژول ۱: تریاژ OTC', en: 'Mod 1: OTC Triage' },
+    1: { fa: 'ماژول ۱: بیماری‌ها و تریاژ', en: 'Mod 1: Diseases & Triage' },
     2: { fa: 'ماژول ۲: قفسه داروها', en: 'Mod 2: Product Shelf' },
     3: { fa: 'ماژول ۳: نسخه پیچی Fred', en: 'Mod 3: Fred Dispense' },
     4: { fa: 'ماژول ۴: فارماکولوژی بالینی', en: 'Mod 4: Clinical Knowledge' },

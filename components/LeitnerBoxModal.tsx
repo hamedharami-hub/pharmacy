@@ -1292,7 +1292,7 @@ export const LeitnerBoxModal: React.FC<LeitnerBoxModalProps> = ({
                         : 'text-slate-400 hover:bg-slate-800'
                     }`}
                   >
-                    <span>{isFa ? 'ماژول ۱: تریاژ و مکالمه' : 'Mod 1: Triage'}</span>
+                    <span>{isFa ? 'ماژول ۱: بیماری‌ها و تریاژ' : 'Mod 1: Diseases & Triage'}</span>
                     <span className="text-[10px] font-mono">{cards.filter((c) => c.module === 1).length}</span>
                   </button>
 

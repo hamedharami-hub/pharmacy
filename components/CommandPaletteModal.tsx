@@ -89,7 +89,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
       {
         id: 'mod-1',
         type: 'action' as const,
-        title: { fa: 'ورود به ماژول ۱: تریاژ بالینی OTC و پروتکل‌های WWHAM', en: 'Go to Module 1: OTC Triage & WWHAM Protocols' },
+        title: { fa: 'ورود به ماژول ۱: دانشنامه بیماری‌ها و تریاژ بالینی', en: 'Go to Module 1: Clinical Diseases & Triage' },
         icon: Stethoscope,
         category: { fa: 'ناوبری ماژول‌ها', en: 'Modules' },
         action: () => {

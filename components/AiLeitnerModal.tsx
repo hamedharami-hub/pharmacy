@@ -576,7 +576,7 @@ const AiLeitnerModalContent: React.FC<AiLeitnerModalInnerProps> = ({
                     onChange={(e) => setSelectedModule(Number(e.target.value) as 1 | 2 | 3 | 4)}
                     className="w-full p-2.5 rounded-xl bg-black/40 border border-slate-700 text-slate-200 text-xs font-bold focus:outline-hidden focus:border-purple-500 cursor-pointer"
                   >
-                    <option value={1}>{isFa ? 'ماژول ۱: تریاژ و مشاوره OTC' : 'Module 1: OTC Triage & Consultation'}</option>
+                    <option value={1}>{isFa ? 'ماژول ۱: بیماری‌ها و تریاژ بالینی' : 'Module 1: Clinical Diseases & Triage'}</option>
                     <option value={2}>{isFa ? 'ماژول ۲: قفسه و فرآورده‌های S2/S3' : 'Module 2: S2/S3 Pharmacy Shelf'}</option>
                     <option value={3}>{isFa ? 'ماژول ۳: نسخه‌پیچی و Fred Dispense' : 'Module 3: Fred Dispense Simulation'}</option>
                     <option value={4}>{isFa ? 'ماژول ۴: دانش بالینی استرالیا' : 'Module 4: Clinical Knowledge'}</option>
