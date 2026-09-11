@@ -11,6 +11,7 @@ import { useStudyTrackerContext } from './study/StudyTrackerContext';
 import { StudyStatusBadge } from './study/StudyStatusBadge';
 import { StudyFlagButton } from './study/StudyFlagButton';
 import { ClinicalRelationsPanel } from './ClinicalRelationsPanel';
+import { DiseaseTriagePanel } from './DiseaseTriagePanel';
 import {
   X,
   Stethoscope,
@@ -668,16 +669,16 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
           </button>
         </div>
 
-        <div className="px-3 sm:px-5 md:px-6 pt-3 sm:pt-4 shrink-0">
-          <ClinicalRelationsPanel
-            entityId={`disease:${disease.id}`}
-            language={language}
-            onOpenTriage={(scenarioId) => onNavigateToModule?.(1, scenarioId)}
-          />
-        </div>
-
         {/* SINGLE SCROLLABLE BODY */}
         <div className="p-3 sm:p-5 md:p-6 overflow-y-auto space-y-3.5 sm:space-y-4 md:space-y-5 text-xs sm:text-sm leading-relaxed custom-scrollbar flex-1 min-h-0 select-text">
+          <div className="space-y-3">
+            <ClinicalRelationsPanel entityId={`disease:${disease.id}`} language={language} />
+            <DiseaseTriagePanel
+              diseaseId={disease.id}
+              language={language}
+              onStartTriage={(triageContext) => onNavigateToModule?.(1, triageContext)}
+            />
+          </div>
 
           {/* ============================================================ */}
           {/* PHASE 1: SIGNS, SYMPTOMS & RED FLAGS                         */}

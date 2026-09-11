@@ -1,7 +1,5 @@
-import { DISEASES_REGISTRY, DiseaseInfo, findDiseaseGuide } from '@/data/diseasesRegistry';
+import { DISEASES_REGISTRY, DiseaseInfo } from '@/data/diseasesRegistry';
 import { OTC_SCENARIOS, Scenario } from '@/data/otcScenarios';
-import { TRIAGE_CLINICAL_LINKS } from '@/lib/triageClinicalLinks';
-import { normalizeIdentityText } from '@/lib/clinicalIdentity';
 
 export interface SpecialTriageCategory {
   id: string;
@@ -47,6 +45,31 @@ export const SPECIAL_TRIAGE_CATEGORIES: SpecialTriageCategory[] = [
   },
 ];
 
+// Only this curated bridge can launch a triage scenario from a disease page.
+// Text-matched clinical links remain review-only data and must never create a direct route.
+const DISEASE_TRIAGE_SCENARIO_IDS: Record<string, readonly string[]> = {
+  'dis-asthma': ['nsaid-safety-check'],
+  'dis-soft-tissue-injury': ['musculoskeletal-triage', 'ankle-ricer-protocol'],
+  'otc-burns_sunburn': ['sunburn-triage'],
+  'otc-chickenpox': ['chickenpox-advisory'],
+  'otc-cold_sores': ['coldsore-triage'],
+  'otc-constipation': ['laxative-triage'],
+  'otc-chesty_cough': ['cough-triage'],
+  'otc-dry_cough': ['cough-triage'],
+  'otc-diarrhoea': ['diarrhea-triage'],
+  'otc-eczema': ['hydrocortisone-triage'],
+  'otc-gord_heartburn': ['dyspepsia-triage', 'heartburn-gord-triage'],
+  'otc-hayfever': ['hayfever-triage'],
+  'otc-motion_sickness': ['slang-motion-sickness-boat'],
+  'otc-nasal_congestion': ['s3-pseudoephedrine', 's3-pseudoephedrine-conflict'],
+  'otc-pain_relief': ['panadol-osteo-triage', 'nsaid-safety-check'],
+  'otc-shingles': ['shingrix-vaccine'],
+  'otc-smoking_cessation': ['smoking-cessation-5as'],
+  'otc-swimmers_ear': ['ear-triage'],
+  'otc-vaginal_thrush': ['thrush-triage'],
+  'otc-worms_pinworms': ['pinworm-triage'],
+};
+
 // Pre-computed map of diseaseId -> scenarios
 const diseaseScenariosMap = new Map<string, Scenario[]>();
 const scenarioToDiseaseMap = new Map<string, string>();
@@ -59,65 +82,15 @@ function indexScenarios() {
     diseaseScenariosMap.set(d.id, []);
   });
 
-  // 1. Index clinical links from triageClinicalLinks
-  TRIAGE_CLINICAL_LINKS.forEach((link) => {
-    if (link.targetType !== 'disease') return;
-    const diseaseId = link.targetId.replace(/^disease:/, '');
-    const scenario = OTC_SCENARIOS.find((s) => s.id === link.scenarioId);
-    if (!scenario) return;
-
-    // Find disease record
-    const targetDisease = DISEASES_REGISTRY.find(
-      (d) => d.id === diseaseId || d.id === `dis-${diseaseId}` || d.id === `otc-${diseaseId}` || d.id.replace(/^(dis|otc)-/, '') === diseaseId
-    );
-    if (targetDisease) {
-      const list = diseaseScenariosMap.get(targetDisease.id) || [];
-      if (!list.some((s) => s.id === scenario.id)) {
-        list.push(scenario);
-        diseaseScenariosMap.set(targetDisease.id, list);
-      }
-      if (!scenarioToDiseaseMap.has(scenario.id)) {
-        scenarioToDiseaseMap.set(scenario.id, targetDisease.id);
-      }
-    }
-  });
-
-  // 2. Index via findDiseaseGuide for clinical scenarios
-  OTC_SCENARIOS.forEach((scenario) => {
-    if (scenario.id.startsWith('slang-') || scenario.id.startsWith('admin-')) return;
-    const guide = findDiseaseGuide(scenario);
-    if (guide) {
-      const list = diseaseScenariosMap.get(guide.id) || [];
-      if (!list.some((s) => s.id === scenario.id)) {
-        list.push(scenario);
-        diseaseScenariosMap.set(guide.id, list);
-      }
-      if (!scenarioToDiseaseMap.has(scenario.id)) {
-        scenarioToDiseaseMap.set(scenario.id, guide.id);
-      }
-    }
-  });
-
-  // 3. Match by name or synonym tokens
-  OTC_SCENARIOS.forEach((scenario) => {
-    if (scenarioToDiseaseMap.has(scenario.id) || scenario.id.startsWith('slang-') || scenario.id.startsWith('admin-')) return;
-    const scenarioTitleNorm = normalizeIdentityText(scenario.title.en + ' ' + scenario.title.fa);
-    for (const disease of DISEASES_REGISTRY) {
-      const diseaseNameEn = normalizeIdentityText(disease.name.en);
-      const diseaseNameFa = normalizeIdentityText(disease.name.fa);
-      if (
-        (diseaseNameEn.length > 3 && scenarioTitleNorm.includes(diseaseNameEn)) ||
-        (diseaseNameFa.length > 3 && scenarioTitleNorm.includes(diseaseNameFa))
-      ) {
-        const list = diseaseScenariosMap.get(disease.id) || [];
-        if (!list.some((s) => s.id === scenario.id)) {
-          list.push(scenario);
-          diseaseScenariosMap.set(disease.id, list);
-        }
-        scenarioToDiseaseMap.set(scenario.id, disease.id);
-        break;
-      }
-    }
+  Object.entries(DISEASE_TRIAGE_SCENARIO_IDS).forEach(([diseaseId, scenarioIds]) => {
+    if (!diseaseScenariosMap.has(diseaseId)) return;
+    const scenarios = scenarioIds
+      .map((scenarioId) => OTC_SCENARIOS.find((scenario) => scenario.id === scenarioId))
+      .filter((scenario): scenario is Scenario => Boolean(scenario));
+    diseaseScenariosMap.set(diseaseId, scenarios);
+    scenarios.forEach((scenario) => {
+      if (!scenarioToDiseaseMap.has(scenario.id)) scenarioToDiseaseMap.set(scenario.id, diseaseId);
+    });
   });
 }
 

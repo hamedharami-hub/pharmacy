@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { startTransition, useState, useEffect, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { OTC_SCENARIOS, Scenario, WwhamQuestion, DialogueOption, ConversationMode } from '@/data/otcScenarios';
 import { DiseaseInfo, DISEASES_REGISTRY, findDiseaseGuide } from '@/data/diseasesRegistry';
@@ -17,6 +17,7 @@ import { UnifiedDiseaseExplorer } from './triage/UnifiedDiseaseExplorer';
 import { SPECIAL_TRIAGE_CATEGORIES, hasTriageScenario, getDiseaseForScenario } from '@/lib/diseaseTriageBridge';
 import { matchDiseaseToSubcategory } from '@/lib/diseaseSubcategories';
 import { haptic } from '@/lib/haptics';
+import { getTriageScenarioId } from '@/lib/triageNavigation';
 import { ArrowLeft, BookOpen, Flag, Sparkles, Stethoscope } from 'lucide-react';
 import { useStudyTrackerContext } from './study/StudyTrackerContext';
 import { ClinicalRelationsPanel } from './ClinicalRelationsPanel';
@@ -76,44 +77,6 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
 
   // Modals & UI controls
   const [selectedDisease, setSelectedDisease] = useState<DiseaseInfo | null>(null);
-
-  // Handle incoming targetContext (render-time prop sync)
-  const [prevTargetContext, setPrevTargetContext] = useState<string | null | undefined>(null);
-  if (targetContext && targetContext !== prevTargetContext) {
-    setPrevTargetContext(targetContext);
-    if (targetContext.startsWith('disease:')) {
-      const clean = targetContext.replace(/^disease:/, '').toLowerCase();
-      const matched = DISEASES_REGISTRY.find(
-        (d) =>
-          d.id.toLowerCase() === clean ||
-          d.name.en.toLowerCase().includes(clean) ||
-          d.name.fa.toLowerCase().includes(clean)
-      );
-      if (matched) {
-        setSelectedDisease(matched);
-        setSelectedCategoryId(matched.categoryId);
-        setActiveView('diseases');
-      }
-    } else if (
-      targetContext.startsWith('triage:') ||
-      targetContext.startsWith('otc:') ||
-      targetContext.startsWith('slang-') ||
-      targetContext.startsWith('admin-')
-    ) {
-      const cleanId = targetContext.replace(/^(triage|otc):/, '');
-      const matchedScenario = OTC_SCENARIOS.find((s) => s.id === cleanId || s.id === targetContext);
-      if (matchedScenario) {
-        setSelectedScenarioId(matchedScenario.id);
-        setActiveView('simulator');
-      }
-    }
-  }
-
-  useEffect(() => {
-    if (targetContext) {
-      onClearTargetContext?.();
-    }
-  }, [targetContext, onClearTargetContext]);
 
   // Current active scenario in simulator
   const scenario = useMemo(() => {
@@ -262,7 +225,7 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
     return SPECIAL_TRIAGE_CATEGORIES.find((c) => c.id === selectedCategoryId) || null;
   }, [selectedCategoryId]);
 
-  const resetScenarioState = (targetScenario: Scenario) => {
+  const resetScenarioState = useCallback((targetScenario: Scenario) => {
     setAskedQuestions({});
     setAskedRedFlagChecks({});
     setSelectedDialogueId(null);
@@ -281,7 +244,40 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
         badgeFa: 'شرح اصلی مراجعه',
       },
     ]);
-  };
+  }, []);
+
+  // Open incoming links after render. A triage context always selects its scenario directly.
+  useEffect(() => {
+    if (!targetContext) return;
+
+    if (targetContext.startsWith('disease:')) {
+      const clean = targetContext.replace(/^disease:/, '').toLowerCase();
+      const matched = DISEASES_REGISTRY.find(
+        (d) =>
+          d.id.toLowerCase() === clean ||
+          d.name.en.toLowerCase().includes(clean) ||
+          d.name.fa.toLowerCase().includes(clean)
+      );
+      if (matched) {
+        startTransition(() => {
+          setSelectedDisease(matched);
+          setSelectedCategoryId(matched.categoryId);
+          setActiveView('diseases');
+        });
+      }
+    } else {
+      const scenarioId = getTriageScenarioId(targetContext);
+      const matchedScenario = OTC_SCENARIOS.find((s) => s.id === scenarioId);
+      if (matchedScenario) {
+        startTransition(() => {
+          setSelectedScenarioId(matchedScenario.id);
+          resetScenarioState(matchedScenario);
+          setActiveView('simulator');
+        });
+      }
+    }
+    onClearTargetContext?.();
+  }, [onClearTargetContext, resetScenarioState, targetContext]);
 
   const handleSelectScenario = (id: string) => {
     setSelectedScenarioId(id);
@@ -773,7 +769,12 @@ REFERRING PHARMACIST:
                   : entity.type === 'clinical-concept' || entity.type === 'cyp-enzyme' || entity.type === 'mechanism'
                   ? 4
                   : 2;
-              onNavigateToModule(targetModule, entity.title.en);
+              const targetContext = entity.type === 'triage-scenario'
+                ? `triage:${entity.sourceId}`
+                : entity.type === 'product' || entity.type === 'medicine'
+                  ? `product:${entity.title.en}`
+                  : entity.sourceId;
+              onNavigateToModule(targetModule, targetContext);
             }}
             onOpenDisease={(diseaseId) => {
               const disease = DISEASES_REGISTRY.find((item) => item.id === diseaseId);
@@ -884,7 +885,8 @@ REFERRING PHARMACIST:
               onNavigateToFred(scId);
             } else if (modNum === 1) {
               // Direct start triage for this disease
-              const matchingScenarios = OTC_SCENARIOS.filter((s) => s.id === scId);
+              const scenarioId = scId?.replace(/^(triage|otc):/, '');
+              const matchingScenarios = OTC_SCENARIOS.filter((s) => s.id === scenarioId);
               if (matchingScenarios[0]) {
                 handleStartTriageForDisease(selectedDisease, matchingScenarios[0]);
                 setSelectedDisease(null);

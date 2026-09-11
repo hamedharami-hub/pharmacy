@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ClinicalRelationsPanel } from '@/components/ClinicalRelationsPanel';
 import { ClinicalRelationsReviewPanel } from '@/components/ClinicalRelationsReviewPanel';
-import { CLINICAL_RELATIONS } from '@/data/clinicalRegistry';
+import { CLINICAL_RELATIONS, getClinicalEntity } from '@/data/clinicalRegistry';
 import {
   getClinicalRelationReviews,
   saveClinicalRelationReview,
@@ -34,7 +34,7 @@ describe('clinical relation review UI', () => {
     }));
   });
 
-  it('labels an accepted suggested connection and never calls it verified', async () => {
+  it('shows approved links in the open compact layout without per-row relation labels', async () => {
     expect(suggested).toBeTruthy();
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: 360, writable: true });
     const { container } = render(<ClinicalRelationsPanel entityId={suggested!.fromId} language="en" />);
@@ -42,10 +42,22 @@ describe('clinical relation review UI', () => {
     expect(screen.queryByText('Suggested relation')).not.toBeInTheDocument();
 
     act(() => saveClinicalRelationReview(suggested!.id, 'accepted'));
-    await waitFor(() => expect(screen.getByText('Approved in review')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Only source-backed or review-approved links')).toBeInTheDocument());
     const section = container.querySelector('section');
-    expect(section?.className).toContain('overflow-hidden');
+    expect(section?.className).not.toContain('overflow-hidden');
+    expect(container.querySelector('[aria-expanded]')).not.toBeInTheDocument();
     expect(container.querySelector('.min-w-0')).toBeInTheDocument();
-    expect(container.querySelector('.shrink-0')).toBeInTheDocument();
+  });
+
+  it('keeps the generic medicine and its brand in one row', () => {
+    const medicineRelation = CLINICAL_RELATIONS.find((relation) => relation.type === 'has-product');
+    expect(medicineRelation).toBeTruthy();
+    const product = getClinicalEntity(medicineRelation!.toId);
+    expect(product?.type).toBe('product');
+
+    render(<ClinicalRelationsPanel entityId={medicineRelation!.fromId} language="en" />);
+    const generic = screen.getByText(String(product!.metadata?.genericName));
+    const brand = screen.getByText(product!.title.en);
+    expect(generic.closest('.grid')).toContainElement(brand);
   });
 });
