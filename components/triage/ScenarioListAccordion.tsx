@@ -4,7 +4,7 @@ import React from 'react';
 import { Language } from '@/types/pharmacy';
 import { Scenario } from '@/data/otcScenarios';
 import { getScenarioMode } from './types';
-import { Check, ChevronDown, Layers, MessageSquare } from 'lucide-react';
+import { ChevronDown, Layers } from 'lucide-react';
 import { haptic } from '@/lib/haptics';
 import { StudyFlagButton } from '@/components/study/StudyFlagButton';
 
@@ -15,6 +15,8 @@ export interface ScenarioListAccordionProps {
   onSelectScenario: (id: string) => void;
   isOpen: boolean;
   onToggleOpen: () => void;
+  /** The surrounding picker can provide its own trigger and keep this list directly visible. */
+  showTrigger?: boolean;
   language: Language;
 }
 
@@ -31,6 +33,7 @@ export const ScenarioListAccordion: React.FC<ScenarioListAccordionProps> = ({
   onSelectScenario,
   isOpen,
   onToggleOpen,
+  showTrigger = true,
   language,
 }) => {
   const isFa = language === 'fa';
@@ -46,11 +49,12 @@ export const ScenarioListAccordion: React.FC<ScenarioListAccordionProps> = ({
   return (
     <div className="space-y-3">
       <div className="app-card border app-border rounded-2xl overflow-hidden shadow-sm transition-all">
-        <button
-          type="button"
-          onClick={onToggleOpen}
-          className="w-full p-3 sm:p-3.5 app-bg hover:bg-black/5 dark:hover:bg-slate-900 flex items-center justify-between gap-3 text-start cursor-pointer transition-colors"
-        >
+        {showTrigger && (
+          <button
+            type="button"
+            onClick={onToggleOpen}
+            className="w-full p-3 sm:p-3.5 app-bg hover:bg-black/5 dark:hover:bg-slate-900 flex items-center justify-between gap-3 text-start cursor-pointer transition-colors"
+          >
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <div className="p-2 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/30 shrink-0">
               <Layers className="w-4 h-4" />
@@ -70,9 +74,10 @@ export const ScenarioListAccordion: React.FC<ScenarioListAccordionProps> = ({
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isOpen ? 'rotate-180 text-sky-500' : ''}`} />
             </div>
           </div>
-        </button>
+          </button>
+        )}
 
-        {isOpen && (
+        {(!showTrigger || isOpen) && (
           <div className="p-3 sm:p-4 border-t app-border bg-black/5 dark:bg-slate-950/40 animate-fadeIn space-y-2.5">
             <div className="flex items-center justify-between gap-2 pb-1.5 border-b app-border">
               <div className="flex items-center gap-2 text-xs font-bold text-sky-400">
@@ -97,48 +102,40 @@ export const ScenarioListAccordion: React.FC<ScenarioListAccordionProps> = ({
                         : { label: isFa ? 'عامیانه و OTC (B)' : 'OTC / Slang (B)', bg: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' };
 
                   return (
-                    <button
+                    <div
                       key={sc.id}
-                      type="button"
-                      onClick={() => {
-                        haptic.light();
-                        onSelectScenario(sc.id);
-                        onToggleOpen();
-                      }}
-                      className={`p-3 rounded-xl border text-right transition flex items-start justify-between gap-3 cursor-pointer ${
+                      className={`relative rounded-xl border transition ${
                         isSelected
                           ? 'bg-sky-600/25 border-sky-500 text-white shadow-md ring-1 ring-sky-500/60'
                           : 'bg-slate-900/60 hover:bg-slate-800/80 border-slate-800/90 text-slate-300 hover:border-sky-500/40'
                       }`}
                     >
-                      <div className="space-y-1 overflow-hidden flex-1">
-                        <div className="font-bold text-xs text-slate-100 leading-snug line-clamp-1">
-                          <span className="text-sky-400 ml-1 font-mono">{idx + 1}.</span>
-                          {getCleanTitle(sc)}
-                        </div>
-                        <div className="text-[11px] text-slate-400 line-clamp-1">
-                          <span className="text-sky-300 font-medium">{sc.patientProfile.name}</span>
-                          <span className="mx-1 text-slate-600">•</span>
-                          <span>{getCleanPresentation(sc)}</span>
-                        </div>
-                        <span className={`inline-block text-[9px] px-1.5 py-0.5 rounded-md border font-mono font-bold ${modeBadge.bg}`}>
-                          {modeBadge.label}
-                        </span>
-                      </div>
-
-                      <div className="shrink-0 pt-0.5">
-                        <StudyFlagButton itemId={`otc:${sc.id}`} language={language} className="mb-1" />
-                        {isSelected ? (
-                          <div className="w-5 h-5 rounded-full bg-sky-500 text-black flex items-center justify-center font-bold shadow-sm">
-                            <Check className="w-3 h-3 stroke-[3]" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          haptic.light();
+                          onSelectScenario(sc.id);
+                          if (showTrigger) onToggleOpen();
+                        }}
+                        className="w-full p-3 pe-11 rounded-xl text-right flex items-start cursor-pointer"
+                      >
+                        <div className="space-y-1 overflow-hidden flex-1">
+                          <div className="font-bold text-xs text-slate-100 leading-snug line-clamp-1">
+                            <span className="text-sky-400 ml-1 font-mono">{idx + 1}.</span>
+                            {getCleanTitle(sc)}
                           </div>
-                        ) : (
-                          <div className="w-5 h-5 rounded-full border border-slate-700 flex items-center justify-center text-slate-500">
-                            <MessageSquare className="w-2.5 h-2.5" />
+                          <div className="text-[11px] text-slate-400 line-clamp-1">
+                            <span className="text-sky-300 font-medium">{sc.patientProfile.name}</span>
+                            <span className="mx-1 text-slate-600">•</span>
+                            <span>{getCleanPresentation(sc)}</span>
                           </div>
-                        )}
-                      </div>
-                    </button>
+                          <span className={`inline-block text-[9px] px-1.5 py-0.5 rounded-md border font-mono font-bold ${modeBadge.bg}`}>
+                            {modeBadge.label}
+                          </span>
+                        </div>
+                      </button>
+                      <StudyFlagButton itemId={`otc:${sc.id}`} language={language} className="absolute top-2 end-2" />
+                    </div>
                   );
                 })
               ) : (

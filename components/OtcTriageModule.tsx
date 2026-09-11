@@ -18,7 +18,7 @@ import { SPECIAL_TRIAGE_CATEGORIES, hasTriageScenario, getDiseaseForScenario } f
 import { matchDiseaseToSubcategory } from '@/lib/diseaseSubcategories';
 import { haptic } from '@/lib/haptics';
 import { getTriageScenarioId } from '@/lib/triageNavigation';
-import { ArrowLeft, BookOpen, Flag, Sparkles, Stethoscope } from 'lucide-react';
+import { ArrowLeft, BookOpen, Flag } from 'lucide-react';
 import { useStudyTrackerContext } from './study/StudyTrackerContext';
 import { ClinicalRelationsPanel } from './ClinicalRelationsPanel';
 
@@ -70,7 +70,6 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
   // Mode and scenario state for simulator
   const [selectedConversationMode, setSelectedConversationMode] = useState<ConversationMode | 'ALL'>('MODE_B_SLANG');
   const [selectedScenarioId, setSelectedScenarioId] = useState<string>(OTC_SCENARIOS[0].id);
-  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [scenarioSearchTerm, setScenarioSearchTerm] = useState('');
   const [isBrowseOpen, setIsBrowseOpen] = useState(false);
   const [unreadOnly, setUnreadOnly] = useState(false);
@@ -272,6 +271,7 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
         startTransition(() => {
           setSelectedScenarioId(matchedScenario.id);
           resetScenarioState(matchedScenario);
+          setIsBrowseOpen(false);
           setActiveView('simulator');
         });
       }
@@ -284,6 +284,7 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
     const target = OTC_SCENARIOS.find((s) => s.id === id) || OTC_SCENARIOS[0];
     markItemViewed(1, `otc:${target.id}`, target.title, { fa: 'تریاژ بالینی', en: 'Clinical Triage' }, { mode: getScenarioMode(target) });
     resetScenarioState(target);
+    setIsBrowseOpen(false);
   };
 
   const handleSelectMode = (mode: ConversationMode | 'ALL') => {
@@ -320,6 +321,7 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
   const handleStartTriageForDisease = (disease: DiseaseInfo, targetScenario: Scenario) => {
     setSelectedScenarioId(targetScenario.id);
     resetScenarioState(targetScenario);
+    setIsBrowseOpen(false);
     setActiveView('simulator');
     markItemViewed(1, `otc:${targetScenario.id}`, targetScenario.title, { fa: 'تریاژ بالینی', en: 'Clinical Triage' }, { mode: getScenarioMode(targetScenario) });
   };
@@ -328,6 +330,7 @@ export const OtcTriageModule: React.FC<OtcTriageModuleProps> = ({
   const handleStartSpecialScenario = (targetScenario: Scenario) => {
     setSelectedScenarioId(targetScenario.id);
     resetScenarioState(targetScenario);
+    setIsBrowseOpen(false);
     setActiveView('simulator');
     markItemViewed(1, `otc:${targetScenario.id}`, targetScenario.title, { fa: 'تریاژ ویژه', en: 'Special Triage' }, { mode: getScenarioMode(targetScenario) });
   };
@@ -606,47 +609,8 @@ REFERRING PHARMACIST:
   const wwhamCount = Object.keys(askedQuestions).length;
   const allWwhamAsked = wwhamCount >= 4;
   const selectedOption = scenario.dialogueOptions.find((o) => o.id === selectedDialogueId) || null;
-  const browseOpen = isBrowseOpen && !scenarioSearchTerm.trim();
-
   return (
     <div className="space-y-4 sm:space-y-5 animate-fadeIn pb-12">
-      {/* 1. TOP MODULE NAVIGATION: Diseases & Triage Hub vs Simulator Deck */}
-      <div className="flex items-center justify-between gap-2 p-1.5 bg-black/5 dark:bg-slate-900/60 rounded-2xl border app-border">
-        <div className="flex items-center gap-1.5 flex-1">
-          <button
-            type="button"
-            onClick={() => setActiveView('diseases')}
-            className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer border ${
-              activeView === 'diseases'
-                ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm ring-1 ring-emerald-400/30'
-                : 'app-bg app-border app-muted hover:app-text hover:bg-black/5 dark:hover:bg-slate-800/60'
-            }`}
-          >
-            <Stethoscope className="w-4 h-4" />
-            <span>{isFa ? 'دانشنامه بیماری‌ها و تریاژ' : 'Diseases & Triage Hub'}</span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-black/20 text-white">
-              {DISEASES_REGISTRY.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveView('simulator')}
-            className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer border ${
-              activeView === 'simulator'
-                ? 'bg-indigo-600 text-white border-indigo-500 shadow-sm ring-1 ring-indigo-400/30'
-                : 'app-bg app-border app-muted hover:app-text hover:bg-black/5 dark:hover:bg-slate-800/60'
-            }`}
-          >
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>{isFa ? 'شبیه‌ساز تعاملی مکالمه تریاژ' : 'Interactive Triage Deck'}</span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-black/20 text-white">
-              {OTC_SCENARIOS.length}
-            </span>
-          </button>
-        </div>
-      </div>
-
       {/* VIEW 1: UNIFIED DISEASES & TRIAGE EXPLORER */}
       {activeView === 'diseases' && (
         <div className="space-y-4 animate-fadeIn">
@@ -671,6 +635,11 @@ REFERRING PHARMACIST:
             onSelectDisease={(disease) => setSelectedDisease(disease)}
             onStartTriageForDisease={handleStartTriageForDisease}
             onStartSpecialScenario={handleStartSpecialScenario}
+            onBrowseTriage={() => {
+              setScenarioSearchTerm('');
+              setIsBrowseOpen(true);
+              setActiveView('simulator');
+            }}
           />
         </div>
       )}
@@ -715,8 +684,6 @@ REFERRING PHARMACIST:
               filteredScenarios={filteredScenarios}
               scenarioSearchTerm={scenarioSearchTerm}
               setScenarioSearchTerm={setScenarioSearchTerm}
-              isAccordionOpen={isAccordionOpen}
-              setIsAccordionOpen={setIsAccordionOpen}
               isBrowseOpen={isBrowseOpen}
               setIsBrowseOpen={setIsBrowseOpen}
               modeACount={modeACount}
@@ -782,8 +749,7 @@ REFERRING PHARMACIST:
             }}
           />
 
-          {browseOpen && (
-            <TriageStepDeck
+          <TriageStepDeck
               language={language}
               scenario={scenario}
               linkedHandbookDisease={linkedHandbookDisease}
@@ -818,8 +784,7 @@ REFERRING PHARMACIST:
               onNavigateToFred={onNavigateToFred}
               onNavigateToModule={onNavigateToModule}
               onOpenAiLeitner={onOpenAiLeitner}
-            />
-          )}
+          />
         </div>
       )}
 

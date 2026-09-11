@@ -106,9 +106,11 @@ describe('Diseases and Triage Bridge & Subcategories', () => {
     // Should render disease names
     expect(screen.getByText(sampleDiseases[0].name.en)).toBeInTheDocument();
 
-    // Check for triage badge or start triage button if any of first 5 has triage
-    const triageBadges = screen.queryAllByText(/تریاژ بالینی/i);
-    expect(triageBadges.length).toBeGreaterThan(0);
+    // A disease with a linked case exposes one direct, unambiguous start action.
+    const triageButtons = screen.getAllByRole('button', { name: /شروع تریاژ/i });
+    expect(triageButtons.length).toBeGreaterThan(0);
+    fireEvent.click(triageButtons[0]);
+    expect(onStartTriage).toHaveBeenCalledTimes(1);
   });
 
   it('renders special categories (Slang / Admin) scenarios properly', () => {

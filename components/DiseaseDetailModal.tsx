@@ -25,10 +25,8 @@ import {
   Baby,
   HeartPulse,
   Clock,
-  ArrowRight,
   BookmarkCheck,
   Tag,
-  CheckCircle2,
   AlertTriangle,
   Layers,
   ChevronLeft,
@@ -193,7 +191,6 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
   const isMounted = React.useSyncExternalStore(emptySubscribe, () => true, () => false);
   const [expandedMedIds, setExpandedMedIds] = useState<Record<number, boolean>>({});
   const [isSynonymsOpen, setIsSynonymsOpen] = useState<boolean>(false);
-  const [activePhaseTab, setActivePhaseTab] = useState<'profile' | 'treatment' | 'medicines'>('profile');
 
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
@@ -625,50 +622,6 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
           </div>
         )}
 
-        {/* 3-PHASE TAB BAR */}
-        <div className="grid grid-cols-3 gap-1 p-1.5 sm:p-2 bg-slate-950/90 border-b border-slate-800 text-xs shrink-0">
-          <button
-            type="button"
-            onClick={() => setActivePhaseTab('profile')}
-            className={`py-2 rounded-xl font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-              activePhaseTab === 'profile'
-                ? 'bg-sky-600 text-white shadow-xs'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-            }`}
-          >
-            <Stethoscope className="w-3.5 h-3.5" />
-            <span className="truncate">{isFa ? '۱. علائم و خط قرمزها' : '1. Signs & Red Flags'}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActivePhaseTab('treatment')}
-            className={`py-2 rounded-xl font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-              activePhaseTab === 'treatment'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-            }`}
-          >
-            <Pill className="w-3.5 h-3.5" />
-            <span className="truncate">{isFa ? '۲. پروتکل درمان و دوزاژ' : '2. Treatment & Dosing'}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActivePhaseTab('medicines')}
-            className={`py-2 rounded-xl font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-              activePhaseTab === 'medicines'
-                ? 'bg-teal-600 text-white shadow-xs'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span className="truncate">
-              {isFa ? `۳. داروهای قفسه (${medicines.length})` : `3. Medicines (${medicines.length})`}
-            </span>
-          </button>
-        </div>
-
         {/* SINGLE SCROLLABLE BODY */}
         <div className="p-3 sm:p-5 md:p-6 overflow-y-auto space-y-3.5 sm:space-y-4 md:space-y-5 text-xs sm:text-sm leading-relaxed custom-scrollbar flex-1 min-h-0 select-text">
           <div className="space-y-3">
@@ -680,11 +633,13 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
             />
           </div>
 
-          {/* ============================================================ */}
-          {/* PHASE 1: SIGNS, SYMPTOMS & RED FLAGS                         */}
-          {/* ============================================================ */}
-          {activePhaseTab === 'profile' && (
-            <div className="space-y-4 animate-fadeIn">
+          <section className="space-y-4" aria-labelledby="disease-signs-heading">
+            <div className="flex items-center gap-2 px-1">
+              <Stethoscope className="w-4 h-4 text-sky-500" />
+              <h2 id="disease-signs-heading" className="text-sm font-black app-text">
+                {isFa ? 'علائم، ارزیابی و خط قرمزها' : 'Signs, assessment and red flags'}
+              </h2>
+            </div>
               {/* 1. Pathophysiology & Clinical Presentations (Symptoms Grid) */}
               {resolvedSymptoms.length > 0 && (
                 <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl app-card border app-border space-y-2.5 shadow-xs">
@@ -753,22 +708,15 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                 </div>
               )}
 
-              {/* Jump to Phase 2 Button */}
-              <button
-                type="button"
-                onClick={() => setActivePhaseTab('treatment')}
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg cursor-pointer transition"
-              >
-                <span>{isFa ? 'مشاهده پروتکل خط اول درمان و دوزاژ سنی ➜' : 'View First-Line Treatment & Dosing ➜'}</span>
-              </button>
-            </div>
-          )}
+          </section>
 
-          {/* ============================================================ */}
-          {/* PHASE 2: TREATMENT PROTOCOL & DOSING                         */}
-          {/* ============================================================ */}
-          {activePhaseTab === 'treatment' && (
-            <div className="space-y-4 animate-fadeIn">
+          <section className="space-y-4" aria-labelledby="disease-treatment-heading">
+            <div className="flex items-center gap-2 px-1">
+              <Pill className="w-4 h-4 text-emerald-500" />
+              <h2 id="disease-treatment-heading" className="text-sm font-black app-text">
+                {isFa ? 'درمان و دوزبندی' : 'Treatment and dosing'}
+              </h2>
+            </div>
               {/* First-Line Treatment Protocol Card */}
               <div className="p-3.5 sm:p-5 rounded-2xl app-card border border-emerald-500/35 space-y-3.5 shadow-md bg-emerald-500/5 dark:bg-emerald-950/20">
                 <div className="flex items-center justify-between border-b border-emerald-500/20 pb-2.5">
@@ -872,32 +820,15 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                 </p>
               </div>
 
-              {/* Next/Back Navigation */}
-              <div className="flex items-center gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setActivePhaseTab('profile')}
-                  className="flex-1 py-3 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs flex items-center justify-center gap-1.5 border border-slate-700 cursor-pointer"
-                >
-                  <span>{isFa ? '← بازگشت به علائم' : '← Back to Signs'}</span>
-                </button>
+          </section>
 
-                <button
-                  type="button"
-                  onClick={() => setActivePhaseTab('medicines')}
-                  className="flex-1 py-3 rounded-xl bg-teal-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
-                >
-                  <span>{isFa ? `مشاهده داروهای قفسه (${medicines.length}) ➜` : `View Medicines (${medicines.length}) ➜`}</span>
-                </button>
-              </div>
+          <section className="space-y-4" aria-labelledby="disease-medicines-heading">
+            <div className="flex items-center gap-2 px-1">
+              <Layers className="w-4 h-4 text-indigo-500" />
+              <h2 id="disease-medicines-heading" className="text-sm font-black app-text">
+                {isFa ? `داروها و برندهای استرالیایی (${medicines.length})` : `Medicines and Australian brands (${medicines.length})`}
+              </h2>
             </div>
-          )}
-
-          {/* ============================================================ */}
-          {/* PHASE 3: APPROVED OTC MEDICINES & SHELF LINKING              */}
-          {/* ============================================================ */}
-          {activePhaseTab === 'medicines' && (
-            <div className="space-y-4 animate-fadeIn">
               {medicines.length > 0 ? (
                 <div className="space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b app-border pb-2">
@@ -1141,31 +1072,7 @@ export const DiseaseDetailModal: React.FC<DiseaseDetailModalProps> = ({
                 </div>
               )}
 
-              {/* Jump to Module 2 Shelf */}
-              {onNavigateToModule && (
-                <div className="pt-2 flex justify-between items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setActivePhaseTab('treatment')}
-                    className="py-2.5 px-4 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs flex items-center gap-1 border border-slate-700 cursor-pointer"
-                  >
-                    <span>{isFa ? '← بازگشت به پروتکل درمان' : '← Back to Protocol'}</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      onClose();
-                      onNavigateToModule(2);
-                    }}
-                    className="py-2.5 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer"
-                  >
-                    <span>{isFa ? 'مشاهده در قفسه محصولات (ماژول ۲)' : 'View in Shelf (Module 2)'}</span>
-                    <ArrowRight className="w-4 h-4 rtl:rotate-180" />
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+          </section>
         </div>
       </div>
     </div>,

@@ -29,6 +29,7 @@ interface UnifiedDiseaseExplorerProps {
   onSelectDisease: (disease: DiseaseInfo) => void;
   onStartTriageForDisease: (disease: DiseaseInfo, scenario: Scenario) => void;
   onStartSpecialScenario: (scenario: Scenario) => void;
+  onBrowseTriage?: () => void;
 }
 
 export const UnifiedDiseaseExplorer: React.FC<UnifiedDiseaseExplorerProps> = ({
@@ -40,6 +41,7 @@ export const UnifiedDiseaseExplorer: React.FC<UnifiedDiseaseExplorerProps> = ({
   onSelectDisease,
   onStartTriageForDisease,
   onStartSpecialScenario,
+  onBrowseTriage,
 }) => {
   const isFa = language === 'fa';
   const { markItemViewed, toggleItemCompleted, isViewed, isCompleted } = useStudyTrackerContext();
@@ -194,26 +196,38 @@ export const UnifiedDiseaseExplorer: React.FC<UnifiedDiseaseExplorerProps> = ({
   return (
     <div className="space-y-4 animate-fadeIn">
       {/* Search Input Bar */}
-      <div className="relative">
-        <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => onSearchQueryChange(e.target.value)}
-          placeholder={
-            isFa
-              ? 'جستجوی نام بیماری، داروها، علائم، یا کد درمان...'
-              : 'Search disease name, medicines, symptoms...'
-          }
-          className="w-full h-11 ps-10 pe-9 rounded-2xl bg-black/5 dark:bg-slate-900/60 border app-border text-xs focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500/60 transition outline-hidden"
-        />
-        {searchQuery && (
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 absolute start-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => onSearchQueryChange(e.target.value)}
+            placeholder={
+              isFa
+                ? 'جستجوی بیماری، دارو یا علامت…'
+                : 'Search disease, medicine or symptom…'
+            }
+            className="w-full h-11 ps-10 pe-9 rounded-2xl bg-black/5 dark:bg-slate-900/60 border app-border text-xs focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500/60 transition outline-hidden"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => onSearchQueryChange('')}
+              className="absolute end-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-white"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+        {onBrowseTriage && (
           <button
             type="button"
-            onClick={() => onSearchQueryChange('')}
-            className="absolute end-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-white"
+            onClick={onBrowseTriage}
+            className="h-11 shrink-0 px-3 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold flex items-center gap-1.5 transition cursor-pointer"
           >
-            <X className="w-3.5 h-3.5" />
+            <Stethoscope className="w-3.5 h-3.5" />
+            <span>{isFa ? 'تریاژ' : 'Triage'}</span>
           </button>
         )}
       </div>
@@ -245,45 +259,29 @@ export const UnifiedDiseaseExplorer: React.FC<UnifiedDiseaseExplorerProps> = ({
             return (
               <div
                 key={disease.id}
-                className={`group app-card border rounded-2xl p-3.5 sm:p-4 transition-all duration-200 bg-slate-900/90 text-white shadow-sm hover:shadow-md app-border hover:border-sky-500/40 ${
+                className={`group app-card border rounded-2xl p-3 sm:p-3.5 transition-all duration-200 bg-slate-900/90 text-white shadow-sm hover:shadow-md app-border hover:border-sky-500/40 ${
                   completed ? 'border-emerald-500/40 ring-1 ring-emerald-500/20' : ''
                 }`}
               >
-                {/* Card Top Row */}
                 <div className="flex items-start justify-between gap-3">
-                  <div
-                    onClick={handleCardClick}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleCardClick();
-                      }
-                    }}
-                    className="space-y-1 min-w-0 flex-1 cursor-pointer text-left"
-                    dir="ltr"
-                  >
+                  <div className="space-y-1 min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="inline-flex text-[10px] px-2 py-0.5 rounded-md bg-teal-500/15 text-teal-300 border border-teal-500/30 font-mono">
                         {category.name[language] || category.name.en}
                       </span>
 
-                      {/* Prominent Triage Badge if scenario exists */}
                       {hasTriage && (
-                        <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold shadow-xs animate-pulse">
+                        <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold shadow-xs">
                           <Stethoscope className="w-3 h-3 text-emerald-400" />
-                          <span>{isFa ? '🩺 تریاژ بالینی' : '🩺 Clinical Triage'}</span>
+                          <span>{isFa ? 'تریاژ دارد' : 'Triage available'}</span>
                         </span>
                       )}
                     </div>
 
-                    <h3 className="font-bold text-sm sm:text-base text-white group-hover:text-sky-300 transition leading-snug pt-0.5">
-                      {disease.name.en}
+                    <h3 className="font-bold text-sm sm:text-base text-white group-hover:text-sky-300 transition leading-snug pt-0.5" dir={isFa ? 'rtl' : 'ltr'}>
+                      {disease.name[language] || disease.name.en}
                     </h3>
-                    <p className="text-xs sm:text-sm app-text text-right" dir="rtl">
-                      {disease.name.fa}
-                    </p>
+                    {isFa && disease.name.en && <p className="text-[11px] app-muted" dir="ltr">{disease.name.en}</p>}
                   </div>
 
                   <StudyStatusBadge
@@ -303,54 +301,30 @@ export const UnifiedDiseaseExplorer: React.FC<UnifiedDiseaseExplorerProps> = ({
                   />
                 </div>
 
-                {/* Overview Text */}
-                <p
-                  onClick={handleCardClick}
-                  role="button"
-                  tabIndex={0}
-                  className="text-[11px] app-muted line-clamp-2 leading-relaxed mt-2 cursor-pointer hover:text-slate-200 transition"
-                >
-                  {disease.overview[language] || disease.overview.en}
-                </p>
-
-                {/* Bottom Action Bar */}
-                <div className="pt-3 border-t border-slate-800 flex items-center justify-between gap-2 mt-3">
+                <div className={`grid gap-2 pt-3 border-t border-slate-800 mt-3 ${hasTriage && firstScenario ? 'grid-cols-2' : 'grid-cols-1'}`}>
                   <button
                     type="button"
                     onClick={handleCardClick}
-                    className="text-sky-400 hover:text-sky-300 font-bold flex items-center gap-1.5 text-[11px] cursor-pointer"
+                    className="min-w-0 px-3 py-2 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/25 font-bold flex items-center justify-center gap-1.5 text-[11px] transition cursor-pointer"
                   >
                     <BookOpen className="w-3.5 h-3.5" />
-                    <span>{isFa ? 'مطالعه ۳ فازی بیماری' : 'Study Monograph'}</span>
+                    <span>{isFa ? 'مطالعه راهنما' : 'Open guide'}</span>
                   </button>
 
-                  <div className="flex items-center gap-2">
-                    {hasTriage && firstScenario && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          haptic.medium();
-                          onStartTriageForDisease(disease, firstScenario);
-                        }}
-                        className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shadow-xs active:scale-95"
-                      >
-                        <Stethoscope className="w-3.5 h-3.5" />
-                        <span>{isFa ? 'شروع تریاژ' : 'Start Triage'}</span>
-                        <ArrowRight className="w-3 h-3 rtl:rotate-180" />
-                      </button>
-                    )}
-
-                    {!hasTriage && (
-                      <button
-                        type="button"
-                        onClick={handleCardClick}
-                        className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
-                      >
-                        <span>{isFa ? 'مشاهده جزئیات' : 'Details'}</span>
-                        <ArrowRight className="w-3 h-3 rtl:rotate-180" />
-                      </button>
-                    )}
-                  </div>
+                  {hasTriage && firstScenario && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        haptic.medium();
+                        onStartTriageForDisease(disease, firstScenario);
+                      }}
+                      className="min-w-0 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs active:scale-95"
+                    >
+                      <Stethoscope className="w-3.5 h-3.5" />
+                      <span>{isFa ? 'شروع تریاژ' : 'Start triage'}</span>
+                      <ArrowRight className="w-3 h-3 rtl:rotate-180" />
+                    </button>
+                  )}
                 </div>
               </div>
             );

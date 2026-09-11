@@ -5,8 +5,7 @@ import { Language } from '@/types/pharmacy';
 import { Scenario, ConversationMode } from '@/data/otcScenarios';
 import { Layers, Search, Stethoscope } from 'lucide-react';
 import { ScenarioListAccordion, cleanLocalizedText } from './ScenarioListAccordion';
-import { ScenarioModeSelector } from './ScenarioModeSelector';
-import { ModuleSearchField, StageEnterButton, StageSelectorCard } from '@/components/ui';
+import { ModuleSearchField } from '@/components/ui';
 
 interface ModeSelectorBarProps {
   language: Language;
@@ -18,8 +17,6 @@ interface ModeSelectorBarProps {
   filteredScenarios: Scenario[];
   scenarioSearchTerm: string;
   setScenarioSearchTerm: (term: string) => void;
-  isAccordionOpen: boolean;
-  setIsAccordionOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isBrowseOpen: boolean;
   setIsBrowseOpen: React.Dispatch<React.SetStateAction<boolean>>;
   modeACount: number;
@@ -37,8 +34,6 @@ export const ModeSelectorBar: React.FC<ModeSelectorBarProps> = ({
   filteredScenarios,
   scenarioSearchTerm,
   setScenarioSearchTerm,
-  isAccordionOpen,
-  setIsAccordionOpen,
   isBrowseOpen,
   setIsBrowseOpen,
   modeACount,
@@ -46,123 +41,97 @@ export const ModeSelectorBar: React.FC<ModeSelectorBarProps> = ({
   modeCCount,
 }) => {
   const isFa = language === 'fa';
-  const isSearching = !!scenarioSearchTerm.trim();
-  const browseOpen = isBrowseOpen && !isSearching;
   const getCleanTitle = (sc: Scenario) =>
     isFa ? cleanLocalizedText(sc.title.fa || sc.title.en, true) : sc.title.en;
   const getCleanCategory = (sc: Scenario) =>
     isFa ? cleanLocalizedText(sc.category.fa || sc.category.en, true) : sc.category.en;
 
+  const modes: Array<{ id: ConversationMode | 'ALL'; fa: string; en: string; count: number }> = [
+    { id: 'ALL', fa: 'همه', en: 'All', count: modeACount + modeBCount + modeCCount },
+    { id: 'MODE_B_SLANG', fa: 'OTC', en: 'OTC', count: modeBCount },
+    { id: 'MODE_A_ADMIN', fa: 'اداری', en: 'Admin', count: modeACount },
+    { id: 'MODE_C_CONFLICT', fa: 'اخلاق', en: 'Ethics', count: modeCCount },
+  ];
+
   return (
-    <div className="app-card border app-border rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
-      {/* 1. TOP HEADER ROW: Module Brand */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b app-border pb-2.5">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-cyan-600 via-sky-600 to-indigo-600 flex items-center justify-center text-white shadow-sm shrink-0 border border-sky-400/30">
-            <Stethoscope className="w-4 h-4 text-cyan-200" />
+    <section
+      className="app-card border app-border rounded-2xl p-3 sm:p-4 shadow-sm space-y-3"
+      aria-label={isFa ? 'انتخاب سناریوی تریاژ' : 'Triage scenario selection'}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-500 border border-sky-500/30 flex items-center justify-center shrink-0">
+            <Stethoscope className="w-4 h-4" />
           </div>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-sm sm:text-base font-black app-text tracking-tight">
-                {isFa
-                  ? 'ماژول ۱: تریاژ بالینی و سناریوهای مشاوره‌ای OTC'
-                  : 'Module 1: Clinical OTC Triage & Consultations'}
-              </h2>
-              <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-mono font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">
-                {selectedConversationMode === 'ALL'
-                  ? isFa ? 'همه دسته‌ها' : 'All Modes'
-                  : selectedConversationMode === 'MODE_A_ADMIN'
-                    ? isFa ? 'روتین و اداری' : 'Admin Mode'
-                    : selectedConversationMode === 'MODE_B_SLANG'
-                      ? isFa ? 'عامیانه و OTC' : 'OTC Mode'
-                      : isFa ? 'تعارض و اخلاق' : 'Conflict Mode'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <ModuleSearchField
-        value={scenarioSearchTerm}
-        onChange={setScenarioSearchTerm}
-        language={language}
-        placeholder={{
-          fa: 'جستجوی سناریو، نام بیمار، شرح مراجعه یا دسته‌بندی...',
-          en: 'Search scenarios, patient names, presentations or categories...',
-        }}
-      />
-
-      {!browseOpen ? (
-        <StageSelectorCard
-          icon={Layers}
-          title={{ fa: 'انتخاب سناریو و حالت مشاوره', en: 'Select Scenario and Consultation Mode' }}
-          subtitleEn="Choose a consultation mode and scenario"
-          changeLabel={{ fa: 'تغییر انتخاب', en: 'Change Selection' }}
-          isOpen
-          onToggle={() => setIsBrowseOpen(true)}
-          language={language}
-        >
-          <div className="space-y-2.5">
-            <ScenarioModeSelector
-              selectedMode={selectedConversationMode}
-              onSelectMode={onSelectMode}
-              language={language}
-              modeACount={modeACount}
-              modeBCount={modeBCount}
-              modeCCount={modeCCount}
-            />
-            <ScenarioListAccordion
-              scenario={scenario}
-              filteredScenarios={filteredScenarios}
-              selectedScenarioId={selectedScenarioId}
-              onSelectScenario={onSelectScenario}
-              isOpen={isAccordionOpen || isSearching}
-              onToggleOpen={() => setIsAccordionOpen((prev) => !prev)}
-              language={language}
-            />
-          </div>
-
-          <StageEnterButton
-            icon={Layers}
-            label={{ fa: '✨ مشاهده و مطالعه سناریو (View Scenario)', en: '✨ View & Study Scenario' }}
-            onClick={() => setIsBrowseOpen(true)}
-            language={language}
-          />
-        </StageSelectorCard>
-      ) : (
-        <div className="app-card border border-teal-500/30 rounded-2xl p-3.5 sm:p-4 shadow-sm bg-gradient-to-b from-slate-900/90 to-slate-950/80 space-y-2.5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-slate-800/80">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-md bg-teal-500/20 text-teal-300 border border-teal-500/30">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-sky-500/15 text-sky-600 dark:text-sky-300 border border-sky-500/30">
                 {getCleanCategory(scenario)}
               </span>
-              <span className="text-xs font-mono font-bold text-slate-400">
-                ID: {scenario.id}
+              <span className="text-[10px] app-muted">
+                {isFa ? `${modeACount + modeBCount + modeCCount} سناریو` : `${modeACount + modeBCount + modeCCount} scenarios`}
               </span>
             </div>
-
-            <button
-              type="button"
-              onClick={() => setIsBrowseOpen(false)}
-              className="self-start sm:self-auto px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shrink-0"
-            >
-              <Search className="w-3.5 h-3.5 text-teal-400" />
-              <span>{isFa ? 'تغییر سناریو و فهرست' : 'Change Scenario'}</span>
-            </button>
-          </div>
-
-          <div className="w-full space-y-1">
-            <h2 className="text-sm sm:text-base font-black text-white leading-relaxed">
-              {getCleanTitle(scenario)}
-            </h2>
-            {isFa && scenario.title.en && (
-              <p className="text-xs text-teal-400/90 font-mono leading-relaxed" dir="ltr">
-                {scenario.title.en}
-              </p>
-            )}
+            <h2 className="text-xs sm:text-sm font-black app-text truncate mt-1">{getCleanTitle(scenario)}</h2>
           </div>
         </div>
+        <button
+          type="button"
+          onClick={() => setIsBrowseOpen((open) => !open)}
+          aria-expanded={isBrowseOpen}
+          className="shrink-0 px-2.5 py-1.5 rounded-xl border border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20 text-sky-700 dark:text-sky-300 text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer"
+        >
+          {isBrowseOpen ? <Layers className="w-3.5 h-3.5" /> : <Search className="w-3.5 h-3.5" />}
+          <span>{isBrowseOpen ? (isFa ? 'بستن فهرست' : 'Close list') : (isFa ? 'تغییر سناریو' : 'Change scenario')}</span>
+        </button>
+      </div>
+
+      {isBrowseOpen && (
+        <div className="space-y-3 pt-3 border-t app-border animate-fadeIn">
+          <ModuleSearchField
+            value={scenarioSearchTerm}
+            onChange={setScenarioSearchTerm}
+            language={language}
+            placeholder={{
+              fa: 'جستجوی سناریو، بیمار یا شرح مراجعه…',
+              en: 'Search scenarios, patients or presentations…',
+            }}
+          />
+
+          <div className="grid grid-cols-4 gap-1.5" role="group" aria-label={isFa ? 'دستهٔ سناریو' : 'Scenario mode'}>
+            {modes.map((mode) => {
+              const selected = selectedConversationMode === mode.id;
+              return (
+                <button
+                  key={mode.id}
+                  type="button"
+                  onClick={() => onSelectMode(mode.id)}
+                  aria-pressed={selected}
+                  className={`min-w-0 rounded-xl border px-2 py-2 text-[10px] sm:text-[11px] font-bold transition cursor-pointer ${
+                    selected
+                      ? 'bg-sky-600 text-white border-sky-500 shadow-sm'
+                      : 'app-bg app-muted app-border hover:app-text hover:border-sky-500/40'
+                  }`}
+                >
+                  <span className="block truncate">{isFa ? mode.fa : mode.en}</span>
+                  <span className="block mt-0.5 text-[9px] font-mono opacity-80">{mode.count}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <ScenarioListAccordion
+            scenario={scenario}
+            filteredScenarios={filteredScenarios}
+            selectedScenarioId={selectedScenarioId}
+            onSelectScenario={onSelectScenario}
+            isOpen
+            onToggleOpen={() => setIsBrowseOpen(false)}
+            showTrigger={false}
+            language={language}
+          />
+        </div>
       )}
-    </div>
+    </section>
   );
 };
