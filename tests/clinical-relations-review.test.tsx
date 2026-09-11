@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ClinicalRelationsPanel } from '@/components/ClinicalRelationsPanel';
 import { ClinicalRelationsReviewPanel } from '@/components/ClinicalRelationsReviewPanel';
 import { CLINICAL_RELATIONS } from '@/data/clinicalRegistry';
@@ -34,12 +34,16 @@ describe('clinical relation review UI', () => {
     }));
   });
 
-  it('keeps the clinical connections panel safe for narrow mobile widths', () => {
+  it('labels an accepted suggested connection and never calls it verified', async () => {
     expect(suggested).toBeTruthy();
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: 360, writable: true });
     const { container } = render(<ClinicalRelationsPanel entityId={suggested!.fromId} language="en" />);
+    expect(container.querySelector('section')).toBeInTheDocument();
+    expect(screen.queryByText('Suggested relation')).not.toBeInTheDocument();
+
+    act(() => saveClinicalRelationReview(suggested!.id, 'accepted'));
+    await waitFor(() => expect(screen.getByText('Approved in review')).toBeInTheDocument());
     const section = container.querySelector('section');
-    expect(section).toBeInTheDocument();
     expect(section?.className).toContain('overflow-hidden');
     expect(container.querySelector('.min-w-0')).toBeInTheDocument();
     expect(container.querySelector('.shrink-0')).toBeInTheDocument();

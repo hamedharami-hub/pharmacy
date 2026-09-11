@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
-import { ArrowUpRight, ChevronDown, Link2, Lightbulb, ShieldCheck } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ArrowUpRight, ChevronDown, Link2, ShieldCheck } from 'lucide-react';
 import {
   ClinicalRelation,
   getClinicalEntity,
@@ -9,6 +9,11 @@ import {
 } from '@/data/clinicalRegistry';
 import { Language } from '@/types/pharmacy';
 import { ClinicalGraphPanel } from './ClinicalGraphPanel';
+import {
+  ClinicalRelationReviewMap,
+  getClinicalRelationReviewEventName,
+  getClinicalRelationReviews,
+} from '@/lib/clinicalRelationReview';
 
 interface ClinicalRelationsPanelProps {
   entityId: string;
@@ -21,9 +26,8 @@ interface ClinicalRelationsPanelProps {
 const labels = {
   fa: {
     title: 'ارتباطات بالینی',
-    subtitle: 'بیماری، دارو و تریاژ مرتبط',
+    subtitle: 'پیوندهای مرتبط و قابل اتکا',
     verified: 'ارتباط تأییدشده',
-    suggested: 'ارتباط پیشنهادی',
     triage: 'سناریوی تریاژ',
     product: 'محصول Shelf',
     disease: 'بیماری',
@@ -31,14 +35,12 @@ const labels = {
     mechanism: 'مکانیسم دارویی',
     medicine: 'دارو',
     open: 'باز کردن',
-    review: 'برای بررسی بالینی پیشنهاد شده',
-    empty: 'هنوز ارتباطی برای این مورد ثبت نشده است.',
+    accepted: 'تأییدشده در بازبینی',
   },
   en: {
     title: 'Clinical connections',
-    subtitle: 'Related disease, medicine and triage content',
+    subtitle: 'Reliable related learning links',
     verified: 'Verified relation',
-    suggested: 'Suggested relation',
     triage: 'Triage scenario',
     product: 'Shelf product',
     disease: 'Disease',
@@ -46,8 +48,7 @@ const labels = {
     mechanism: 'Drug mechanism',
     medicine: 'Medicine',
     open: 'Open',
-    review: 'Suggested for clinical review',
-    empty: 'No connections have been registered for this item yet.',
+    accepted: 'Approved in review',
   },
 } as const;
 
@@ -62,9 +63,19 @@ function relationLabel(type: string, language: Language) {
 
 export function ClinicalRelationsPanel({ entityId, language, onOpenTriage, onOpenDisease, onOpenEntity }: ClinicalRelationsPanelProps) {
   const [expanded, setExpanded] = useState(true);
+  const [reviews, setReviews] = useState<ClinicalRelationReviewMap>({});
   const isFa = language === 'fa';
   const text = isFa ? labels.fa : labels.en;
-  const relations = useMemo(() => getClinicalRelations(entityId), [entityId]);
+  useEffect(() => {
+    const refresh = () => setReviews(getClinicalRelationReviews());
+    refresh();
+    window.addEventListener(getClinicalRelationReviewEventName(), refresh);
+    return () => window.removeEventListener(getClinicalRelationReviewEventName(), refresh);
+  }, []);
+  const relations = useMemo(
+    () => getClinicalRelations(entityId).filter((relation) => relation.confidence === 'verified' || reviews[relation.id] === 'accepted'),
+    [entityId, reviews]
+  );
   const visibleRelations = relations.slice(0, 12);
 
   if (relations.length === 0) return null;
@@ -100,19 +111,19 @@ export function ClinicalRelationsPanel({ entityId, language, onOpenTriage, onOpe
             const entity = getClinicalEntity(relatedId);
             if (!entity) return null;
             const title = isFa ? entity.title.fa : entity.title.en;
-            const isSuggested = relation.confidence === 'suggested';
+            const isAcceptedSuggestion = relation.confidence === 'suggested';
             const isTriage = entity.type === 'triage-scenario';
             const isDisease = entity.type === 'disease';
             return (
               <div key={relation.id} className="flex items-start gap-2 rounded-xl app-bg border app-border px-2.5 py-2.5">
-                <span className={`mt-0.5 w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${isSuggested ? 'bg-amber-500/15 text-amber-600 dark:text-amber-300' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300'}`}>
-                  {isSuggested ? <Lightbulb className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+                <span className={`mt-0.5 w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${isAcceptedSuggestion ? 'bg-sky-500/15 text-sky-600 dark:text-sky-300' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300'}`}>
+                  <ShieldCheck className="w-3.5 h-3.5" />
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-1.5">
                     <span className="text-[10px] font-bold text-violet-700 dark:text-violet-300">{relationLabel(relation.type, language)}</span>
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full border font-bold ${isSuggested ? 'text-amber-700 dark:text-amber-300 border-amber-500/30 bg-amber-500/10' : 'text-emerald-700 dark:text-emerald-300 border-emerald-500/30 bg-emerald-500/10'}`}>
-                      {isSuggested ? text.suggested : text.verified}
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full border font-bold ${isAcceptedSuggestion ? 'text-sky-700 dark:text-sky-300 border-sky-500/30 bg-sky-500/10' : 'text-emerald-700 dark:text-emerald-300 border-emerald-500/30 bg-emerald-500/10'}`}>
+                      {isAcceptedSuggestion ? text.accepted : text.verified}
                     </span>
                   </div>
                   {onOpenEntity ? (
@@ -120,7 +131,6 @@ export function ClinicalRelationsPanel({ entityId, language, onOpenTriage, onOpe
                   ) : (
                     <div className="text-xs sm:text-sm font-black app-text leading-snug mt-0.5" dir="auto">{title}</div>
                   )}
-                  {isSuggested && <div className="text-[10px] text-amber-700/80 dark:text-amber-200/70 mt-1">{relation.reason || text.review}</div>}
                 </div>
                 {isTriage && onOpenTriage && (
                   <button
