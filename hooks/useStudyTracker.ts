@@ -13,6 +13,7 @@ import {
   saveLocalStudyState,
   DEFAULT_USER_STUDY_STATE,
   calculateTrackProgress,
+  STUDY_TRACKER_STORAGE_KEY,
 } from '@/lib/studyTracker';
 import { FlagColor } from '@/types/pharmacy';
 import { User, saveUserDataToFirestore } from '@/lib/firebase';
@@ -65,6 +66,30 @@ export function useStudyTracker({ user, initialCloudState }: UseStudyTrackerProp
       return newState;
     });
   }, [initialCloudState, isLoaded]);
+
+  // 3. Multi-tab synchronization via window 'storage' event
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === STUDY_TRACKER_STORAGE_KEY && e.newValue) {
+        try {
+          const freshState = JSON.parse(e.newValue) as UserStudyState;
+          if (freshState && typeof freshState === 'object') {
+            setStudyState((prev) => {
+              if (freshState.updatedAt && prev.updatedAt && freshState.updatedAt <= prev.updatedAt) {
+                return prev;
+              }
+              return freshState;
+            });
+          }
+        } catch {
+          // Ignore parse errors from concurrent writes
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {

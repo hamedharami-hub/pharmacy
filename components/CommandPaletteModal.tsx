@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useDeferredValue } from 'react';
 import {
   Search,
   BookOpen,
@@ -167,9 +167,11 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
     [onSelectModule, onOpenAiTutor, onOpenSettings, onClose]
   );
 
+  const deferredQuery = useDeferredValue(query);
+
   // Search Results Filtering
   const filteredResults = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = deferredQuery.trim().toLowerCase();
     if (!q) {
       return quickActions;
     }
@@ -205,11 +207,11 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
     }));
 
     return [...matchedActions, ...matchedCards];
-  }, [query, quickActions, onSelectModule, onSelectCard, onClose]);
+  }, [deferredQuery, quickActions, onSelectModule, onSelectCard, onClose]);
 
   const clinicalResults = useMemo(() => {
-    if (!query.trim()) return [];
-    return searchClinicalEntities(query, 18).map((entity) => ({
+    if (!deferredQuery.trim()) return [];
+    return searchClinicalEntities(deferredQuery, 18).map((entity) => ({
       id: `clinical:${entity.id}`,
       type: 'clinical' as const,
       title: entity.title,
@@ -221,9 +223,36 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         onClose();
       },
     }));
-  }, [query, onSelectClinicalEntity, onClose]);
+  }, [deferredQuery, onSelectClinicalEntity, onClose]);
 
-  const resultsWithClinical = query.trim() ? [...filteredResults, ...clinicalResults] : filteredResults;
+  const resultsWithClinical = useMemo(() => {
+    if (!deferredQuery.trim()) return quickActions;
+
+    const seenTitles = new Set<string>();
+    const deduplicated: Array<(typeof filteredResults)[0] | (typeof clinicalResults)[0]> = [];
+
+    // Prioritize Actions and Specific Cards
+    filteredResults.forEach((item) => {
+      const key = `${item.title.en.toLowerCase()}|${item.category.en.toLowerCase()}`;
+      if (!seenTitles.has(key)) {
+        seenTitles.add(key);
+        deduplicated.push(item);
+      }
+    });
+
+    // Add unique clinical results
+    clinicalResults.forEach((item) => {
+      const key = `${item.title.en.toLowerCase()}|${item.category.en.toLowerCase()}`;
+      const titleKey = item.title.en.toLowerCase();
+      if (!seenTitles.has(key) && !seenTitles.has(titleKey)) {
+        seenTitles.add(key);
+        seenTitles.add(titleKey);
+        deduplicated.push(item);
+      }
+    });
+
+    return deduplicated;
+  }, [deferredQuery, quickActions, filteredResults, clinicalResults]);
 
   // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {

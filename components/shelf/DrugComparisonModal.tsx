@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Product, CalLabelInfo } from '@/types/shelf';
 import { getCalLabelInfo } from '@/data/shelf/calLabels';
 import { Language } from '@/types/pharmacy';
-import { Scale, ShieldAlert, CheckCircle2, ArrowLeftRight, Trash2 } from 'lucide-react';
+import { Scale, ShieldAlert, CheckCircle2, ArrowLeftRight, Trash2, AlertTriangle, Zap } from 'lucide-react';
+import { COMMON_PAIR_INTERACTIONS } from '@/data/cypInteractionsData';
 
 interface DrugComparisonModalProps {
   isCompareModalOpen: boolean;
@@ -92,8 +93,108 @@ export const DrugComparisonModal: React.FC<DrugComparisonModalProps> = ({
   onClose,
   onToggleProduct,
 }) => {
-  if (!isCompareModalOpen) return null;
   const isFa = language === 'fa';
+
+  const detectedInteractions = useMemo(() => {
+    if (!isCompareModalOpen || selectedCompareIds.length < 2) return [];
+
+    const selectedProds = selectedCompareIds
+      .map((id) => products.find((p) => p.id === id))
+      .filter((p): p is Product => Boolean(p));
+
+    const alerts: {
+      id: string;
+      type: 'critical' | 'high' | 'moderate';
+      title: { fa: string; en: string };
+      description: { fa: string; en: string };
+      action: { fa: string; en: string };
+    }[] = [];
+
+    // 1. Cross-check with COMMON_PAIR_INTERACTIONS from CYP database
+    for (let i = 0; i < selectedProds.length; i++) {
+      for (let j = i + 1; j < selectedProds.length; j++) {
+        const p1 = selectedProds[i];
+        const p2 = selectedProds[j];
+        const names1 = `${p1.genericName} ${p1.brandName} ${p1.activeIngredients}`.toLowerCase();
+        const names2 = `${p2.genericName} ${p2.brandName} ${p2.activeIngredients}`.toLowerCase();
+
+        COMMON_PAIR_INTERACTIONS.forEach((pair) => {
+          const dA = pair.drugA.toLowerCase();
+          const dB = pair.drugB.toLowerCase();
+          if (
+            (names1.includes(dA) && names2.includes(dB)) ||
+            (names1.includes(dB) && names2.includes(dA))
+          ) {
+            alerts.push({
+              id: `cyp-${pair.drugA}-${pair.drugB}`,
+              type: pair.severity,
+              title: { fa: pair.titleFa, en: pair.titleEn },
+              description: { fa: pair.clinicalOutcomeFa, en: pair.clinicalOutcomeEn },
+              action: { fa: pair.managementFa, en: pair.managementEn },
+            });
+          }
+        });
+      }
+    }
+
+    // 2. Dual Systemic NSAID Toxicity Check
+    const nsaidProds = selectedProds.filter((p) => {
+      const g = p.genericName.toLowerCase();
+      return (
+        g.includes('ibuprofen') ||
+        g.includes('diclofenac') ||
+        g.includes('naproxen') ||
+        g.includes('celecoxib') ||
+        g.includes('meloxicam') ||
+        g.includes('indomethacin')
+      );
+    });
+    if (nsaidProds.length >= 2) {
+      alerts.push({
+        id: 'ddi-dual-nsaid',
+        type: 'critical',
+        title: {
+          fa: 'تداخل تجمیعی NSAIDها (منع مصرف همزمان دو ضدالتهاب غیراستروئیدی)',
+          en: 'Duplicate Systemic NSAID Toxicity (Contraindicated)',
+        },
+        description: {
+          fa: 'مصرف همزمان دو داروی NSAID اثر ضددردی بیشتری ایجاد نمی‌کند اما خطر اولسر گوارشی، خونریزی معده و افت حاد عملکرد کلیه را به صورت تصاعدی بالا می‌برد.',
+          en: 'Concurrent use of two systemic NSAIDs increases GI ulceration, bleeding, and nephrotoxicity without therapeutic gain.',
+        },
+        action: {
+          fa: 'تنها یک NSAID با کمترین دوز موثر انتخاب شود؛ در صورت نیاز به تسکین بیشتر، پاراستامول اضافه گردد.',
+          en: 'Use only one NSAID at lowest effective dose; add paracetamol if extra analgesia needed.',
+        },
+      });
+    }
+
+    // 3. Additive Sedation Check (Dual CAL 1 / CAL 2)
+    const sedativeProds = selectedProds.filter((p) =>
+      p.calLabels.some((l) => l.includes('1') || l.includes('2'))
+    );
+    if (sedativeProds.length >= 2) {
+      alerts.push({
+        id: 'ddi-dual-sedation',
+        type: 'high',
+        title: {
+          fa: 'اثر خواب‌آلودگی تجمیعی (برچسب‌های هشدار CAL 1 / CAL 2)',
+          en: 'Additive CNS Depression & Drowsiness Warning (CAL 1/2)',
+        },
+        description: {
+          fa: 'ترکیب این داروها خواب‌آلودگی، اختلال در رانندگی و هماهنگی حرکتی را به شدت تشدید می‌کند.',
+          en: 'Concurrent use compounds sedation, psychomotor impairment, and driving hazards.',
+        },
+        action: {
+          fa: 'بیمار اکیداً از رانندگی، کار با ماشین‌آلات و مصرف الکل منع شود.',
+          en: 'Strictly counsel against driving, operating heavy machinery, and alcohol consumption.',
+        },
+      });
+    }
+
+    return alerts;
+  }, [isCompareModalOpen, selectedCompareIds, products]);
+
+  if (!isCompareModalOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-fadeIn">
@@ -115,6 +216,48 @@ export const DrugComparisonModal: React.FC<DrugComparisonModalProps> = ({
             ✕ {isFa ? 'بستن' : 'Close'}
           </button>
         </div>
+
+        {/* Automated Drug-Drug & CYP Interaction Alerts Banner */}
+        {detectedInteractions.length > 0 && (
+          <div className="space-y-2 shrink-0">
+            {detectedInteractions.map((alert) => (
+              <div
+                key={alert.id}
+                className={`p-3 rounded-xl border flex items-start gap-2.5 text-xs ${
+                  alert.type === 'critical'
+                    ? 'bg-rose-950/60 border-rose-500/60 text-rose-200'
+                    : 'bg-amber-950/50 border-amber-500/50 text-amber-200'
+                }`}
+              >
+                <AlertTriangle
+                  className={`w-4 h-4 shrink-0 mt-0.5 ${
+                    alert.type === 'critical' ? 'text-rose-400' : 'text-amber-400'
+                  }`}
+                />
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold">{isFa ? alert.title.fa : alert.title.en}</span>
+                    <span
+                      className={`text-[9px] font-mono px-1.5 py-0.2 rounded uppercase font-bold ${
+                        alert.type === 'critical'
+                          ? 'bg-rose-500/30 text-rose-200'
+                          : 'bg-amber-500/30 text-amber-200'
+                      }`}
+                    >
+                      {alert.type}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-300">
+                    {isFa ? alert.description.fa : alert.description.en}
+                  </p>
+                  <p className="text-[11px] font-semibold text-emerald-300">
+                    ⚡ {isFa ? `اقدام داروساز: ${alert.action.fa}` : `Pharmacist Action: ${alert.action.en}`}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Australian Brand Substitution & Bioequivalence Protocol Banner */}
         <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-500/30 text-amber-200 text-xs flex items-start gap-2.5 shrink-0">

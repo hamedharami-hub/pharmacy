@@ -450,7 +450,8 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
 
         if (!matchesText) return false;
 
-        if (searchDomainScope !== 'ALL' && prod.domainId !== searchDomainScope) return false;
+        const prodDomain = prod.domainId || prod.categoryId;
+        if (searchDomainScope !== 'ALL' && prodDomain !== searchDomainScope) return false;
         if (searchSubCatScope !== 'ALL' && prod.subcategoryId !== searchSubCatScope) return false;
 
         return true;
@@ -461,7 +462,8 @@ export const ProductShelfModule: React.FC<ProductShelfModuleProps> = ({
         activeScheduleTags.length > 0 || activeCalTags.length > 0 || activeSafetyTags.length > 0;
 
       if (!hasActiveTagFilters) {
-        if (prod.domainId && prod.domainId !== selectedDomainId) return false;
+        const prodDomain = prod.domainId || prod.categoryId;
+        if (prodDomain && prodDomain !== selectedDomainId) return false;
         if (selectedSubCatId && prod.subcategoryId && prod.subcategoryId !== selectedSubCatId) {
           return false;
         }

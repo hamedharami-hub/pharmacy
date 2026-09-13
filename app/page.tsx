@@ -46,12 +46,30 @@ import { Footer } from '@/components/Footer';
 import { FolderOpen, Bot, Sparkles } from 'lucide-react';
 import { ClinicalSearchResult } from '@/lib/clinicalSearch';
 
-// Large learning modules are loaded only when a learner opens them.
-const OtcTriageModule = dynamic(() => import('@/components/OtcTriageModule').then((mod) => mod.OtcTriageModule));
-const ProductShelfModule = dynamic(() => import('@/components/ProductShelfModule').then((mod) => mod.ProductShelfModule));
-const FredDispenseModule = dynamic(() => import('@/components/FredDispenseModule').then((mod) => mod.FredDispenseModule));
-const ClinicalKnowledgeModule = dynamic(() => import('@/components/ClinicalKnowledgeModule').then((mod) => mod.ClinicalKnowledgeModule));
-const LearningToolsModule = dynamic(() => import('@/components/LearningToolsModule').then((mod) => mod.LearningToolsModule));
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ModuleLoadingSkeleton } from '@/components/ui/ModuleLoadingSkeleton';
+
+// Large learning modules are loaded only when a learner opens them with smooth shimmer skeletons
+const OtcTriageModule = dynamic(
+  () => import('@/components/OtcTriageModule').then((mod) => mod.OtcTriageModule),
+  { loading: () => <ModuleLoadingSkeleton /> }
+);
+const ProductShelfModule = dynamic(
+  () => import('@/components/ProductShelfModule').then((mod) => mod.ProductShelfModule),
+  { loading: () => <ModuleLoadingSkeleton /> }
+);
+const FredDispenseModule = dynamic(
+  () => import('@/components/FredDispenseModule').then((mod) => mod.FredDispenseModule),
+  { loading: () => <ModuleLoadingSkeleton /> }
+);
+const ClinicalKnowledgeModule = dynamic(
+  () => import('@/components/ClinicalKnowledgeModule').then((mod) => mod.ClinicalKnowledgeModule),
+  { loading: () => <ModuleLoadingSkeleton /> }
+);
+const LearningToolsModule = dynamic(
+  () => import('@/components/LearningToolsModule').then((mod) => mod.LearningToolsModule),
+  { loading: () => <ModuleLoadingSkeleton /> }
+);
 const TextSelectionLeitnerTrigger = dynamic(
   () => import('@/components/TextSelectionLeitnerTrigger').then((mod) => mod.TextSelectionLeitnerTrigger),
   { ssr: false }
@@ -812,101 +830,103 @@ export default function Home() {
 
         {/* Dynamic Main Module View Router */}
         <div className="contents">
-        {activeMainModule === 1 && (
-          <OtcTriageModule
-            language={language}
-            targetContext={triageTargetContext}
-            onClearTargetContext={() => setTriageTargetContext(null)}
-            onNavigateToModule={handleNavigateToModule}
-            onNavigateToFred={() => setActiveMainModule(3)}
-            onOpenAiLeitner={handleOpenAiLeitner}
-          />
-        )}
+          <ErrorBoundary isFa={language === 'fa'}>
+            {activeMainModule === 1 && (
+              <OtcTriageModule
+                language={language}
+                targetContext={triageTargetContext}
+                onClearTargetContext={() => setTriageTargetContext(null)}
+                onNavigateToModule={handleNavigateToModule}
+                onNavigateToFred={() => setActiveMainModule(3)}
+                onOpenAiLeitner={handleOpenAiLeitner}
+              />
+            )}
 
-        {activeMainModule === 2 && (
-          <ProductShelfModule
-            language={language}
-            targetContext={shelfTargetContext}
-            onClearTargetContext={() => setShelfTargetContext(null)}
-            onNavigateToModule={handleNavigateToModule}
-            onOpenAiLeitner={handleOpenAiLeitner}
-          />
-        )}
+            {activeMainModule === 2 && (
+              <ProductShelfModule
+                language={language}
+                targetContext={shelfTargetContext}
+                onClearTargetContext={() => setShelfTargetContext(null)}
+                onNavigateToModule={handleNavigateToModule}
+                onOpenAiLeitner={handleOpenAiLeitner}
+              />
+            )}
 
-        {activeMainModule === 3 && (
-          <FredDispenseModule
-            language={language}
-            onNavigateToModule={handleNavigateToModule}
-          />
-        )}
+            {activeMainModule === 3 && (
+              <FredDispenseModule
+                language={language}
+                onNavigateToModule={handleNavigateToModule}
+              />
+            )}
 
-        {activeMainModule === 4 && (
-          <ClinicalKnowledgeModule
-            language={language}
-            activeModule={activeModule}
-            onSelectModule={handleSelectClinicalModule}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            activeCategory={activeCategory}
-            onSelectCategory={setActiveCategory}
-            flagFilter={flagFilter}
-            onSelectFlagFilter={setFlagFilter}
-            activeMode={activeMode}
-            flags={flags}
-            deleted={deleted}
-            customEdits={customEdits}
-            reviewedCards={reviewedCards}
-            savedNotes={savedNotes}
-            onToggleReview={handleToggleReview}
-            onSetFlag={handleSetFlag}
-            onEditCard={setEditingCardId}
-            onDeleteCard={handleDeleteCard}
-            onSaveNote={handleSaveNote}
-            onDeleteNote={handleDeleteNote}
-            layoutMode={layoutMode}
-            onNavigateToModule={handleNavigateToModule}
-            onOpenAiLeitner={handleOpenAiLeitner}
-          />
-        )}
+            {activeMainModule === 4 && (
+              <ClinicalKnowledgeModule
+                language={language}
+                activeModule={activeModule}
+                onSelectModule={handleSelectClinicalModule}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                activeCategory={activeCategory}
+                onSelectCategory={setActiveCategory}
+                flagFilter={flagFilter}
+                onSelectFlagFilter={setFlagFilter}
+                activeMode={activeMode}
+                flags={flags}
+                deleted={deleted}
+                customEdits={customEdits}
+                reviewedCards={reviewedCards}
+                savedNotes={savedNotes}
+                onToggleReview={handleToggleReview}
+                onSetFlag={handleSetFlag}
+                onEditCard={setEditingCardId}
+                onDeleteCard={handleDeleteCard}
+                onSaveNote={handleSaveNote}
+                onDeleteNote={handleDeleteNote}
+                layoutMode={layoutMode}
+                onNavigateToModule={handleNavigateToModule}
+                onOpenAiLeitner={handleOpenAiLeitner}
+              />
+            )}
 
-        {activeMainModule === 5 && (
-          <LearningToolsModule
-            language={language}
-            cards={leitnerCards}
-            initialTab={leitnerInitialTab}
-            onUpdateCards={handleSaveLeitnerCards}
-            onOpenAiLeitner={handleOpenAiLeitner}
-          />
-        )}
+            {activeMainModule === 5 && (
+              <LearningToolsModule
+                language={language}
+                cards={leitnerCards}
+                initialTab={leitnerInitialTab}
+                onUpdateCards={handleSaveLeitnerCards}
+                onOpenAiLeitner={handleOpenAiLeitner}
+              />
+            )}
 
-        {activeMainModule === 6 && (
-          <ClinicalKnowledgeModule
-            language={language}
-            activeModule="mod6"
-            onSelectModule={handleSelectClinicalModule}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            activeCategory={activeCategory}
-            onSelectCategory={setActiveCategory}
-            flagFilter={flagFilter}
-            onSelectFlagFilter={setFlagFilter}
-            activeMode={activeMode}
-            flags={flags}
-            deleted={deleted}
-            customEdits={customEdits}
-            reviewedCards={reviewedCards}
-            savedNotes={savedNotes}
-            onToggleReview={handleToggleReview}
-            onSetFlag={handleSetFlag}
-            onEditCard={setEditingCardId}
-            onDeleteCard={handleDeleteCard}
-            onSaveNote={handleSaveNote}
-            onDeleteNote={handleDeleteNote}
-            layoutMode={layoutMode}
-            onNavigateToModule={handleNavigateToModule}
-            onOpenAiLeitner={handleOpenAiLeitner}
-          />
-        )}
+            {activeMainModule === 6 && (
+              <ClinicalKnowledgeModule
+                language={language}
+                activeModule="mod6"
+                onSelectModule={handleSelectClinicalModule}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                activeCategory={activeCategory}
+                onSelectCategory={setActiveCategory}
+                flagFilter={flagFilter}
+                onSelectFlagFilter={setFlagFilter}
+                activeMode={activeMode}
+                flags={flags}
+                deleted={deleted}
+                customEdits={customEdits}
+                reviewedCards={reviewedCards}
+                savedNotes={savedNotes}
+                onToggleReview={handleToggleReview}
+                onSetFlag={handleSetFlag}
+                onEditCard={setEditingCardId}
+                onDeleteCard={handleDeleteCard}
+                onSaveNote={handleSaveNote}
+                onDeleteNote={handleDeleteNote}
+                layoutMode={layoutMode}
+                onNavigateToModule={handleNavigateToModule}
+                onOpenAiLeitner={handleOpenAiLeitner}
+              />
+            )}
+          </ErrorBoundary>
         </div>
       </main>
 
